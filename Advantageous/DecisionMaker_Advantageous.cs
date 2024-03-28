@@ -22,6 +22,9 @@ namespace RMUL
         // Update is called once per frame
         internal override Status Work()
         {
+            int c = 0;
+            foreach (var i in Controller.AttackDirs)
+                c += i > 0 ? 1 : 0;
             switch (State)
             {
                 case Status.Start:
@@ -46,11 +49,11 @@ namespace RMUL
                     }
                     else if (Controller.EnemyFind)
                         State = Status.Follow;
-                    if (Controller.AttackDirs.Count >= 2)
+                    if (c >= 2)
                         State = Status.Escape;
                     goto default;
                 case Status.Escape:
-                    if (Controller.AttackDirs.Count >= 2)
+                    if (c >= 2)
                         goto default;
                     else if (Controller.EnemyFind)
                         State = Status.Follow;

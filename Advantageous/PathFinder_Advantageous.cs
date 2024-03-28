@@ -138,8 +138,9 @@ namespace RMUL
                 case DecisionMaker.Status.Escape:
                     int i = LocationIndex();
                     List<int> dangrous = new();
-                    foreach (var k in Controller.AttackDirs)
-                        dangrous.AddRange(AreaConnect[i, k]);
+                    for (int k = 0; i < 4; i++)
+                        if (Controller.AttackDirs[k] > 0)
+                            dangrous.AddRange(AreaConnect[i, k]);
                     dangrous = dangrous.Distinct().ToList();
                     dangrous.Sort();
                     i = dangrous[1];
