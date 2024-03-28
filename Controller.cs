@@ -46,6 +46,8 @@ namespace RMUL
         public static float[] AttackDirs = new float[4];
         // Start is called before the first frame update
 
+        const int armor_id_offset = 0;
+        Vector3 chassisForward = new();
 
         ROSConnection ros;
 
@@ -73,6 +75,8 @@ namespace RMUL
                 else
                     EnemyPos = v + transform.position;
             });//是否找到敌人
+            ros.Subscribe(Head + "chassis_forward", (Vector3Msg msg) => chassisForward = new((float)msg.x, (float)msg.y, (float)msg.z));
+
             ros.Subscribe(Head + "lasted_time", (Float32Msg msg) => BeginTime = msg.data);//开局时间
             ros.Subscribe(Head + "hp", (Float32Msg msg) =>
             {
@@ -80,28 +84,15 @@ namespace RMUL
                     TotalResume += msg.data - Hp;
                 Hp = msg.data;
             });//血量
-            ros.Subscribe(Head + "bullet_count", (Float32Msg msg) => BulletCount = msg.data);//剩余弹量
+            ros.Subscribe(Head + "bullet_count", (Float32Msg msg) => BulletCount = 550 - msg.data);//剩余弹量
             // ros.Subscribe(Head + "total_resume", (Float32Msg msg) => TotalResume = msg.data);//总回血量
             ros.Subscribe(Head + "enemy_pos", (Vector3Msg msg) =>//最有价值敌人位置
             { EnemyPos = new((float)msg.x, (float)msg.y, (float)msg.z); });
-            ros.Subscribe(Head + "attack_dir", (Vector3Msg msg) =>//受攻击方向
+            ros.Subscribe("referee/" + "attack_id", (ByteMsg msg) =>//受攻击方向
             {
-                Vector3 dir = new((float)msg.x, (float)msg.y, (float)msg.z);
-                float num = (float)Math.Sqrt(Vector3.forward.sqrMagnitude * dir.sqrMagnitude);
-
-                float num2 = Mathf.Clamp(Vector3.Dot(dir, Vector3.forward) / num, -1f, 1f);
-                float angle = (float)Math.Acos(num2) * 57.29578f * Mathf.Sign(Vector3.Dot(Vector3.right, dir));
-
-                if (angle < 45 && angle > -45)
-                    AttackDirs[4] = 1;
-                else if (angle <= 135 && angle >= 45)
-                    AttackDirs[1] = 1;
-                else if (angle > 135 || angle < -135)
-                    AttackDirs[2] = 1;
-                else if (angle >= -135 || angle <= -45)
-                    AttackDirs[3] = 1;
-
+                AttackDirCalcu(msg.data - armor_id_offset);
             });
+
             #endregion
             #region Creeper
             ros.Subscribe("/Odometry", (OdometryMsg msg) =>//自身位置
@@ -115,7 +106,24 @@ namespace RMUL
             #endregion
         }
 
+        void AttackDirCalcu(int i)
+        {
 
+            float num = (float)Math.Sqrt(Vector3.forward.sqrMagnitude * chassisForward.sqrMagnitude);
+
+            float num2 = Mathf.Clamp(Vector3.Dot(chassisForward, Vector3.forward) / num, -1f, 1f);
+            float angle = (float)Math.Acos(num2) * 57.29578f * Mathf.Sign(Vector3.Dot(Vector3.forward, chassisForward));
+            angle += 90 * i;
+
+            if (angle < 45 && angle > -45)
+                AttackDirs[4] = 1;
+            else if (angle <= 135 && angle >= 45)
+                AttackDirs[1] = 1;
+            else if (angle > 135 || angle < -135)
+                AttackDirs[2] = 1;
+            else if (angle >= -135 || angle <= -45)
+                AttackDirs[3] = 1;
+        }
         // internal void Clear()
         // {
         //     AttackDirs.Clear();

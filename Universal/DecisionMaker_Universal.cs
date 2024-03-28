@@ -13,7 +13,7 @@ namespace RMUL
     {
         static Status State = Status.Start;
 
-        private const float BeginTimeMax = 15;
+        private const float BeginTimeMax = 30;
         private const float HpMin = 100;
         private const float BulletCountMin = 0;
         private float StartScanTime = 0;
