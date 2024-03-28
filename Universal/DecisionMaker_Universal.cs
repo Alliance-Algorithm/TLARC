@@ -13,7 +13,7 @@ namespace RMUL
     {
         static Status State = Status.Start;
 
-        private const float BeginTimeMax = 20;
+        private const float BeginTimeMax = 15;
         private const float HpMin = 100;
         private const float BulletCountMin = 0;
         private float StartScanTime = 0;
@@ -22,6 +22,9 @@ namespace RMUL
         // Update is called once per frame
         internal override Status Work()
         {
+            int c = 0;
+            foreach (var i in Controller.AttackDirs)
+                c += i > 0 ? 1 : 0;
             switch (State)
             {
                 case Status.Start:
@@ -49,11 +52,11 @@ namespace RMUL
                     }
                     else if (Controller.EnemyFind)
                         State = Status.Follow;
-                    if (Controller.AttckDirs.Count >= 2)
+                    if (c >= 2)
                         State = Status.Escape;
                     goto default;
                 case Status.Escape:
-                    if (Controller.AttckDirs.Count >= 2)
+                    if (c >= 2)
                         goto default;
                     else if (Controller.EnemyFind)
                         State = Status.Follow;
@@ -78,7 +81,7 @@ namespace RMUL
                         else
                             State = Status.Supply;
                     }
-                    if (!Controller.EnemyFind && Controller.AttckDirs.Count > 0)
+                    if (!Controller.EnemyFind && c > 0)
                         State = Status.Escape;
                     break;
             }

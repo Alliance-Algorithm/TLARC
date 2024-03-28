@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using RosMessageTypes.Geometry;
+using RosMessageTypes.Nav;
 using RosMessageTypes.Std;
 using RosMessageTypes.Tf2;
 using Unity.Robotics.ROSTCPConnector;
@@ -14,6 +15,7 @@ namespace RMUL
 {
     public class Controller : MonoBehaviour
     {
+        public bool tempAutoTime = false;
         public static int WorkIndex = 0;
         delegate DecisionMaker.Status DecisionMakerWork();
         public PathFinder finder;
@@ -23,6 +25,7 @@ namespace RMUL
         /// 增益点是否可用
         /// </summary>
         public static bool GainPoint = true;
+        public static int EnemyID = -1;
         public static bool EnemyFind = false;
         public static bool EnemySentryDead = false;
         public static bool EnemyIsSentry = false;
@@ -40,15 +43,18 @@ namespace RMUL
         /// <summary>
         /// 被攻击方向
         /// </summary>
-        public static HashSet<int> AttckDirs = new HashSet<int>();
+        public static float[] AttackDirs = new float[4];
         // Start is called before the first frame update
 
 
         ROSConnection ros;
 
+        Vector3 beginPos;
+
         public string Head = "/watcher/decision_maker/rmul/";
         void Start()
         {
+            beginPos = transform.position;
             Application.targetFrameRate = 30;
             foreach (var i in Makers)
             {
@@ -57,12 +63,25 @@ namespace RMUL
 
             #region  QZH
             ros = ROSConnection.GetOrCreateInstance();
+
             ros.Subscribe(Head + "gain_point_enable", (BoolMsg msg) => GainPoint = msg.data);//增益点是否可用
-            ros.Subscribe(Head + "enemy_find", (BoolMsg msg) => EnemyFind = msg.data);//是否找到敌人
+            ros.Subscribe("gimbal/auto_aim", (Vector3Msg msg) =>
+            {
+                Vector3 v = new((float)msg.x, (float)msg.y, (float)msg.z);
+                if (v == Vector3.zero)
+                    EnemyFind = false;
+                else
+                    EnemyPos = v + transform.position;
+            });//是否找到敌人
             ros.Subscribe(Head + "lasted_time", (Float32Msg msg) => BeginTime = msg.data);//开局时间
-            ros.Subscribe(Head + "hp", (Float32Msg msg) => Hp = msg.data);//血量
+            ros.Subscribe(Head + "hp", (Float32Msg msg) =>
+            {
+                if (Hp < msg.data)
+                    TotalResume += msg.data - Hp;
+                Hp = msg.data;
+            });//血量
             ros.Subscribe(Head + "bullet_count", (Float32Msg msg) => BulletCount = msg.data);//剩余弹量
-            ros.Subscribe(Head + "total_resume", (Float32Msg msg) => TotalResume = msg.data);//总回血量
+            // ros.Subscribe(Head + "total_resume", (Float32Msg msg) => TotalResume = msg.data);//总回血量
             ros.Subscribe(Head + "enemy_pos", (Vector3Msg msg) =>//最有价值敌人位置
             { EnemyPos = new((float)msg.x, (float)msg.y, (float)msg.z); });
             ros.Subscribe(Head + "attack_dir", (Vector3Msg msg) =>//受攻击方向
@@ -74,39 +93,46 @@ namespace RMUL
                 float angle = (float)Math.Acos(num2) * 57.29578f * Mathf.Sign(Vector3.Dot(Vector3.right, dir));
 
                 if (angle < 45 && angle > -45)
-                    AttckDirs.Add(4);
+                    AttackDirs[4] = 1;
                 else if (angle <= 135 && angle >= 45)
-                    AttckDirs.Add(1);
+                    AttackDirs[1] = 1;
                 else if (angle > 135 || angle < -135)
-                    AttckDirs.Add(2);
+                    AttackDirs[2] = 1;
                 else if (angle >= -135 || angle <= -45)
-                    AttckDirs.Add(3);
+                    AttackDirs[3] = 1;
 
             });
             #endregion
             #region Creeper
-            ros.Subscribe("/tf", (TFMessageMsg msg) =>//自身位置
+            ros.Subscribe("/Odometry", (OdometryMsg msg) =>//自身位置
             {
-                if (msg.transforms[0].header.frame_id != "camera_init")
-                    return;
-                Vector3 vec = new((float)msg.transforms[0].transform.translation.y,
-                (float)msg.transforms[0].transform.translation.z,
-                (float)msg.transforms[0].transform.translation.x);
-                transform.position = vec;
+                Vector3 vec = new(-(float)msg.pose.pose.position.y,
+                    (float)msg.pose.pose.position.z,
+                    -(float)msg.pose.pose.position.x);
+                transform.position = beginPos + vec;
+                // Debug.Log(vec);
             });
             #endregion
         }
 
 
-        internal void Clear()
-        {
-            AttckDirs.Clear();
-        }
+        // internal void Clear()
+        // {
+        //     AttackDirs.Clear();
+        // }
 
         void Update()
         {
             DecisionMaker.Status State = works[WorkIndex]();
+            if (tempAutoTime)
+                BeginTime += Time.deltaTime;
             finder.Work(State);
+
+            for (int i = 0; i < 4; i++)
+            {
+                if (AttackDirs[i] > 0)
+                    AttackDirs[i] -= Time.deltaTime;
+            }
         }
     }
 }

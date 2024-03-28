@@ -22,7 +22,7 @@ namespace RMUL
         /// <param name="vec"></param>
         /// <param name="mode"></param>
         /// <returns></returns>
-        protected static float Vector3ToAngle(Vector3 vec, Mode mode = Mode.Deg)
+        protected static float Vector3ToAngle(Vector3 vec, Mode mode = Mode.Rad)
         {
             vec.y = 0;
             return Vector3.Angle(Vector3.forward, vec) *

@@ -18,6 +18,8 @@ namespace RMUL
         private const float BulletCountMin = 0;
         private float StartScanTime = 0;
         private const float ScanTimeMax = 3;
+        private Vector2 CenterPosLeftTop = new Vector2(10, 10);
+        private Vector2 CenterPosRightBottom = new Vector2(10, 10);
 
         // Update is called once per frame
         internal override Status Work()
@@ -33,15 +35,21 @@ namespace RMUL
                             State = Status.EnemySentryComeFromBottom;
                     }
                     else if (Controller.BeginTime > BeginTimeMax)
+                        // TODO
+                        // Change to Universal
                         State = Status.Standby;
                     goto default;
                 case Status.EnemySentryComeFromTop:
                     State = Status.ToCenter;
                     goto default;
                 case Status.ToCenter:
-                    State = Status.Standby;
+                    // if our sentry is in the center,change to standby
+                    if (transform.position.x > CenterPosLeftTop.x && transform.position.y > CenterPosLeftTop.y &&
+                    transform.position.x < CenterPosRightBottom.x && transform.position.y < CenterPosRightBottom.y)
+                        State = Status.Standby;
                     goto default;
                 case Status.Standby:
+                    // if enemy find,change to follow
                     if (Controller.EnemyFind)
                         State = Status.Follow;
                     goto default;
@@ -60,11 +68,11 @@ namespace RMUL
                     }
                     else if (Controller.EnemyFind)
                         State = Status.Follow;
-                    if (Controller.AttckDirs.Count >= 2)
+                    if (Controller.AttackDirs.Count >= 2)
                         State = Status.Escape;
                     goto default;
                 case Status.Escape:
-                    if (Controller.AttckDirs.Count >= 2)
+                    if (Controller.AttackDirs.Count >= 2)
                         goto default;
                     else if (Controller.EnemyFind)
                         State = Status.Follow;

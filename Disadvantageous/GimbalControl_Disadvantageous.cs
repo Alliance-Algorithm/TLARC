@@ -20,6 +20,9 @@ namespace RMUL
                     angle1 = Vector3ToAngle(Vector3.left);
                     angle2 = Vector3ToAngle(Dock_Left_Down.position - transform.position);
                     break;
+                case DecisionMaker.Status.ToCenter:
+                    angle1 = angle2 = 0;
+                    break;
                 case DecisionMaker.Status.Follow:
                     angle1 = angle2 = -1;
                     break;

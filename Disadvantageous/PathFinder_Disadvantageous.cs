@@ -91,6 +91,7 @@ namespace RMUL
         internal Transform HidePosition;
         internal Transform StandByPosition;
         internal Transform SupplyPos;
+        internal Transform CenterPos;
 
         ///0 center,1 left,2 down,3 right,4 up 
         const int center = 0, left = 1, down = 2, right = 3, up = 4;
@@ -117,7 +118,10 @@ namespace RMUL
                     targetPos = HidePosition.position;
                     break;
                 case DecisionMaker.Status.Standby:
-                    targetPos = StandByPosition.position;
+                    targetPos = CenterPos.position;
+                    break;
+                case DecisionMaker.Status.ToCenter:
+                    targetPos = CenterPos.position;
                     break;
 
                 case DecisionMaker.Status.Supply:
@@ -149,7 +153,7 @@ namespace RMUL
                 case DecisionMaker.Status.Escape:
                     int i = LocationIndex();
                     List<int> dangrous = new();
-                    foreach (var k in Controller.AttckDirs)
+                    foreach (var k in Controller.AttackDirs)
                         dangrous.AddRange(AreaConnect[i, k]);
                     dangrous = dangrous.Distinct().ToList();
                     dangrous.Sort();

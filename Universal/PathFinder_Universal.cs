@@ -8,20 +8,16 @@ using UnityEngine;
 
 namespace RMUL
 {
-    using System;
     using System.Linq;
     using RosMessageTypes.Geometry;
-    using RosMessageTypes.Std;
     using Unity.Robotics.ROSTCPConnector;
-    using Unity.VisualScripting;
     using UnityEngine;
     using UnityEngine.AI;
-    using UnityEngine.UIElements;
 
     [RequireComponent(typeof(NavMeshAgent))]
     public class PathFinder_Universal : PathFinder
     {
-
+        public float speedtemp = 0;
         public string Head = "/watcher/decision_maker/rmul/";
         ROSConnection ros;
         internal override Vector3 targetPos
@@ -29,8 +25,8 @@ namespace RMUL
             get { return _targetPos; }
             set
             {
-                if (value == _targetPos)
-                    return;
+                // if (value == _targetPos)
+                //     return;
                 _targetPos = value;
                 agent.SetDestination(_targetPos);
                 if (!agent.CalculatePath(_targetPos, _path))
@@ -49,11 +45,21 @@ namespace RMUL
                     return Vector2.zero;
                 else if (_path.corners.Length <= 1)
                     return Vector2.zero;
-                Vector3 v = _path.corners[1] - transform.position;
-                return new Vector2(v.x, v.z).normalized;
+                Vector3 v = _path.corners.Length > 2 ? _path.corners[1]
+                // + (2 * _path.corners[1] - transform.position - _path.corners[2]).normalized * 0.1f
+                 - transform.position : targetPos - transform.position;
+                // float param = Mathf.Clamp(v.magnitude, 0.1f, 1.5f) / 1.5f;
+                float param = Mathf.Clamp(v.magnitude, 0.7f, 1f) / 1f;
+                // while (v.magnitude <= 0.3f || k >= _path.corners.Length)
+                //     v = _path.corners[k++] - transform.position;
+                // if (k == _path.corners.Length)
+                //     v = targetPos - transform.position;
+                Debug.DrawRay(transform.position, v, Color.red);
+                // Debug.Log(v);
+                return (transform.position - targetPos).magnitude < 0.3 ? new Vector2(0, 0) : new Vector2(v.x, v.z).normalized * speedtemp * param;
             }
         }
-
+        // float tempYaw = 0;   
         void Start()
         {
             _path = new NavMeshPath();
@@ -61,6 +67,7 @@ namespace RMUL
 
             ros = ROSConnection.GetOrCreateInstance();
             ros.RegisterPublisher<Vector3Msg>(Head + "dest_dir");
+            // ros.Subscribe("/gimbal/yaw/angle", (Float64Msg msg) => tempYaw = (float)(msg.data / 2 / Math.PI * 360));
 
         }
 
@@ -100,7 +107,7 @@ namespace RMUL
             {new[]{5},new[]{3,1},new[]{6},new[]{-1},new[]{-1}},
             {new[]{6},new[]{4},new[]{-1},new[]{-1},new[]{5}}
         };
-        internal Vector3[] Positions = new Vector3[7];
+        public Vector3[] Positions = new Vector3[7];
         internal override void Work(DecisionMaker.Status state)
         {
             switch (state)
@@ -145,8 +152,9 @@ namespace RMUL
                 case DecisionMaker.Status.Escape:
                     int i = LocationIndex();
                     List<int> dangrous = new();
-                    foreach (var k in Controller.AttckDirs)
-                        dangrous.AddRange(AreaConnect[i, k]);
+                    for (int k = 0; i < 4; i++)
+                        if (Controller.AttackDirs[k] > 0)
+                            dangrous.AddRange(AreaConnect[i, k]);
                     dangrous = dangrous.Distinct().ToList();
                     dangrous.Sort();
                     i = dangrous[1];
@@ -158,9 +166,17 @@ namespace RMUL
             }
 
 
-            if ((targetPos - transform.position).magnitude < 0.5f)
-                return;
-            ros.Publish(Head + "dest_dir", new Vector3Msg(-dest.y, dest.x, 0));
+            // if ((targetPos - transform.position).magnitude < 0.5f)
+            //     return;
+            Vector2 d = dest;
+            Vector3 trans = new(d.y, -d.x, 0);
+            Quaternion offset_lisdar = Quaternion.AngleAxis(-90, Vector3.forward);
+            trans = offset_lisdar * trans;
+            Debug.Log(trans);
+            ros.Publish(Head + "dest_dir", new Vector3Msg(trans.x, trans.y, 0));
+            // ros.Publish(Head + "dest_dir", new Vector3Msg(trans.y, -trans.x, 0));
+            // ros.Publish(Head + "dest_dir", new Vector3Msg(0f, 0.1f, 0f));
+
         }
 
         int LocationIndex()

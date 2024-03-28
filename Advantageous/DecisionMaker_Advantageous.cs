@@ -46,11 +46,11 @@ namespace RMUL
                     }
                     else if (Controller.EnemyFind)
                         State = Status.Follow;
-                    if (Controller.AttckDirs.Count >= 2)
+                    if (Controller.AttackDirs.Count >= 2)
                         State = Status.Escape;
                     goto default;
                 case Status.Escape:
-                    if (Controller.AttckDirs.Count >= 2)
+                    if (Controller.AttackDirs.Count >= 2)
                         goto default;
                     else if (Controller.EnemyFind)
                         State = Status.Follow;
