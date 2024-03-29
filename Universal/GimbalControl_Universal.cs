@@ -42,6 +42,10 @@ namespace RMUL
                     }
                     else goto default;
                     break;
+                case DecisionMaker.Status.Supply:
+                    angle1 = -Mathf.PI / 180;
+                    angle2 = -angle1;
+                    break;
                 case DecisionMaker.Status.Standby:
                 case DecisionMaker.Status.Cruise:
                 case DecisionMaker.Status.Hide:

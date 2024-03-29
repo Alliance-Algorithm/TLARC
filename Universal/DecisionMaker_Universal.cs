@@ -17,6 +17,7 @@ namespace RMUL
         private const float HpMin = 100;
         private const float BulletCountMin = 0;
         private float StartScanTime = 0;
+        private float StartStandByOrCuriseTime = 0;
         private const float ScanTimeMax = 3;
 
         // Update is called once per frame
@@ -29,16 +30,31 @@ namespace RMUL
             {
                 case Status.Start:
                     if (Controller.BeginTime > BeginTimeMax)
+                    {
                         State = Status.Standby;
+                        StartStandByOrCuriseTime = 0;
+                    }
+                    else if (Controller.BulletCount <= 400)
+                    {
+                        State = Status.Standby;
+                        StartStandByOrCuriseTime = 0;
+                    }
                     goto default;
                 case Status.Cruise:
                 case Status.Standby:
+                    StartStandByOrCuriseTime += Time.deltaTime;
                     if (Controller.EnemyFind)
                         State = Status.Follow;
-                    else if (!Controller.GainPoint)
+                    else if (Status.Standby == State && StartStandByOrCuriseTime > 30)
+                    {
                         State = Status.Cruise;
-                    else if (Controller.GainPoint)
+                        StartStandByOrCuriseTime = 0;
+                    }
+                    else if (Status.Standby == State && StartStandByOrCuriseTime > 30)
+                    {
                         State = Status.Standby;
+                        StartStandByOrCuriseTime = 0;
+                    }
                     goto default;
                 case Status.Scan:
                 case Status.Follow:
@@ -48,7 +64,10 @@ namespace RMUL
                             StartScanTime = Controller.BeginTime;
                         State = Status.Scan;
                         if (Controller.BeginTime - StartScanTime > ScanTimeMax)
+                        {
                             State = Status.Standby;
+                            StartStandByOrCuriseTime = 0;
+                        }
                     }
                     else if (Controller.EnemyFind)
                         State = Status.Follow;
@@ -63,9 +82,15 @@ namespace RMUL
                     goto default;
                 case Status.Supply:
                     if (Controller.Hp >= 600)
+                    {
                         State = Status.Cruise;
+                        StartStandByOrCuriseTime = 0;
+                    }
                     else if (Controller.TotalResume >= 600)
+                    {
                         State = Status.Cruise;
+                        StartStandByOrCuriseTime = 0;
+                    }
                     else
                         break;
                     goto default;
