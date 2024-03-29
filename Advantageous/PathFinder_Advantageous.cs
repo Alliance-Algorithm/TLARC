@@ -49,11 +49,20 @@ namespace RMUL
                     return Vector2.zero;
                 else if (_path.corners.Length <= 1)
                     return Vector2.zero;
-                Vector3 v = _path.corners[1] - _path.corners[0];
-                return new Vector2(v.x, v.z).normalized;
+                Vector3 v = _path.corners.Length > 2 ? _path.corners[1]
+                // + (2 * _path.corners[1] - transform.position - _path.corners[2]).normalized * 0.1f
+                 - transform.position : targetPos - transform.position;
+                // float param = Mathf.Clamp(v.magnitude, 0.1f, 1.5f) / 1.5f;
+                float param = Mathf.Clamp(v.magnitude, 0.7f, 1f) / 1f;
+                // while (v.magnitude <= 0.3f || k >= _path.corners.Length)
+                //     v = _path.corners[k++] - transform.position;
+                // if (k == _path.corners.Length)
+                //     v = targetPos - transform.position;
+                Debug.DrawRay(transform.position, v, Color.red);
+                // Debug.Log(v);
+                return (transform.position - targetPos).magnitude < 0.3 ? new Vector2(0, 0) : new Vector2(v.x, v.z).normalized * speedtemp * param;
             }
         }
-
         void Start()
         {
             _path = new NavMeshPath();
@@ -87,11 +96,14 @@ namespace RMUL
         /// </summary>
 
 
-        internal Transform StartMoveTo;
-        internal Transform HidePosition;
-        internal Transform StandByPosition;
-        internal Transform SupplyPos;
-        internal Transform EnemyBasePosition;
+        public Transform StartMoveTo;
+        public Transform HidePosition;
+        public Transform StandByPosition;
+        public Transform SupplyPos;
+        public Transform EnemyBasePosition;
+
+        public float speedtemp = 0;
+
 
         ///0 center,1 left,2 down,3 right,4 up 
         const int center = 0, left = 1, down = 2, right = 3, up = 4;
@@ -149,9 +161,12 @@ namespace RMUL
                     break;
             }
 
-            if ((targetPos - transform.position).magnitude < 0.5f)
-                return;
-            ros.Publish(Head + "dest_dir", new Vector3Msg(dest.x, 0, dest.y));
+            Vector2 d = dest;
+            Vector3 trans = new(d.y, -d.x, 0);
+            Quaternion offset_lisdar = Quaternion.AngleAxis(-90, Vector3.forward);
+            trans = offset_lisdar * trans;
+            Debug.Log(trans);
+            ros.Publish(Head + "dest_dir", new Vector3Msg(trans.x, trans.y, 0));
         }
 
         int LocationIndex()

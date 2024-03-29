@@ -31,13 +31,13 @@ namespace RMUL
                     State = Status.Standby;
                     goto default;
                 case Status.Standby:
-                    if (Controller.EnemySentryDead)
-                        State = Status.AttackBase;
-                    else if (Controller.EnemyFind)
+                    // if (Controller.EnemySentryDead)
+                    //     State = Status.AttackBase;
+                    if (Controller.EnemyFind)
                         State = Status.Follow;
                     goto default;
-                case Status.AttackBase:
-                    goto default;
+                // case Status.AttackBase:
+                //     goto default;
                 case Status.Follow:
                     if (!Controller.EnemyFind)
                     {

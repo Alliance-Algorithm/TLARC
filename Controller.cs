@@ -48,6 +48,7 @@ namespace RMUL
 
         const int armor_id_offset = 0;
         Vector3 chassisForward = new();
+        Vector3 gimbalForward = new();
 
         ROSConnection ros;
 
@@ -101,8 +102,14 @@ namespace RMUL
                     (float)msg.pose.pose.position.z,
                     -(float)msg.pose.pose.position.x);
                 transform.position = beginPos + vec;
-                // Debug.Log(vec);
+
+                Quaternion q = new((float)msg.pose.pose.orientation.x,
+                (float)msg.pose.pose.orientation.y,
+                (float)msg.pose.pose.orientation.z,
+                (float)msg.pose.pose.orientation.w);
+                chassisForward = q * gimbalForward;
             });
+            ros.Subscribe("/gimbal/yaw/angle", (Float64Msg msg) => gimbalForward = Quaternion.AngleAxis(-(float)msg.data, Vector3.up) * Vector3.forward);
             #endregion
         }
 
@@ -113,7 +120,7 @@ namespace RMUL
 
             float num2 = Mathf.Clamp(Vector3.Dot(chassisForward, Vector3.forward) / num, -1f, 1f);
             float angle = (float)Math.Acos(num2) * 57.29578f * Mathf.Sign(Vector3.Dot(Vector3.forward, chassisForward));
-            angle += 90 * i;
+            angle -= 90 * i;
 
             if (angle < 45 && angle > -45)
                 AttackDirs[4] = 1;
