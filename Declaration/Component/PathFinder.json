@@ -1,0 +1,111 @@
+{
+    "list": [
+        {
+            "this_id": 1,
+            "input_id": [],
+            "assembly": "AllianceDM.StdComponent",
+            "type": "Transform2D",
+            "arg": [
+                "sentry",
+                "W",
+                "/position"
+            ]
+        },
+        {
+            "this_id": 2,
+            "input_id": [
+                14
+            ],
+            "assembly": "AllianceDM.StdComponent",
+            "type": "Transform2D",
+            "arg": [
+                "sentry_target",
+                "R",
+                "/sentry/target/publish"
+            ]
+        },
+        {
+            "this_id": 3,
+            "input_id": [
+                1,
+                2
+            ],
+            "assembly": "AllianceDM.Nav",
+            "type": "UnityNavPath",
+            "arg": [
+                "10",
+                "/sentry/nav/global/path",
+                "/sentry/transform",
+                "/sentry/desination/transform"
+            ]
+        },
+        {
+            "this_id": 20,
+            "input_id": [],
+            "assembly": "AllianceDM.CarModels",
+            "type": "OmniCar",
+            "arg": [
+                60,
+                10,
+                0.5,
+                6,
+                6,
+                "/sentry/sensor/velocity"
+            ]
+        },
+        {
+            "this_id": 21,
+            "input_id": [],
+            "assembly": "AllianceDM.Nav",
+            "type": "ESDFBuilder",
+            "arg": [
+                "/map_2d",
+                31,
+                0.5
+            ]
+        },
+        {
+            "this_id": 4,
+            "input_id": [
+                3,
+                1,
+                20,
+                21
+            ],
+            "assembly": "AllianceDM.Nav",
+            "type": "DWA",
+            "arg": [
+                0,
+                0.5,
+                0.01
+            ]
+        },
+        {
+            "this_id": 5,
+            "input_id": [
+                3,
+                1,
+                4
+            ],
+            "assembly": "AllianceDM.Nav",
+            "type": "SpeedVec",
+            "arg": [
+                2,
+                2,
+                0.5
+            ]
+        },
+        {
+            "this_id": 6,
+            "input_id": [
+                5
+            ],
+            "assembly": "AllianceDM.IO",
+            "type": "OutputManager",
+            "arg": [
+                "/sentry/control/forward",
+                "30"
+            ]
+        }
+    ]
+}

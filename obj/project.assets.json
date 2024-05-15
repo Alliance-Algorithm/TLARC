@@ -1,0 +1,193 @@
+{
+  "version": 3,
+  "targets": {
+    "net8.0": {
+      "Microsoft.Toolkit.HighPerformance/7.1.2": {
+        "type": "package",
+        "compile": {
+          "lib/net5.0/Microsoft.Toolkit.HighPerformance.dll": {
+            "related": ".pdb;.xml"
+          }
+        },
+        "runtime": {
+          "lib/net5.0/Microsoft.Toolkit.HighPerformance.dll": {
+            "related": ".pdb;.xml"
+          }
+        }
+      },
+      "Rcl.NET/1.3.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.Toolkit.HighPerformance": "7.1.2",
+          "Rosidl.Runtime": "1.3.0"
+        },
+        "compile": {
+          "lib/net8.0/Rcl.NET.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/Rcl.NET.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "Rosidl.Runtime/1.3.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.Toolkit.HighPerformance": "7.1.2"
+        },
+        "compile": {
+          "lib/net8.0/Rosidl.Runtime.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/Rosidl.Runtime.dll": {
+            "related": ".xml"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Microsoft.Toolkit.HighPerformance/7.1.2": {
+      "sha512": "cezzRky0BUJyYmSrcQUcX8qAv90JfUwCqWEbqfWZLHyeANo9/LWgW6y50pqbyc8r8SPXVsu2GNH98fB3VxrnvA==",
+      "type": "package",
+      "path": "microsoft.toolkit.highperformance/7.1.2",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "License.md",
+        "ThirdPartyNotices.txt",
+        "lib/net5.0/Microsoft.Toolkit.HighPerformance.dll",
+        "lib/net5.0/Microsoft.Toolkit.HighPerformance.pdb",
+        "lib/net5.0/Microsoft.Toolkit.HighPerformance.xml",
+        "lib/netcoreapp2.1/Microsoft.Toolkit.HighPerformance.dll",
+        "lib/netcoreapp2.1/Microsoft.Toolkit.HighPerformance.pdb",
+        "lib/netcoreapp2.1/Microsoft.Toolkit.HighPerformance.xml",
+        "lib/netcoreapp3.1/Microsoft.Toolkit.HighPerformance.dll",
+        "lib/netcoreapp3.1/Microsoft.Toolkit.HighPerformance.pdb",
+        "lib/netcoreapp3.1/Microsoft.Toolkit.HighPerformance.xml",
+        "lib/netstandard1.4/Microsoft.Toolkit.HighPerformance.dll",
+        "lib/netstandard1.4/Microsoft.Toolkit.HighPerformance.pdb",
+        "lib/netstandard1.4/Microsoft.Toolkit.HighPerformance.xml",
+        "lib/netstandard2.0/Microsoft.Toolkit.HighPerformance.dll",
+        "lib/netstandard2.0/Microsoft.Toolkit.HighPerformance.pdb",
+        "lib/netstandard2.0/Microsoft.Toolkit.HighPerformance.xml",
+        "lib/netstandard2.1/Microsoft.Toolkit.HighPerformance.dll",
+        "lib/netstandard2.1/Microsoft.Toolkit.HighPerformance.pdb",
+        "lib/netstandard2.1/Microsoft.Toolkit.HighPerformance.xml",
+        "microsoft.toolkit.highperformance.7.1.2.nupkg.sha512",
+        "microsoft.toolkit.highperformance.nuspec"
+      ]
+    },
+    "Rcl.NET/1.3.0": {
+      "sha512": "VN59I+spnVw9SLC+4aqDxbL6Amcs3+ZX8KphTdARg6XEfqJ3mC/VxJ1XpWUbMVcgHH+m1DM0lll2jqGjmrdyoQ==",
+      "type": "package",
+      "path": "rcl.net/1.3.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE",
+        "README.md",
+        "lib/net7.0/Rcl.NET.dll",
+        "lib/net7.0/Rcl.NET.xml",
+        "lib/net8.0/Rcl.NET.dll",
+        "lib/net8.0/Rcl.NET.xml",
+        "rcl.net.1.3.0.nupkg.sha512",
+        "rcl.net.nuspec"
+      ]
+    },
+    "Rosidl.Runtime/1.3.0": {
+      "sha512": "xVurAPSJSHySAHmnnxSUNS3t3O23xkBYhC+mlkwPA8DWVPKsQW2w4d0ipYE255NIIVlDPQ6GIGmsr3rjnE9k+g==",
+      "type": "package",
+      "path": "rosidl.runtime/1.3.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE",
+        "README.md",
+        "lib/net7.0/Rosidl.Runtime.dll",
+        "lib/net7.0/Rosidl.Runtime.xml",
+        "lib/net8.0/Rosidl.Runtime.dll",
+        "lib/net8.0/Rosidl.Runtime.xml",
+        "rosidl.runtime.1.3.0.nupkg.sha512",
+        "rosidl.runtime.nuspec"
+      ]
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net8.0": [
+      "Rcl.NET >= 1.3.0",
+      "Rosidl.Runtime >= 1.3.0"
+    ]
+  },
+  "packageFolders": {
+    "/root/.nuget/packages/": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "/workspaces/DecisionMaker/decision_maker/decision_maker.csproj",
+      "projectName": "decision_maker",
+      "projectPath": "/workspaces/DecisionMaker/decision_maker/decision_maker.csproj",
+      "packagesPath": "/root/.nuget/packages/",
+      "outputPath": "/workspaces/DecisionMaker/decision_maker/obj/",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "/root/.nuget/NuGet/NuGet.Config"
+      ],
+      "originalTargetFrameworks": [
+        "net8.0"
+      ],
+      "sources": {
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "projectReferences": {}
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      }
+    },
+    "frameworks": {
+      "net8.0": {
+        "targetAlias": "net8.0",
+        "dependencies": {
+          "Rcl.NET": {
+            "target": "Package",
+            "version": "[1.3.0, )"
+          },
+          "Rosidl.Runtime": {
+            "target": "Package",
+            "version": "[1.3.0, )"
+          }
+        },
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.103/PortableRuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

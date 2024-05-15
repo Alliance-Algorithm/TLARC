@@ -1,0 +1,9 @@
+{
+    "this_id": "1",
+    "input_id": [],
+    "assembly": "AllianceDM.StdComponent",
+    "type": "Transform2D",
+    "arg": [
+        "sentry"
+    ]
+}
