@@ -5,3 +5,5 @@ install
 log
 build
 External
+Docker*
+.devcontainer

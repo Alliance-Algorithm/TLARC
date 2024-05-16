@@ -72,13 +72,20 @@ namespace AllianceDM.Nav
                 angle = angle / predict.Length() / model.Output.Current.Length();
             }
 
-            float angle2 = Vector2.Dot(predict, nav.Output - sentry.Output.pos);
+            float angle2 = Vector2.Dot(Rotate(predict, sentry.Output.angle), nav.Output - sentry.Output.pos);
             angle2 = angle2 / predict.Length() / (nav.Output - sentry.Output.pos).Length();
 
-            Vector2 pos = (model.Output.Current + predict) * 0.5f * model.Output.timeResolution;
+            Vector2 pos = (model.Output.Current + Rotate(predict, sentry.Output.angle)) * 0.5f * model.Output.timeResolution;
             float dis = 100 - (nav.Output - pos - sentry.Output.pos).Length();
+            pos = (model.Output.Current + predict) * 0.5f * model.Output.timeResolution;
             pos = pos / obstacle.Resolution + obstacle.Map.GetLength(1) / 2 * Vector2.One;
             return dis + (1 - angle) * headingCoef + obstacle.Map[(int)pos.X, (int)pos.Y] * obstacleCoef + predict.Length() * velocityCoef;
+        }
+
+        Vector2 Rotate(in Vector2 vec, in double angle)
+        {
+            var temp = Math.SinCos(angle);
+            return new() { X = (float)(vec.X * temp.Cos - vec.Y * temp.Sin), Y = (float)(vec.X * temp.Sin + vec.Y * temp.Cos) };
         }
     }
 }

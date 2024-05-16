@@ -48,8 +48,8 @@
                 60,
                 10,
                 0.5,
-                6,
-                6,
+                0.3,
+                0.3,
                 "/sentry/sensor/velocity"
             ]
         },
@@ -103,7 +103,7 @@
             "assembly": "AllianceDM.IO",
             "type": "OutputManager",
             "arg": [
-                "/sentry/control/forward",
+                "/sentry/control/forward/velocity",
                 "30"
             ]
         }

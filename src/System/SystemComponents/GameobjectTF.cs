@@ -35,8 +35,18 @@ namespace AllianceDM.StdComponent
             }
             if (Args[1] == "W" && Args.Length == 3)
             {
-                IOManager.RegistryMassage(Args[2], (Odometry msg) => { position = new Vector2(-(float)msg.Pose.Pose.Position.Z, (float)msg.Pose.Pose.Position.X); });
+                IOManager.RegistryMassage(Args[2], (Odometry msg) =>
+                {
+                    position = new Vector2(-(float)msg.Pose.Pose.Position.Z, (float)msg.Pose.Pose.Position.X);
+                    // yaw (z-axis rotation)
+                    var q = msg.Pose.Pose.Orientation;
+                    double siny_cosp = 2 * (q.W * q.Z + q.X * q.Y);
+                    double cosy_cosp = 1 - 2 * (q.Y * q.Y + q.Z * q.Z);
+                    angle = Math.Atan2(siny_cosp, cosy_cosp);
+                }
+                );
             }
+
             else throw new Exception("W must declear the topic name\t uuid :" + ID.ToString());
         }
 

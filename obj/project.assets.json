@@ -130,11 +130,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/workspaces/DecisionMaker/decision_maker/decision_maker.csproj",
+      "projectUniqueName": "/workspaces/TLARC/decision_maker.csproj",
       "projectName": "decision_maker",
-      "projectPath": "/workspaces/DecisionMaker/decision_maker/decision_maker.csproj",
+      "projectPath": "/workspaces/TLARC/decision_maker.csproj",
       "packagesPath": "/root/.nuget/packages/",
-      "outputPath": "/workspaces/DecisionMaker/decision_maker/obj/",
+      "outputPath": "/workspaces/TLARC/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/root/.nuget/NuGet/NuGet.Config"
@@ -186,7 +186,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.103/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.105/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
