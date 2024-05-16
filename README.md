@@ -48,7 +48,10 @@ RUN wget https://gitee.com/mirrors/oh-my-zsh/raw/master/tools/install.sh -O zsh-
   git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting && git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions && \
   rm ./zsh-install.sh 
 
+
 RUN chsh root -s /bin/zsh
+
+RUN echo "source /opt/ros/humble/setup.zsh" >> ~/.zshrc
 ```
 ---
 so quick,so elegance，and easy debug with F5!!

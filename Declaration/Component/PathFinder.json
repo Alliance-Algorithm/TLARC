@@ -60,7 +60,7 @@
             "type": "ESDFBuilder",
             "arg": [
                 "/map_2d",
-                31,
+                30,
                 0.5
             ]
         },

@@ -37,7 +37,7 @@ namespace AllianceDM.StdComponent
             {
                 IOManager.RegistryMassage(Args[2], (Odometry msg) =>
                 {
-                    position = new Vector2(-(float)msg.Pose.Pose.Position.Z, (float)msg.Pose.Pose.Position.X);
+                    position = new Vector2(-(float)msg.Pose.Pose.Position.Y, (float)msg.Pose.Pose.Position.X);
                     // yaw (z-axis rotation)
                     var q = msg.Pose.Pose.Orientation;
                     double siny_cosp = 2 * (q.W * q.Z + q.X * q.Y);
