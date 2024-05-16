@@ -8,7 +8,7 @@
             "arg": [
                 "sentry",
                 "W",
-                "/position"
+                "/local_nav/position"
             ]
         },
         {
