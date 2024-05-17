@@ -11,14 +11,8 @@ Is Internal Project, so i will teach it offline
 ## Environment Build
 ### [RCLNET](https://github.com/noelex/rclnet)
 ### Dev Container
-if you want to easily build env with docker,here is the docker file
+if you want to deploy it,just add these into your Dockerfile
 ```[docker]
-FROM ros:humble
-
-SHELL ["/bin/bash", "-c"]
-
-RUN sed -i 's/archive.ubuntu.com/mirrors.ustc.edu.cn/g' /etc/apt/sources.list
-
 RUN apt update && apt install -y  \
   zsh wget curl vim 
 
@@ -39,19 +33,6 @@ RUN echo "dotnet add package Rcl.NET && \
   dotnet add package Rosidl.Runtime && \
   dotnet tool install -g ros2cs" > /root/dotnetpkgs.zsh
 
-RUN wget https://gitee.com/mirrors/oh-my-zsh/raw/master/tools/install.sh -O zsh-install.sh && \
-  chmod +x ./zsh-install.sh && ./zsh-install.sh && \
-  sed -i 's/REPO=${REPO:-ohmyzsh\/ohmyzsh}/REPO=${REPO:-mirrors\/oh-my-zsh}/' ./zsh-install.sh && \
-  sed -i 's/REMOTE=${REMOTE:-https:\/\/github.com\/${REPO}.git}/REMOTE=${REMOTE:-https:\/\/gitee.com\/${REPO}.git}/' ./zsh-install.sh && \
-  sed -i 's/ZSH_THEME=\"[a-z0-9\-]*\"/ZSH_THEME="af-magic"/g' ~/.zshrc && \
-  sed -i 's/plugins=(git)/plugins=(git zsh-syntax-highlighting zsh-autosuggestions)/g' ~/.zshrc  && \
-  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting && git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions && \
-  rm ./zsh-install.sh 
-
-
-RUN chsh root -s /bin/zsh
-
-RUN echo "source /opt/ros/humble/setup.zsh" >> ~/.zshrc
 ```
 ---
-so quick,so elegance，and easy debug with F5!!
+There is nothing diff between c++ and c#,just colcon build and runit
