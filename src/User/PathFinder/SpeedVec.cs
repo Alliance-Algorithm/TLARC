@@ -32,7 +32,7 @@ namespace AllianceDM.Nav
             var vec = global.Output - sentry.Output.pos;
             vec = new(vec.X, vec.Y);
             if (vec.Length() != 0)
-                vec = (Math.Clamp(vec.Length() / MaxSpeedDistance, 0, 1) * (SpeedMax - SpeedMin) + SpeedMin) / vec.Length() * local.Output;
+                vec = (Math.Clamp(vec.Length() / MaxSpeedDistance, 0, 1) * (SpeedMax - SpeedMin) + SpeedMin) * local.Output;
             Speed = vec;
         }
         public override void Echo(string topic, int frameRate)
@@ -43,11 +43,16 @@ namespace AllianceDM.Nav
                 using var nativeMsg = pub.CreateBuffer();
                 using var timer = Ros2Def.context.CreateTimer(Ros2Def.node.Clock, TimeSpan.FromMilliseconds(value: 1000 / frameRate));
 
+                //tmp
+
+                using var pub2 = Ros2Def.node.CreatePublisher<Pose2D>("/sentry/sensor/velocity");
+
                 while (true)
                 {
                     nativeMsg.AsRef<Pose2D.Priv>().X = Speed.X;
                     nativeMsg.AsRef<Pose2D.Priv>().Y = Speed.Y;
                     pub.Publish(nativeMsg);
+                    pub2.Publish(nativeMsg);
                     await timer.WaitOneAsync(false);
                 }
             });

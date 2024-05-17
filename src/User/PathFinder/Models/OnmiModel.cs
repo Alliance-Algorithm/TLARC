@@ -21,6 +21,7 @@ namespace AllianceDM.CarModels
         float timeResolution;
 
         Vector2 currentSpeed;
+        object lock_ = new object();
         public override void Awake()
         {
             circleResolution = float.Parse(Args[0]);
@@ -29,22 +30,25 @@ namespace AllianceDM.CarModels
             speedlimit = float.Parse(Args[3]);
             accimit = float.Parse(Args[4]);
 
-            IOManager.RegistryMassage(Args[5], (Pose2D msg) => { currentSpeed.X = (float)msg.X; currentSpeed.Y = (float)msg.Y; });
+            IOManager.RegistryMassage(Args[5], (Pose2D msg) => { lock (lock_) { currentSpeed.X = (float)msg.X; currentSpeed.Y = (float)msg.Y; } });
         }
         Vector2[] SpeedLimit()
         {
-            List<Vector2> values = [];
-            for (float i = 0; i < circleResolution; i++)
+            lock (lock_)
             {
-                var head = MathF.SinCos(i / circleResolution * 2 * MathF.PI);
-                for (float j = 0; j < lieanerResolution; j++)
+                List<Vector2> values = [];
+                for (float i = 0; i < circleResolution; i++)
                 {
-                    var t = currentSpeed + accimit * new Vector2(head.Sin, head.Cos) * j / lieanerResolution * timeResolution;
-                    if (t.Length() < speedlimit)
-                        values.Add(t);
+                    var head = MathF.SinCos(i / circleResolution * 2 * MathF.PI);
+                    for (float j = 0; j < lieanerResolution; j++)
+                    {
+                        var t = accimit * new Vector2(head.Sin, head.Cos) * j / lieanerResolution * timeResolution;
+                        if ((t + currentSpeed).Length() < speedlimit)
+                            values.Add(t);
+                    }
                 }
+                return [.. values];
             }
-            return [.. values];
         }
         public override void Update()
         {
