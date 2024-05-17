@@ -8,7 +8,7 @@
             "arg": [
                 "sentry",
                 "W",
-                "/local_nav/position"
+                "/fast_lio/position"
             ]
         },
         {
@@ -45,10 +45,10 @@
             "assembly": "AllianceDM.CarModels",
             "type": "OmniCar",
             "arg": [
-                60,
+                120,
                 10,
                 0.5,
-                0.3,
+                1,
                 0.3,
                 "/sentry/sensor/velocity"
             ]
@@ -59,8 +59,8 @@
             "assembly": "AllianceDM.Nav",
             "type": "ESDFBuilder",
             "arg": [
-                "/map_2d",
-                30,
+                "/local_nav/map",
+                120,
                 0.5
             ]
         },

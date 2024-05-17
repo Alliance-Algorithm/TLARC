@@ -12,14 +12,19 @@ namespace AllianceDM.Nav
         float boxSize;
         float ESDF_MaxDistance;
         const float SQRT2 = 1.414213562f;
+        object lock_ = new object();
         public override void Awake()
         {
             IOManager.RegistryMassage(Args[0], (OccupancyGrid msg) =>
             {
-                if (Map.GetLength(0) != msg.Info.Height)
-                    _map = new sbyte[msg.Info.Height, msg.Info.Width];
-                Buffer.BlockCopy(msg.Data, 0, _map, 0, msg.Data.Length);
-                _resolution = msg.Info.Resolution;
+                lock (lock_)
+                {
+                    if (Map.GetLength(0) != msg.Info.Height)
+                        _map = new sbyte[msg.Info.Height, msg.Info.Width];
+                    Buffer.BlockCopy(msg.Data, 0, _map, 0, msg.Data.Length);
+                    _resolution = msg.Info.Resolution;
+                    MakeESDF(ref _map);
+                }
             });
 
             boxSize = float.Parse(Args[1]);
@@ -32,13 +37,12 @@ namespace AllianceDM.Nav
                 while (true)
                 {
                     var temp_map = new sbyte[Map.Length];
-                    Header header = new Header() { FrameId = "unity" };
                     Buffer.BlockCopy(Map, 0, temp_map, 0, temp_map.Length);
                     nativeMsg.AsRef<OccupancyGrid.Priv>().Data.CopyFrom(temp_map);
                     nativeMsg.AsRef<OccupancyGrid.Priv>().Info.Height = (uint)Map.GetLength(0);
                     nativeMsg.AsRef<OccupancyGrid.Priv>().Info.Width = (uint)Map.GetLength(1);
                     nativeMsg.AsRef<OccupancyGrid.Priv>().Info.Resolution = Resolution;
-                    nativeMsg.AsRef<OccupancyGrid.Priv>().Header = new Header.Priv() { FrameId = new Rosidl.Runtime.Interop.CString(new ReadOnlySpan<sbyte>([(sbyte)'u', (sbyte)'n', (sbyte)'i', (sbyte)'t', (sbyte)'y'])) };
+                    nativeMsg.AsRef<OccupancyGrid.Priv>().Header = new Header.Priv() { FrameId = new Rosidl.Runtime.Interop.CString(new ReadOnlySpan<sbyte>([(sbyte)'m', (sbyte)'a', (sbyte)'p', (sbyte)'_', (sbyte)'2', (sbyte)'d', (sbyte)'_', (sbyte)'l', (sbyte)'i', (sbyte)'n', (sbyte)'k'])) };
                     pub.Publish(nativeMsg);
                     await timer.WaitOneAsync(false);
                 }
@@ -47,12 +51,12 @@ namespace AllianceDM.Nav
 
         public override void Update()
         {
-            MakeESDF(ref _map);
+            lock (lock_) ;
         }
 
         public void MakeESDF(ref sbyte[,] map)
         {
-            if (_map.Length == 0)
+            if (map == null || map.Length == 0)
                 return;
             Queue<(int x, int y)> queue = new();
             float boxSize_ = boxSize * Resolution;

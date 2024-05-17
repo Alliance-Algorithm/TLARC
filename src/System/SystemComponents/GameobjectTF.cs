@@ -35,24 +35,24 @@ namespace AllianceDM.StdComponent
             }
             if (Args[1] == "W" && Args.Length == 3)
             {
-                // IOManager.RegistryMassage(Args[2], (Odometry msg) =>
-                // {
-                //     position = new Vector2(-(float)msg.Pose.Pose.Position.Y, (float)msg.Pose.Pose.Position.X);
-                //     // yaw (z-axis rotation)
-                //     var q = msg.Pose.Pose.Orientation;
-                //     double siny_cosp = 2 * (q.W * q.Z + q.X * q.Y);
-                //     double cosy_cosp = 1 - 2 * (q.Y * q.Y + q.Z * q.Z);
-                //     angle = Math.Atan2(siny_cosp, cosy_cosp);
-                // }
-                // );
-
-                IOManager.RegistryMassage(Args[2], (Pose2D msg) =>
+                IOManager.RegistryMassage(Args[2], (Odometry msg) =>
                 {
-                    position = new Vector2((float)msg.X, (float)msg.Y);
+                    position = new Vector2((float)msg.Pose.Pose.Position.X, (float)msg.Pose.Pose.Position.Y);
                     // yaw (z-axis rotation)
-                    angle = msg.Theta;
+                    var q = msg.Pose.Pose.Orientation;
+                    double siny_cosp = 2 * (q.W * q.Z + q.X * q.Y);
+                    double cosy_cosp = 1 - 2 * (q.Y * q.Y + q.Z * q.Z);
+                    angle = -Math.Atan2(siny_cosp, cosy_cosp);
                 }
                 );
+
+                // IOManager.RegistryMassage(Args[2], (Pose2D msg) =>
+                // {
+                //     position = new Vector2(-(float)msg.Y, (float)msg.X);
+                //     // yaw (z-axis rotation)
+                //     angle = msg.Theta;
+                // }
+                // );
             }
 
             else throw new Exception("W must declear the topic name\t uuid :" + ID.ToString());
