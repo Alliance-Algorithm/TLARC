@@ -5,10 +5,6 @@ install
 log
 build
 External
-Docker*
-<<<<<<< HEAD
-=======
 .github
 .devcontainer
->>>>>>> deploy
 obj
