@@ -2,66 +2,6 @@
   "version": 3,
   "targets": {
     "net8.0": {
-      "Microsoft.NET.ILLink.Tasks/8.0.5": {
-        "type": "package",
-        "build": {
-          "build/Microsoft.NET.ILLink.Tasks.props": {}
-        }
-      },
-      "Microsoft.Toolkit.HighPerformance/7.1.2": {
-        "type": "package",
-        "compile": {
-          "lib/net5.0/Microsoft.Toolkit.HighPerformance.dll": {
-            "related": ".pdb;.xml"
-          }
-        },
-        "runtime": {
-          "lib/net5.0/Microsoft.Toolkit.HighPerformance.dll": {
-            "related": ".pdb;.xml"
-          }
-        }
-      },
-      "Rcl.NET/1.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Toolkit.HighPerformance": "7.1.2",
-          "Rosidl.Runtime": "1.3.0"
-        },
-        "compile": {
-          "lib/net8.0/Rcl.NET.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/net8.0/Rcl.NET.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "Rosidl.Runtime/1.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Toolkit.HighPerformance": "7.1.2"
-        },
-        "compile": {
-          "lib/net8.0/Rosidl.Runtime.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/net8.0/Rosidl.Runtime.dll": {
-            "related": ".xml"
-          }
-        }
-      }
-    },
-    "net8.0/linux-x64": {
-      "Microsoft.NET.ILLink.Tasks/8.0.5": {
-        "type": "package",
-        "build": {
-          "build/Microsoft.NET.ILLink.Tasks.props": {}
-        }
-      },
       "Microsoft.Toolkit.HighPerformance/7.1.2": {
         "type": "package",
         "compile": {
@@ -111,57 +51,6 @@
     }
   },
   "libraries": {
-    "Microsoft.NET.ILLink.Tasks/8.0.5": {
-      "sha512": "4ISW1Ndgz86FkIbu5rVlMqhhtojdy5rUlxC/N+9kPh9qbYcvHiCvYbHKzAPVIx9OPYIjT9trXt7JI42Y5Ukq6A==",
-      "type": "package",
-      "path": "microsoft.net.illink.tasks/8.0.5",
-      "hasTools": true,
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "Icon.png",
-        "LICENSE.TXT",
-        "Sdk/Sdk.props",
-        "THIRD-PARTY-NOTICES.TXT",
-        "analyzers/dotnet/cs/ILLink.CodeFixProvider.dll",
-        "analyzers/dotnet/cs/ILLink.RoslynAnalyzer.dll",
-        "build/Microsoft.NET.ILLink.Analyzers.props",
-        "build/Microsoft.NET.ILLink.Tasks.props",
-        "build/Microsoft.NET.ILLink.targets",
-        "microsoft.net.illink.tasks.8.0.5.nupkg.sha512",
-        "microsoft.net.illink.tasks.nuspec",
-        "tools/net472/ILLink.Tasks.dll",
-        "tools/net472/ILLink.Tasks.dll.config",
-        "tools/net472/Mono.Cecil.Mdb.dll",
-        "tools/net472/Mono.Cecil.Pdb.dll",
-        "tools/net472/Mono.Cecil.Rocks.dll",
-        "tools/net472/Mono.Cecil.dll",
-        "tools/net472/Sdk/Sdk.props",
-        "tools/net472/System.Buffers.dll",
-        "tools/net472/System.Collections.Immutable.dll",
-        "tools/net472/System.Memory.dll",
-        "tools/net472/System.Numerics.Vectors.dll",
-        "tools/net472/System.Reflection.Metadata.dll",
-        "tools/net472/System.Runtime.CompilerServices.Unsafe.dll",
-        "tools/net472/build/Microsoft.NET.ILLink.Analyzers.props",
-        "tools/net472/build/Microsoft.NET.ILLink.Tasks.props",
-        "tools/net472/build/Microsoft.NET.ILLink.targets",
-        "tools/net8.0/ILLink.Tasks.deps.json",
-        "tools/net8.0/ILLink.Tasks.dll",
-        "tools/net8.0/Mono.Cecil.Mdb.dll",
-        "tools/net8.0/Mono.Cecil.Pdb.dll",
-        "tools/net8.0/Mono.Cecil.Rocks.dll",
-        "tools/net8.0/Mono.Cecil.dll",
-        "tools/net8.0/Sdk/Sdk.props",
-        "tools/net8.0/build/Microsoft.NET.ILLink.Analyzers.props",
-        "tools/net8.0/build/Microsoft.NET.ILLink.Tasks.props",
-        "tools/net8.0/build/Microsoft.NET.ILLink.targets",
-        "tools/net8.0/illink.deps.json",
-        "tools/net8.0/illink.dll",
-        "tools/net8.0/illink.runtimeconfig.json",
-        "useSharedDesignerContext.txt"
-      ]
-    },
     "Microsoft.Toolkit.HighPerformance/7.1.2": {
       "sha512": "cezzRky0BUJyYmSrcQUcX8qAv90JfUwCqWEbqfWZLHyeANo9/LWgW6y50pqbyc8r8SPXVsu2GNH98fB3VxrnvA==",
       "type": "package",
@@ -231,7 +120,6 @@
   },
   "projectFileDependencyGroups": {
     "net8.0": [
-      "Microsoft.NET.ILLink.Tasks >= 8.0.5",
       "Rcl.NET >= 1.3.0",
       "Rosidl.Runtime >= 1.3.0"
     ]
@@ -273,12 +161,6 @@
       "net8.0": {
         "targetAlias": "net8.0",
         "dependencies": {
-          "Microsoft.NET.ILLink.Tasks": {
-            "suppressParent": "All",
-            "target": "Package",
-            "version": "[8.0.5, )",
-            "autoReferenced": true
-          },
           "Rcl.NET": {
             "target": "Package",
             "version": "[1.3.0, )"
@@ -299,23 +181,12 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
-        "downloadDependencies": [
-          {
-            "name": "Microsoft.NETCore.App.Host.linux-x64",
-            "version": "[8.0.5, 8.0.5]"
-          }
-        ],
         "frameworkReferences": {
           "Microsoft.NETCore.App": {
             "privateAssets": "all"
           }
         },
         "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.105/PortableRuntimeIdentifierGraph.json"
-      }
-    },
-    "runtimes": {
-      "linux-x64": {
-        "#import": []
       }
     }
   }
