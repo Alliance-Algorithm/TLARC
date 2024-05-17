@@ -1,18 +1,3 @@
-# Alliance 2024 RM Sentry Decision Maker
-
-## [TLARC](https://github.com/Alliance-Algorithm/TLARC) ：the Top Layer Apex Contol System with ROS2：humble and dotnet C#
-
-## Fatal: Do not use in HIGHT SPEED control flow
-this is a top layer controller,you can use in frequency less then 300 (I guess), we have prove that ros is not fit in hight speed control flow 
-
-## Tutorial
-Is Internal Project, so i will teach it offline
-
-## Environment Build
-### [RCLNET](https://github.com/noelex/rclnet)
-### Dev Container
-if you want to develop it,just create these into your Dockerfile
-```[docker]
 FROM ros:humble
 
 SHELL ["/bin/bash", "-c"]
@@ -52,6 +37,3 @@ RUN wget https://gitee.com/mirrors/oh-my-zsh/raw/master/tools/install.sh -O zsh-
 RUN chsh root -s /bin/zsh
 
 RUN echo "source /opt/ros/humble/setup.zsh" >> ~/.zshrc
-```
----
-There is nothing diff between c++ and c#,just colcon build and runit

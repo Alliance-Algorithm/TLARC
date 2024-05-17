@@ -42,46 +42,48 @@ namespace AllianceDM.Nav
             maxValue = 0;
             model.Output.Current.Length();
             Dir = Vector2.Zero;
+            Dir = new Vector2(0, 0);
             if (nav.Output.X == 0 && nav.Output.Y == 0)
             {
-                Dir = new(0, 0);
                 return;
             }
             if (model.Output.Sample == null)
                 return;
             if (obstacle.Resolution == 0)
                 return;
+            currentSpeed = model.Output.Current.Length();
             foreach (var v in model.Output.Sample)
             {
                 var t = Evaluate(v);
                 if (t > maxValue)
                 {
-                    // Dir = Rotate(v, -sentry.Output.angle);
                     Dir = v;
+                    // Dir = v / model.Output.timeResolution;
                     maxValue = t;
                 }
             }
+            Rotate(Dir, -sentry.Output.angle);
         }
 
         float Evaluate(Vector2 predict)
         {
-            float angle = Vector2.Dot(predict, model.Output.Current);
+            float angle = Vector2.Dot(predict + model.Output.Current, model.Output.Current);
             if (currentSpeed == 0)
                 angle = 0;
             else
             {
-                angle = angle / predict.Length() / model.Output.Current.Length();
+                angle = angle / (predict + model.Output.Current).Length() / currentSpeed;
             }
 
             float angle2 = Vector2.Dot(Rotate(predict, sentry.Output.angle), nav.Output - sentry.Output.pos);
             angle2 = angle2 / predict.Length() / (nav.Output - sentry.Output.pos).Length();
 
-            var vv = new Vector2(-predict.Y, -predict.X);
-            Vector2 pos = (model.Output.Current + predict) * 0.5f * model.Output.timeResolution;
+            Vector2 pos = (predict + model.Output.Current) * 0.5f * model.Output.timeResolution;
+            var vv = new Vector2(-pos.Y, -pos.X);
             float dis = 100 - (nav.Output - pos - sentry.Output.pos).Length();
-            pos = (model.Output.Current + Rotate(vv, -sentry.Output.angle)) * 0.5f * model.Output.timeResolution;
+            pos = Rotate(vv, -sentry.Output.angle);
             pos = pos / obstacle.Resolution + obstacle.Map.GetLength(1) / 2 * Vector2.One;
-            return dis + (1 - angle) * headingCoef + obstacle.Map[(int)pos.X, (int)pos.Y] * obstacleCoef + predict.Length() * velocityCoef;
+            return dis + (1 + angle) * headingCoef + obstacle.Map[(int)pos.X, (int)pos.Y] * obstacleCoef + predict.Length() * velocityCoef;
         }
 
         Vector2 Rotate(in Vector2 vec, in double angle)
