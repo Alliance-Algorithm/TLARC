@@ -1,14 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "/vVGMIXojBnjSPR801WUOK4H/rWPOPz1ui01oD7xxFlRoI4DTBSXH7oPSRRQyEpMAGEY3cregFGPR9VjMIkYuQ==",
+  "dgSpecHash": "/FTCYwbBXBI/bdEklhpDII3lliO6PBsT29bQSZgOS4WsZz5F+PjF3lSNgiWokf17iBE1vimdBP+YPB4y7DFQJw==",
   "success": true,
   "projectFilePath": "/workspaces/TLARC/decision_maker.csproj",
   "expectedPackageFiles": [
-    "/root/.nuget/packages/microsoft.net.illink.tasks/8.0.5/microsoft.net.illink.tasks.8.0.5.nupkg.sha512",
     "/root/.nuget/packages/microsoft.toolkit.highperformance/7.1.2/microsoft.toolkit.highperformance.7.1.2.nupkg.sha512",
     "/root/.nuget/packages/rcl.net/1.3.0/rcl.net.1.3.0.nupkg.sha512",
-    "/root/.nuget/packages/rosidl.runtime/1.3.0/rosidl.runtime.1.3.0.nupkg.sha512",
-    "/root/.nuget/packages/microsoft.netcore.app.host.linux-x64/8.0.5/microsoft.netcore.app.host.linux-x64.8.0.5.nupkg.sha512"
+    "/root/.nuget/packages/rosidl.runtime/1.3.0/rosidl.runtime.1.3.0.nupkg.sha512"
   ],
   "logs": []
 }

@@ -59,9 +59,9 @@
             "assembly": "AllianceDM.Nav",
             "type": "ESDFBuilder",
             "arg": [
-                "/local_nav/map_2d",
+                "/local_nav/map",
                 120,
-                0.5
+                0.3
             ]
         },
         {
