@@ -1,4 +1,5 @@
 
+using System.Numerics;
 using AllianceDM.StdComponent;
 using Rosidl.Messages.Builtin;
 
@@ -18,6 +19,8 @@ namespace AllianceDM.StateMechines
         float timer;
         bool comeback;
         float maxtime;
+        Vector3 gimbalForward1 = new();
+        Vector3 gimbalForward2 = new();
         public override void Awake()
         {
             ControlPos = DecisionMaker.FindComponent<Transform2D>(RecieveID[0]);
@@ -30,15 +33,21 @@ namespace AllianceDM.StateMechines
             SentryTargetRevisePos = DecisionMaker.FindComponent<Transform2D>(RecieveID[7]);
             TargetPos = DecisionMaker.FindComponent<Transform2D>(uint.Parse(Args[0]));
             maxtime = float.Parse(Args[1]);
+
+
         }
         public override void Update()
         {
+            gimbalForward1 = new(0, 0, 0);
+            gimbalForward2 = new(0, 0, 0);
             comeback = false;
             switch (fsm.Output)
             {
                 case Status.Invinciable:
                     timer = DateTime.Now.Second;
                     TargetPos.Set(ControlPos.Output.pos);
+                    gimbalForward1 = new(0, 1, 1);
+                    gimbalForward2 = new(0, -1, 1);
                     break;
                 case Status.LowState:
                     if (DateTime.Now.Second - timer > maxtime - 15)
@@ -73,6 +82,31 @@ namespace AllianceDM.StateMechines
             }
 
 
+        }
+        public override void Echo(string topic, int frameRate)
+        {
+            Task.Run(async () =>
+            {
+                using var pub = Ros2Def.node.CreatePublisher<Rosidl.Messages.Geometry.Vector3>(topic + "1");
+                using var pub2 = Ros2Def.node.CreatePublisher<Rosidl.Messages.Geometry.Vector3>(topic + "2");
+                using var nativeMsg = pub.CreateBuffer();
+                using var timer = Ros2Def.context.CreateTimer(Ros2Def.node.Clock, TimeSpan.FromMilliseconds(value: 1000 / frameRate));
+
+                while (true)
+                {
+                    gimbalForward1 /= gimbalForward1.Length();
+                    gimbalForward2 /= gimbalForward2.Length();
+                    nativeMsg.AsRef<Rosidl.Messages.Geometry.Vector3.Priv>().X = gimbalForward1.X;
+                    nativeMsg.AsRef<Rosidl.Messages.Geometry.Vector3.Priv>().Y = gimbalForward1.Y;
+                    nativeMsg.AsRef<Rosidl.Messages.Geometry.Vector3.Priv>().Z = gimbalForward1.Z;
+                    pub.Publish(nativeMsg);
+                    nativeMsg.AsRef<Rosidl.Messages.Geometry.Vector3.Priv>().X = gimbalForward2.X;
+                    nativeMsg.AsRef<Rosidl.Messages.Geometry.Vector3.Priv>().Y = gimbalForward2.Y;
+                    nativeMsg.AsRef<Rosidl.Messages.Geometry.Vector3.Priv>().Z = gimbalForward2.Z;
+                    pub2.Publish(nativeMsg);
+                    await timer.WaitOneAsync(false);
+                }
+            });
         }
     }
 }
