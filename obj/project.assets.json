@@ -125,19 +125,19 @@
     ]
   },
   "packageFolders": {
-    "/home/alray/.nuget/packages/": {}
+    "/root/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/alray/wkspaces/TLARC/decision_maker.csproj",
+      "projectUniqueName": "/workspaces/TLARC/decision_maker.csproj",
       "projectName": "decision_maker",
-      "projectPath": "/home/alray/wkspaces/TLARC/decision_maker.csproj",
-      "packagesPath": "/home/alray/.nuget/packages/",
-      "outputPath": "/home/alray/wkspaces/TLARC/obj/",
+      "projectPath": "/workspaces/TLARC/decision_maker.csproj",
+      "packagesPath": "/root/.nuget/packages/",
+      "outputPath": "/workspaces/TLARC/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/alray/.nuget/NuGet/NuGet.Config"
+        "/root/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"

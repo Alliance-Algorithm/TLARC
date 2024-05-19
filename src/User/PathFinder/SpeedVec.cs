@@ -44,7 +44,6 @@ namespace AllianceDM.Nav
                 using var timer = Ros2Def.context.CreateTimer(Ros2Def.node.Clock, TimeSpan.FromMilliseconds(value: 1000 / frameRate));
 
                 //tmp
-
                 using var pub2 = Ros2Def.node.CreatePublisher<Pose2D>("/sentry/sensor/velocity");
 
                 while (true)

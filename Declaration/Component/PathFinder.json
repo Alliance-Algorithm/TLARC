@@ -47,7 +47,7 @@
             "arg": [
                 120,
                 10,
-                0.1,
+                0.5,
                 0.8,
                 0.3,
                 "/sentry/sensor/velocity"
@@ -61,7 +61,7 @@
             "arg": [
                 "/local_nav/map",
                 120,
-                0.3
+                0.5
             ]
         },
         {
@@ -75,8 +75,8 @@
             "assembly": "AllianceDM.Nav",
             "type": "DWA",
             "arg": [
-                0.1,
-                0.3,
+                0.2,
+                0.4,
                 0.01
             ]
         },
