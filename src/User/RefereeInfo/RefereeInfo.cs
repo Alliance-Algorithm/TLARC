@@ -8,8 +8,8 @@ namespace AllianceDM.PreInfo
         public override void Awake()
         {
             Hp = 600;
-            IsInvinciable = false;
-            IsUVALaunch = false;
+            IsInvinciable = true;
+            IsUVALaunch = true;
         }
 
         public override void Update()
