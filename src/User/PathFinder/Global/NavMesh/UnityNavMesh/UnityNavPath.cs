@@ -49,7 +49,7 @@ namespace AllianceDM.Nav
                 for (int i = 0, k = msg.Poses.Length; i < k; i++)
                 {
                     Vector2 p = new((float)msg.Poses[i].Pose.Position.X, (float)msg.Poses[i].Pose.Position.Y);
-                    if ((SentryPosition.Output.pos - p).Length() < 0.05f)
+                    if ((SentryPosition.Output.pos - p).Length() < 0.3f)
                         continue;
                     DestPos = p;
                     break;

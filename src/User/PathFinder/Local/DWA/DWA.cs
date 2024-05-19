@@ -85,7 +85,7 @@ namespace AllianceDM.Nav
             float angle2 = Vector2.Dot(Rotate(predict, sentry.Output.angle), nav.Output - sentry.Output.pos);
             angle2 = angle2 / predict.Length() / (nav.Output - sentry.Output.pos).Length();
 
-            Vector2 pos = (predict + model.Output.Current) * 0.5f * model.Output.timeResolution;
+            Vector2 pos = (predict + model.Output.Current + model.Output.Current) * 0.5f * model.Output.timeResolution;
             var vv = new Vector2(-pos.Y, -pos.X);
             float dis = 100 - (nav.Output - pos - sentry.Output.pos).Length();
             pos = Rotate(vv, sentry.Output.angle);

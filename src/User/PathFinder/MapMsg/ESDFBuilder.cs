@@ -55,7 +55,7 @@ namespace AllianceDM.Nav
 
         public override void Update()
         {
-            watchDog.Update();
+            // watchDog.Update();
             lock (lock_) ;
         }
 
