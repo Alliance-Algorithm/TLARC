@@ -1,4 +1,5 @@
 using AllianceDM.IO;
+using AllianceDM.Utils;
 using Rosidl.Messages.Nav;
 using Rosidl.Messages.Std;
 
@@ -13,10 +14,13 @@ namespace AllianceDM.Nav
         float ESDF_MaxDistance;
         const float SQRT2 = 1.414213562f;
         object lock_ = new object();
+        WatchDog watchDog;
         public override void Awake()
         {
+            watchDog = new WatchDog(1.5f, () => { _map = new sbyte[0, 0]; });
             IOManager.RegistryMassage(Args[0], (OccupancyGrid msg) =>
             {
+                watchDog.Feed();
                 lock (lock_)
                 {
                     if (Map.GetLength(0) != msg.Info.Height)
@@ -51,6 +55,7 @@ namespace AllianceDM.Nav
 
         public override void Update()
         {
+            // watchDog.Update();
             lock (lock_) ;
         }
 
