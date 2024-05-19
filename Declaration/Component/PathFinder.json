@@ -48,7 +48,7 @@
                 120,
                 10,
                 0.5,
-                0.8,
+                1000,
                 0.3,
                 "/sentry/sensor/velocity"
             ]
@@ -73,11 +73,11 @@
                 21
             ],
             "assembly": "AllianceDM.Nav",
-            "type": "DWA",
+            "type": "Simple",
             "arg": [
-                0.2,
-                0.4,
-                0.01
+                0,
+                0,
+                0
             ]
         },
         {

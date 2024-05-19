@@ -74,6 +74,8 @@ namespace AllianceDM
         {
             for (int i = 0; i < PoolDim + 1; i++)
                 tasks[i] = [];
+            // lock (DecisionMakerDef.ReadLock)
+            // {
             for (int i = 1; i < PoolDim; i++)
             {
                 foreach (var a in UpdateFuncs[i])
@@ -81,6 +83,7 @@ namespace AllianceDM
                     tasks[a.Ealy].Add(Task.Run(a.Update));
                 }
                 Task.WaitAll([.. tasks[i]]);
+                // }
             }
         }
         static void OutputUpdate()

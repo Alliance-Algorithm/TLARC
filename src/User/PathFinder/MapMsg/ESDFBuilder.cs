@@ -13,18 +13,21 @@ namespace AllianceDM.Nav
         float boxSize;
         float ESDF_MaxDistance;
         const float SQRT2 = 1.414213562f;
-        object lock_ = new object();
         WatchDog watchDog;
         public override void Awake()
         {
+            Map = new sbyte[0, 0];
             watchDog = new WatchDog(1.5f, () => { _map = new sbyte[0, 0]; });
             IOManager.RegistryMassage(Args[0], (OccupancyGrid msg) =>
             {
                 watchDog.Feed();
                 lock (lock_)
                 {
-                    if (Map.GetLength(0) != msg.Info.Height)
+                    if (Map == null || Map.GetLength(0) != msg.Info.Height)
+                    {
                         _map = new sbyte[msg.Info.Height, msg.Info.Width];
+                        Map = new sbyte[msg.Info.Height, msg.Info.Width];
+                    }
                     Buffer.BlockCopy(msg.Data, 0, _map, 0, msg.Data.Length);
                     _resolution = msg.Info.Resolution;
                     MakeESDF(ref _map);
@@ -55,8 +58,11 @@ namespace AllianceDM.Nav
 
         public override void Update()
         {
-            watchDog.Update();
-            lock (lock_) ;
+            // watchDog.Update();
+            if (_map.Length == 0)
+                return;
+            lock (lock_)
+                Buffer.BlockCopy(_map, 0, Map, 0, _map.Length);
         }
 
         public void MakeESDF(ref sbyte[,] map)

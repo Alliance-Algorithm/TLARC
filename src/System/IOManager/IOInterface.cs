@@ -47,11 +47,14 @@ namespace AllianceDM.IO
             bool l = false;
             await foreach (var i in subscription.ReadAllAsync())
             {
+                // lock (DecisionMakerDef.ReadLock)
+                // {
                 if (l)
                     continue;
                 l = true;
                 handler(i);
                 l = false;
+                // }
             }
             Console.WriteLine(name + ":Registry");
         }

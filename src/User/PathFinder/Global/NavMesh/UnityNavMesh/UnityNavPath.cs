@@ -16,6 +16,8 @@ namespace AllianceDM.Nav
         Transform2D SentryPosition;
         Transform2D DestinationPosition;
 
+        object lock_ = new();
+
 
         public override void Awake()
         {
@@ -44,15 +46,18 @@ namespace AllianceDM.Nav
 
             IOManager.RegistryMassage(Args[1], (Rosidl.Messages.Nav.Path msg) =>
             {
-                DestPos.X = 0;
-                DestPos.Y = 0;
-                for (int i = 0, k = msg.Poses.Length; i < k; i++)
+                lock (lock_)
                 {
-                    Vector2 p = new((float)msg.Poses[i].Pose.Position.X, (float)msg.Poses[i].Pose.Position.Y);
-                    if ((SentryPosition.Output.pos - p).Length() < 0.05f)
-                        continue;
-                    DestPos = p;
-                    break;
+                    DestPos.X = 0;
+                    DestPos.Y = 0;
+                    for (int i = 0, k = msg.Poses.Length; i < k; i++)
+                    {
+                        Vector2 p = new((float)msg.Poses[i].Pose.Position.X, (float)msg.Poses[i].Pose.Position.Y);
+                        if ((SentryPosition.Output.pos - p).Length() < 0.05f)
+                            continue;
+                        DestPos = p;
+                        break;
+                    }
                 }
 
             });
@@ -60,8 +65,8 @@ namespace AllianceDM.Nav
         }
         public override void Update()
         {
-
+            lock (lock_)
+                Output = DestPos;
         }
-
     }
 }

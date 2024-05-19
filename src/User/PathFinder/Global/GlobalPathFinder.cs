@@ -6,6 +6,6 @@ namespace AllianceDM.Nav
     {
         protected Vector2 DestPos;
 
-        public Vector2 Output => DestPos;
+        public Vector2 Output;
     }
 }
