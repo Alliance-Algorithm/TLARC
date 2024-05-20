@@ -54,7 +54,7 @@ namespace AllianceDM.Nav
                 return;
             if ((nav.Output - fastpos).Length() < 1)
             {
-                Dir = Rotate(nav.Output - fastpos, sentry.Output.angle);
+                Dir = Rotate(nav.Output - fastpos, -sentry.Output.angle);
             }
             else
             {
@@ -87,7 +87,7 @@ namespace AllianceDM.Nav
             // angle2 = angle2 / predict.Length() / (nav.Output - fastpos).Length();
 
             Vector2 pos = (predict + model.Output.Current) * 0.5f * model.Output.timeResolution;
-            pos = Rotate(pos, -sentry.Output.angle);
+            pos = Rotate(pos, sentry.Output.angle);
             var vv = new Vector2(-pos.Y, -pos.X);
             float dis = 100 - (nav.Output - pos - fastpos).Length();
             pos = vv;

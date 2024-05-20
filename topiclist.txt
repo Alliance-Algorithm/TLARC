@@ -1,0 +1,5 @@
+比赛开始信号 bool /referee/game/begin
+对方前哨站血量 int /referee/outpost/enemy
+己方. . . . .  int /referee/outpost/friend
+受打方向（不急，我写了随机移动） vector2/vector3 /referee/demage/direction
+血量（重要） int /referee/sentry/hp
