@@ -59,10 +59,7 @@ namespace AllianceDM.Nav
         public override void Update()
         {
             // watchDog.Update();
-            if (_map.Length == 0)
-                return;
-            lock (lock_)
-                Buffer.BlockCopy(_map, 0, Map, 0, _map.Length);
+            lock (lock_) ;
         }
 
         public void MakeESDF(ref sbyte[,] map)

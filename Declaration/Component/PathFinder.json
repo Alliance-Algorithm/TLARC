@@ -40,6 +40,31 @@
             ]
         },
         {
+            "this_id": 20,
+            "input_id": [],
+            "assembly": "AllianceDM.CarModels",
+            "type": "OmniCar",
+            "arg": [
+                60,
+                50,
+                0.5,
+                0.8,
+                0.3,
+                "/sentry/sensor/velocity"
+            ]
+        },
+        {
+            "this_id": 21,
+            "input_id": [],
+            "assembly": "AllianceDM.Nav",
+            "type": "ESDFBuilder",
+            "arg": [
+                "/local_nav/map",
+                120,
+                0.5
+            ]
+        },
+        {
             "this_id": 4,
             "input_id": [
                 3,
@@ -49,8 +74,8 @@
             "type": "Simple",
             "arg": [
                 0,
-                0,
-                0
+                0.4,
+                0.01
             ]
         },
         {

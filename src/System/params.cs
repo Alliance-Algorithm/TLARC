@@ -21,8 +21,7 @@ namespace AllianceDM
         internal static string ComponentsPath = Environment.ProcessPath + "/../../../share/Declaration/Component";
         internal static string GameObjectsPath = Environment.ProcessPath + "/../../../share/Declaration/Gameobject";
 #endif
-                internal const int fps = 50;
-                internal static object ReadLock = new();
+                internal const int fps = 10;
         }
 
 }
