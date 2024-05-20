@@ -45,12 +45,15 @@ namespace AllianceDM.Nav
 
                 //tmp
                 using var pub2 = Ros2Def.node.CreatePublisher<Pose2D>("/sentry/sensor/velocity");
+                using var nativeMsg2 = pub2.CreateBuffer();
 
                 while (true)
                 {
                     nativeMsg.AsRef<Pose2D.Priv>().X = Speed.X;
                     nativeMsg.AsRef<Pose2D.Priv>().Y = Speed.Y;
                     pub.Publish(nativeMsg);
+                    nativeMsg2.AsRef<Pose2D.Priv>().X = local.Output.X;
+                    nativeMsg2.AsRef<Pose2D.Priv>().Y = local.Output.Y;
                     pub2.Publish(nativeMsg);
                     await timer.WaitOneAsync(false);
                 }
