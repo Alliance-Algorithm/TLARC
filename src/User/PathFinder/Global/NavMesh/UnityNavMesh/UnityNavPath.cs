@@ -54,6 +54,7 @@ namespace AllianceDM.Nav
                     DestPos = p;
                     break;
                 }
+                Console.WriteLine((DestPos.X, DestPos.Y));
 
             });
 
