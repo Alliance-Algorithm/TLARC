@@ -10,6 +10,7 @@ namespace AllianceDM.StateMechines
         Transform2D HiddenPos;
         Transform2D CurisePosMain;
         Transform2D CurisePos2;
+        Transform2D CurisePos3;
         Transform2D ControlPos;
         Transform2D RechargeArea;
         SimpleFSM_RMUC fsm;
@@ -17,6 +18,7 @@ namespace AllianceDM.StateMechines
         Transform2D SentryTargetRevisePos;
         Transform2D TargetPos;
         float timer;
+        float rand;
         bool comeback;
         float maxtime;
         Vector3 gimbalForward1 = new();
@@ -26,13 +28,15 @@ namespace AllianceDM.StateMechines
             ControlPos = DecisionMaker.FindComponent<Transform2D>(RecieveID[0]);
             CurisePosMain = DecisionMaker.FindComponent<Transform2D>(RecieveID[1]);
             CurisePos2 = DecisionMaker.FindComponent<Transform2D>(RecieveID[2]);
-            HiddenPos = DecisionMaker.FindComponent<Transform2D>(RecieveID[3]);
-            RechargeArea = DecisionMaker.FindComponent<Transform2D>(RecieveID[4]);
-            fsm = DecisionMaker.FindComponent<SimpleFSM_RMUC>(RecieveID[5]);
-            SentryPos = DecisionMaker.FindComponent<Transform2D>(RecieveID[6]);
-            SentryTargetRevisePos = DecisionMaker.FindComponent<Transform2D>(RecieveID[7]);
+            CurisePos3 = DecisionMaker.FindComponent<Transform2D>(RecieveID[3]);
+            HiddenPos = DecisionMaker.FindComponent<Transform2D>(RecieveID[4]);
+            RechargeArea = DecisionMaker.FindComponent<Transform2D>(RecieveID[5]);
+            fsm = DecisionMaker.FindComponent<SimpleFSM_RMUC>(RecieveID[6]);
+            SentryPos = DecisionMaker.FindComponent<Transform2D>(RecieveID[7]);
+            SentryTargetRevisePos = DecisionMaker.FindComponent<Transform2D>(RecieveID[8]);
             TargetPos = DecisionMaker.FindComponent<Transform2D>(uint.Parse(Args[0]));
             maxtime = float.Parse(Args[1]);
+            rand = DateTime.Now.Second;
 
 
         }
@@ -64,7 +68,18 @@ namespace AllianceDM.StateMechines
                     break;
                 case Status.Curise:
                     timer = DateTime.Now.Second;
-                    TargetPos.Set(CurisePosMain.Output.pos);
+                    switch ((int)(rand - DateTime.Now.Second) / 3 % 3)
+                    {
+                        case 0:
+                            TargetPos.Set(CurisePosMain.Output.pos);
+                            break;
+                        case 1:
+                            TargetPos.Set(CurisePos2.Output.pos);
+                            break;
+                        case 2:
+                            TargetPos.Set(CurisePos3.Output.pos);
+                            break;
+                    }
                     break;
                 case Status.Hidden:
                     if (DateTime.Now.Second - timer > maxtime - 10)
