@@ -48,7 +48,7 @@ namespace AllianceDM.Nav
                 return;
             }
             Dir = nav.Output - sentry.Output.pos;
-            Dir = Rotate(Dir, sentry.Output.angle);
+            Dir = Rotate(Dir, sentry.Output.angle) / Dir.Length();
         }
 
         Vector2 Rotate(in Vector2 vec, in double angle)
