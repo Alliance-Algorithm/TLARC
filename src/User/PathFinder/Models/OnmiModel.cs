@@ -42,7 +42,7 @@ namespace AllianceDM.CarModels
                     var head = MathF.SinCos(i / circleResolution * 2 * MathF.PI);
                     for (float j = 0; j < lieanerResolution; j++)
                     {
-                        var t = accimit * new Vector2(head.Sin, head.Cos) * j / lieanerResolution * timeResolution;
+                        var t = accimit * new Vector2(head.Sin, head.Cos) * j / lieanerResolution;
                         if ((t + currentSpeed).Length() < speedlimit)
                             values.Add(t);
                     }
