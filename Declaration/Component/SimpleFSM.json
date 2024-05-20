@@ -31,6 +31,16 @@
             ]
         },
         {
+            "this_id": "30",
+            "input_id": [],
+            "assembly": "AllianceDM.StdComponent",
+            "type": "Transform2D",
+            "arg": [
+                "CurisePos3",
+                "R"
+            ]
+        },
+        {
             "this_id": "10",
             "input_id": [],
             "assembly": "AllianceDM.StdComponent",
@@ -82,6 +92,7 @@
                 7,
                 8,
                 9,
+                30,
                 11,
                 12,
                 14,

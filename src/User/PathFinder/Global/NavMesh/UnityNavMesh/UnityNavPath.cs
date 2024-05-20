@@ -32,8 +32,9 @@ namespace AllianceDM.Nav
 
                 while (true)
                 {
-                    nativeMsg.AsRef<Pose2D.Priv>().X = SentryPosition.Output.pos.X;
-                    nativeMsg.AsRef<Pose2D.Priv>().Y = SentryPosition.Output.pos.Y;
+                    var fastpos = new Vector2(-SentryPosition.Output.pos.X, SentryPosition.Output.pos.Y);
+                    nativeMsg.AsRef<Pose2D.Priv>().X = fastpos.X;
+                    nativeMsg.AsRef<Pose2D.Priv>().Y = fastpos.Y;
                     nativeMsg2.AsRef<Pose2D.Priv>().X = DestinationPosition.Output.pos.X;
                     nativeMsg2.AsRef<Pose2D.Priv>().Y = DestinationPosition.Output.pos.Y;
                     pub.Publish(nativeMsg);
@@ -44,16 +45,18 @@ namespace AllianceDM.Nav
 
             IOManager.RegistryMassage(Args[1], (Rosidl.Messages.Nav.Path msg) =>
             {
+                var fastpos = new Vector2(-SentryPosition.Output.pos.X, SentryPosition.Output.pos.Y);
                 DestPos.X = 0;
                 DestPos.Y = 0;
                 for (int i = 0, k = msg.Poses.Length; i < k; i++)
                 {
                     Vector2 p = new((float)msg.Poses[i].Pose.Position.X, (float)msg.Poses[i].Pose.Position.Y);
-                    if ((SentryPosition.Output.pos - p).Length() < 0.3f)
+                    if ((fastpos - p).Length() < 0.3f)
                         continue;
                     DestPos = p;
                     break;
                 }
+                Console.WriteLine((DestPos.X, DestPos.Y));
 
             });
 

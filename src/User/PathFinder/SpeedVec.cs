@@ -29,7 +29,8 @@ namespace AllianceDM.Nav
         }
         public override void Update()
         {
-            var vec = global.Output - sentry.Output.pos;
+            var fastpos = new Vector2(-sentry.Output.pos.X, sentry.Output.pos.Y);
+            var vec = global.Output - fastpos;
             vec = new(vec.X, vec.Y);
             if (vec.Length() != 0)
                 vec = (Math.Clamp(vec.Length() / MaxSpeedDistance, 0, 1) * (SpeedMax - SpeedMin) + SpeedMin) * local.Output;

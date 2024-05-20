@@ -33,7 +33,8 @@ namespace AllianceDM.Nav
 
         public override void Update()
         {
-            Dir = nav.Output - sentry.Output.pos;
+            var fastpos = new Vector2(-sentry.Output.pos.X, sentry.Output.pos.Y);
+            Dir = nav.Output - fastpos;
             // model.Output.Current.Length();
             Dir = Vector2.Zero;
             Dir = new Vector2(0, 0);
@@ -41,7 +42,7 @@ namespace AllianceDM.Nav
             {
                 return;
             }
-            Dir = nav.Output - sentry.Output.pos;
+            Dir = nav.Output - fastpos;
             Dir = Rotate(Dir, sentry.Output.angle) / Dir.Length();
         }
 
