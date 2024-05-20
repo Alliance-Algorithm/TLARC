@@ -38,7 +38,8 @@ namespace AllianceDM.Nav
 
         public override void Update()
         {
-            Dir = nav.Output - sentry.Output.pos;
+            var fastpos = new Vector2(-sentry.Output.pos.X, sentry.Output.pos.Y);
+            Dir = nav.Output - fastpos;
             maxValue = 0;
             model.Output.Current.Length();
             Dir = Vector2.Zero;
@@ -51,9 +52,9 @@ namespace AllianceDM.Nav
                 return;
             if (obstacle.Resolution == 0)
                 return;
-            if ((nav.Output - sentry.Output.pos).Length() < 1)
+            if ((nav.Output - fastpos).Length() < 1)
             {
-                Dir = Rotate(nav.Output - sentry.Output.pos, sentry.Output.angle);
+                Dir = Rotate(nav.Output - fastpos, sentry.Output.angle);
             }
             else
             {
@@ -73,6 +74,7 @@ namespace AllianceDM.Nav
 
         float Evaluate(Vector2 predict)
         {
+            var fastpos = new Vector2(-sentry.Output.pos.X, sentry.Output.pos.Y);
             float angle = Vector2.Dot(predict, model.Output.Current);
             if (currentSpeed == 0)
                 angle = 0;
@@ -81,13 +83,14 @@ namespace AllianceDM.Nav
                 angle = angle / (predict).Length() / currentSpeed;
             }
 
-            // float angle2 = Vector2.Dot(Rotate(predict, sentry.Output.angle), nav.Output - sentry.Output.pos);
-            // angle2 = angle2 / predict.Length() / (nav.Output - sentry.Output.pos).Length();
+            // float angle2 = Vector2.Dot(Rotate(predict, sentry.Output.angle), nav.Output - fastpos);
+            // angle2 = angle2 / predict.Length() / (nav.Output - fastpos).Length();
 
             Vector2 pos = (predict + model.Output.Current) * 0.5f * model.Output.timeResolution;
+            pos = Rotate(pos, -sentry.Output.angle);
             var vv = new Vector2(-pos.Y, -pos.X);
-            float dis = 100 - (nav.Output - pos - sentry.Output.pos).Length();
-            pos = Rotate(vv, sentry.Output.angle);
+            float dis = 100 - (nav.Output - pos - fastpos).Length();
+            pos = vv;
             pos = pos / obstacle.Resolution + obstacle.Map.GetLength(1) / 2 * Vector2.One;
             return dis + (1 + angle) * headingCoef + obstacle.Map[(int)pos.X, (int)pos.Y] * obstacleCoef + (predict).Length() * velocityCoef;
         }

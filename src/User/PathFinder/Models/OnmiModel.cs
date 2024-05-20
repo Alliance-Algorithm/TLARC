@@ -54,7 +54,7 @@ namespace AllianceDM.CarModels
                     for (float j = 0; j < lieanerResolution; j++)
                     {
                         var t = accimit * new Vector2(head.Sin, head.Cos) * j / lieanerResolution;
-                        t = (Rotate(t, sentry.Output.angle) + currentSpeed);
+                        t = Rotate(t, sentry.Output.angle) + currentSpeed;
                         if (t.Length() < speedlimit)
                             values.Add(t);
                     }
