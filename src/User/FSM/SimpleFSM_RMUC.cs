@@ -21,6 +21,8 @@ namespace AllianceDM.StateMechines
             info = DecisionMaker.FindComponent<RefereeInfo>(RecieveID[0]);
             state = Status.Invinciable;
         }
+
+
         public override void Update()
         {
             switch (state)
