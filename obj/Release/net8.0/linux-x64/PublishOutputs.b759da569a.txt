@@ -1,2 +1,0 @@
-/workspaces/TLARC/bin/decision_maker.pdb
-/workspaces/TLARC/bin/decision_maker

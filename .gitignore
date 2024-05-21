@@ -8,4 +8,4 @@ External
 Docker*
 .github
 .devcontainer
-obj
+obj/

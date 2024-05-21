@@ -1,2 +1,0 @@
-/workspaces/DecisionMaker/decision_maker/bin/decision_maker.pdb
-/workspaces/DecisionMaker/decision_maker/bin/decision_maker
