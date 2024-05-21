@@ -33,24 +33,24 @@ namespace AllianceDM.Nav
 
             boxSize = float.Parse(Args[1]);
             ESDF_MaxDistance = float.Parse(Args[2]);
-            Task.Run(async () =>
-            {
-                using var pub = Ros2Def.node.CreatePublisher<OccupancyGrid>("/map_test");
-                using var nativeMsg = pub.CreateBuffer();
-                using var timer = Ros2Def.context.CreateTimer(Ros2Def.node.Clock, TimeSpan.FromMilliseconds(value: 1000 / 1));
-                while (true)
-                {
-                    var temp_map = new sbyte[Map.Length];
-                    Buffer.BlockCopy(Map, 0, temp_map, 0, temp_map.Length);
-                    nativeMsg.AsRef<OccupancyGrid.Priv>().Data.CopyFrom(temp_map);
-                    nativeMsg.AsRef<OccupancyGrid.Priv>().Info.Height = (uint)Map.GetLength(0);
-                    nativeMsg.AsRef<OccupancyGrid.Priv>().Info.Width = (uint)Map.GetLength(1);
-                    nativeMsg.AsRef<OccupancyGrid.Priv>().Info.Resolution = Resolution;
-                    nativeMsg.AsRef<OccupancyGrid.Priv>().Header = new Header.Priv() { FrameId = new Rosidl.Runtime.Interop.CString(new ReadOnlySpan<sbyte>([(sbyte)'m', (sbyte)'a', (sbyte)'p', (sbyte)'_', (sbyte)'2', (sbyte)'d', (sbyte)'_', (sbyte)'l', (sbyte)'i', (sbyte)'n', (sbyte)'k'])) };
-                    pub.Publish(nativeMsg);
-                    await timer.WaitOneAsync(false);
-                }
-            });
+            // Task.Run(async () =>
+            // {
+            //     using var pub = Ros2Def.node.CreatePublisher<OccupancyGrid>("/map_test");
+            //     using var nativeMsg = pub.CreateBuffer();
+            //     using var timer = Ros2Def.context.CreateTimer(Ros2Def.node.Clock, TimeSpan.FromMilliseconds(value: 1000 / 1));
+            //     while (true)
+            //     {
+            //         var temp_map = new sbyte[Map.Length];
+            //         Buffer.BlockCopy(Map, 0, temp_map, 0, temp_map.Length);
+            //         nativeMsg.AsRef<OccupancyGrid.Priv>().Data.CopyFrom(temp_map);
+            //         nativeMsg.AsRef<OccupancyGrid.Priv>().Info.Height = (uint)Map.GetLength(0);
+            //         nativeMsg.AsRef<OccupancyGrid.Priv>().Info.Width = (uint)Map.GetLength(1);
+            //         nativeMsg.AsRef<OccupancyGrid.Priv>().Info.Resolution = Resolution;
+            //         nativeMsg.AsRef<OccupancyGrid.Priv>().Header = new Header.Priv() { FrameId = new Rosidl.Runtime.Interop.CString(new ReadOnlySpan<sbyte>([(sbyte)'m', (sbyte)'a', (sbyte)'p', (sbyte)'_', (sbyte)'2', (sbyte)'d', (sbyte)'_', (sbyte)'l', (sbyte)'i', (sbyte)'n', (sbyte)'k'])) };
+            //         pub.Publish(nativeMsg);
+            //         await timer.WaitOneAsync(false);
+            //     }
+            // });
         }
 
         public override void Update()

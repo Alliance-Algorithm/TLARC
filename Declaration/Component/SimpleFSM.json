@@ -75,7 +75,10 @@
             "input_id": [],
             "assembly": "AllianceDM.PreInfo",
             "type": "RefereeInfo",
-            "arg": []
+            "arg": [
+                "/referee/outpost/hp",
+                "/referee/sentry/hp"
+            ]
         },
         {
             "this_id": "14",
@@ -104,6 +107,18 @@
             "arg": [
                 "2",
                 "40"
+            ]
+        },
+        {
+            "this_id": 50,
+            "input_id": [
+                14
+            ],
+            "assembly": "AllianceDM.IO",
+            "type": "OutputManager",
+            "arg": [
+                "/sentry/control/status",
+                "30"
             ]
         }
     ]

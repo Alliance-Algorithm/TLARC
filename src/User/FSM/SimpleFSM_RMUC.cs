@@ -1,6 +1,7 @@
 using AllianceDM.PreInfo;
 using AllianceDM.StdComponent;
 
+// arge[0] = sratus topic
 namespace AllianceDM.StateMechines
 {
     internal enum Status
@@ -48,5 +49,21 @@ namespace AllianceDM.StateMechines
         }
 
         public Status Output => state;
+        public override void Echo(string topic, int frameRate)
+        {
+            Task.Run(async () =>
+            {
+                using var pub = Ros2Def.node.CreatePublisher<Rosidl.Messages.Std.Int32>(topic);
+                using var nativeMsg = pub.CreateBuffer();
+                using var timer = Ros2Def.context.CreateTimer(Ros2Def.node.Clock, TimeSpan.FromMilliseconds(value: 1000 / frameRate));
+
+                while (true)
+                {
+                    nativeMsg.AsRef<Rosidl.Messages.Std.Int32.Priv>().Data = (int)state;
+                    pub.Publish(nativeMsg);
+                    await timer.WaitOneAsync(false);
+                }
+            });
+        }
     }
 }
