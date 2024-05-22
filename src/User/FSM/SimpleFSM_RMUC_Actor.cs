@@ -66,7 +66,7 @@ namespace AllianceDM.StateMechines
                     else
                         TargetPos.Set(RechargeArea.Output.pos);
                     break;
-                case Status.Curise:
+                case Status.Cruise:
                     timer = DateTime.Now.Second;
                     switch ((int)(DateTime.Now.Second - rand) / 2 % 3)
                     {
