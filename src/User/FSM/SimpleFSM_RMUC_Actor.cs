@@ -68,7 +68,7 @@ namespace AllianceDM.StateMechines
                     break;
                 case Status.Curise:
                     timer = DateTime.Now.Second;
-                    switch ((int)(rand - DateTime.Now.Second) / 3 % 3)
+                    switch ((int)(DateTime.Now.Second - rand) / 2 % 3)
                     {
                         case 0:
                             TargetPos.Set(CurisePosMain.Output.pos);

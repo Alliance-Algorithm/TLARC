@@ -42,7 +42,7 @@ namespace AllianceDM.StateMechines
                 case Status.Curise:
                     if (info.Output.UVA)
                         state = Status.Hidden;
-                    else if (info.Output.Hp < 500)
+                    else if (info.Output.Hp < 150)
                         state = Status.LowState;
                     break;
                 default:

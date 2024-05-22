@@ -14,7 +14,7 @@ namespace AllianceDM.PreInfo
         {
             Hp = 600;
             IsInvinciable = true;
-            IsUVALaunch = true;
+            IsUVALaunch = false;
 
             IOManager.RegistryMassage(Args[0], (Rosidl.Messages.Std.Int32 msg) => { IsInvinciable = msg.Data > 200; });
             IOManager.RegistryMassage(Args[1], (Rosidl.Messages.Std.Int32 msg) => { Hp = msg.Data; });
@@ -22,6 +22,9 @@ namespace AllianceDM.PreInfo
 
         public override void Update()
         {
+            Console.WriteLine(IsInvinciable);
+            Console.WriteLine(Hp);
+
             base.Update();
         }
 
