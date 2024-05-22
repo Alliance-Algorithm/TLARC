@@ -6,7 +6,7 @@ namespace AllianceDM.StateMechines
 {
     internal enum Status
     {
-        Invinciable,
+        Invinciable = 0,
         LowState,
         Hidden,
         Curise
