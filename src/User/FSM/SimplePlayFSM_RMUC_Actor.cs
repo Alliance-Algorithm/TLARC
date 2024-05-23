@@ -125,7 +125,7 @@ namespace AllianceDM.StateMechines
             {
                 using var pub = Ros2Def.node.CreatePublisher<Rosidl.Messages.Geometry.Vector3>(topic + "1");
                 using var pub2 = Ros2Def.node.CreatePublisher<Rosidl.Messages.Geometry.Vector3>(topic + "2");
-                using var pub3 = Ros2Def.node.CreatePublisher<Rosidl.Messages.Std.Bool>("/sentry/control/stable");
+                using var pub3 = Ros2Def.node.CreatePublisher<Rosidl.Messages.Std.Bool>("/sentry/control/scan_mode");
                 using var nativeMsg = pub.CreateBuffer();
                 using var nativeMsg3 = pub3.CreateBuffer();
                 using var timer = Ros2Def.context.CreateTimer(Ros2Def.node.Clock, TimeSpan.FromMilliseconds(value: 1000 / frameRate));
