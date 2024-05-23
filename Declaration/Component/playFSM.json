@@ -78,7 +78,7 @@
             "arg": [
                 "/referee/outpost/hp",
                 "/referee/sentry/hp",
-                "/referee/amount_of_ammunition"
+                "/referee/bullet"
             ]
         },
         {
