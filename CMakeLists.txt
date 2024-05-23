@@ -18,7 +18,7 @@ install(FILES
     PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE WORLD_EXECUTE 
 )
 install(DIRECTORY Declaration
-    DESTINATION share/
+    DESTINATION share/${PROJECT_NAME}
 )
 
 ament_package()
