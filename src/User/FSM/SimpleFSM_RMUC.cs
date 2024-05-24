@@ -32,7 +32,7 @@ namespace AllianceDM.StateMechines
                         state = Status.Cruise;
                     break;
                 case Status.LowState:
-                    if (info.Output.Hp >= 590)
+                    if (info.Output.Hp >= 300)
                         state = Status.Cruise;
                     break;
                 case Status.Hidden:

@@ -39,36 +39,42 @@ namespace AllianceDM.StateMechines
             rand = DateTime.Now.Second;
 
 
+            comeback = false;
         }
         public override void Update()
         {
             gimbalForward1 = new(0, 0, 0);
             gimbalForward2 = new(0, 0, 0);
-            comeback = false;
             var sentrypos = new Vector2(-SentryPos.Output.pos.X, -SentryPos.Output.pos.Y);
             switch (fsm.Output)
             {
                 case Status.Invinciable:
+                    comeback = false;
                     timer = DateTime.Now.Second;
                     TargetPos.Set(ControlPos.Output.pos);
                     gimbalForward1 = new(0, 1, 1);
                     gimbalForward2 = new(0, -1, 1);
                     break;
                 case Status.LowState:
+                // Console.WriteLine((comeback,timer));
                     if (DateTime.Now.Second - timer > maxtime - 15)
                         comeback = true;
                     if (comeback)
                     {
                         TargetPos.Set(CurisePosMain.Output.pos);
                         if ((sentrypos - CurisePosMain.Output.pos +
-                         SentryTargetRevisePos.Output.pos).Length() < 0.1f)
+                         SentryTargetRevisePos.Output.pos).Length() < 0.7f)
+                        {
                             timer = DateTime.Now.Second;
+                            comeback = false;
+                        }
                     }
                     else
                         TargetPos.Set(RechargeArea.Output.pos);
                     break;
                 case Status.Cruise:
                     timer = DateTime.Now.Second;
+                    comeback = false;
                     switch ((int)(DateTime.Now.Second - rand) / 2 % 3)
                     {
                         case 0:
