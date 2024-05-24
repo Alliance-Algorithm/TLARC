@@ -51,12 +51,12 @@ namespace AllianceDM.StateMechines
         {
             gimbalForward1 = new(0, 0, 0);
             gimbalForward2 = new(0, 0, 0);
-            comeback = false;
             var sentrypos = new Vector2(-SentryPos.Output.pos.X, SentryPos.Output.pos.Y);
 
             switch (fsm.Output)
             {
                 case Status.Invinciable:
+                comeback = false;
                     timer = DateTime.Now.Second;
                     if ((sentrypos - TargetPos.Output.pos +
                          SentryTargetRevisePos.Output.pos).Length() < 0.6f)
@@ -81,13 +81,17 @@ namespace AllianceDM.StateMechines
                     {
                         TargetPos.Set(CurisePosMain.Output.pos);
                         if ((sentrypos - CurisePosMain.Output.pos +
-                         SentryTargetRevisePos.Output.pos).Length() < 0.1f)
+                         SentryTargetRevisePos.Output.pos).Length() < 0.7f)
+                        {
                             timer = DateTime.Now.Second;
+                            comeback = false;
+                        }
                     }
                     else
                         TargetPos.Set(RechargeArea.Output.pos);
                     break;
                 case Status.Cruise:
+            comeback = false;
                     timer = DateTime.Now.Second;
                     switch ((int)(DateTime.Now.Second - rand) / 2 % 3)
                     {
@@ -103,6 +107,7 @@ namespace AllianceDM.StateMechines
                     }
                     break;
                 case Status.Hidden:
+            comeback = false;
                     if (DateTime.Now.Second - timer > maxtime - 10)
                         comeback = true;
                     if (comeback)
