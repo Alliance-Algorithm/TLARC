@@ -38,7 +38,7 @@ namespace AllianceDM.StateMechines
             SentryTargetRevisePos = DecisionMaker.FindComponent<Transform2D>(RecieveID[8]);
             TargetPos = DecisionMaker.FindComponent<Transform2D>(uint.Parse(Args[0]));
             maxtime = float.Parse(Args[1]);
-            rand = DateTime.Now.Second;
+            rand = DateTime.Now.Second + DateTime.Now.Minute * 60 + +60 * DateTime.Now.Minute;
 
 
             comeback = false;
@@ -47,21 +47,21 @@ namespace AllianceDM.StateMechines
         {
             gimbalForward1 = new(0, 0, 0);
             gimbalForward2 = new(0, 0, 0);
-            var sentrypos = new Vector2(-SentryPos.Output.pos.X, -SentryPos.Output.pos.Y);
+            var sentrypos = new Vector2(-SentryPos.Output.pos.X, SentryPos.Output.pos.Y);
             switch (fsm.Output)
             {
                 case Status.Invinciable:
                     comeback = false;
-                    timer = DateTime.Now.Second;
+                    timer = DateTime.Now.Second + DateTime.Now.Minute * 60;
                     TargetPos.Set(pushPos[posid]);
-                    posid = Math.Clamp(Math.Abs(DateTime.Now.Second - rand) / 10 % pushPos.Length, 0, 1);
+                    posid = Math.Clamp(Math.Abs(DateTime.Now.Second + DateTime.Now.Minute * 60 + +60 * DateTime.Now.Minute - rand) / 10 % pushPos.Length, 0, 1);
                     gimbalForward1 = new(0, 1, 1);
                     gimbalForward2 = new(0, -1, 1);
                     break;
                 case Status.LowState:
                     // Console.WriteLine((comeback,timer));
                     fsm.healthLine = 300;
-                    if (DateTime.Now.Second - timer > maxtime - 15)
+                    if (DateTime.Now.Second + DateTime.Now.Minute * 60 + 60 * DateTime.Now.Minute - timer > maxtime - 15)
                         comeback = true;
                     if (comeback)
                     {
@@ -69,7 +69,7 @@ namespace AllianceDM.StateMechines
                         if ((sentrypos - CurisePosMain.Output.pos +
                          SentryTargetRevisePos.Output.pos).Length() < 0.7f)
                         {
-                            timer = DateTime.Now.Second;
+                            timer = DateTime.Now.Second + DateTime.Now.Minute * 60;
                             comeback = false;
                         }
                     }
@@ -77,9 +77,9 @@ namespace AllianceDM.StateMechines
                         TargetPos.Set(RechargeArea.Output.pos);
                     break;
                 case Status.Cruise:
-                    timer = DateTime.Now.Second;
+                    timer = DateTime.Now.Second + DateTime.Now.Minute * 60;
                     comeback = false;
-                    switch (Math.Clamp(Math.Abs((int)(DateTime.Now.Second - rand) / 2 % 3), 0, 2))
+                    switch (Math.Clamp(Math.Abs((int)(DateTime.Now.Second + DateTime.Now.Minute * 60 - rand) / 2 % 3), 0, 2))
                     {
                         case 0:
                             TargetPos.Set(CurisePosMain.Output.pos);
@@ -93,14 +93,14 @@ namespace AllianceDM.StateMechines
                     }
                     break;
                 case Status.Hidden:
-                    if (DateTime.Now.Second - timer > maxtime - 10)
+                    if (DateTime.Now.Second + DateTime.Now.Minute * 60 - timer > maxtime - 10)
                         comeback = true;
                     if (comeback)
                     {
                         TargetPos.Set(CurisePosMain.Output.pos);
                         if ((sentrypos - CurisePosMain.Output.pos +
                          SentryTargetRevisePos.Output.pos).Length() < 0.1f)
-                            timer = DateTime.Now.Second;
+                            timer = DateTime.Now.Second + DateTime.Now.Minute * 60;
                     }
                     else
                         TargetPos.Set(HiddenPos.Output.pos);
