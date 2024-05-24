@@ -87,7 +87,7 @@
                 13
             ],
             "assembly": "AllianceDM.StateMechines",
-            "type": "FSM_PlayGround",
+            "type": "SimpleFSM_RMUC",
             "arg": []
         },
         {
@@ -104,7 +104,7 @@
                 10
             ],
             "assembly": "AllianceDM.StateMechines",
-            "type": "SimplePlayFSM_RMUC_Actor",
+            "type": "SimpleFSM_RMUC_Action",
             "arg": [
                 "2",
                 "40"
