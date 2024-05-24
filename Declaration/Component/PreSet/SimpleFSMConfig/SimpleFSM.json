@@ -86,7 +86,7 @@
                 13
             ],
             "assembly": "AllianceDM.StateMechines",
-            "type": "PushFSM_RMUC",
+            "type": "SimpleFSM_RMUC",
             "arg": []
         },
         {
@@ -103,7 +103,7 @@
                 10
             ],
             "assembly": "AllianceDM.StateMechines",
-            "type": "PushFSM_RMUC_Actor",
+            "type": "SimpleFSM_RMUC_Action",
             "arg": [
                 "2",
                 "40"

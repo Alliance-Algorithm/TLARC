@@ -4,14 +4,7 @@ using AllianceDM.StdComponent;
 // arge[0] = sratus topic
 namespace AllianceDM.StateMechines
 {
-    internal enum Status
-    {
-        Invinciable = 0,
-        LowState,
-        Hidden,
-        Cruise
-    }
-    class SimpleFSM_RMUC(uint uuid, uint[] revid, string[] args) : Component(uuid, revid, args)
+    class PushFSM_RMUC(uint uuid, uint[] revid, string[] args) : Component(uuid, revid, args)
     {
         public int healthLine = 160;
 

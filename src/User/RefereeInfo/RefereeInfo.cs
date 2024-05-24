@@ -12,9 +12,9 @@ namespace AllianceDM.PreInfo
 
         public override void Awake()
         {
-            Hp = 600;
+            Hp = 400;
             IsInvinciable = true;
-            IsUVALaunch = true;
+            IsUVALaunch = false;
 
             IOManager.RegistryMassage(Args[0], (Rosidl.Messages.Std.Int32 msg) => { IsInvinciable = msg.Data > 500; });
             IOManager.RegistryMassage(Args[1], (Rosidl.Messages.Std.Int32 msg) => { Hp = msg.Data; });

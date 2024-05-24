@@ -5,7 +5,7 @@ using Rosidl.Messages.Builtin;
 
 namespace AllianceDM.StateMechines
 {
-    public class SimpleFSM_RMUC_Action(uint uuid, uint[] revid, string[] args) : Component(uuid, revid, args)
+    public class PushFSM_RMUC_Actor(uint uuid, uint[] revid, string[] args) : Component(uuid, revid, args)
     {
         Transform2D HiddenPos;
         Transform2D CurisePosMain;
@@ -13,16 +13,18 @@ namespace AllianceDM.StateMechines
         Transform2D CurisePos3;
         Transform2D ControlPos;
         Transform2D RechargeArea;
-        SimpleFSM_RMUC fsm;
+        PushFSM_RMUC fsm;
         Transform2D SentryPos;
         Transform2D SentryTargetRevisePos;
         Transform2D TargetPos;
         float timer;
-        float rand;
+        int rand;
         bool comeback;
         float maxtime;
         Vector3 gimbalForward1 = new();
         Vector3 gimbalForward2 = new();
+        Vector2[] pushPos = [new(3.54f, -6.15f), new(6.07f, 1.97f)];
+        int posid = 0;
         public override void Awake()
         {
             ControlPos = DecisionMaker.FindComponent<Transform2D>(RecieveID[0]);
@@ -31,7 +33,7 @@ namespace AllianceDM.StateMechines
             CurisePos3 = DecisionMaker.FindComponent<Transform2D>(RecieveID[3]);
             HiddenPos = DecisionMaker.FindComponent<Transform2D>(RecieveID[4]);
             RechargeArea = DecisionMaker.FindComponent<Transform2D>(RecieveID[5]);
-            fsm = DecisionMaker.FindComponent<SimpleFSM_RMUC>(RecieveID[6]);
+            fsm = DecisionMaker.FindComponent<PushFSM_RMUC>(RecieveID[6]);
             SentryPos = DecisionMaker.FindComponent<Transform2D>(RecieveID[7]);
             SentryTargetRevisePos = DecisionMaker.FindComponent<Transform2D>(RecieveID[8]);
             TargetPos = DecisionMaker.FindComponent<Transform2D>(uint.Parse(Args[0]));
@@ -51,7 +53,8 @@ namespace AllianceDM.StateMechines
                 case Status.Invinciable:
                     comeback = false;
                     timer = DateTime.Now.Second;
-                    TargetPos.Set(ControlPos.Output.pos);
+                    TargetPos.Set(pushPos[posid]);
+                    posid = Math.Clamp(Math.Abs(DateTime.Now.Second - rand) / 10 % pushPos.Length, 0, 1);
                     gimbalForward1 = new(0, 1, 1);
                     gimbalForward2 = new(0, -1, 1);
                     break;
