@@ -79,7 +79,7 @@ namespace AllianceDM.StateMechines
                 case Status.Cruise:
                     timer = DateTime.Now.Second;
                     comeback = false;
-                    switch ((int)(DateTime.Now.Second - rand) / 2 % 3)
+                    switch (Math.Clamp(Math.Abs((int)(DateTime.Now.Second - rand) / 2 % 3), 0, 2))
                     {
                         case 0:
                             TargetPos.Set(CurisePosMain.Output.pos);
