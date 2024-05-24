@@ -9,7 +9,7 @@ namespace AllianceDM.StateMechines
         Invinciable = 0,
         LowState,
         Hidden,
-        Curise
+        Cruise
     }
     class SimpleFSM_RMUC(uint uuid, uint[] revid, string[] args) : Component(uuid, revid, args)
     {
@@ -29,20 +29,20 @@ namespace AllianceDM.StateMechines
             {
                 case Status.Invinciable:
                     if (!info.Output.Invinciable)
-                        state = Status.Curise;
+                        state = Status.Cruise;
                     break;
                 case Status.LowState:
-                    if (info.Output.Hp >= 590)
-                        state = Status.Curise;
+                    if (info.Output.Hp >= 300)
+                        state = Status.Cruise;
                     break;
                 case Status.Hidden:
                     if (!info.Output.UVA)
-                        state = Status.Curise;
+                        state = Status.Cruise;
                     break;
-                case Status.Curise:
+                case Status.Cruise:
                     if (info.Output.UVA)
                         state = Status.Hidden;
-                    else if (info.Output.Hp < 500)
+                    else if (info.Output.Hp < 300)
                         state = Status.LowState;
                     break;
                 default:

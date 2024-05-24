@@ -16,7 +16,7 @@ namespace AllianceDM.PreInfo
             IsInvinciable = true;
             IsUVALaunch = true;
 
-            IOManager.RegistryMassage(Args[0], (Rosidl.Messages.Std.Int32 msg) => { IsInvinciable = msg.Data > 200; });
+            IOManager.RegistryMassage(Args[0], (Rosidl.Messages.Std.Int32 msg) => { IsInvinciable = msg.Data > 500; });
             IOManager.RegistryMassage(Args[1], (Rosidl.Messages.Std.Int32 msg) => { Hp = msg.Data; });
         }
 
