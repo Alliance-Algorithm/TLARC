@@ -54,15 +54,17 @@ namespace AllianceDM.StateMechines
                     comeback = false;
                     timer = DateTime.Now.Second + DateTime.Now.Minute * 60;
                     TargetPos.Set(pushPos[posid]);
-                    posid = Math.Clamp(Math.Abs(DateTime.Now.Second + DateTime.Now.Minute * 60 + +60 * DateTime.Now.Minute - rand) / 10 % pushPos.Length, 0, 1);
+                    posid = Math.Clamp(Math.Abs(DateTime.Now.Second + DateTime.Now.Minute * 60 - rand) / 10 % pushPos.Length, 0, 1);
                     gimbalForward1 = new(0, 1, 1);
                     gimbalForward2 = new(0, -1, 1);
                     break;
                 case Status.LowState:
                     // Console.WriteLine((comeback,timer));
                     fsm.healthLine = 300;
-                    if (DateTime.Now.Second + DateTime.Now.Minute * 60 + 60 * DateTime.Now.Minute - timer > maxtime - 15)
+                    if (DateTime.Now.Second + DateTime.Now.Minute * 60 - timer > maxtime - 15)
                         comeback = true;
+
+
                     if (comeback)
                     {
                         TargetPos.Set(CurisePosMain.Output.pos);
