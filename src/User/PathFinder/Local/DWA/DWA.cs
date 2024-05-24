@@ -87,8 +87,8 @@ namespace AllianceDM.Nav
             // angle2 = angle2 / predict.Length() / (nav.Output - fastpos).Length();
 
             Vector2 pos = (predict + model.Output.Current) * 0.5f * model.Output.timeResolution;
-            pos = Rotate(pos, sentry.Output.angle);
             var vv = new Vector2(-pos.Y, -pos.X);
+            pos = Rotate(pos, sentry.Output.angle);
             float dis = 100 - (nav.Output - pos - fastpos).Length();
             pos = vv;
             pos = pos / obstacle.Resolution + obstacle.Map.GetLength(1) / 2 * Vector2.One;
