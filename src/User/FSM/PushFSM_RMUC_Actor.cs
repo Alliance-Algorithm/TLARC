@@ -23,7 +23,7 @@ namespace AllianceDM.StateMechines
         float maxtime;
         Vector3 gimbalForward1 = new();
         Vector3 gimbalForward2 = new();
-        Vector2[] pushPos = [new(3.54f, -6.15f), new(6.07f, 1.97f)];
+        Vector2[] pushPos = [new(7.14f, 1.18f), new(5.14f, -6.71f)];
         int posid = 0;
         public override void Awake()
         {

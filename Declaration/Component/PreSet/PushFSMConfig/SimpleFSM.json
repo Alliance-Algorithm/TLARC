@@ -1,0 +1,125 @@
+{
+    "list": [
+        {
+            "this_id": "7",
+            "input_id": [],
+            "assembly": "AllianceDM.StdComponent",
+            "type": "Transform2D",
+            "arg": [
+                "ControlPos",
+                "R"
+            ]
+        },
+        {
+            "this_id": "8",
+            "input_id": [],
+            "assembly": "AllianceDM.StdComponent",
+            "type": "Transform2D",
+            "arg": [
+                "CurisePosMain",
+                "R"
+            ]
+        },
+        {
+            "this_id": "9",
+            "input_id": [],
+            "assembly": "AllianceDM.StdComponent",
+            "type": "Transform2D",
+            "arg": [
+                "CurisePos2",
+                "R"
+            ]
+        },
+        {
+            "this_id": "30",
+            "input_id": [],
+            "assembly": "AllianceDM.StdComponent",
+            "type": "Transform2D",
+            "arg": [
+                "CurisePos3",
+                "R"
+            ]
+        },
+        {
+            "this_id": "10",
+            "input_id": [],
+            "assembly": "AllianceDM.StdComponent",
+            "type": "Transform2D",
+            "arg": [
+                "sentry_revise",
+                "R"
+            ]
+        },
+        {
+            "this_id": "11",
+            "input_id": [],
+            "assembly": "AllianceDM.StdComponent",
+            "type": "Transform2D",
+            "arg": [
+                "HidePos",
+                "R"
+            ]
+        },
+        {
+            "this_id": "12",
+            "input_id": [],
+            "assembly": "AllianceDM.StdComponent",
+            "type": "Transform2D",
+            "arg": [
+                "RechargePos",
+                "R"
+            ]
+        },
+        {
+            "this_id": "13",
+            "input_id": [],
+            "assembly": "AllianceDM.PreInfo",
+            "type": "RefereeInfo",
+            "arg": [
+                "/referee/outpost/hp",
+                "/referee/sentry/hp"
+            ]
+        },
+        {
+            "this_id": "14",
+            "input_id": [
+                13
+            ],
+            "assembly": "AllianceDM.StateMechines",
+            "type": "PushFSM_RMUC",
+            "arg": []
+        },
+        {
+            "this_id": "15",
+            "input_id": [
+                7,
+                8,
+                9,
+                30,
+                11,
+                12,
+                14,
+                1,
+                10
+            ],
+            "assembly": "AllianceDM.StateMechines",
+            "type": "PushFSM_RMUC_Actor",
+            "arg": [
+                "2",
+                "40"
+            ]
+        },
+        {
+            "this_id": 50,
+            "input_id": [
+                14
+            ],
+            "assembly": "AllianceDM.IO",
+            "type": "OutputManager",
+            "arg": [
+                "/sentry/control/status",
+                "30"
+            ]
+        }
+    ]
+}
