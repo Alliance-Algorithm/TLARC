@@ -1,10 +1,7 @@
 .mono
 .vscode
 .github
-.devcontainer
-
 Docker*
-
 obj/
 install/
 UnityNavMesh/
