@@ -8,6 +8,7 @@ namespace AllianceDM.Nav
     {
         public override void Awake()
         {
+            Console.WriteLine(string.Format("AllianceDM.Nav RasterizedMap: uuid:{0:D4}", ID));
             IOManager.RegistrySubscription(Args[0], (OccupancyGrid msg) =>
             {
                 _map = new sbyte[msg.Info.Height, msg.Info.Width];

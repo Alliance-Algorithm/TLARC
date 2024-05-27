@@ -15,9 +15,24 @@ namespace AllianceDM.Nav
         const float SQRT2 = 1.414213562f;
         object lock_ = new object();
         WatchDog watchDog;
+        IO.ROS2Msgs.Nav.OccupancyGrid pub_Map;
         public override void Awake()
         {
+            Console.WriteLine(string.Format("AllianceDM.Nav ESDFBuilder: uuid:{0:D4}", ID));
             watchDog = new WatchDog(1.5f, () => { _map = new sbyte[0, 0]; });
+            pub_Map = new();
+            pub_Map.Subscript(Args[0], ((sbyte[,] map, float Resolution, int Height, int Width) msg) =>
+            {
+                watchDog.Feed();
+                lock (lock_)
+                {
+                    if (Map.GetLength(0) != msg.Height)
+                        _map = new sbyte[msg.Height, msg.Width];
+                    Buffer.BlockCopy(msg.map, 0, _map, 0, msg.map.Length);
+                    _resolution = msg.Resolution;
+                    MakeESDF(ref _map);
+                }
+            });
             IOManager.RegistrySubscription(Args[0], (OccupancyGrid msg) =>
             {
                 watchDog.Feed();

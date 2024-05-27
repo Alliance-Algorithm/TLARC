@@ -21,6 +21,7 @@ namespace AllianceDM.StateMechines
 
         public override void Awake()
         {
+            Console.WriteLine(string.Format("AllianceDM.StateMechines SimpleFSM_RMUC: uuid:{0:D4}", ID));
             info = DecisionMaker.FindComponent<RefereeInfo>(RecieveID[0]);
             state = Status.Invinciable;
             pub.RegistetyPublisher(Args[0]);

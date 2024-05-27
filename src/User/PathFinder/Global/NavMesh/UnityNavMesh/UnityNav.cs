@@ -22,6 +22,7 @@ namespace AllianceDM.Nav
 
         public override void Awake()
         {
+            Console.WriteLine(string.Format("AllianceDM.Nav UnityNav: uuid:{0:D4}", ID));
             SentryPosition = DecisionMaker.FindComponent<Transform2D>(RecieveID[0]);
             DestinationPosition = DecisionMaker.FindComponent<Transform2D>(RecieveID[1]);
 

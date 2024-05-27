@@ -8,8 +8,8 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
 {
     class OccupancyGrid : TlarcMsgs
     {
-        public delegate void RevcAction((sbyte[,] Map, float Resolution) msg);
-        (sbyte[,] Map, float Resolution) data;
+        public delegate void RevcAction((sbyte[,] Map, float Resolution, int Height, int Width) msg);
+        (sbyte[,] Map, float Resolution, int Height, int Width) data;
         RevcAction callback;
 
         static protected bool WriteLock = false;
@@ -73,7 +73,7 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
                 }
             });
         }
-        public void Publish((sbyte[,] Map, float Resolution) data)
+        public void Publish((sbyte[,] Map, float Resolution, int Height, int Width) data)
         {
             this.data = data;
         }

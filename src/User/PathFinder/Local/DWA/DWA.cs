@@ -26,6 +26,7 @@ namespace AllianceDM.Nav
 
         public override void Awake()
         {
+            Console.WriteLine(string.Format("AllianceDM.Nav DWA: uuid:{0:D4}", ID));
             nav = DecisionMaker.FindComponent<GlobalPathFinder>(RecieveID[0]);
             sentry = DecisionMaker.FindComponent<Transform2D>(RecieveID[1]);
             model = DecisionMaker.FindComponent<CarModel>(RecieveID[2]);

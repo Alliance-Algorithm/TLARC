@@ -15,6 +15,7 @@ namespace AllianceDM.PreInfo
 
         public override void Awake()
         {
+            Console.WriteLine(string.Format("AllianceDM.PreInfo RefereeInfo: uuid:{0:D4}", ID));
             Hp = 400;
             IsInvinciable = true;
             IsUVALaunch = false;

@@ -33,6 +33,7 @@ namespace AllianceDM.StateMechines
 
         public override void Awake()
         {
+            Console.WriteLine(string.Format("AllianceDM.StateMechines PushFSM_RMUC_Actor: uuid:{0:D4}", ID));
             ControlPos = DecisionMaker.FindComponent<Transform2D>(RecieveID[0]);
             CurisePosMain = DecisionMaker.FindComponent<Transform2D>(RecieveID[1]);
             CurisePos2 = DecisionMaker.FindComponent<Transform2D>(RecieveID[2]);

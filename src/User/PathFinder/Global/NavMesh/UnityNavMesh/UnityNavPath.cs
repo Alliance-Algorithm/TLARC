@@ -22,6 +22,7 @@ namespace AllianceDM.Nav
         IO.ROS2Msgs.Geometry.Pose2D pub_Forward;
         public override void Awake()
         {
+            Console.WriteLine(string.Format("AllianceDM.Nav UnityNavPath: uuid:{0:D4}", ID));
             SentryPosition = DecisionMaker.FindComponent<Transform2D>(RecieveID[0]);
             DestinationPosition = DecisionMaker.FindComponent<Transform2D>(RecieveID[1]);
 

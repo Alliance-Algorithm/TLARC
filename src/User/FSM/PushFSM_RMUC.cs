@@ -13,6 +13,7 @@ namespace AllianceDM.StateMechines
         IO.ROS2Msgs.Std.Int32 pub;
         public override void Awake()
         {
+            Console.WriteLine(string.Format("AllianceDM.StateMechines PushFSM_RMUC: uuid:{0:D4}", ID));
             info = DecisionMaker.FindComponent<RefereeInfo>(RecieveID[0]);
             state = Status.Invinciable;
             pub = new();
