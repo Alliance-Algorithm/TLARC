@@ -35,7 +35,7 @@ namespace AllianceDM.StdComponent
             }
             if (Args[1] == "W" && Args.Length == 3)
             {
-                IOManager.RegistryMassage(Args[2], (Odometry msg) =>
+                IOManager.RegistrySubscription(Args[2], (Odometry msg) =>
                 {
                     position = new Vector2((float)msg.Pose.Pose.Position.X, (float)msg.Pose.Pose.Position.Y);
                     // yaw (z-axis rotation)

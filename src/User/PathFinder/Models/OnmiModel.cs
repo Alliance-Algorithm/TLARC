@@ -34,7 +34,7 @@ namespace AllianceDM.CarModels
             speedlimit = float.Parse(Args[3]);
             accimit = float.Parse(Args[4]);
 
-            IOManager.RegistryMassage(Args[5], (Pose2D msg) =>
+            IOManager.RegistrySubscription(Args[5], (Pose2D msg) =>
             {
                 lock (lock_)
                 {

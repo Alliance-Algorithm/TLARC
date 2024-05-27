@@ -16,38 +16,29 @@ namespace AllianceDM.Nav
         Transform2D SentryPosition;
         Transform2D DestinationPosition;
 
+        IO.ROS2Msgs.Geometry.Pose2D sub_Destination;
+        IO.ROS2Msgs.Geometry.Pose2D pub_SentryPos;
+        IO.ROS2Msgs.Geometry.Pose2D pub_Forward;
 
         public override void Awake()
         {
             SentryPosition = DecisionMaker.FindComponent<Transform2D>(RecieveID[0]);
             DestinationPosition = DecisionMaker.FindComponent<Transform2D>(RecieveID[1]);
 
-            Task.Run(async () =>
-            {
-                using var pub = Ros2Def.node.CreatePublisher<Pose2D>(Args[2]);
-                using var pub2 = Ros2Def.node.CreatePublisher<Pose2D>(Args[3]);
-                using var nativeMsg = pub.CreateBuffer();
-                using var nativeMsg2 = pub2.CreateBuffer();
-                using var timer = Ros2Def.context.CreateTimer(Ros2Def.node.Clock, TimeSpan.FromMilliseconds(value: 1000 / int.Parse(Args[0])));
+            sub_Destination = new();
+            pub_SentryPos = new();
+            pub_Forward = new();
 
-                while (true)
-                {
-                    nativeMsg.AsRef<Pose2D.Priv>().X = SentryPosition.Output.pos.X;
-                    nativeMsg.AsRef<Pose2D.Priv>().Y = SentryPosition.Output.pos.Y;
-                    nativeMsg2.AsRef<Pose2D.Priv>().X = DestinationPosition.Output.pos.X;
-                    nativeMsg2.AsRef<Pose2D.Priv>().Y = DestinationPosition.Output.pos.Y;
-                    pub.Publish(nativeMsg);
-                    pub2.Publish(nativeMsg2);
-                    await timer.WaitOneAsync(false);
-                }
-            });
+            sub_Destination.Subscript(Args[1], ((Vector2 pos, float Theta) msg) => { DestPos = msg.pos; });
+            pub_SentryPos.RegistetyPublisher(Args[2]);
+            pub_Forward.RegistetyPublisher(Args[3]);
 
-            IOManager.RegistryMassage(Args[1], (Pose2D msg) => { DestPos.X = (float)msg.X; DestPos.Y = (float)msg.Y; });
 
         }
         public override void Update()
         {
-
+            pub_SentryPos.Publish((SentryPosition.Output.pos, 0));
+            pub_Forward.Publish((DestinationPosition.Output.pos, 0));
         }
 
     }

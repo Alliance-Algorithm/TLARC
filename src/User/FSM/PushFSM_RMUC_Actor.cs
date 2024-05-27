@@ -5,6 +5,8 @@ using Rosidl.Messages.Builtin;
 
 namespace AllianceDM.StateMechines
 {
+    // args[0] = sentry max time
+    // args[1] = angle topic
     public class PushFSM_RMUC_Actor(uint uuid, uint[] revid, string[] args) : Component(uuid, revid, args)
     {
         Transform2D HiddenPos;
@@ -25,6 +27,10 @@ namespace AllianceDM.StateMechines
         Vector3 gimbalForward2 = new();
         Vector2[] pushPos = [new(7.64f, 1.93f), new(5.14f, -6.71f)];
         int posid = 0;
+
+        IO.ROS2Msgs.Geometry.Vector3 pub_angle1;
+        IO.ROS2Msgs.Geometry.Vector3 pub_angle2;
+
         public override void Awake()
         {
             ControlPos = DecisionMaker.FindComponent<Transform2D>(RecieveID[0]);
@@ -36,19 +42,25 @@ namespace AllianceDM.StateMechines
             fsm = DecisionMaker.FindComponent<PushFSM_RMUC>(RecieveID[6]);
             SentryPos = DecisionMaker.FindComponent<Transform2D>(RecieveID[7]);
             SentryTargetRevisePos = DecisionMaker.FindComponent<Transform2D>(RecieveID[8]);
-            TargetPos = DecisionMaker.FindComponent<Transform2D>(uint.Parse(Args[0]));
-            maxtime = float.Parse(Args[1]);
+            TargetPos = DecisionMaker.FindComponent<Transform2D>(RecieveID[9]);
+            maxtime = float.Parse(Args[0]);
             rand = DateTime.Now.Second + DateTime.Now.Minute * 60 + +60 * DateTime.Now.Minute;
 
 
             comeback = false;
+
+            pub_angle1 = new();
+            pub_angle2 = new();
+
+            pub_angle1.RegistetyPublisher(Args[1] + "1");
+            pub_angle2.RegistetyPublisher(Args[1] + "2");
         }
         public override void Update()
         {
             gimbalForward1 = new(0, 0, 0);
             gimbalForward2 = new(0, 0, 0);
             var sentrypos = new Vector2(-SentryPos.Output.pos.X, SentryPos.Output.pos.Y);
-            switch (fsm.Output)
+            switch (fsm.state)
             {
                 case Status.Invinciable:
                     comeback = false;
@@ -108,33 +120,8 @@ namespace AllianceDM.StateMechines
                         TargetPos.Set(HiddenPos.Output.pos);
                     break;
             }
-
-
-        }
-        public override void Echo(string topic, int frameRate)
-        {
-            Task.Run(async () =>
-            {
-                using var pub = Ros2Def.node.CreatePublisher<Rosidl.Messages.Geometry.Vector3>(topic + "1");
-                using var pub2 = Ros2Def.node.CreatePublisher<Rosidl.Messages.Geometry.Vector3>(topic + "2");
-                using var nativeMsg = pub.CreateBuffer();
-                using var timer = Ros2Def.context.CreateTimer(Ros2Def.node.Clock, TimeSpan.FromMilliseconds(value: 1000 / frameRate));
-
-                while (true)
-                {
-                    gimbalForward1 /= gimbalForward1.Length();
-                    gimbalForward2 /= gimbalForward2.Length();
-                    nativeMsg.AsRef<Rosidl.Messages.Geometry.Vector3.Priv>().X = gimbalForward1.X;
-                    nativeMsg.AsRef<Rosidl.Messages.Geometry.Vector3.Priv>().Y = gimbalForward1.Y;
-                    nativeMsg.AsRef<Rosidl.Messages.Geometry.Vector3.Priv>().Z = gimbalForward1.Z;
-                    pub.Publish(nativeMsg);
-                    nativeMsg.AsRef<Rosidl.Messages.Geometry.Vector3.Priv>().X = gimbalForward2.X;
-                    nativeMsg.AsRef<Rosidl.Messages.Geometry.Vector3.Priv>().Y = gimbalForward2.Y;
-                    nativeMsg.AsRef<Rosidl.Messages.Geometry.Vector3.Priv>().Z = gimbalForward2.Z;
-                    pub2.Publish(nativeMsg);
-                    await timer.WaitOneAsync(false);
-                }
-            });
+            pub_angle1.Publish(gimbalForward1);
+            pub_angle2.Publish(gimbalForward2);
         }
     }
 }

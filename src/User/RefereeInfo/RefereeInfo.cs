@@ -10,14 +10,19 @@ namespace AllianceDM.PreInfo
         bool IsInvinciable;
         bool IsUVALaunch;
 
+        IO.ROS2Msgs.Std.Int32 friendOutPostHp;
+        IO.ROS2Msgs.Std.Int32 sentryHp;
+
         public override void Awake()
         {
             Hp = 400;
             IsInvinciable = true;
             IsUVALaunch = false;
 
-            IOManager.RegistryMassage(Args[0], (Rosidl.Messages.Std.Int32 msg) => { IsInvinciable = msg.Data > 500; });
-            IOManager.RegistryMassage(Args[1], (Rosidl.Messages.Std.Int32 msg) => { Hp = msg.Data; });
+            friendOutPostHp = new();
+            friendOutPostHp.Subscript(Args[0], (int msg) => { IsInvinciable = msg > 500; });
+            sentryHp = new();
+            sentryHp.Subscript(Args[0], (int msg) => { Hp = msg; });
         }
 
         public override void Update()

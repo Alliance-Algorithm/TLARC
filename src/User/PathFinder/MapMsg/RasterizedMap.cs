@@ -8,7 +8,7 @@ namespace AllianceDM.Nav
     {
         public override void Awake()
         {
-            IOManager.RegistryMassage(Args[0], (OccupancyGrid msg) =>
+            IOManager.RegistrySubscription(Args[0], (OccupancyGrid msg) =>
             {
                 _map = new sbyte[msg.Info.Height, msg.Info.Width];
                 Buffer.BlockCopy(msg.Data, 0, _map, 0, msg.Data.Length);

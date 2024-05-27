@@ -18,7 +18,7 @@ namespace AllianceDM.Nav
         public override void Awake()
         {
             watchDog = new WatchDog(1.5f, () => { _map = new sbyte[0, 0]; });
-            IOManager.RegistryMassage(Args[0], (OccupancyGrid msg) =>
+            IOManager.RegistrySubscription(Args[0], (OccupancyGrid msg) =>
             {
                 watchDog.Feed();
                 lock (lock_)

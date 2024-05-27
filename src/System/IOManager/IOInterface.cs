@@ -36,7 +36,7 @@ namespace AllianceDM.IO
         /// <typeparam name="T"></typeparam>
         /// <param name="name"></param>
         /// <param name="handler"></param>
-        public static void RegistryMassage<T>(string name, MessageHandler<T> handler) where T : IMessage
+        public static void RegistrySubscription<T>(string name, MessageHandler<T> handler) where T : IMessage
         {
             Task.Run(() => RecieveTask(name, handler));
         }
@@ -61,6 +61,7 @@ namespace AllianceDM.IO
 
         }
 
+        public static void Input() => TlarcMsgs.InputData();
         public override void Update()
         {
             // _update = true;

@@ -1,17 +1,19 @@
+using System.Numerics;
 using AllianceDM.IO;
 using Rcl;
+using Rosidl.Messages.Geometry;
 
-namespace AllianceDM.IO.ROS2Msgs.Std
+namespace AllianceDM.IO.ROS2Msgs.Nav
 {
-    class Int32 : TlarcMsgs
+    class Path : TlarcMsgs
     {
-        public delegate void RevcAction(int msg);
-        int data = 0;
+        public delegate void RevcAction(System.Numerics.Vector3[] msg);
+        System.Numerics.Vector3[] data;
         RevcAction callback;
 
         static protected bool WriteLock = false;
 
-        IRclPublisher<Rosidl.Messages.Std.Int32> publisher;
+        IRclPublisher<Rosidl.Messages.Nav.Path> publisher;
         Rcl.RosMessageBuffer nativeMsg;
 
         void Subscript()
@@ -22,7 +24,15 @@ namespace AllianceDM.IO.ROS2Msgs.Std
         {
             if (publisher == null)
                 return;
-            nativeMsg.AsRef<Rosidl.Messages.Std.Int32.Priv>().Data = data;
+            nativeMsg.AsRef<Rosidl.Messages.Nav.Path.Priv>().Poses = new(data.Length);
+            for (int i = 0; i < data.Length; i++)
+            {
+                var l = new PoseStamped.Priv();
+                l.Pose.Position.X = data[i].X;
+                l.Pose.Position.Y = data[i].Y;
+                l.Pose.Position.Z = data[i].Z;
+                nativeMsg.AsRef<Rosidl.Messages.Nav.Path.Priv>().Poses.AsSpan()[i] = l;
+            }
             publisher.Publish(nativeMsg);
             WriteLock = true;
         }
@@ -30,17 +40,22 @@ namespace AllianceDM.IO.ROS2Msgs.Std
         {
             this.callback = callback;
             TlarcMsgs.Input += Subscript;
-            IOManager.RegistrySubscription<Rosidl.Messages.Std.Int32>(topicName, (Rosidl.Messages.Std.Int32 msg) =>
+            IOManager.RegistrySubscription<Rosidl.Messages.Nav.Path>(topicName, (Rosidl.Messages.Nav.Path msg) =>
             {
 
                 if (TlarcMsgs.ReadLock)
                     return;
-                data = msg.Data;
+                var k = msg.Poses;
+                data = new System.Numerics.Vector3[k.Length];
+                for (int i = 0; i < k.Length; i++)
+                {
+                    data[i] = new System.Numerics.Vector3((float)k[i].Pose.Position.X, (float)k[i].Pose.Position.Y, (float)k[i].Pose.Position.Z);
+                }
             });
         }
         public void RegistetyPublisher(string topicName)
         {
-            publisher = Ros2Def.node.CreatePublisher<Rosidl.Messages.Std.Int32>(topicName);
+            publisher = Ros2Def.node.CreatePublisher<Rosidl.Messages.Nav.Path>(topicName);
             nativeMsg = publisher.CreateBuffer();
             TlarcMsgs.Output += Publish;
 
@@ -53,14 +68,13 @@ namespace AllianceDM.IO.ROS2Msgs.Std
                     Thread.Sleep(1);
                     if (!WriteLock)
                         continue;
-                    nativeMsg.AsRef<Rosidl.Messages.Std.Int32.Priv>().Data = (int)data;
                     publisher.Publish(nativeMsg);
                     WriteLock = false;
                     await timer.WaitOneAsync(false);
                 }
             });
         }
-        public void Publish(int data)
+        public void Publish(System.Numerics.Vector3[] data)
         {
             this.data = data;
         }
