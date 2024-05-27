@@ -2,11 +2,12 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/docker-existing-dockerfile
 {
     "name": "Existing Dockerfile",
-    "image": "alrayqiu/tlarc-dev:latest"
-    // "runArgs": [
-    // 	"--network",
-    // 	"host"
-    // ]
+    "image": "alrayqiu/tlarc-dev:latest",
+    "privileged": "true",
+    "runArgs": [
+        "--network",
+        "host"
+    ]
     // Features to add to the dev container. More info: https://containers.dev/features.
     // "features": {},
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
