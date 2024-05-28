@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Timers;
 using AllianceDM.Init;
+using AllianceDM.IO;
 using Rcl;
 using Rcl.Logging;
 namespace AllianceDM
@@ -67,7 +68,7 @@ namespace AllianceDM
 
         static void InputUpdate()
         {
-            UpdateFuncs[0][0].Update();
+            IOManager.Input();
         }
 
         static void Update()

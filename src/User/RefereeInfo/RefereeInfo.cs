@@ -23,7 +23,7 @@ namespace AllianceDM.PreInfo
             friendOutPostHp = new();
             friendOutPostHp.Subscript(Args[0], (int msg) => { IsInvinciable = msg > 500; });
             sentryHp = new();
-            sentryHp.Subscript(Args[0], (int msg) => { Hp = msg; });
+            sentryHp.Subscript(Args[1], (int msg) => { Hp = msg; });
         }
 
         public override void Update()

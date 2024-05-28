@@ -31,35 +31,35 @@ namespace AllianceDM.Init
             string[] files = Directory.GetFiles(path, "*.json");
             foreach (var i in files)
             {
-                try
+                // try
+                // {
+                var fs = File.OpenRead(i);
+                var dj = new DataContractJsonSerializer(typeof(CompFilesList));
+                var comp = dj.ReadObject(fs) ?? throw new Exception("Null Object");
+                var cs = (CompFilesList)comp;
+                foreach (var c in cs.list)
                 {
-                    var fs = File.OpenRead(i);
-                    var dj = new DataContractJsonSerializer(typeof(CompFilesList));
-                    var comp = dj.ReadObject(fs) ?? throw new Exception("Null Object");
-                    var cs = (CompFilesList)comp;
-                    foreach (var c in cs.list)
-                    {
-                        if (components.ContainsKey(c.this_id))
-                            throw new Exception("Multi ID");
-                        if (c.this_id == 0)
-                            throw new Exception("Could not use ID:0");
+                    if (components.ContainsKey(c.this_id))
+                        throw new Exception("Multi ID");
+                    if (c.this_id == 0)
+                        throw new Exception("Could not use ID:0");
 
-                        Type? t = Type.GetType(c.assembly + '.' + c.type);
-                        if (t == null || t.FullName == null)
-                            throw new Exception("type error");
-                        if (!t.IsSubclassOf(typeof(Component)))
-                            throw new Exception("type not a component");
+                    Type? t = Type.GetType(c.assembly + '.' + c.type);
+                    if (t == null || t.FullName == null)
+                        throw new Exception("type error");
+                    if (!t.IsSubclassOf(typeof(Component)))
+                        throw new Exception("type not a component");
 
-                        dynamic d = t.Assembly.CreateInstance(t.FullName, false, BindingFlags.Default, null, [c.this_id, c.input_id, c.arg], null, null)
-                         ?? throw new Exception("Could not create instance");
-                        components.Add(c.this_id, d);
-                    }
+                    dynamic d = t.Assembly.CreateInstance(t.FullName, false, BindingFlags.Default, null, [c.this_id, c.input_id, c.arg], null, null)
+                     ?? throw new Exception("Could not create instance");
+                    components.Add(c.this_id, d);
                 }
-                catch (Exception e)
-                {
-                    Ros2Def.node.Logger.LogFatal(e.Message + "\tAt:" + i + "\twhen:InitComponent");
-                    Environment.Exit(-1);
-                }
+                // }
+                // catch (Exception e)
+                // {
+                //     Ros2Def.node.Logger.LogFatal(e.Message + "\tAt:" + i + "\twhen:InitComponent");
+                //     Environment.Exit(-1);
+                // }
 
             }
         }

@@ -34,8 +34,8 @@ namespace AllianceDM.Nav
             SpeedMin = float.Parse(Args[2]);
             pub_velocity = new();
             pub_current = new();
-            pub_velocity.RegistetyPublisher(Args[0]);
-            pub_current.RegistetyPublisher(Args[0]);
+            pub_velocity.RegistetyPublisher(Args[3]);
+            pub_current.RegistetyPublisher("/sentry/sensor/velocity");
         }
         public override void Update()
         {

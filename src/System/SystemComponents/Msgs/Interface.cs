@@ -4,7 +4,7 @@ namespace AllianceDM.IO
     {
         static protected bool ReadLock = false;
         static internal event Action Input;
-        static internal event Action Output;
+        // static internal event Action Output;
 
         static public void InputData()
         {

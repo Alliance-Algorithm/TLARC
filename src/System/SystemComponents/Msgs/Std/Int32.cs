@@ -7,6 +7,7 @@ namespace AllianceDM.IO.ROS2Msgs.Std
     {
         public delegate void RevcAction(int msg);
         int data = 0;
+        bool flag = false;
         RevcAction callback;
 
         static protected bool WriteLock = false;
@@ -16,6 +17,8 @@ namespace AllianceDM.IO.ROS2Msgs.Std
 
         void Subscript()
         {
+            if (!flag)
+                return;
             callback(data);
         }
         void Publish()
@@ -32,9 +35,9 @@ namespace AllianceDM.IO.ROS2Msgs.Std
             TlarcMsgs.Input += Subscript;
             IOManager.RegistrySubscription<Rosidl.Messages.Std.Int32>(topicName, (Rosidl.Messages.Std.Int32 msg) =>
             {
-
                 if (TlarcMsgs.ReadLock)
                     return;
+                flag = true;
                 data = msg.Data;
             });
         }
@@ -42,27 +45,26 @@ namespace AllianceDM.IO.ROS2Msgs.Std
         {
             publisher = Ros2Def.node.CreatePublisher<Rosidl.Messages.Std.Int32>(topicName);
             nativeMsg = publisher.CreateBuffer();
-            TlarcMsgs.Output += Publish;
-
+            // TlarcMsgs.Output += Publish;
 
             Task.Run(async () =>
             {
                 using var timer = Ros2Def.context.CreateTimer(Ros2Def.node.Clock, TimeSpan.FromMilliseconds(value: 1));
                 while (true)
                 {
-                    Thread.Sleep(1);
+                    await timer.WaitOneAsync(false);
                     if (!WriteLock)
                         continue;
                     nativeMsg.AsRef<Rosidl.Messages.Std.Int32.Priv>().Data = (int)data;
                     publisher.Publish(nativeMsg);
                     WriteLock = false;
-                    await timer.WaitOneAsync(false);
                 }
             });
         }
         public void Publish(int data)
         {
             this.data = data;
+            Publish();
         }
     }
 }

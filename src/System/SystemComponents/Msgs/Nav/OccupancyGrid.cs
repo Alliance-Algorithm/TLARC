@@ -8,8 +8,8 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
 {
     class OccupancyGrid : TlarcMsgs
     {
-        public delegate void RevcAction((sbyte[,] Map, float Resolution, int Height, int Width) msg);
-        (sbyte[,] Map, float Resolution, int Height, int Width) data;
+        public delegate void RevcAction((sbyte[,] Map, float Resolution, uint Height, uint Width) msg);
+        (sbyte[,] Map, float Resolution, uint Height, uint Width) data;
         RevcAction callback;
 
         static protected bool WriteLock = false;
@@ -19,6 +19,8 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
 
         void Subscript()
         {
+            if (data.Map == null)
+                return;
             callback(data);
         }
         void Publish()
@@ -48,6 +50,8 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
                 var k = msg.Data;
                 data.Map = new sbyte[msg.Info.Height, msg.Info.Width];
                 data.Resolution = msg.Info.Resolution;
+                data.Height = msg.Info.Height;
+                data.Width = msg.Info.Width;
 
                 Buffer.BlockCopy(k, 0, data.Map, 0, data.Map.Length);
             });
@@ -56,7 +60,7 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
         {
             publisher = Ros2Def.node.CreatePublisher<Rosidl.Messages.Nav.OccupancyGrid>(topicName);
             nativeMsg = publisher.CreateBuffer();
-            TlarcMsgs.Output += Publish;
+            // TlarcMsgs.Output += Publish;
 
 
             Task.Run(async () =>
@@ -64,18 +68,18 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
                 using var timer = Ros2Def.context.CreateTimer(Ros2Def.node.Clock, TimeSpan.FromMilliseconds(value: 1));
                 while (true)
                 {
-                    Thread.Sleep(1);
+                    await timer.WaitOneAsync(false);
                     if (!WriteLock)
                         continue;
                     publisher.Publish(nativeMsg);
                     WriteLock = false;
-                    await timer.WaitOneAsync(false);
                 }
             });
         }
-        public void Publish((sbyte[,] Map, float Resolution, int Height, int Width) data)
+        public void Publish((sbyte[,] Map, float Resolution, uint Height, uint Width) data)
         {
             this.data = data;
+            Publish();
         }
     }
 }

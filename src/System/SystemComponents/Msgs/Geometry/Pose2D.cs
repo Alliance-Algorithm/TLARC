@@ -8,6 +8,7 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
     {
         public delegate void RevcAction((Vector2 pos, float Theta) msg);
         (Vector2 pos, float Theta) data = new();
+        bool flag = false;
         RevcAction callback;
 
         static protected bool WriteLock = false;
@@ -17,6 +18,8 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
 
         void Subscript()
         {
+            if (!flag)
+                return;
             callback(data);
         }
         void Publish()
@@ -35,9 +38,9 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
             TlarcMsgs.Input += Subscript;
             IOManager.RegistrySubscription<Rosidl.Messages.Geometry.Pose2D>(topicName, (Rosidl.Messages.Geometry.Pose2D msg) =>
             {
-
                 if (TlarcMsgs.ReadLock)
                     return;
+                flag = true;
                 data = (new((float)msg.X, (float)msg.Y), (float)msg.Theta);
             });
         }
@@ -45,7 +48,7 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
         {
             publisher = Ros2Def.node.CreatePublisher<Rosidl.Messages.Geometry.Pose2D>(topicName);
             nativeMsg = publisher.CreateBuffer();
-            TlarcMsgs.Output += Publish;
+            // TlarcMsgs.Output += Publish;
 
 
             Task.Run(async () =>
@@ -53,7 +56,7 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
                 using var timer = Ros2Def.context.CreateTimer(Ros2Def.node.Clock, TimeSpan.FromMilliseconds(value: 1));
                 while (true)
                 {
-                    Thread.Sleep(1);
+                    await timer.WaitOneAsync(false);
                     if (!WriteLock)
                         continue;
                     nativeMsg.AsRef<Rosidl.Messages.Geometry.Pose2D.Priv>().X = data.pos.X;
@@ -61,13 +64,13 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
                     nativeMsg.AsRef<Rosidl.Messages.Geometry.Pose2D.Priv>().Theta = data.Theta;
                     publisher.Publish(nativeMsg);
                     WriteLock = false;
-                    await timer.WaitOneAsync(false);
                 }
             });
         }
         public void Publish((Vector2 pos, float Theta) data)
         {
             this.data = data;
+            Publish();
         }
     }
 }

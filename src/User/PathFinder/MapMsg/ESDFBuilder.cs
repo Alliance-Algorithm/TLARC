@@ -13,7 +13,6 @@ namespace AllianceDM.Nav
         float boxSize;
         float ESDF_MaxDistance;
         const float SQRT2 = 1.414213562f;
-        object lock_ = new object();
         WatchDog watchDog;
         IO.ROS2Msgs.Nav.OccupancyGrid pub_Map;
         public override void Awake()
@@ -21,31 +20,15 @@ namespace AllianceDM.Nav
             Console.WriteLine(string.Format("AllianceDM.Nav ESDFBuilder: uuid:{0:D4}", ID));
             watchDog = new WatchDog(1.5f, () => { _map = new sbyte[0, 0]; });
             pub_Map = new();
-            pub_Map.Subscript(Args[0], ((sbyte[,] map, float Resolution, int Height, int Width) msg) =>
+            pub_Map.Subscript(Args[0], ((sbyte[,] map, float Resolution, uint Height, uint Width) msg) =>
             {
-                watchDog.Feed();
-                lock (lock_)
-                {
-                    if (Map.GetLength(0) != msg.Height)
-                        _map = new sbyte[msg.Height, msg.Width];
-                    Buffer.BlockCopy(msg.map, 0, _map, 0, msg.map.Length);
-                    _resolution = msg.Resolution;
-                    MakeESDF(ref _map);
-                }
-            });
-            IOManager.RegistrySubscription(Args[0], (OccupancyGrid msg) =>
-            {
-                watchDog.Feed();
-                lock (lock_)
-                {
-                    if (Map.GetLength(0) != msg.Info.Height)
-                        _map = new sbyte[msg.Info.Height, msg.Info.Width];
-                    Buffer.BlockCopy(msg.Data, 0, _map, 0, msg.Data.Length);
-                    _resolution = msg.Info.Resolution;
-                    MakeESDF(ref _map);
-                }
-            });
+                if (Map.GetLength(0) != msg.Height)
+                    _map = new sbyte[msg.Height, msg.Width];
+                Buffer.BlockCopy(msg.map, 0, _map, 0, msg.map.Length);
+                _resolution = msg.Resolution;
+                MakeESDF(ref _map);
 
+            });
             boxSize = float.Parse(Args[1]);
             ESDF_MaxDistance = float.Parse(Args[2]);
             // Task.Run(async () =>
@@ -71,7 +54,6 @@ namespace AllianceDM.Nav
         public override void Update()
         {
             // watchDog.Update();
-            lock (lock_) ;
         }
 
         public void MakeESDF(ref sbyte[,] map)
