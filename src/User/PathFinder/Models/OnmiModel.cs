@@ -25,6 +25,7 @@ namespace AllianceDM.CarModels
         Vector2 currentSpeed;
         Transform2D sentry;
         object lock_ = new object();
+        IO.ROS2Msgs.Geometry.Pose2D sub_Speed;
         public override void Awake()
         {
             sentry = DecisionMaker.FindComponent<Transform2D>(RecieveID[0]);
@@ -33,7 +34,8 @@ namespace AllianceDM.CarModels
             timeResolution = float.Parse(Args[2]);
             speedlimit = float.Parse(Args[3]);
             accimit = float.Parse(Args[4]);
-
+            sub_Speed = new();
+            sub_Speed.Subscript(Args[5], ((Vector2 pos, float Theta) data) => { });
             IOManager.RegistrySubscription(Args[5], (Pose2D msg) =>
             {
                 lock (lock_)

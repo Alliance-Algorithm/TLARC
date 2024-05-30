@@ -18,8 +18,6 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
 
         void Subscript()
         {
-            if (data == null)
-                return;
             callback(data);
         }
         void Publish()
@@ -59,7 +57,7 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
         {
             publisher = Ros2Def.node.CreatePublisher<Rosidl.Messages.Nav.Path>(topicName);
             nativeMsg = publisher.CreateBuffer();
-            // TlarcMsgs.Output += Publish;
+            TlarcMsgs.Output += Publish;
 
 
             Task.Run(async () =>
@@ -67,18 +65,18 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
                 using var timer = Ros2Def.context.CreateTimer(Ros2Def.node.Clock, TimeSpan.FromMilliseconds(value: 1));
                 while (true)
                 {
-                    await timer.WaitOneAsync(false);
+                    Thread.Sleep(1);
                     if (!WriteLock)
                         continue;
                     publisher.Publish(nativeMsg);
                     WriteLock = false;
+                    await timer.WaitOneAsync(false);
                 }
             });
         }
         public void Publish(System.Numerics.Vector3[] data)
         {
             this.data = data;
-            Publish();
         }
     }
 }

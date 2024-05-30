@@ -24,6 +24,7 @@ namespace AllianceDM.StateMechines
             Console.WriteLine(string.Format("AllianceDM.StateMechines SimpleFSM_RMUC: uuid:{0:D4}", ID));
             info = DecisionMaker.FindComponent<RefereeInfo>(RecieveID[0]);
             state = Status.Invinciable;
+            pub = new();
             pub.RegistetyPublisher(Args[0]);
         }
 
