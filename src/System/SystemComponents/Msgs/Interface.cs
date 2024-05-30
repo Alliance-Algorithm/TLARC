@@ -1,5 +1,7 @@
-namespace AllianceDM.IO
+namespace AllianceDM.IO.ROS2Msgs
 {
+
+    public delegate void RevcAction<T>(T msg);
     class TlarcMsgs
     {
         static protected bool ReadLock = false;

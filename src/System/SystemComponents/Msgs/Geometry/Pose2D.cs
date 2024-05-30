@@ -6,10 +6,9 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
 {
     class Pose2D : TlarcMsgs
     {
-        public delegate void RevcAction((Vector2 pos, float Theta) msg);
         (Vector2 pos, float Theta) data = new();
         bool flag = false;
-        RevcAction callback;
+        RevcAction<(Vector2 pos, float Theta)> callback;
 
         static protected bool WriteLock = false;
 
@@ -32,7 +31,7 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
             publisher.Publish(nativeMsg);
             WriteLock = true;
         }
-        public void Subscript(string topicName, RevcAction callback)
+        public void Subscript(string topicName, RevcAction<(Vector2 pos, float Theta)> callback)
         {
             this.callback = callback;
             TlarcMsgs.Input += Subscript;

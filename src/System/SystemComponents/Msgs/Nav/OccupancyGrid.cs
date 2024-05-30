@@ -8,9 +8,8 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
 {
     class OccupancyGrid : TlarcMsgs
     {
-        public delegate void RevcAction((sbyte[,] Map, float Resolution, uint Height, uint Width) msg);
         (sbyte[,] Map, float Resolution, uint Height, uint Width) data;
-        RevcAction callback;
+        RevcAction<(sbyte[,] Map, float Resolution, uint Height, uint Width)> callback;
 
         static protected bool WriteLock = false;
 
@@ -38,7 +37,7 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
             publisher.Publish(nativeMsg);
             WriteLock = true;
         }
-        public void Subscript(string topicName, RevcAction callback)
+        public void Subscript(string topicName, RevcAction<(sbyte[,] Map, float Resolution, uint Height, uint Width)> callback)
         {
             this.callback = callback;
             TlarcMsgs.Input += Subscript;

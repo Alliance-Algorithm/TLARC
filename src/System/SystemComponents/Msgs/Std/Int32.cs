@@ -5,10 +5,9 @@ namespace AllianceDM.IO.ROS2Msgs.Std
 {
     class Int32 : TlarcMsgs
     {
-        public delegate void RevcAction(int msg);
         int data = 0;
         bool flag = false;
-        RevcAction callback;
+        RevcAction<int> callback;
 
         static protected bool WriteLock = false;
 
@@ -29,7 +28,7 @@ namespace AllianceDM.IO.ROS2Msgs.Std
             publisher.Publish(nativeMsg);
             WriteLock = true;
         }
-        public void Subscript(string topicName, RevcAction callback)
+        public void Subscript(string topicName, RevcAction<int> callback)
         {
             this.callback = callback;
             TlarcMsgs.Input += Subscript;
