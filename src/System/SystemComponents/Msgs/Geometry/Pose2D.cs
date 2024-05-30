@@ -7,12 +7,8 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
     class Pose2D : TlarcMsgs
     {
         (Vector2 pos, float Theta) data = new();
-<<<<<<< HEAD
-        RevcAction callback;
-=======
         bool flag = false;
         RevcAction<(Vector2 pos, float Theta)> callback;
->>>>>>> refs/remotes/origin/main
 
         static protected bool WriteLock = false;
 
@@ -21,6 +17,8 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
 
         void Subscript()
         {
+            if (!flag)
+                return;
             callback(data);
         }
         void Publish()
@@ -42,6 +40,7 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
 
                 if (TlarcMsgs.ReadLock)
                     return;
+                flag = true;
                 data = (new((float)msg.X, (float)msg.Y), (float)msg.Theta);
             });
         }
@@ -49,7 +48,6 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
         {
             publisher = Ros2Def.node.CreatePublisher<Rosidl.Messages.Geometry.Pose2D>(topicName);
             nativeMsg = publisher.CreateBuffer();
-            TlarcMsgs.Output += Publish;
 
 
             Task.Run(async () =>
@@ -72,6 +70,7 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
         public void Publish((Vector2 pos, float Theta) data)
         {
             this.data = data;
+            Publish();
         }
     }
 }

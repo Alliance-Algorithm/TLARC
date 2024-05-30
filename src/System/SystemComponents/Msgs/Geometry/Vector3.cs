@@ -6,12 +6,8 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
     class Vector3 : TlarcMsgs
     {
         System.Numerics.Vector3 data = new();
-<<<<<<< HEAD
-        RevcAction callback;
-=======
         bool flag = false;
         RevcAction<System.Numerics.Vector3> callback;
->>>>>>> refs/remotes/origin/main
 
         static protected bool WriteLock = false;
 
@@ -20,6 +16,8 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
 
         void Subscript()
         {
+            if (!flag)
+                return;
             callback(data);
         }
         void Publish()
@@ -41,6 +39,7 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
 
                 if (TlarcMsgs.ReadLock)
                     return;
+                flag = true;
                 data = new((float)msg.X, (float)msg.Y, (float)msg.Z);
             });
         }
@@ -48,7 +47,6 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
         {
             publisher = Ros2Def.node.CreatePublisher<Rosidl.Messages.Geometry.Vector3>(topicName);
             nativeMsg = publisher.CreateBuffer();
-            TlarcMsgs.Output += Publish;
 
 
             Task.Run(async () =>
@@ -71,6 +69,7 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
         public void Publish(System.Numerics.Vector3 data)
         {
             this.data = data;
+            Publish();
         }
     }
 }

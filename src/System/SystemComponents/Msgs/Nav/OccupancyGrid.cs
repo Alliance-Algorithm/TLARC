@@ -8,14 +8,8 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
 {
     class OccupancyGrid : TlarcMsgs
     {
-<<<<<<< HEAD
-        public delegate void RevcAction((sbyte[,] Map, float Resolution, int Height, int Width) msg);
-        (sbyte[,] Map, float Resolution, int Height, int Width) data;
-        RevcAction callback;
-=======
         (sbyte[,] Map, float Resolution, uint Height, uint Width) data;
         RevcAction<(sbyte[,] Map, float Resolution, uint Height, uint Width)> callback;
->>>>>>> refs/remotes/origin/main
 
         static protected bool WriteLock = false;
 
@@ -24,6 +18,8 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
 
         void Subscript()
         {
+            if (data.Map == null)
+                return;
             callback(data);
         }
         void Publish()
@@ -61,7 +57,6 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
         {
             publisher = Ros2Def.node.CreatePublisher<Rosidl.Messages.Nav.OccupancyGrid>(topicName);
             nativeMsg = publisher.CreateBuffer();
-            TlarcMsgs.Output += Publish;
 
 
             Task.Run(async () =>
@@ -78,9 +73,10 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
                 }
             });
         }
-        public void Publish((sbyte[,] Map, float Resolution, int Height, int Width) data)
+        public void Publish((sbyte[,] Map, float Resolution, uint Height, uint Width) data)
         {
             this.data = data;
+            Publish();
         }
     }
 }

@@ -17,6 +17,8 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
 
         void Subscript()
         {
+            if (data == null)
+                return;
             callback(data);
         }
         void Publish()
@@ -56,7 +58,6 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
         {
             publisher = Ros2Def.node.CreatePublisher<Rosidl.Messages.Nav.Path>(topicName);
             nativeMsg = publisher.CreateBuffer();
-            TlarcMsgs.Output += Publish;
 
 
             Task.Run(async () =>
@@ -76,6 +77,7 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
         public void Publish(System.Numerics.Vector3[] data)
         {
             this.data = data;
+            Publish();
         }
     }
 }
