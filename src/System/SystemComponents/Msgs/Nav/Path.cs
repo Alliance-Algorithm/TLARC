@@ -7,9 +7,8 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
 {
     class Path : TlarcMsgs
     {
-        public delegate void RevcAction(System.Numerics.Vector3[] msg);
         System.Numerics.Vector3[] data;
-        RevcAction callback;
+        RevcAction<System.Numerics.Vector3[]> callback;
 
         static protected bool WriteLock = false;
 
@@ -36,7 +35,7 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
             publisher.Publish(nativeMsg);
             WriteLock = true;
         }
-        public void Subscript(string topicName, RevcAction callback)
+        public void Subscript(string topicName, RevcAction<System.Numerics.Vector3[]> callback)
         {
             this.callback = callback;
             TlarcMsgs.Input += Subscript;

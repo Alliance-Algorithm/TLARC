@@ -5,9 +5,13 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
 {
     class Vector3 : TlarcMsgs
     {
-        public delegate void RevcAction(System.Numerics.Vector3 msg);
         System.Numerics.Vector3 data = new();
+<<<<<<< HEAD
         RevcAction callback;
+=======
+        bool flag = false;
+        RevcAction<System.Numerics.Vector3> callback;
+>>>>>>> refs/remotes/origin/main
 
         static protected bool WriteLock = false;
 
@@ -28,7 +32,7 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
             publisher.Publish(nativeMsg);
             WriteLock = true;
         }
-        public void Subscript(string topicName, RevcAction callback)
+        public void Subscript(string topicName, RevcAction<System.Numerics.Vector3> callback)
         {
             this.callback = callback;
             TlarcMsgs.Input += Subscript;
