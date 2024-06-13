@@ -4,20 +4,20 @@ using AllianceDM.StdComponent;
 // args[0] = sratus topic
 namespace AllianceDM.StateMechines
 {
-    class PushFSM_RMUC(uint uuid, uint[] revid, string[] args) : Component(uuid, revid, args)
+    class PushFSM_RMUC : Component
     {
-        public int healthLine = 160;
+        public int healthLine { get; set; } = 160;
+        public Status state { get; set; }
+
+        public string statusPubTopicName;
 
         RefereeInfo info;
-        public Status state;
         IO.ROS2Msgs.Std.Int32 pub;
-        public override void Awake()
+        public override void Start()
         {
-            Console.WriteLine(string.Format("AllianceDM.StateMechines PushFSM_RMUC: uuid:{0:D4}", ID));
-            info = DecisionMaker.FindComponent<RefereeInfo>(RecieveID[0]);
             state = Status.Invinciable;
             pub = new();
-            pub.RegistetyPublisher(Args[0]);
+            pub.RegistetyPublisher(statusPubTopicName);
         }
 
 

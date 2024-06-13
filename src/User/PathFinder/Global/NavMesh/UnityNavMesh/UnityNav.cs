@@ -9,10 +9,12 @@ using Rosidl.Messages.Geometry;
 // args[3] = Forward Public
 namespace AllianceDM.Nav
 {
-#pragma warning disable CS8618 // 在退出构造函数时，不可为 null 的字段必须包含非 null 值。请考虑声明为可以为 null。
-    public class UnityNav(uint uuid, uint[] revid, string[] args) : GlobalPathFinder(uuid, revid, args)
-#pragma warning restore CS8618 // 在退出构造函数时，不可为 null 的字段必须包含非 null 值。请考虑声明为可以为 null。
+    public class UnityNav : GlobalPathFinder
     {
+        public string destinationTopicName;
+        public string sentryPosTopicName;
+        public string forwardTopicName;
+
         Transform2D SentryPosition;
         Transform2D DestinationPosition;
 
@@ -20,26 +22,22 @@ namespace AllianceDM.Nav
         IO.ROS2Msgs.Geometry.Pose2D pub_SentryPos;
         IO.ROS2Msgs.Geometry.Pose2D pub_Forward;
 
-        public override void Awake()
+        public override void Start()
         {
-            Console.WriteLine(string.Format("AllianceDM.Nav UnityNav: uuid:{0:D4}", ID));
-            SentryPosition = DecisionMaker.FindComponent<Transform2D>(RecieveID[0]);
-            DestinationPosition = DecisionMaker.FindComponent<Transform2D>(RecieveID[1]);
-
             sub_Destination = new();
             pub_SentryPos = new();
             pub_Forward = new();
 
-            sub_Destination.Subscript(Args[1], ((Vector2 pos, float Theta) msg) => { DestPos = msg.pos; });
-            pub_SentryPos.RegistetyPublisher(Args[2]);
-            pub_Forward.RegistetyPublisher(Args[3]);
+            sub_Destination.Subscript(destinationTopicName, ((Vector2 pos, float Theta) msg) => { DestPos = msg.pos; });
+            pub_SentryPos.RegistetyPublisher(sentryPosTopicName);
+            pub_Forward.RegistetyPublisher(forwardTopicName);
 
 
         }
         public override void Update()
         {
-            pub_SentryPos.Publish((SentryPosition.Output.pos, 0));
-            pub_Forward.Publish((DestinationPosition.Output.pos, 0));
+            pub_SentryPos.Publish((SentryPosition.position, 0));
+            pub_Forward.Publish((DestinationPosition.position, 0));
         }
 
     }

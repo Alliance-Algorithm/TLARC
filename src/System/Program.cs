@@ -47,7 +47,7 @@ namespace AllianceDM
 
             tasks = new List<Task>[PoolDim + 1];
             foreach (var i in Components.Values)
-                i.Awake();
+                i.Start();
         }
 
         static void LifeCycle(object? source, ElapsedEventArgs e)
@@ -130,12 +130,12 @@ namespace AllianceDM
                 {
                     foreach (var i in l[k].RecieveID)
                     {
-                        if (i == 0)
+                        if (i.Value == 0)
                         {
                             Ros2Def.node.Logger.LogWarning("0 should not be inputID" + "@:" + l[k].ID.ToString());
                             continue;
                         }
-                        l[k].Forward.Add(Components[i]);
+                        l[k].Forward.Add(Components[i.Value]);
                     }
                 }
                 catch (Exception e)

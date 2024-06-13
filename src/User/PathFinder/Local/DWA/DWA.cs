@@ -8,38 +8,29 @@ namespace AllianceDM.Nav
     // args[0] = heading coefficient
     // args[1] = obstacle coefficient
     // args[2] = velocity coefficient
-    public class DWA(uint uuid, uint[] revid, string[] args) : LocalPathFinder(uuid, revid, args)
+    public class DWA : LocalPathFinder
     {
+        public float headingCoef;
+        public float obstacleCoef;
+        public float velocityCoef;
+
         GlobalPathFinder nav;
         Transform2D sentry;
         CarModel model;
         MapMsg obstacle;
-
-        float headingCoef;
-        float obstacleCoef;
-        float velocityCoef;
 
         float currentSpeed = 0;
 
 
         float maxValue;
 
-        public override void Awake()
+        public override void Start()
         {
-            Console.WriteLine(string.Format("AllianceDM.Nav DWA: uuid:{0:D4}", ID));
-            nav = DecisionMaker.FindComponent<GlobalPathFinder>(RecieveID[0]);
-            sentry = DecisionMaker.FindComponent<Transform2D>(RecieveID[1]);
-            model = DecisionMaker.FindComponent<CarModel>(RecieveID[2]);
-            obstacle = DecisionMaker.FindComponent<MapMsg>(RecieveID[3]);
-
-            headingCoef = float.Parse(Args[0]);
-            obstacleCoef = float.Parse(Args[1]);
-            velocityCoef = float.Parse(Args[2]);
         }
 
         public override void Update()
         {
-            var fastpos = new Vector2(-sentry.Output.pos.X, sentry.Output.pos.Y);
+            var fastpos = new Vector2(-sentry.position.X, sentry.position.Y);
             Dir = nav.Output - fastpos;
             maxValue = 0;
             model.Output.Current.Length();
@@ -55,7 +46,7 @@ namespace AllianceDM.Nav
                 return;
             if ((nav.Output - fastpos).Length() < 1)
             {
-                Dir = Rotate(nav.Output - fastpos, -sentry.Output.angle);
+                Dir = Rotate(nav.Output - fastpos, -sentry.angle);
             }
             else
             {
@@ -75,7 +66,7 @@ namespace AllianceDM.Nav
 
         float Evaluate(Vector2 predict)
         {
-            var fastpos = new Vector2(-sentry.Output.pos.X, sentry.Output.pos.Y);
+            var fastpos = new Vector2(-sentry.position.X, sentry.position.Y);
             float angle = Vector2.Dot(predict, model.Output.Current);
             if (currentSpeed == 0)
                 angle = 0;
@@ -89,7 +80,7 @@ namespace AllianceDM.Nav
 
             Vector2 pos = (predict + model.Output.Current) * 0.5f * model.Output.timeResolution;
             var vv = new Vector2(-pos.Y, -pos.X);
-            pos = Rotate(pos, sentry.Output.angle);
+            pos = Rotate(pos, sentry.angle);
             float dis = 100 - (nav.Output - pos - fastpos).Length();
             pos = vv;
             pos = pos / obstacle.Resolution + obstacle.Map.GetLength(1) / 2 * Vector2.One;

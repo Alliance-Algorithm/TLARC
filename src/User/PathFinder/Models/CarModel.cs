@@ -2,8 +2,8 @@ using System.Numerics;
 
 namespace AllianceDM.CarModels
 {
-    public class CarModel(uint uuid, uint[] revid, string[] b_args) : Component(uuid, revid, b_args)
+    public class CarModel : Component
     {
-        public (Vector2 Current, Vector2[] Sample, float timeResolution) Output;
+        public (Vector2 Current, Vector2[] Sample, float timeResolution) Output { get; set; }
     }
 }

@@ -11,7 +11,7 @@ namespace AllianceDM.IO.ROS2Msgs
         static public void InputData()
         {
             ReadLock = true;
-            Input();
+            Input?.Invoke();
             ReadLock = false;
         }
     }

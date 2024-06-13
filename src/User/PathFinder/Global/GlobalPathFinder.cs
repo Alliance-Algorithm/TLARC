@@ -2,7 +2,7 @@ using System.Numerics;
 
 namespace AllianceDM.Nav
 {
-    public class GlobalPathFinder(uint uuid, uint[] revid, string[] args) : Component(uuid, revid, args)
+    public class GlobalPathFinder : Component
     {
         protected Vector2 DestPos;
 

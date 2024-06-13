@@ -14,3 +14,6 @@ dotnet_diagnostic.CS8602.severity = none
 
 # CS9107: 参数捕获到封闭类型状态，其值也传递给基构造函数。该值也可能由基类捕获。
 dotnet_diagnostic.CS9107.severity = none
+
+# CA1707: Identifiers should not contain underscores
+dotnet_diagnostic.CA1707.severity = none

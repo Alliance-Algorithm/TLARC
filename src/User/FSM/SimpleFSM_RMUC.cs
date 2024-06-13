@@ -11,21 +11,24 @@ namespace AllianceDM.StateMechines
         Hidden,
         Cruise
     }
-    class SimpleFSM_RMUC(uint uuid, uint[] revid, string[] args) : Component(uuid, revid, args)
+    class SimpleFSM_RMUC : Component
     {
-        public int healthLine = 160;
+        public Status state { get; set; }
+        public int healthLine { get; set; } = 160;
+
+        public string statusPubTopicName;
+
 
         RefereeInfo info;
-        Status state;
         IO.ROS2Msgs.Std.Int32 pub;
 
-        public override void Awake()
+        public override void Start()
         {
             Console.WriteLine(string.Format("AllianceDM.StateMechines SimpleFSM_RMUC: uuid:{0:D4}", ID));
-            info = DecisionMaker.FindComponent<RefereeInfo>(RecieveID[0]);
+
             state = Status.Invinciable;
             pub = new();
-            pub.RegistetyPublisher(Args[0]);
+            pub.RegistetyPublisher(statusPubTopicName);
         }
 
 

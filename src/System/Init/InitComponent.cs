@@ -1,6 +1,9 @@
 using System.Reflection;
 using System.Runtime.Serialization.Json;
+using System.Text.Json.Serialization;
 using AllianceDM.IO;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Rcl.Logging;
 
 namespace AllianceDM.Init
@@ -9,10 +12,11 @@ namespace AllianceDM.Init
     [Serializable]
     struct CompFiles()
     {
-        public string[] arg = [];
+        public Dictionary<string, object> arg = [];
         public string type = "";
         public string assembly = "";
-        public uint[] input_id = [];
+
+        public Dictionary<string, uint> input_id = [];
         public uint this_id = 0;
     }
     [Serializable]
@@ -26,17 +30,14 @@ namespace AllianceDM.Init
         internal static void Init(ref Dictionary<uint, ComponentCell> components)
         {
             string path = DecisionMakerDef.ComponentsPath;
-
             components.Add(0, new IOManager());
             string[] files = Directory.GetFiles(path, "*.json");
             foreach (var i in files)
             {
                 // try
                 // {
-                var fs = File.OpenRead(i);
-                var dj = new DataContractJsonSerializer(typeof(CompFilesList));
-                var comp = dj.ReadObject(fs) ?? throw new Exception("Null Object");
-                var cs = (CompFilesList)comp;
+                var fs = File.ReadAllText(i);
+                var cs = JsonConvert.DeserializeObject<CompFilesList>(fs);
                 foreach (var c in cs.list)
                 {
                     if (components.ContainsKey(c.this_id))
@@ -50,18 +51,15 @@ namespace AllianceDM.Init
                     if (!t.IsSubclassOf(typeof(Component)))
                         throw new Exception("type not a component");
 
-                    dynamic d = t.Assembly.CreateInstance(t.FullName, false, BindingFlags.Default, null, [c.this_id, c.input_id, c.arg], null, null)
+                    dynamic d = t.Assembly.CreateInstance(t.FullName, false, BindingFlags.Default, null, null, null, null)
                      ?? throw new Exception("Could not create instance");
+                    (d as Component).InitComponents(c.this_id, c.input_id, c.arg);
                     components.Add(c.this_id, d);
                 }
-                // }
-                // catch (Exception e)
-                // {
-                //     Ros2Def.node.Logger.LogFatal(e.Message + "\tAt:" + i + "\twhen:InitComponent");
-                //     Environment.Exit(-1);
-                // }
 
             }
+            foreach (var i in components)
+                i.Value.Awake();
         }
     }
 }

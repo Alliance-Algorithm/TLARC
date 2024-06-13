@@ -87,7 +87,9 @@
             ],
             "assembly": "AllianceDM.StateMechines",
             "type": "PushFSM_RMUC",
-            "arg": []
+            "arg": [
+                "/sentry/control/status"
+            ]
         },
         {
             "this_id": "15",
@@ -100,25 +102,14 @@
                 12,
                 14,
                 1,
-                10
+                10,
+                2
             ],
             "assembly": "AllianceDM.StateMechines",
             "type": "PushFSM_RMUC_Actor",
             "arg": [
-                "2",
-                "40"
-            ]
-        },
-        {
-            "this_id": 50,
-            "input_id": [
-                14
-            ],
-            "assembly": "AllianceDM.IO",
-            "type": "OutputManager",
-            "arg": [
-                "/sentry/control/status",
-                "30"
+                "40",
+                "/sentry/control/gimbal/forward"
             ]
         }
     ]

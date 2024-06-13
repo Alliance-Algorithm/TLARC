@@ -94,19 +94,8 @@
             "arg": [
                 2,
                 0.45,
-                0.45
-            ]
-        },
-        {
-            "this_id": 6,
-            "input_id": [
-                5
-            ],
-            "assembly": "AllianceDM.IO",
-            "type": "OutputManager",
-            "arg": [
-                "/sentry/control/forward/velocity",
-                "30"
+                0.45,
+                "/sentry/control/forward/velocity"
             ]
         }
     ]

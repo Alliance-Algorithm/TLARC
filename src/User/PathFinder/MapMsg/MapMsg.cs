@@ -1,6 +1,6 @@
 namespace AllianceDM.Nav
 {
-    public class MapMsg(uint uuid, uint[] revid, string[] args) : Component(uuid, revid, args)
+    public class MapMsg : Component
     {
         protected sbyte[,] _map = new sbyte[0, 0];
         public sbyte[,] Map => _map;

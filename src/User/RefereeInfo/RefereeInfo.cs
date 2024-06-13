@@ -4,8 +4,12 @@ namespace AllianceDM.PreInfo
 {
     // arg[0] = friend outpost hp
     // arg[1] = sentry hp
-    public class RefereeInfo(uint uuid, uint[] revid, string[] args) : Component(uuid, revid, args)
+    public class RefereeInfo : Component
     {
+
+        public string friendOutPostHpTopicName;
+        public string sentryHpTopicName;
+
         float Hp;
         bool IsInvinciable;
         bool IsUVALaunch;
@@ -13,17 +17,16 @@ namespace AllianceDM.PreInfo
         IO.ROS2Msgs.Std.Int32 friendOutPostHp;
         IO.ROS2Msgs.Std.Int32 sentryHp;
 
-        public override void Awake()
+        public override void Start()
         {
-            Console.WriteLine(string.Format("AllianceDM.PreInfo RefereeInfo: uuid:{0:D4}", ID));
             Hp = 400;
             IsInvinciable = true;
             IsUVALaunch = false;
 
             friendOutPostHp = new();
-            friendOutPostHp.Subscript(Args[0], (int msg) => { IsInvinciable = msg > 500; });
             sentryHp = new();
-            sentryHp.Subscript(Args[1], (int msg) => { Hp = msg; });
+            friendOutPostHp.Subscript(friendOutPostHpTopicName, (int msg) => { IsInvinciable = msg > 500; });
+            sentryHp.Subscript(sentryHpTopicName, (int msg) => { Hp = msg; });
         }
 
         public override void Update()

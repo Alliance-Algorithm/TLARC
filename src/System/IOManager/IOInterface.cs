@@ -9,24 +9,20 @@ using Rosidl.Runtime;
 
 namespace AllianceDM.IO
 {
-    internal sealed class IOManager() : Component(0, [], [])
+    internal sealed class IOManager : Component
     {
+        public IOManager()
+        {
+            InitComponents(0, [], []);
+        }
         struct MessageContainer(IMessage msg, string name)
         {
             internal IMessage Message = msg;
             internal string Name = name;
         }
 
-#pragma warning disable IDE0052 // 删除未读的私有成员
-        // bool _update = false;
-#pragma warning restore IDE0052 // 删除未读的私有成员
         public delegate void MessageHandler<T>(T msg) where T : IMessage;
-        public IOManager(uint uuid, uint[] recvid, string[] args) : this()
-        {
-            Ros2Def.node.Logger.LogFatal("IOManager Could Not Build by User");
-            Environment.Exit(-1);
-        }
-        public override void Awake()
+        public override void Start()
         {
 
         }

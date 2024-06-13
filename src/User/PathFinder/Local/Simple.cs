@@ -8,32 +8,25 @@ namespace AllianceDM.Nav
     // args[0] = heading coefficient
     // args[1] = obstacle coefficient
     // args[2] = velocity coefficient
-    public class Simple(uint uuid, uint[] revid, string[] args) : LocalPathFinder(uuid, revid, args)
+    public class Simple : LocalPathFinder
     {
+        public float headingCoef;
+        public float obstacleCoef;
+        public float velocityCoef;
+
         GlobalPathFinder nav;
         Transform2D sentry;
         // CarModel model
         // MapMsg obstacle;
 
-        float headingCoef;
-        float obstacleCoef;
-        float velocityCoef;
-
-        public override void Awake()
+        public override void Start()
         {
-            nav = DecisionMaker.FindComponent<GlobalPathFinder>(RecieveID[0]);
-            sentry = DecisionMaker.FindComponent<Transform2D>(RecieveID[1]);
-            // model = DecisionMaker.FindComponent<CarModel>(RecieveID[2]);
-            // obstacle = DecisionMaker.FindComponent<MapMsg>(RecieveID[3]);
 
-            headingCoef = float.Parse(Args[0]);
-            obstacleCoef = float.Parse(Args[1]);
-            velocityCoef = float.Parse(Args[2]);
         }
 
         public override void Update()
         {
-            var fastpos = new Vector2(-sentry.Output.pos.X, sentry.Output.pos.Y);
+            var fastpos = new Vector2(-sentry.position.X, sentry.position.Y);
             Dir = nav.Output - fastpos;
             // model.Output.Current.Length();
             Dir = Vector2.Zero;
@@ -43,7 +36,7 @@ namespace AllianceDM.Nav
                 return;
             }
             Dir = nav.Output - fastpos;
-            Dir = Rotate(Dir, sentry.Output.angle) / Dir.Length();
+            Dir = Rotate(Dir, sentry.angle) / Dir.Length();
         }
 
         Vector2 Rotate(in Vector2 vec, in double angle)

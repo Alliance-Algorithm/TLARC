@@ -6,67 +6,24 @@ using Rosidl.Messages.Nav;
 
 namespace AllianceDM.StdComponent
 {
-    class Transform2D : Component
+    public class Transform2D : Component
     {
-        GameObject? gameObject = null;
-        Vector2 position;
-        double angle;
-        Action? action;
-        public Transform2D(uint id, uint[] rcvid, string[] args) : base(id, rcvid, args)
-        {
-            Console.WriteLine(string.Format("Alliance5DM.StdComponent Transform: uuid:{0:D4}", id));
-        }
-        public override void Awake()
-        {
-            gameObject = DecisionMaker.FindObject(Args[0]);
-            if (Args.Length == 1)
-                throw new Exception("Transform Should Declear Read/Write Mode in arg2");
-            Args[1] = Args[1].ToUpper();
-            if (Args.Length >= 2)
-            {
-                if (Args[1] == "R")
-                {
-                    action += () => { position = gameObject.Position; angle = gameObject.Angle; };
-                    return;
-                }
-                else if (Args[1] == "W")
-                    action += () => { gameObject.Position = position; gameObject.Angle = angle; };
-                else throw new Exception("arg2 should be R,W");
-            }
-            if (Args[1] == "W" && Args.Length == 3)
-            {
-                IOManager.RegistrySubscription(Args[2], (Odometry msg) =>
-                {
-                    position = new Vector2((float)msg.Pose.Pose.Position.X, (float)msg.Pose.Pose.Position.Y);
-                    // yaw (z-axis rotation)
-                    var q = msg.Pose.Pose.Orientation;
-                    double siny_cosp = 2 * (q.W * q.Z + q.X * q.Y);
-                    double cosy_cosp = 1 - 2 * (q.Y * q.Y + q.Z * q.Z);
-                    angle = -Math.Atan2(siny_cosp, cosy_cosp);
-                }
-                );
 
-                // IOManager.RegistryMassage(Args[2], (Pose2D msg) =>
-                // {
-                //     position = new Vector2(-(float)msg.Y, (float)msg.X);
-                //     // yaw (z-axis rotation)
-                //     angle = msg.Theta;
-                // }
-                // );
-            }
+        public string name;
+        public Vector2 position;
+        public double angle;
 
-            else throw new Exception("W must declear the topic name\t uuid :" + ID.ToString());
+        public override void Start()
+        {
+
         }
 
         public override void Update()
         {
-            if (action != null)
-                action();
         }
         public void Set(Vector2 msg)
         {
-            gameObject.Position = msg;
+            position = msg;
         }
-        public (Vector2 pos, double angle) Output => (position, angle);
     }
 }
