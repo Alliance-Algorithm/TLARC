@@ -13,7 +13,6 @@ namespace AllianceDM
         static Dictionary<uint, ComponentCell> Components = [];
         static List<List<ComponentCell>> UpdateFuncs = new();
         static uint PoolDim = 0;
-        static Dictionary<string, GameObject> GameObjects = [];
 
         static readonly object _lock = new();
         static bool _lockWasTaken = false;
@@ -22,8 +21,6 @@ namespace AllianceDM
         {
             Ros2Def.context = new RclContext(args);
             Ros2Def.node = Ros2Def.context.CreateNode("decision_maker");
-
-            InitGameObject.Init(ref GameObjects);
 
             InitComponent.Init(ref Components);
 
@@ -161,12 +158,7 @@ namespace AllianceDM
         }
 
         //=====================
-
-        public static GameObject FindObject(string name)
-        {
-            return GameObjects[name];
-        }
-        public static T FindComponent<T>(uint id) where T : Component
+        public static T GetComponentWithUID<T>(uint id) where T : Component
         {
             return Components[id].Component as T ?? throw new Exception("uuid:" + id.ToString());
         }

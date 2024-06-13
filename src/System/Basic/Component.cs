@@ -43,7 +43,7 @@ namespace AllianceDM
             foreach (var p in this.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance))
             {
                 if (p.FieldType.IsSubclassOf(typeof(Component)))
-                    p.SetValue(this, typeof(DecisionMaker).GetMethod("FindComponent",
+                    p.SetValue(this, typeof(DecisionMaker).GetMethod("GetComponentWithUID",
                      BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public).MakeGenericMethod(p.FieldType).Invoke(null, [_revUid[p.Name]]));
             }
             i = 0;
