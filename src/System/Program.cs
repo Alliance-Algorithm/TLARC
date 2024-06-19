@@ -108,7 +108,9 @@ namespace AllianceDM
                     return;
                 for (var i = 0; i < cell.Forward.Count; i++)
                 {
-                    cell.Forward[i].Dim = max;
+                    if (cell.Forward[i].Dim == cell.Forward[i].Ealy)
+                        cell.Forward[i].Dim = max;
+                    cell.Forward[i].Dim = Math.Min(max, cell.Forward[i].Dim);
                 }
                 return;
             }

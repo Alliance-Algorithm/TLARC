@@ -1,0 +1,144 @@
+{
+    "list": [
+        {
+            "this_id": "7",
+            "input_id": {},
+            "assembly": "AllianceDM.StdComponent",
+            "type": "Transform2D",
+            "arg": {
+                "name": "ControlPos",
+                "position": {
+                    "X": -0.39,
+                    "Y": -5.54
+                },
+                "angle": 0
+            }
+        },
+        {
+            "this_id": "8",
+            "input_id": {},
+            "assembly": "AllianceDM.StdComponent",
+            "type": "Transform2D",
+            "arg": {
+                "name": "CurisePosMain",
+                "position": {
+                    "X": -7.5,
+                    "Y": "-0.019999996"
+                },
+                "angle": 0
+            }
+        },
+        {
+            "this_id": "9",
+            "input_id": {},
+            "assembly": "AllianceDM.StdComponent",
+            "type": "Transform2D",
+            "arg": {
+                "name": "CurisePos2",
+                "position": {
+                    "X": -8.5,
+                    "Y": -0.5199999996
+                },
+                "angle": 0
+            }
+        },
+        {
+            "this_id": "30",
+            "input_id": {},
+            "assembly": "AllianceDM.StdComponent",
+            "type": "Transform2D",
+            "arg": {
+                "name": "CurisePos3",
+                "position": {
+                    "X": -8,
+                    "Y": -0.5199999996
+                },
+                "angle": 0
+            }
+        },
+        {
+            "this_id": "10",
+            "input_id": {},
+            "assembly": "AllianceDM.StdComponent",
+            "type": "Transform2D",
+            "arg": {
+                "name": "sentry_revise",
+                "position": {
+                    "X": 0,
+                    "Y": 0
+                },
+                "angle": 0
+            }
+        },
+        {
+            "this_id": "11",
+            "input_id": {},
+            "assembly": "AllianceDM.StdComponent",
+            "type": "Transform2D",
+            "arg": {
+                "name": "HidePos",
+                "position": {
+                    "X": -4.4000001,
+                    "Y": 4.11000013
+                },
+                "angle": 0
+            }
+        },
+        {
+            "this_id": "12",
+            "input_id": {},
+            "assembly": "AllianceDM.StdComponent",
+            "type": "Transform2D",
+            "arg": {
+                "name": "RechargePos",
+                "position": {
+                    "X": -6.88000011,
+                    "Y": -11.5600004
+                },
+                "angle": 0
+            }
+        },
+        {
+            "this_id": "13",
+            "input_id": {},
+            "assembly": "AllianceDM.PreInfo",
+            "type": "RefereeInfo",
+            "arg": {
+                "friendOutPostHpTopicName": "/referee/outpost/hp",
+                "sentryHpTopicName": "/referee/sentry/hp"
+            }
+        },
+        {
+            "this_id": "14",
+            "input_id": {
+                "info": 13
+            },
+            "assembly": "AllianceDM.StateMechines",
+            "type": "PushFSM_RMUC",
+            "arg": {
+                "statusPubTopicName": "/sentry/control/status"
+            }
+        },
+        {
+            "this_id": "15",
+            "input_id": {
+                "hiddenPos": 7,
+                "curisePosMain": 8,
+                "curisePos2": 9,
+                "curisePos3": 30,
+                "controlPos": 11,
+                "rechargeArea": 12,
+                "fsm": 14,
+                "sentry": 1,
+                "sentryTargetRevisePos": 10,
+                "target": 2
+            },
+            "assembly": "AllianceDM.StateMechines",
+            "type": "PushFSM_RMUC_Actor",
+            "arg": {
+                "maxStayOutTime": 40,
+                "gimbalAngleTopicName": "/sentry/control/gimbal/forward"
+            }
+        }
+    ]
+}

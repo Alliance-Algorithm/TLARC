@@ -1,0 +1,105 @@
+{
+    "list": [
+        {
+            "this_id": 1,
+            "input_id": {},
+            "assembly": "AllianceDM.StdComponent",
+            "type": "Transform2D",
+            "arg": {
+                "name": "Sentry",
+                "position": {
+                    "X": 0,
+                    "Y": 0
+                },
+                "angle": 0
+            }
+        },
+        {
+            "this_id": 2,
+            "input_id": {},
+            "assembly": "AllianceDM.StdComponent",
+            "type": "Transform2D",
+            "arg": {
+                "name": "SentryTarget",
+                "position": {
+                    "X": 0,
+                    "Y": 0
+                },
+                "angle": 0
+            }
+        },
+        {
+            "this_id": 3,
+            "input_id": {
+                "sentry": 1,
+                "destination": 2
+            },
+            "assembly": "AllianceDM.Nav",
+            "type": "UnityNavPath",
+            "arg": {
+                "unityGlobalPathTopicName": "/sentry/nav/global/path",
+                "sentryTopicName": "/sentry/transform",
+                "sentryDestTopicName": "/sentry/destination/transform"
+            }
+        },
+        {
+            "this_id": 20,
+            "input_id": {
+                "sentry": 1
+            },
+            "assembly": "AllianceDM.CarModels",
+            "type": "OmniCar",
+            "arg": {
+                "circleResolution": 180,
+                "lieanerResolution": 50,
+                "speedlimit": 0.5,
+                "accimit": 0.8,
+                "timeResolution": 0.3,
+                "currentSpeedTopicName": "/sentry/sensor/velocity"
+            }
+        },
+        {
+            "this_id": 21,
+            "input_id": {},
+            "assembly": "AllianceDM.Nav",
+            "type": "ESDFBuilder",
+            "arg": {
+                "obstacleMapTopicName": "/local_nav/map",
+                "boxSize": 120,
+                "ESDF_MaxDistance": 0.5
+            }
+        },
+        {
+            "this_id": 4,
+            "input_id": {
+                "nav": 3,
+                "sentry": 1,
+                "model": 20,
+                "obstacle": 21
+            },
+            "assembly": "AllianceDM.Nav",
+            "type": "DWA",
+            "arg": {
+                "headingCoef": 0,
+                "obstacleCoef": 0.4,
+                "velocityCoef": 0.01
+            }
+        },
+        {
+            "this_id": 5,
+            "input_id": {
+                "globalPathFinder": 3,
+                "sentry": 1,
+                "localPathFinder": 4
+            },
+            "assembly": "AllianceDM.Nav",
+            "type": "SpeedVec",
+            "arg": {
+                "maxSpeedDistance": 2,
+                "speedMax": 0.45,
+                "speedMin": 0.45,
+                "speedTopicName": "/sentry/control/forward/velocity"
+            }
+        }
+    ]
+}
