@@ -1,6 +1,0 @@
-[submodule "src/System"]
-	path = src/System
-	url = https://github.com/Alliance-Algorithm/TLARC_Framework.git
-[submodule "src/User/PathFinder"]
-	path = src/User/PathFinder
-	url = https://github.com/Alliance-Algorithm/PathFinder.git
