@@ -14,6 +14,8 @@ class HybridAstar : Component
     public float maxSearchDistanceRatio = 1.2f;
     public float retentionRatio = 0.2f;
 
+    public List<Vector2> Path => _path;
+
     private List<Vector2> _path;
     private bool[,] _closeGrid;
     private PriorityQueue<Node3, float> openList;
