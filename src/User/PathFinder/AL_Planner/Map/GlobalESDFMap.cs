@@ -21,9 +21,9 @@ public class GlobalESDFMap : Component
     private sbyte[,] _map;
     private sbyte[,] _dynamicMap;
     private int[,,] _obstacles;
-    private bool[,] _colord;
+    private bool[,] _colored;
 
-    private OccupancyGrid _dynamicMapReciever;
+    private OccupancyGrid _dynamicMapReceiver;
 
     public sbyte this[int x, int y]
     {
@@ -42,7 +42,7 @@ public class GlobalESDFMap : Component
     public override void Start()
     {
         _staticMap = JsonConvert.DeserializeObject<ESDFMapData>(MapPath);
-        _dynamicMapReciever.Subscript(DynamicMapTopicName, data => _dynamicMap = data.Map);
+        _dynamicMapReceiver.Subscript(DynamicMapTopicName, data => _dynamicMap = data.Map);
     }
 
     public override void Update()
@@ -52,7 +52,7 @@ public class GlobalESDFMap : Component
 
         Buffer.BlockCopy(_staticMap.Map, 0, _map, 0, _map.Length * sizeof(sbyte));
         Buffer.BlockCopy(_staticMap.Obstacles, 0, _obstacles, 0, _obstacles.Length * sizeof(int));
-        _colord = new bool[SizeX, SizeY];
+        _colored = new bool[SizeX, SizeY];
 
         Queue<(int x, int y)> openList = new Queue<(int x, int y)>();
 
@@ -71,7 +71,7 @@ public class GlobalESDFMap : Component
                 _map[x, y] = 0;
                 _obstacles[x, y, 0] = x;
                 _obstacles[x, y, 1] = y;
-                _colord[x, y] = true;
+                _colored[x, y] = true;
                 openList.Enqueue(new(x, y));
             }
 
@@ -91,25 +91,25 @@ public class GlobalESDFMap : Component
                         continue;
 
                     // for calculate
-                    var cObsx = _obstacles[ci, cj, 0];
-                    var cObsy = _obstacles[ci, cj, 1];
-                    if (cObsx != -1)
+                    var cObstacleX = _obstacles[ci, cj, 0];
+                    var cObstacleY = _obstacles[ci, cj, 1];
+                    if (cObstacleX != -1)
                     {
-                        var m = (sbyte)(Math.Clamp(Math.Round(Math.Sqrt(Math.Pow(cObsx - c.x, 2) + Math.Pow(cObsy - c.y, 2))) * Resolution / MaxDistance, 0, 1) * 100);
+                        var m = (sbyte)(Math.Clamp(Math.Round(Math.Sqrt(Math.Pow(cObstacleX - c.x, 2) + Math.Pow(cObstacleY - c.y, 2))) * Resolution / MaxDistance, 0, 1) * 100);
                         if (_map[c.x, c.y] > m)
                         {
                             _map[c.x, c.y] = m;
-                            _obstacles[c.x, c.y, 0] = cObsx;
-                            _obstacles[c.x, c.y, 1] = cObsy;
+                            _obstacles[c.x, c.y, 0] = cObstacleX;
+                            _obstacles[c.x, c.y, 1] = cObstacleY;
                         }
 
                     }
                     // for enqueue
-                    if (_colord[ci, cj])
+                    if (_colored[ci, cj])
                         continue;
                     if (_obstacles[ci, cj, 0] == ci && _obstacles[ci, cj, 0] == cj)
                         continue;
-                    _colord[ci, cj] = true;
+                    _colored[ci, cj] = true;
                     openList.Enqueue((ci, cj));
                 }
         }

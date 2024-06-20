@@ -31,7 +31,7 @@ class Dijkstra : Component
     {
         _path = [];
         int k = pathMap.Points.Length;
-        var Colord = new bool[k];
+        var Colored = new bool[k];
         _pathArray = new int[k];
         if (_map == null)
             _map = new float[k, k];
@@ -41,7 +41,7 @@ class Dijkstra : Component
         int From = pathMap.Voronoi[x, y];
         (x, y) = costMap.Vector2ToXY(target.position);
         int To = pathMap.Voronoi[x, y];
-        Colord[From] = true;
+        Colored[From] = true;
         for (int i = 0; i < k; i++)
         {
             _map[From, i] = _map[i, From] = i != From ? (sentry.position - pathMap.Points[i]).Length() : 0;
@@ -53,13 +53,13 @@ class Dijkstra : Component
             }
             else tempMap[i] = float.MaxValue;
         }
-        while (!Colord[To])
+        while (!Colored[To])
         {
             int t = -1;
             float min = float.MaxValue;
             for (int j = 0; j < k; j++)
             {
-                if (Colord[j])
+                if (Colored[j])
                     continue;
                 if (min > tempMap[j])
                 {
@@ -71,10 +71,10 @@ class Dijkstra : Component
             {
                 return;
             }
-            Colord[t] = true;
+            Colored[t] = true;
             for (int j = 0; j < k; j++)
             {
-                if (Colord[j])
+                if (Colored[j])
                     continue;
                 if (!pathMap.Access[t, j])
                     continue;

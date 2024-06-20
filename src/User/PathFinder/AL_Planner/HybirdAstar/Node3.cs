@@ -8,12 +8,12 @@ internal class Node3 : IEquatable<Node3>, IComparable<Node3>, IThreeDimensional
 {
     const float Equal_MaxDistance = 0.2f;
     const float Equal_MaxTheta = MathF.PI / 12.0f;
-    const int Childs_Headings = 3;
-    const float Childs_TimeInterval = 0.1f;
-    const float Childs_Speed = 3;
-    const float Childs_GInterval = Childs_Speed * Childs_TimeInterval;
-    const float Childs_ThetaInterval = Equal_MaxTheta;
-    const float Childs_ThetaMax = Childs_ThetaInterval * Childs_Headings / 2;
+    const int Children_Headings = 3;
+    const float Children_TimeInterval = 0.1f;
+    const float Children_Speed = 3;
+    const float Children_GInterval = Children_Speed * Children_TimeInterval;
+    const float Children_ThetaInterval = Equal_MaxTheta;
+    const float Children_ThetaMax = Children_ThetaInterval * Children_Headings / 2;
 
     const float HCalc_lambda11 = Equal_MaxTheta * 3;
     const float HCalc_lambda12 = 1;
@@ -52,34 +52,34 @@ internal class Node3 : IEquatable<Node3>, IComparable<Node3>, IThreeDimensional
 
     internal Node3[] ChildrenGen()
     {
-        Node3[] childs;
+        Node3[] children;
         if (Theta < float.MaxValue)
         {
-            childs = new Node3[Childs_Headings];
+            children = new Node3[Children_Headings];
 
-            for (int i = 0; i < Childs_Headings; i++)
+            for (int i = 0; i < Children_Headings; i++)
             {
-                var theta = Childs_ThetaInterval * i + Theta - Childs_ThetaMax;
-                childs[i] = new(Pos + Childs_GInterval * new Vector2(
+                var theta = Children_ThetaInterval * i + Theta - Children_ThetaMax;
+                children[i] = new(Pos + Children_GInterval * new Vector2(
                     MathF.Cos(theta),
                     MathF.Sin(theta)
-                ), theta, this, G + Childs_GInterval);
+                ), theta, this, G + Children_GInterval);
             }
         }
         else
         {
             int headings = 36;
-            childs = new Node3[headings];
+            children = new Node3[headings];
             for (int i = 0; i < headings; i++)
             {
                 float theta = (float)(i * 2 * Math.PI / headings);
-                childs[i] = new(Pos + Childs_GInterval * new Vector2(
+                children[i] = new(Pos + Children_GInterval * new Vector2(
                     MathF.Cos(theta),
                     MathF.Sin(theta)
-                ), theta, this, G + Childs_GInterval);
+                ), theta, this, G + Children_GInterval);
             }
         }
-        return childs;
+        return children;
     }
 
     internal float CalcF(in Node3 Target, in GlobalESDFMap CostMap)

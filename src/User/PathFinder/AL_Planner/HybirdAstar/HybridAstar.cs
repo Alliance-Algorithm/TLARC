@@ -29,6 +29,12 @@ class HybridAStar : Component
         _beginSpeedReceiver.Subscript(beginSpeedTopicName, data => { _beginSpeedAngle = data.Theta; });
     }
 
+    public override void Update()
+    {
+        Search();
+        DownSample();
+    }
+
     private void DownSample()
     {
         if (_path == null)
