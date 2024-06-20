@@ -1,5 +1,5 @@
 
-namespace AllianceDM.AlPlanner;
+namespace AllianceDM.ALPlanner;
 
 internal interface IThreeDimensional
 {

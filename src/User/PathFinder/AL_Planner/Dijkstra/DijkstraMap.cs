@@ -1,5 +1,5 @@
 using System.Numerics;
-namespace AllianceDM.AlPlanner;
+namespace AllianceDM.ALPlanner;
 
 class DijkstraMap
 {

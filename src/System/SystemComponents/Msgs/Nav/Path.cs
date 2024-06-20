@@ -14,14 +14,14 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
         static protected bool publishFlag = false;
 
         IRclPublisher<Rosidl.Messages.Nav.Path> publisher;
-        ConcurrentQueue<System.Numerics.Vector3[]> recieveDatas = new();
+        ConcurrentQueue<System.Numerics.Vector3[]> receiveData = new();
         Rcl.RosMessageBuffer nativeMsg;
 
         void Subscript()
         {
-            if (recieveDatas.Count == 0)
+            if (receiveData.Count == 0)
                 return;
-            recieveDatas = recieveDatas.Take(1) as ConcurrentQueue<System.Numerics.Vector3[]>;
+            receiveData = receiveData.Take(1) as ConcurrentQueue<System.Numerics.Vector3[]>;
             callback(data);
         }
         void Publish()
@@ -46,7 +46,7 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
                 }
             });
         }
-        public void RegistetyPublisher(string topicName)
+        public void RegistryPublisher(string topicName)
         {
             publisher = Ros2Def.node.CreatePublisher<Rosidl.Messages.Nav.Path>(topicName);
             nativeMsg = publisher.CreateBuffer();

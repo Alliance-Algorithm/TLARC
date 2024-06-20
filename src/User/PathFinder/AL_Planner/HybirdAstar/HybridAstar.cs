@@ -2,9 +2,9 @@ using System.Numerics;
 using AllianceDM.IO.ROS2Msgs.Geometry;
 using AllianceDM.StdComponent;
 
-namespace AllianceDM.AlPlanner;
+namespace AllianceDM.ALPlanner;
 
-class HybridAstar : Component
+class HybridAStar : Component
 {
     private GlobalESDFMap costMap;
     private Transform2D sentry;
@@ -22,11 +22,11 @@ class HybridAstar : Component
 
     private float _beginSpeedAngle;
 
-    private Pose2D _beginSpeedReciever;
+    private Pose2D _beginSpeedReceiver;
 
     public override void Start()
     {
-        _beginSpeedReciever.Subscript(beginSpeedTopicName, data => { _beginSpeedAngle = data.Theta; });
+        _beginSpeedReceiver.Subscript(beginSpeedTopicName, data => { _beginSpeedAngle = data.Theta; });
     }
 
     private void DownSample()
@@ -67,7 +67,7 @@ class HybridAstar : Component
                 to.Parent = current.Parent;
                 break;
             }
-            var children = current.ChildsGen();
+            var children = current.ChildrenGen();
             foreach (var child in children)
             {
                 if (child.G > maxDistance)

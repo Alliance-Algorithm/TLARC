@@ -2,7 +2,7 @@ using System.Numerics;
 using AllianceDM.StdComponent;
 using Newtonsoft.Json;
 
-namespace AllianceDM.AlPlanner;
+namespace AllianceDM.ALPlanner;
 class Dijkstra : Component
 {
 
@@ -12,16 +12,14 @@ class Dijkstra : Component
     private Transform2D sentry;
     private Transform2D target;
 
-    public Vector2[] Points => pathMap.Points;
-    public int[,] Voronoi => pathMap.Voronoi;
-    public bool[,] Access => pathMap.Access;
-    public float[,] Map;
 
     public List<Vector2> Path => _path;
 
     private int[] _pathArray;
     private List<Vector2> _path;
     private DijkstraMap pathMap;
+    private float[,] _map;
+
 
     public override void Start()
     {
@@ -32,28 +30,28 @@ class Dijkstra : Component
     public override void Update()
     {
         _path = [];
-        int k = Points.Length;
+        int k = pathMap.Points.Length;
         var Colord = new bool[k];
         _pathArray = new int[k];
-        if (Map == null)
-            Map = new float[k, k];
-        Buffer.BlockCopy(pathMap.Map, 0, Map, 0, pathMap.Map.Length * sizeof(float));
-        var SMap = new float[k];
+        if (_map == null)
+            _map = new float[k, k];
+        Buffer.BlockCopy(pathMap.Map, 0, _map, 0, pathMap.Map.Length * sizeof(float));
+        var tempMap = new float[k];
         var (x, y) = costMap.Vector2ToXY(sentry.position);
-        int From = Voronoi[x, y];
+        int From = pathMap.Voronoi[x, y];
         (x, y) = costMap.Vector2ToXY(target.position);
-        int To = Voronoi[x, y];
+        int To = pathMap.Voronoi[x, y];
         Colord[From] = true;
         for (int i = 0; i < k; i++)
         {
-            Map[From, i] = Map[i, From] = i != From ? (sentry.position - Points[i]).Length() : 0;
-            Map[To, i] = Map[i, To] = i != To ? (target.position - Points[i]).Length() : 0;
-            if (Access[From, i])
+            _map[From, i] = _map[i, From] = i != From ? (sentry.position - pathMap.Points[i]).Length() : 0;
+            _map[To, i] = _map[i, To] = i != To ? (target.position - pathMap.Points[i]).Length() : 0;
+            if (pathMap.Access[From, i])
             {
                 _pathArray[i] = From;
-                SMap[i] = Map[From, i];
+                tempMap[i] = _map[From, i];
             }
-            else SMap[i] = float.MaxValue;
+            else tempMap[i] = float.MaxValue;
         }
         while (!Colord[To])
         {
@@ -63,9 +61,9 @@ class Dijkstra : Component
             {
                 if (Colord[j])
                     continue;
-                if (min > SMap[j])
+                if (min > tempMap[j])
                 {
-                    min = SMap[j];
+                    min = tempMap[j];
                     t = j;
                 }
             }
@@ -78,11 +76,11 @@ class Dijkstra : Component
             {
                 if (Colord[j])
                     continue;
-                if (!Access[t, j])
+                if (!pathMap.Access[t, j])
                     continue;
-                if (SMap[j] > min + Map[t, j])
+                if (tempMap[j] > min + _map[t, j])
                 {
-                    SMap[j] = min + Map[t, j];
+                    tempMap[j] = min + _map[t, j];
                     _pathArray[j] = t;
                 }
             }
@@ -91,7 +89,7 @@ class Dijkstra : Component
         _path.Add(target.position);
         while (tmp != From)
         {
-            _path.Add(Points[tmp]);
+            _path.Add(pathMap.Points[tmp]);
             tmp = _pathArray[tmp];
         }
         _path.Add(sentry.position);

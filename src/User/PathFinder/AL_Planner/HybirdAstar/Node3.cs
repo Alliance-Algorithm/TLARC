@@ -2,7 +2,7 @@
 using System;
 using System.Numerics;
 
-namespace AllianceDM.AlPlanner;
+namespace AllianceDM.ALPlanner;
 
 internal class Node3 : IEquatable<Node3>, IComparable<Node3>, IThreeDimensional
 {
@@ -50,7 +50,7 @@ internal class Node3 : IEquatable<Node3>, IComparable<Node3>, IThreeDimensional
         this.Theta = node3.Theta;
     }
 
-    internal Node3[] ChildsGen()
+    internal Node3[] ChildrenGen()
     {
         Node3[] childs;
         if (Theta < float.MaxValue)

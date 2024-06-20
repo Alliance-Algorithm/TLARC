@@ -1,4 +1,4 @@
-namespace AllianceDM.AlPlanner;
+namespace AllianceDM.ALPlanner;
 internal class ESDFMapData
 {
     public sbyte[,] Map => _staticMap;

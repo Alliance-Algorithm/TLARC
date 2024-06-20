@@ -3,9 +3,9 @@ using AllianceDM.IO.ROS2Msgs.Nav;
 using AllianceDM.StdComponent;
 using Newtonsoft.Json;
 
-namespace AllianceDM.AlPlanner;
+namespace AllianceDM.ALPlanner;
 
-internal class GlobalESDFMap : Component
+public class GlobalESDFMap : Component
 {
     private Transform2D sentry;
 

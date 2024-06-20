@@ -9,7 +9,7 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
     {
         (sbyte[,] Map, float Resolution, uint Height, uint Width) data;
         Action<(sbyte[,] Map, float Resolution, uint Height, uint Width)> callback;
-        ConcurrentQueue<(sbyte[,] Map, float Resolution, uint Height, uint Width)> recieveDatas = new();
+        ConcurrentQueue<(sbyte[,] Map, float Resolution, uint Height, uint Width)> receiveData = new();
 
 
         IRclPublisher<Rosidl.Messages.Nav.OccupancyGrid> publisher;
@@ -18,10 +18,10 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
 
         void Subscript()
         {
-            if (recieveDatas.Count == 0)
+            if (receiveData.Count == 0)
                 return;
-            recieveDatas = recieveDatas.TakeLast(1) as ConcurrentQueue<(sbyte[,] Map, float Resolution, uint Height, uint Width)>;
-            callback(recieveDatas.Last());
+            receiveData = receiveData.TakeLast(1) as ConcurrentQueue<(sbyte[,] Map, float Resolution, uint Height, uint Width)>;
+            callback(receiveData.Last());
         }
         void Publish()
         {
@@ -42,10 +42,10 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
 
                 Buffer.BlockCopy(k, 0, temp.Map, 0, temp.Map.Length);
 
-                recieveDatas.Enqueue(temp);
+                receiveData.Enqueue(temp);
             });
         }
-        public void RegistetyPublisher(string topicName)
+        public void RegistryPublisher(string topicName)
         {
             publisher = Ros2Def.node.CreatePublisher<Rosidl.Messages.Nav.OccupancyGrid>(topicName);
             nativeMsg = publisher.CreateBuffer();
