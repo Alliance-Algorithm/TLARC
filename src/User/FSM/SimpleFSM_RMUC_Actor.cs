@@ -29,7 +29,7 @@ namespace AllianceDM.StateMechines
         IO.ROS2Msgs.Geometry.Vector3 pub_angle1;
         IO.ROS2Msgs.Geometry.Vector3 pub_angle2;
 
-        public void Start()
+        public override void Start()
         {
             rand = DateTime.Now.Second + DateTime.Now.Minute * 60;
 
@@ -41,7 +41,7 @@ namespace AllianceDM.StateMechines
             pub_angle1.RegistetyPublisher(gimbalAngleTopicName + "1");
             pub_angle2.RegistetyPublisher(gimbalAngleTopicName + "2");
         }
-        public void Update()
+        public override void Update()
         {
             gimbalForward1 = new(0, 0, 0);
             gimbalForward2 = new(0, 0, 0);
