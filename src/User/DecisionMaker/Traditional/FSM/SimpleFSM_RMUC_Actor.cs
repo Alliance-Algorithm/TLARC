@@ -11,6 +11,7 @@ namespace AllianceDM.StateMechines
     {
         public float maxStayOutTime;
         public string gimbalAngleTopicName;
+
         Transform2D HiddenPos;
         Transform2D CurisePosMain;
         Transform2D CurisePos2;
@@ -21,11 +22,13 @@ namespace AllianceDM.StateMechines
         Transform2D SentryPos;
         Transform2D SentryTargetRevisePos;
         Transform2D TargetPos;
+
         float timer;
         float rand;
         bool comeback;
         Vector3 gimbalForward1 = new();
         Vector3 gimbalForward2 = new();
+
         IO.ROS2Msgs.Geometry.Vector3 pub_angle1;
         IO.ROS2Msgs.Geometry.Vector3 pub_angle2;
 

@@ -45,7 +45,7 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
 
             Task.Run(async () =>
             {
-                using var timer = Ros2Def.context.CreateTimer(Ros2Def.node.Clock, TimeSpan.FromMilliseconds(value: 1));
+                using var timer = Ros2Def.context.CreateTimer(Ros2Def.node.Clock, TimeSpan.FromMilliseconds(1));
                 while (true)
                 {
                     Thread.Sleep(1);
