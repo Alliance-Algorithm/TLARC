@@ -8,7 +8,7 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
     class Pose2D : TlarcMsgs
     {
         (Vector2 pos, float Theta) data = new();
-        RevcAction<(Vector2 pos, float Theta)> callback;
+        Action<(Vector2 pos, float Theta)> callback;
         ConcurrentQueue<(Vector2 pos, float Theta)> recieveDatas = new();
 
         IRclPublisher<Rosidl.Messages.Geometry.Pose2D> publisher;
@@ -28,7 +28,7 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
                 return;
             publishFlag = true;
         }
-        public void Subscript(string topicName, RevcAction<(Vector2 pos, float Theta)> callback)
+        public void Subscript(string topicName, Action<(Vector2 pos, float Theta)> callback)
         {
             this.callback = callback;
             Input += Subscript;

@@ -8,7 +8,7 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
     class OccupancyGrid : TlarcMsgs
     {
         (sbyte[,] Map, float Resolution, uint Height, uint Width) data;
-        RevcAction<(sbyte[,] Map, float Resolution, uint Height, uint Width)> callback;
+        Action<(sbyte[,] Map, float Resolution, uint Height, uint Width)> callback;
         ConcurrentQueue<(sbyte[,] Map, float Resolution, uint Height, uint Width)> recieveDatas = new();
 
 
@@ -29,7 +29,7 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
                 return;
             publishFlag = true;
         }
-        public void Subscript(string topicName, RevcAction<(sbyte[,] Map, float Resolution, uint Height, uint Width)> callback)
+        public void Subscript(string topicName, Action<(sbyte[,] Map, float Resolution, uint Height, uint Width)> callback)
         {
             this.callback = callback;
             Input += Subscript;

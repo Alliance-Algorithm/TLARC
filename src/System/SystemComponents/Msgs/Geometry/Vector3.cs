@@ -7,7 +7,7 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
     class Vector3 : TlarcMsgs
     {
         System.Numerics.Vector3 data = new();
-        RevcAction<System.Numerics.Vector3> callback;
+        Action<System.Numerics.Vector3> callback;
         ConcurrentQueue<System.Numerics.Vector3> recieveDatas = new();
 
 
@@ -28,7 +28,7 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
                 return;
             publishFlag = true;
         }
-        public void Subscript(string topicName, RevcAction<System.Numerics.Vector3> callback)
+        public void Subscript(string topicName, Action<System.Numerics.Vector3> callback)
         {
             this.callback = callback;
             TlarcMsgs.Input += Subscript;
