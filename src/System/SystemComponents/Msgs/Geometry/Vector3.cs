@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using AllianceDM.IO;
 using Rcl;
 
@@ -6,41 +7,34 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
     class Vector3 : TlarcMsgs
     {
         System.Numerics.Vector3 data = new();
-        bool flag = false;
         RevcAction<System.Numerics.Vector3> callback;
+        ConcurrentQueue<System.Numerics.Vector3> recieveDatas = new();
 
-        static protected bool WriteLock = false;
 
         IRclPublisher<Rosidl.Messages.Geometry.Vector3> publisher;
-        Rcl.RosMessageBuffer nativeMsg;
+        RosMessageBuffer nativeMsg;
+        private bool publishFlag;
 
         void Subscript()
         {
-            if (!flag)
+            if (recieveDatas.Count == 0)
                 return;
-            callback(data);
+            recieveDatas = recieveDatas.TakeLast(1) as ConcurrentQueue<System.Numerics.Vector3>;
+            callback(recieveDatas.First());
         }
         void Publish()
         {
             if (publisher == null)
                 return;
-            nativeMsg.AsRef<Rosidl.Messages.Geometry.Vector3.Priv>().X = data.X;
-            nativeMsg.AsRef<Rosidl.Messages.Geometry.Vector3.Priv>().Y = data.Y;
-            nativeMsg.AsRef<Rosidl.Messages.Geometry.Vector3.Priv>().Z = data.Z;
-            publisher.Publish(nativeMsg);
-            WriteLock = true;
+            publishFlag = true;
         }
         public void Subscript(string topicName, RevcAction<System.Numerics.Vector3> callback)
         {
             this.callback = callback;
             TlarcMsgs.Input += Subscript;
-            IOManager.RegistrySubscription<Rosidl.Messages.Geometry.Vector3>(topicName, (Rosidl.Messages.Geometry.Vector3 msg) =>
+            IOManager.RegistrySubscription(topicName, (Rosidl.Messages.Geometry.Vector3 msg) =>
             {
-
-                if (TlarcMsgs.ReadLock)
-                    return;
-                flag = true;
-                data = new((float)msg.X, (float)msg.Y, (float)msg.Z);
+                recieveDatas.Enqueue(new((float)msg.X, (float)msg.Y, (float)msg.Z));
             });
         }
         public void RegistetyPublisher(string topicName)
@@ -55,13 +49,13 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
                 while (true)
                 {
                     Thread.Sleep(1);
-                    if (!WriteLock)
+                    if (!publishFlag)
                         continue;
                     nativeMsg.AsRef<Rosidl.Messages.Geometry.Vector3.Priv>().X = data.X;
                     nativeMsg.AsRef<Rosidl.Messages.Geometry.Vector3.Priv>().Y = data.Y;
                     nativeMsg.AsRef<Rosidl.Messages.Geometry.Vector3.Priv>().Z = data.Z;
                     publisher.Publish(nativeMsg);
-                    WriteLock = false;
+                    publishFlag = false;
                     await timer.WaitOneAsync(false);
                 }
             });

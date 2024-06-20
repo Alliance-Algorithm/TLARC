@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Numerics;
 using AllianceDM.IO;
 using Rcl;
@@ -7,41 +8,33 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
     class Pose2D : TlarcMsgs
     {
         (Vector2 pos, float Theta) data = new();
-        bool flag = false;
         RevcAction<(Vector2 pos, float Theta)> callback;
-
-        static protected bool WriteLock = false;
+        ConcurrentQueue<(Vector2 pos, float Theta)> recieveDatas = new();
 
         IRclPublisher<Rosidl.Messages.Geometry.Pose2D> publisher;
-        Rcl.RosMessageBuffer nativeMsg;
+        RosMessageBuffer nativeMsg;
+        private bool publishFlag;
 
         void Subscript()
         {
-            if (!flag)
+            if (recieveDatas.Count == 0)
                 return;
-            callback(data);
+            recieveDatas = recieveDatas.TakeLast(1) as ConcurrentQueue<(Vector2 pos, float Theta)>;
+            callback(recieveDatas.First());
         }
         void Publish()
         {
             if (publisher == null)
                 return;
-            nativeMsg.AsRef<Rosidl.Messages.Geometry.Pose2D.Priv>().X = data.pos.X;
-            nativeMsg.AsRef<Rosidl.Messages.Geometry.Pose2D.Priv>().Y = data.pos.Y;
-            nativeMsg.AsRef<Rosidl.Messages.Geometry.Pose2D.Priv>().Theta = data.Theta;
-            publisher.Publish(nativeMsg);
-            WriteLock = true;
+            publishFlag = true;
         }
         public void Subscript(string topicName, RevcAction<(Vector2 pos, float Theta)> callback)
         {
             this.callback = callback;
-            TlarcMsgs.Input += Subscript;
-            IOManager.RegistrySubscription<Rosidl.Messages.Geometry.Pose2D>(topicName, (Rosidl.Messages.Geometry.Pose2D msg) =>
+            Input += Subscript;
+            IOManager.RegistrySubscription(topicName, (Rosidl.Messages.Geometry.Pose2D msg) =>
             {
-
-                if (TlarcMsgs.ReadLock)
-                    return;
-                flag = true;
-                data = (new((float)msg.X, (float)msg.Y), (float)msg.Theta);
+                recieveDatas.Enqueue((new((float)msg.X, (float)msg.Y), (float)msg.Theta));
             });
         }
         public void RegistetyPublisher(string topicName)
@@ -56,13 +49,13 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
                 while (true)
                 {
                     Thread.Sleep(1);
-                    if (!WriteLock)
+                    if (!publishFlag)
                         continue;
                     nativeMsg.AsRef<Rosidl.Messages.Geometry.Pose2D.Priv>().X = data.pos.X;
                     nativeMsg.AsRef<Rosidl.Messages.Geometry.Pose2D.Priv>().Y = data.pos.Y;
                     nativeMsg.AsRef<Rosidl.Messages.Geometry.Pose2D.Priv>().Theta = data.Theta;
                     publisher.Publish(nativeMsg);
-                    WriteLock = false;
+                    publishFlag = false;
                     await timer.WaitOneAsync(false);
                 }
             });

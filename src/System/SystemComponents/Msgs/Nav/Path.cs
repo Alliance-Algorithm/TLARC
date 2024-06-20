@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Numerics;
 using AllianceDM.IO;
 using Rcl;
@@ -10,32 +11,25 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
         System.Numerics.Vector3[] data;
         RevcAction<System.Numerics.Vector3[]> callback;
 
-        static protected bool WriteLock = false;
+        static protected bool publishFlag = false;
 
         IRclPublisher<Rosidl.Messages.Nav.Path> publisher;
+        ConcurrentQueue<System.Numerics.Vector3[]> recieveDatas = new();
         Rcl.RosMessageBuffer nativeMsg;
 
         void Subscript()
         {
-            if (data == null)
+            if (recieveDatas.Count == 0)
                 return;
+            recieveDatas = recieveDatas.Take(1) as ConcurrentQueue<System.Numerics.Vector3[]>;
             callback(data);
         }
         void Publish()
         {
             if (publisher == null)
                 return;
-            nativeMsg.AsRef<Rosidl.Messages.Nav.Path.Priv>().Poses = new(data.Length);
-            for (int i = 0; i < data.Length; i++)
-            {
-                var l = new PoseStamped.Priv();
-                l.Pose.Position.X = data[i].X;
-                l.Pose.Position.Y = data[i].Y;
-                l.Pose.Position.Z = data[i].Z;
-                nativeMsg.AsRef<Rosidl.Messages.Nav.Path.Priv>().Poses.AsSpan()[i] = l;
-            }
             publisher.Publish(nativeMsg);
-            WriteLock = true;
+            publishFlag = true;
         }
         public void Subscript(string topicName, RevcAction<System.Numerics.Vector3[]> callback)
         {
@@ -44,8 +38,6 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
             IOManager.RegistrySubscription<Rosidl.Messages.Nav.Path>(topicName, (Rosidl.Messages.Nav.Path msg) =>
             {
 
-                if (TlarcMsgs.ReadLock)
-                    return;
                 var k = msg.Poses;
                 data = new System.Numerics.Vector3[k.Length];
                 for (int i = 0; i < k.Length; i++)
@@ -66,10 +58,19 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
                 while (true)
                 {
                     Thread.Sleep(1);
-                    if (!WriteLock)
+                    if (!publishFlag)
                         continue;
+                    nativeMsg.AsRef<Rosidl.Messages.Nav.Path.Priv>().Poses = new(data.Length);
+                    for (int i = 0; i < data.Length; i++)
+                    {
+                        var l = new PoseStamped.Priv();
+                        l.Pose.Position.X = data[i].X;
+                        l.Pose.Position.Y = data[i].Y;
+                        l.Pose.Position.Z = data[i].Z;
+                        nativeMsg.AsRef<Rosidl.Messages.Nav.Path.Priv>().Poses.AsSpan()[i] = l;
+                    }
                     publisher.Publish(nativeMsg);
-                    WriteLock = false;
+                    publishFlag = false;
                     await timer.WaitOneAsync(false);
                 }
             });

@@ -1,8 +1,7 @@
+using System.Collections.Concurrent;
 using System.Numerics;
 using AllianceDM.IO;
 using Rcl;
-using Rosidl.Messages.Geometry;
-using Rosidl.Messages.Std;
 
 namespace AllianceDM.IO.ROS2Msgs.Nav
 {
@@ -10,47 +9,40 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
     {
         (sbyte[,] Map, float Resolution, uint Height, uint Width) data;
         RevcAction<(sbyte[,] Map, float Resolution, uint Height, uint Width)> callback;
+        ConcurrentQueue<(sbyte[,] Map, float Resolution, uint Height, uint Width)> recieveDatas = new();
 
-        static protected bool WriteLock = false;
 
         IRclPublisher<Rosidl.Messages.Nav.OccupancyGrid> publisher;
         Rcl.RosMessageBuffer nativeMsg;
+        private bool publishFlag;
 
         void Subscript()
         {
-            if (data.Map == null)
+            if (recieveDatas.Count == 0)
                 return;
-            callback(data);
+            recieveDatas = recieveDatas.TakeLast(1) as ConcurrentQueue<(sbyte[,] Map, float Resolution, uint Height, uint Width)>;
+            callback(recieveDatas.Last());
         }
         void Publish()
         {
             if (publisher == null)
                 return;
-            nativeMsg.AsRef<Rosidl.Messages.Nav.Path.Priv>().Poses = new(data.Map.Length);
-            var temp_map = new sbyte[data.Map.Length];
-            Buffer.BlockCopy(data.Map, 0, temp_map, 0, temp_map.Length);
-            nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Data.CopyFrom(temp_map);
-            nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Info.Height = (uint)data.Map.GetLength(0);
-            nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Info.Width = (uint)data.Map.GetLength(1);
-            nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Info.Resolution = data.Resolution;
-
-            publisher.Publish(nativeMsg);
-            WriteLock = true;
+            publishFlag = true;
         }
         public void Subscript(string topicName, RevcAction<(sbyte[,] Map, float Resolution, uint Height, uint Width)> callback)
         {
             this.callback = callback;
-            TlarcMsgs.Input += Subscript;
-            IOManager.RegistrySubscription<Rosidl.Messages.Nav.OccupancyGrid>(topicName, (Rosidl.Messages.Nav.OccupancyGrid msg) =>
+            Input += Subscript;
+            IOManager.RegistrySubscription(topicName, (Rosidl.Messages.Nav.OccupancyGrid msg) =>
             {
-
-                if (TlarcMsgs.ReadLock)
-                    return;
+                (sbyte[,] Map, float Resolution, uint Height, uint Width) temp = new();
                 var k = msg.Data;
-                data.Map = new sbyte[msg.Info.Height, msg.Info.Width];
-                data.Resolution = msg.Info.Resolution;
+                temp.Map = new sbyte[msg.Info.Height, msg.Info.Width];
+                temp.Resolution = msg.Info.Resolution;
 
-                Buffer.BlockCopy(k, 0, data.Map, 0, data.Map.Length);
+                Buffer.BlockCopy(k, 0, temp.Map, 0, temp.Map.Length);
+
+                recieveDatas.Enqueue(temp);
             });
         }
         public void RegistetyPublisher(string topicName)
@@ -65,10 +57,17 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
                 while (true)
                 {
                     Thread.Sleep(1);
-                    if (!WriteLock)
+                    if (!publishFlag)
                         continue;
+                    nativeMsg.AsRef<Rosidl.Messages.Nav.Path.Priv>().Poses = new(data.Map.Length);
+                    var temp_map = new sbyte[data.Map.Length];
+                    Buffer.BlockCopy(data.Map, 0, temp_map, 0, temp_map.Length);
+                    nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Data.CopyFrom(temp_map);
+                    nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Info.Height = (uint)data.Map.GetLength(0);
+                    nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Info.Width = (uint)data.Map.GetLength(1);
+                    nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Info.Resolution = data.Resolution;
                     publisher.Publish(nativeMsg);
-                    WriteLock = false;
+                    publishFlag = false;
                     await timer.WaitOneAsync(false);
                 }
             });

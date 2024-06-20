@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using AllianceDM.IO;
 using Rcl;
 
@@ -6,19 +7,20 @@ namespace AllianceDM.IO.ROS2Msgs.Std
     class Int32 : TlarcMsgs
     {
         int data = 0;
-        bool flag = false;
         RevcAction<int> callback;
 
-        static protected bool WriteLock = false;
+        static protected bool publishFlag = false;
 
         IRclPublisher<Rosidl.Messages.Std.Int32> publisher;
+        ConcurrentQueue<int> recieveDatas = new();
         Rcl.RosMessageBuffer nativeMsg;
 
         void Subscript()
         {
-            if (!flag)
+            if (recieveDatas.Count == 0)
                 return;
-            callback(data);
+            recieveDatas = recieveDatas.TakeLast(1) as ConcurrentQueue<int>;
+            callback(recieveDatas.Last());
         }
         void Publish()
         {
@@ -26,7 +28,7 @@ namespace AllianceDM.IO.ROS2Msgs.Std
                 return;
             nativeMsg.AsRef<Rosidl.Messages.Std.Int32.Priv>().Data = data;
             publisher.Publish(nativeMsg);
-            WriteLock = true;
+            publishFlag = true;
         }
         public void Subscript(string topicName, RevcAction<int> callback)
         {
@@ -34,9 +36,6 @@ namespace AllianceDM.IO.ROS2Msgs.Std
             TlarcMsgs.Input += Subscript;
             IOManager.RegistrySubscription<Rosidl.Messages.Std.Int32>(topicName, (Rosidl.Messages.Std.Int32 msg) =>
             {
-                if (TlarcMsgs.ReadLock)
-                    return;
-                flag = true;
                 data = msg.Data;
             });
         }
@@ -52,11 +51,11 @@ namespace AllianceDM.IO.ROS2Msgs.Std
                 while (true)
                 {
                     await timer.WaitOneAsync(false);
-                    if (!WriteLock)
+                    if (!publishFlag)
                         continue;
                     nativeMsg.AsRef<Rosidl.Messages.Std.Int32.Priv>().Data = (int)data;
                     publisher.Publish(nativeMsg);
-                    WriteLock = false;
+                    publishFlag = false;
                 }
             });
         }
