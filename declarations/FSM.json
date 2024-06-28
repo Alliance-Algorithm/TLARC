@@ -102,7 +102,7 @@
             "this_id": "13",
             "input_id": {},
             "assembly": "AllianceDM.PreInfo",
-            "type": "RefereeInfo",
+            "type": "DecisionMakingInfo",
             "arg": {
                 "friendOutPostHpTopicName": "/referee/outpost/hp",
                 "sentryHpTopicName": "/referee/sentry/hp"

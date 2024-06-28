@@ -19,7 +19,7 @@ namespace AllianceDM.StateMechines
         public string statusPubTopicName;
 
 
-        RefereeInfo info;
+        DecisionMakingInfo info;
         IO.ROS2Msgs.Std.Int32 pub;
 
         public override void Start()

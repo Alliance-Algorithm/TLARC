@@ -4,7 +4,7 @@ namespace AllianceDM.PreInfo
 {
     // arg[0] = friend outpost hp
     // arg[1] = sentry hp
-    public class RefereeInfo : Component
+    public class DecisionMakingInfo : Component
     {
 
         public string friendOutPostHpTopicName;

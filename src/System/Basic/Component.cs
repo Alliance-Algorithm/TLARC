@@ -39,14 +39,12 @@ namespace AllianceDM
         public void Awake()
         {
             Debug.WriteLine(this.GetType().FullName + "\t uuid:" + _uuid.ToString());
-            int i = 0;
             foreach (var p in this.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance))
             {
                 if (p.FieldType.IsSubclassOf(typeof(Component)))
                     p.SetValue(this, typeof(DecisionMaker).GetMethod("GetComponentWithUID",
                      BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public).MakeGenericMethod(p.FieldType).Invoke(null, [_revUid[p.Name]]));
             }
-            i = 0;
             foreach (var p in this.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance))
             {
                 if (_args[p.Name].GetType().IsSubclassOf(typeof(JContainer)))
