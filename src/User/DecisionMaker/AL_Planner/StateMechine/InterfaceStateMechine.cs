@@ -4,11 +4,10 @@ namespace AllianceDM.ALPlanner;
 
 interface IStateMechine
 {
-    public bool FirePermit { get; set; }
-    public bool[] LockPermit { get; set; }
-    public Vector2 GimbalAngle { get; set; }
-    public Vector2 TargetPosition { get; set; }
-    IStateObject[] AllState { get; set; }
+    public bool FirePermit { get; }
+    public bool[] LockPermit { get; }
+    public Vector2 GimbalAngle { get; }
+    public Vector2 TargetPosition { get; }
 
     IStateObject AnyState();
 }

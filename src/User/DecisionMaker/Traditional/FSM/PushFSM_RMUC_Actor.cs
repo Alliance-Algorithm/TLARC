@@ -16,7 +16,7 @@ namespace AllianceDM.StateMechines
         Transform2D curisePosMain;
         Transform2D curisePos2;
         Transform2D curisePos3;
-        Transform2D controlPos;
+        // Transform2D controlPos;
         Transform2D rechargeArea;
         PushFSM_RMUC fsm;
         Transform2D sentry;

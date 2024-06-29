@@ -8,6 +8,7 @@ using System.Numerics;
 using System.Threading;
 namespace AllianceDM.ALPlanner;
 
+
 public class NonUniformBSpline(float limitVelocity, float limitAccelerate, float limitRatio)
 {
     /// <summary>
@@ -25,7 +26,7 @@ public class NonUniformBSpline(float limitVelocity, float limitAccelerate, float
     /// <summary>
     /// K-1
     /// </summary>
-    private int p_ = 3;
+    // private int p_ = 3;
     /// <summary>
     /// 时间向量
     /// </summary>
@@ -72,9 +73,9 @@ public class NonUniformBSpline(float limitVelocity, float limitAccelerate, float
         DenseMatrix b = new DenseMatrix(n_ + 3, 3);
         // b.SetRow(2, new float[] { StartEndDerivative[2].X, StartEndDerivative[2].Y, 0 });
         for (int i = 0; i < n_; i++)
-            b.SetRow(i, [WayPoints[i].X, WayPoints[i].Y, 0]);
-        b.SetRow(n_, [StartEndDerivative[0].X, StartEndDerivative[0].Y, 0]);
-        b.SetRow(n_ + 1, [StartEndDerivative[1].X, StartEndDerivative[1].Y, 0]);
+            b.SetRow(i, new float[] { WayPoints[i].X, WayPoints[i].Y, 0 });
+        b.SetRow(n_, new float[] { StartEndDerivative[0].X, StartEndDerivative[0].Y, 0 });
+        b.SetRow(n_ + 1, new float[] { StartEndDerivative[1].X, StartEndDerivative[1].Y, 0 });
 
         controlPoints_ = (DenseMatrix)A.Solve(b);
     }
@@ -184,7 +185,7 @@ public class NonUniformBSpline(float limitVelocity, float limitAccelerate, float
     private Vector2 CalcVelocity(float U, int N)
     {
         var u_ = new DenseMatrix(1, 4);
-        u_.SetRow(0, [0, 1, 2 * U, 3 * U * U]);
+        u_.SetRow(0, new float[] { 0, 1, 2 * U, 3 * U * U });
         var ret = u_ * m_k * controlPoints_.SubMatrix(N, 4, 0, 3);
         var timeDensity = u_.SubMatrix(0, 1, 0, 3) * m_tk * timeControlPoints_.SubMatrix(N, 3, 0, 1);
         timeDensity[0, 0] = t_[N + 1] - t_[N];
@@ -206,7 +207,7 @@ public class NonUniformBSpline(float limitVelocity, float limitAccelerate, float
     private Vector2 CalcAcceleration(float U, int N)
     {
         var u_ = new DenseMatrix(1, 4);
-        u_.SetRow(0, [0, 0, 2, 6 * U]);
+        u_.SetRow(0, new float[] { 0, 0, 2, 6 * U });
         var ret = u_ * m_k * controlPoints_.SubMatrix(N, 4, 0, 3);
         var timeDensity = u_.SubMatrix(0, 1, 0, 3) * m_tk * timeControlPoints_.SubMatrix(N, 3, 0, 1);
         timeDensity[0, 0] = t_[N + 1] - t_[N];

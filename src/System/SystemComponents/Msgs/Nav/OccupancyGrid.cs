@@ -9,7 +9,7 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
     {
         (sbyte[,] Map, float Resolution, uint Height, uint Width) data;
         Action<(sbyte[,] Map, float Resolution, uint Height, uint Width)> callback;
-        ConcurrentQueue<(sbyte[,] Map, float Resolution, uint Height, uint Width)> receiveData = new();
+        ConcurrentQueue<(sbyte[,] Map, float Resolution, uint Height, uint Width)> receiveDatas = new();
 
 
         IRclPublisher<Rosidl.Messages.Nav.OccupancyGrid> publisher;
@@ -18,10 +18,11 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
 
         void Subscript()
         {
-            if (receiveData.Count == 0)
+            if (receiveDatas.Count == 0)
                 return;
-            receiveData = receiveData.TakeLast(1) as ConcurrentQueue<(sbyte[,] Map, float Resolution, uint Height, uint Width)>;
-            callback(receiveData.Last());
+            while (receiveDatas.Count > 1) receiveDatas.TryDequeue(out _);
+
+            callback(receiveDatas.Last());
         }
         void Publish()
         {
@@ -42,7 +43,7 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
 
                 Buffer.BlockCopy(k, 0, temp.Map, 0, temp.Map.Length);
 
-                receiveData.Enqueue(temp);
+                receiveDatas.Enqueue(temp);
             });
         }
         public void RegistryPublisher(string topicName)

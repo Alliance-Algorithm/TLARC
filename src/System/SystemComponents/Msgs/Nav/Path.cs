@@ -14,14 +14,14 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
         static protected bool publishFlag = false;
 
         IRclPublisher<Rosidl.Messages.Nav.Path> publisher;
-        ConcurrentQueue<System.Numerics.Vector3[]> receiveData = new();
+        ConcurrentQueue<System.Numerics.Vector3[]> receiveDatas = new();
         Rcl.RosMessageBuffer nativeMsg;
 
         void Subscript()
         {
-            if (receiveData.Count == 0)
+            if (receiveDatas.Count == 0)
                 return;
-            receiveData = receiveData.Take(1) as ConcurrentQueue<System.Numerics.Vector3[]>;
+            while (receiveDatas.Count > 1) receiveDatas.TryDequeue(out _);
             callback(data);
         }
         void Publish()

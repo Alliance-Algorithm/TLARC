@@ -9,7 +9,7 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
     {
         (Vector2 pos, float Theta) data = new();
         Action<(Vector2 pos, float Theta)> callback;
-        ConcurrentQueue<(Vector2 pos, float Theta)> recieveDatas = new();
+        ConcurrentQueue<(Vector2 pos, float Theta)> receiveDatas = new();
 
         IRclPublisher<Rosidl.Messages.Geometry.Pose2D> publisher;
         RosMessageBuffer nativeMsg;
@@ -17,10 +17,10 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
 
         void Subscript()
         {
-            if (recieveDatas.Count == 0)
+            if (receiveDatas == null || receiveDatas.Count == 0)
                 return;
-            recieveDatas = recieveDatas.TakeLast(1) as ConcurrentQueue<(Vector2 pos, float Theta)>;
-            callback(recieveDatas.First());
+            while (receiveDatas.Count > 1) receiveDatas.TryDequeue(out _);
+            callback(receiveDatas.First());
         }
         void Publish()
         {
@@ -34,7 +34,7 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
             Input += Subscript;
             IOManager.RegistrySubscription(topicName, (Rosidl.Messages.Geometry.Pose2D msg) =>
             {
-                recieveDatas.Enqueue((new((float)msg.X, (float)msg.Y), (float)msg.Theta));
+                receiveDatas.Enqueue((new((float)msg.X, (float)msg.Y), (float)msg.Theta));
             });
         }
         public void RegistetyPublisher(string topicName)

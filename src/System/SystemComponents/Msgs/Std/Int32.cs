@@ -12,15 +12,15 @@ namespace AllianceDM.IO.ROS2Msgs.Std
         static protected bool publishFlag = false;
 
         IRclPublisher<Rosidl.Messages.Std.Int32> publisher;
-        ConcurrentQueue<int> recieveDatas = new();
+        ConcurrentQueue<int> receiveDatas = new();
         Rcl.RosMessageBuffer nativeMsg;
 
         void Subscript()
         {
-            if (recieveDatas.Count == 0)
+            if (receiveDatas.Count == 0)
                 return;
-            recieveDatas = recieveDatas.TakeLast(1) as ConcurrentQueue<int>;
-            callback(recieveDatas.Last());
+            while (receiveDatas.Count > 1) receiveDatas.TryDequeue(out _);
+            callback(receiveDatas.Last());
         }
         void Publish()
         {

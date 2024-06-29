@@ -3,7 +3,8 @@ namespace AllianceDM.ALPlanner;
 
 interface IStateObject
 {
-    IStateObject Update(float timeCoefficient);
+    bool Update(ref IStateObject state, float timeCoefficient);
+
     public bool FirePermit { get; }
     public bool[] LockPermit { get; }
     public Vector2 GimbalAngle { get; }

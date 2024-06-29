@@ -8,7 +8,7 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
     {
         System.Numerics.Vector3 data = new();
         Action<System.Numerics.Vector3> callback;
-        ConcurrentQueue<System.Numerics.Vector3> recieveDatas = new();
+        ConcurrentQueue<System.Numerics.Vector3> receiveDatas = new();
 
 
         IRclPublisher<Rosidl.Messages.Geometry.Vector3> publisher;
@@ -17,10 +17,10 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
 
         void Subscript()
         {
-            if (recieveDatas.Count == 0)
+            if (receiveDatas.Count == 0)
                 return;
-            recieveDatas = recieveDatas.TakeLast(1) as ConcurrentQueue<System.Numerics.Vector3>;
-            callback(recieveDatas.First());
+            while (receiveDatas.Count > 1) receiveDatas.TryDequeue(out _);
+            callback(receiveDatas.First());
         }
         void Publish()
         {
@@ -34,7 +34,7 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
             TlarcMsgs.Input += Subscript;
             IOManager.RegistrySubscription(topicName, (Rosidl.Messages.Geometry.Vector3 msg) =>
             {
-                recieveDatas.Enqueue(new((float)msg.X, (float)msg.Y, (float)msg.Z));
+                receiveDatas.Enqueue(new((float)msg.X, (float)msg.Y, (float)msg.Z));
             });
         }
         public void RegistetyPublisher(string topicName)
