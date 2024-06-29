@@ -2,7 +2,7 @@ using System.Numerics;
 
 namespace AllianceDM.ALPlanner;
 
-interface IStateMechine
+interface IStateMachine
 {
     public bool FirePermit { get; }
     public bool[] LockPermit { get; }

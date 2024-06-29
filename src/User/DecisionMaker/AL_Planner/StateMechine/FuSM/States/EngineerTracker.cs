@@ -12,37 +12,45 @@ class EngineerTracker : IStateObject
 
     public Vector2 GimbalAngle { get; private set; }
 
-    public Vector2 TargetPosition => EngineerInterceptionPoint.Position;
+    public Vector2 TargetPosition => EngineerAgent.Position;
 
-    public required HeroInterceptionPoint HeroInterceptionPoint { get; init; }
-    public required EngineerInterceptionPoint EngineerInterceptionPoint { get; init; }
-    public required DecisionMakingInfo Info { get; init; }
-
+    public required HeroAgent HeroAgent { get; init; }
+    public required EngineerAgent EngineerAgent { get; init; }
+    public required DecisionMakingInfo DecisionMakingInfo { get; init; }
+    public required UnitInfo UnitInfo { get; init; }
     public IStateObject Patrol { get; set; }
     public IStateObject HeroTracker { get; set; }
+
 
     float OutpostHp = DecisionMakingInfo.OutpostHPLimit;
 
     public bool Update(ref IStateObject state, float timeCoefficient)
     {
-        FirePermit = (EngineerInterceptionPoint.Distance < 6) && EngineerInterceptionPoint.Locked;
-        float engineerCoefficient = EngineerInterceptionPoint.Value;
-        float heroCoefficient = HeroInterceptionPoint.Value + (OutpostHp == Info.FriendOutPostHp ? 100 : 0);
-        float patrolCoefficient = (HeroInterceptionPoint.Found ? 1 : 10) * (EngineerInterceptionPoint.Found ? 1 : 10)
-        / (HeroInterceptionPoint.Value + EngineerInterceptionPoint.Value);
+        LockPermit[(int)RobotType.Hero] = UnitInfo.EquivalentHp[(int)RobotType.Hero] < 100;
+        LockPermit[(int)RobotType.Engineer] = UnitInfo.EquivalentHp[(int)RobotType.Engineer] < 1000;
+        GimbalAngle = new(EngineerAgent.Angle - MathF.PI, EngineerAgent.Angle + MathF.PI);
+        FirePermit = (EngineerAgent.Distance < 6) && EngineerAgent.Locked;
+        float engineerCoefficient = EngineerAgent.Value;
+        float heroCoefficient = HeroAgent.Value + (OutpostHp == DecisionMakingInfo.FriendOutPostHp ? 100 : 0);
+        float patrolCoefficient = (HeroAgent.Found ? 1 : 10) * (EngineerAgent.Found ? 1 : 10)
+        / (HeroAgent.Value + EngineerAgent.Value);
+
 
         float total = heroCoefficient + engineerCoefficient + patrolCoefficient;
-        engineerCoefficient /= total;
-        heroCoefficient = heroCoefficient / total + engineerCoefficient;
+        patrolCoefficient /= total;
+        heroCoefficient = heroCoefficient / total + patrolCoefficient;
+
+        patrolCoefficient *= Math.Clamp(timeCoefficient, 0, 1);
+        heroCoefficient *= Math.Clamp(timeCoefficient, 0, 1);
 
         var rand = Random.Shared.NextDouble();
 
-        if (rand < engineerCoefficient)
-            return false;
+        if (rand < patrolCoefficient)
+            state = Patrol;
         else if (rand < heroCoefficient)
             state = HeroTracker;
         else
-            state = Patrol;
+            return false;
         return true;
     }
 }

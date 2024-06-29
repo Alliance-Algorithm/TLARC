@@ -5,12 +5,13 @@ namespace AllianceDM.ALPlanner;
 
 class AggressionState(float minOutpostHpLimitToReturn) : IStateObject
 {
-    public bool FirePermit => AggressionMechine.FirePermit;
-    public bool[] LockPermit => AggressionMechine.LockPermit;
-    public Vector2 GimbalAngle => AggressionMechine.GimbalAngle;
-    public Vector2 TargetPosition => AggressionMechine.TargetPosition;
-    public required IStateMechine AggressionMechine { get; init; }
-    required public DecisionMakingInfo Info { get; init; }
+    public bool FirePermit => AggressionMachine.FirePermit;
+    public bool[] LockPermit => AggressionMachine.LockPermit;
+    public Vector2 GimbalAngle => AggressionMachine.GimbalAngle;
+    public Vector2 TargetPosition => AggressionMachine.TargetPosition;
+    public required IStateMachine AggressionMachine { get; init; }
+    required public DecisionMakingInfo DecisionMakingInfo { get; init; }
+    required public UnitInfo UnitInfo { get; init; }
     public IStateObject DefensiveState { get; set; }
     public IStateObject SupplyState { get; set; }
     float MinOutpostHpLimitToReturn { get; } = minOutpostHpLimitToReturn;
@@ -18,16 +19,18 @@ class AggressionState(float minOutpostHpLimitToReturn) : IStateObject
 
     public bool Update(ref IStateObject state, float timeCoefficient = float.NaN)
     {
-        // this -> definsive
-        if (Info.FriendOutPostHp <= MinOutpostHpLimitToReturn)
+        // this -> defensive
+        if (DecisionMakingInfo.FriendOutPostHp <= MinOutpostHpLimitToReturn)
         {
             state = DefensiveState;
             return true;
         }
 
         // this -> supply
-        if (Info.BulletCount == 0)
-            if (Info.SentryHp <= DecisionMakingInfo.SentinelHPLimit)
+        if (DecisionMakingInfo.BulletCount == 0 ||
+        (UnitInfo.EquivalentHp[(int)RobotType.Hero] == float.PositiveInfinity
+        && UnitInfo.EquivalentHp[(int)RobotType.Engineer] == float.PositiveInfinity))
+            if (DecisionMakingInfo.SentryHp <= DecisionMakingInfo.SentinelHPLimit || DecisionMakingInfo.BulletSupplCount == 0)
             {
                 return false;
             }

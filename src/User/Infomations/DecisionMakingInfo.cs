@@ -13,6 +13,7 @@ namespace AllianceDM.PreInfo
         public float SentryHp { get; private set; }
         public bool IsUVALaunch { get; private set; }
         public int BulletCount { get; private set; }
+        public int BulletSupplCount { get; private set; }
         public float DefenseBuff { get; private set; }
         public float FriendOutPostHp { get; private set; }
         public float BaseArmorOpeningCountdown { get; private set; }
@@ -43,6 +44,6 @@ namespace AllianceDM.PreInfo
         }
 
         // Compatible with old versions
-        public (float Hp, bool Invinciable, bool UVA) Output => (SentryHp, FriendOutPostHp > 500, IsUVALaunch);
+        public (float Hp, bool Invincibly, bool UVA) Output => (SentryHp, FriendOutPostHp > 500, IsUVALaunch);
     }
 }

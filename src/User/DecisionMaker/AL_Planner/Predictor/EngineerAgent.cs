@@ -2,7 +2,7 @@ using System.Numerics;
 
 namespace AllianceDM.ALPlanner;
 
-class HeroInterceptionPoint : Component
+class EngineerAgent : Component
 {
     public Vector2 Position => targetPreDictor.Position;
     public bool Locked => targetPreDictor.Locked;
@@ -12,10 +12,9 @@ class HeroInterceptionPoint : Component
 
     public float Distance => targetPreDictor.Distance;
     EngineerTargetPreDictor targetPreDictor;
-
+    UnitInfo unitInfo;
     public override void Start()
     {
-        Value = targetPreDictor.Distance * (targetPreDictor.Found ? 10 : 1) + 100 * (Locked ? 1 : 0);
-
+        Value = Math.Clamp(targetPreDictor.Distance * (targetPreDictor.Found ? 10 : 1) + 100 * (Locked ? 1 : 0) - unitInfo.EquivalentHp[(int)RobotType.Engineer], 0, float.PositiveInfinity) + 1;
     }
 }

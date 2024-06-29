@@ -2,7 +2,7 @@ using System.Numerics;
 
 namespace AllianceDM.ALPlanner;
 
-class Defensive_FuSM : Component, IStateMechine
+class Defensive_FuSM : Component, IStateMachine
 {
     public bool FirePermit => throw new NotImplementedException();
 

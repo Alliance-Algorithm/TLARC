@@ -6,9 +6,9 @@ namespace AllianceDM.ALPlanner;
 
 class EngineerTargetPreDictor : Component
 {
-    public int vehicleCode { get; set; }
+    int VehicleCode { get; init; } = (int)RobotType.Engineer;
 
-    public bool Found => unitInfo.Found[vehicleCode];
+    public bool Found => unitInfo.Found[VehicleCode];
     public bool Locked { get; private set; }
     public Vector2 Position { get; private set; }
     public float Distance { get; private set; }
@@ -28,7 +28,7 @@ class EngineerTargetPreDictor : Component
         Locked = unitInfo.Locked == 1;
         if (Found)
         {
-            Position = unitInfo.Position[vehicleCode];
+            Position = unitInfo.Position[VehicleCode];
             var trans = Position - sentry.position;
             Angle = MathF.Atan(trans.Y / trans.X);
             return;
@@ -42,7 +42,7 @@ class EngineerTargetPreDictor : Component
                 timeTick_ = DateTime.Now.Ticks;
                 return;
             }
-            else if ((DateTime.Now.Ticks - timeTick_) / 1e-7 > 1)
+            else if ((DateTime.Now.Ticks - timeTick_) * 1e-7 > 1)
                 presetIndex_ = (presetIndex_ + 1) % 2;
 
         Distance = (Position - sentry.position).Length();

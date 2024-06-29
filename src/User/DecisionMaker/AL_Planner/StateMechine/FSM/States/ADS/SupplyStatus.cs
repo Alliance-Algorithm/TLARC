@@ -12,7 +12,7 @@ class SupplyState(float minOutpostHpLimitToReturn) : IStateObject
     public Vector2 TargetPosition => new(-11.94f, -6.74f);
 
 
-    public IStateObject DefinsiveState { get; set; }
+    public IStateObject DefensiveState { get; set; }
     public IStateObject AggressionState { get; set; }
     float MinOutpostHpLimitToReturn { get; } = minOutpostHpLimitToReturn;
     required public DecisionMakingInfo Info { get; init; }
@@ -24,7 +24,7 @@ class SupplyState(float minOutpostHpLimitToReturn) : IStateObject
             if (Info.SentryHp >= DecisionMakingInfo.SentinelHPLimit - 20)
             {
                 state = Info.FriendOutPostHp >= MinOutpostHpLimitToReturn
-                ? AggressionState : DefinsiveState;
+                ? AggressionState : DefensiveState;
                 return true;
             }
 

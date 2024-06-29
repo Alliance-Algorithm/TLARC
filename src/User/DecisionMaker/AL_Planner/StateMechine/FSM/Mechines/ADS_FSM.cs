@@ -4,7 +4,7 @@ using Rosidl.Messages.Builtin;
 
 namespace AllianceDM.ALPlanner;
 
-class ADS_FSM : Component, IStateMechine
+class ADS_FSM : Component, IStateMachine
 {
     // Params 
     public float minEquivalentHpLimitToReturn;
@@ -17,7 +17,8 @@ class ADS_FSM : Component, IStateMechine
     public Vector2 TargetPosition => current_.TargetPosition;
 
     // Inputs
-    private DecisionMakingInfo info;
+    private DecisionMakingInfo decisionMakingInfo;
+    private UnitInfo unitInfo;
     private Aggression_FuSM aggression;
     private Defensive_FuSM defensive;
 
@@ -39,17 +40,18 @@ class ADS_FSM : Component, IStateMechine
         aggressionState_ =
             new AggressionState(minOutpostHpLimitToReturn)
             {
-                Info = info,
-                AggressionMechine = aggression
+                DecisionMakingInfo = decisionMakingInfo,
+                AggressionMachine = aggression,
+                UnitInfo = unitInfo
             };
         defensiveState_ = new DefensiveState(minEquivalentHpLimitToReturn)
         {
-            Info = info,
-            DefinsiveMechine = defensive,
+            Info = decisionMakingInfo,
+            DefensiveMachine = defensive,
         };
         supplyState_ = new SupplyState(minOutpostHpLimitToReturn)
         {
-            Info = info
+            Info = decisionMakingInfo
         }
       ;
 
@@ -59,7 +61,7 @@ class ADS_FSM : Component, IStateMechine
         defensiveState_.SupplyState = supplyState_;
 
         supplyState_.AggressionState = aggressionState_;
-        supplyState_.DefinsiveState = defensiveState_;
+        supplyState_.DefensiveState = defensiveState_;
 
         // Entry -> Aggression
         current_ = aggressionState_;
@@ -67,10 +69,10 @@ class ADS_FSM : Component, IStateMechine
 
     public override void Update()
     {
-        if (current_.Update(ref current_, (DateTime.UtcNow.Ticks - currentTime_) / 10000000.0f))
+        AnyState();
+        if (current_.Update(ref current_, (DateTime.UtcNow.Ticks - currentTime_) / 1e7f))
         {
             currentTime_ = DateTime.UtcNow.Ticks;
         }
-        AnyState();
     }
 }
