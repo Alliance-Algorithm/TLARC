@@ -1,22 +1,24 @@
 using System.Numerics;
 using AllianceDM.PreInfo;
+using AllianceDM.StdComponent;
 
 namespace AllianceDM.ALPlanner;
 
 class Aggression_FuSM : Component, IStateMachine
 {
-    public bool FirePermit => throw new NotImplementedException();
+    public bool FirePermit => current_.FirePermit;
 
-    public bool[] LockPermit => throw new NotImplementedException();
+    public bool[] LockPermit => current_.LockPermit;
 
-    public Vector2 GimbalAngle => throw new NotImplementedException();
+    public Vector2 GimbalAngle => current_.GimbalAngle;
 
-    public Vector2 TargetPosition => throw new NotImplementedException();
+    public Vector2 TargetPosition { get; private set; }
 
     HeroAgent heroAgent;
     EngineerAgent engineerAgent;
     DecisionMakingInfo decisionMakingInfo;
     UnitInfo unitInfo;
+    Transform2D sentry;
 
     IStateObject current_;
     EngineerTracker engineerTracker_;
@@ -68,5 +70,10 @@ class Aggression_FuSM : Component, IStateMachine
         AnyState();
         if (current_.Update(ref current_, currentTime_))
             currentTime_ = DateTime.UtcNow.Ticks;
+
+        if (current_ != patrol_ && (current_.TargetPosition - sentry.position).Length() < 1.5f)
+            TargetPosition = sentry.position;
+        else
+            TargetPosition = current_.TargetPosition;
     }
 }
