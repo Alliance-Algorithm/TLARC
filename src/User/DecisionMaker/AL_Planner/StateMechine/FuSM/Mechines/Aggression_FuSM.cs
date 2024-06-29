@@ -22,7 +22,7 @@ class Aggression_FuSM : Component, IStateMachine
 
     IStateObject current_;
     EngineerTracker engineerTracker_;
-    ReconnaissanceState patrol_;
+    ReconnaissanceState reconnaissanceState_;
     HeroTracker heroTracker_;
     private long currentTime_;
 
@@ -33,6 +33,8 @@ class Aggression_FuSM : Component, IStateMachine
 
     public override void Start()
     {
+        currentTime_ = DateTime.Now.Ticks;
+
         engineerTracker_ = new()
         {
             HeroAgent = heroAgent,
@@ -47,7 +49,7 @@ class Aggression_FuSM : Component, IStateMachine
             DecisionMakingInfo = decisionMakingInfo,
             UnitInfo = unitInfo
         };
-        patrol_ = new()
+        reconnaissanceState_ = new()
         {
             HeroAgent = heroAgent,
             EngineerAgent = engineerAgent,
@@ -55,13 +57,14 @@ class Aggression_FuSM : Component, IStateMachine
             UnitInfo = unitInfo
         };
 
-        engineerTracker_.Patrol = patrol_;
+        engineerTracker_.Patrol = reconnaissanceState_;
         engineerTracker_.HeroTracker = heroTracker_;
         heroTracker_.EngineerTracker = engineerTracker_;
-        heroTracker_.Patrol = patrol_;
-        patrol_.HeroTracker = heroTracker_;
-        patrol_.EngineerTracker = engineerTracker_;
+        heroTracker_.Patrol = reconnaissanceState_;
+        reconnaissanceState_.HeroTracker = heroTracker_;
+        reconnaissanceState_.EngineerTracker = engineerTracker_;
 
+        // Entry -> EngineerTracker
         current_ = engineerTracker_;
     }
 
@@ -71,7 +74,7 @@ class Aggression_FuSM : Component, IStateMachine
         if (current_.Update(ref current_, currentTime_))
             currentTime_ = DateTime.Now.Ticks;
 
-        if (current_ != patrol_ && (current_.TargetPosition - sentry.position).Length() < 1.5f)
+        if (current_ != reconnaissanceState_ && (current_.TargetPosition - sentry.position).Length() < 1.5f)
             TargetPosition = sentry.position;
         else
             TargetPosition = current_.TargetPosition;

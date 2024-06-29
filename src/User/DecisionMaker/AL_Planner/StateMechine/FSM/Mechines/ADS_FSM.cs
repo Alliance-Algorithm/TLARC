@@ -37,6 +37,8 @@ class ADS_FSM : Component, IStateMachine
 
     public override void Start()
     {
+        currentTime_ = DateTime.Now.Ticks;
+
         aggressionState_ =
             new AggressionState(minOutpostHpLimitToReturn)
             {

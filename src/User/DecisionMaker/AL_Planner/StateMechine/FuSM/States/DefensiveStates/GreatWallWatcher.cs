@@ -4,9 +4,9 @@ namespace AllianceDM.ALPlanner;
 
 class GreatWallWatcher : IStateObject
 {
-    public bool FirePermit => throw new NotImplementedException();
+    public bool FirePermit => true;
 
-    public bool[] LockPermit => throw new NotImplementedException();
+    public bool[] LockPermit { get; private set; } = [true, false, true, true, true, true, true, true];
 
     public Vector2 GimbalAngle { get; private set; }
 
@@ -36,11 +36,21 @@ class GreatWallWatcher : IStateObject
         {
             TargetPosition = hightWallPosition_;
             GimbalAngle = new(-0.1f, 0.1f);
+            for (int i = 0; i < 8; i++)
+            {
+                LockPermit[i] = false;
+            }
+            LockPermit[0] = true;
         }
         else if (JumperAgent.Detected)
         {
             TargetPosition = hidePosition_;
             GimbalAngle = new(-2.3f, -2.1f);
+            for (int i = 0; i < 8; i++)
+            {
+                LockPermit[i] = true;
+            }
+            LockPermit[1] = false;
         }
         if (!JumperAgent.Detected && !(HeroAgent.Position.X < 0))
             state = Portal;

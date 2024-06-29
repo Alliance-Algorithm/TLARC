@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace AllianceDM.ALPlanner;
+namespace AllianceDM.PreInfo;
 
 class UnitInfo : Component
 {
