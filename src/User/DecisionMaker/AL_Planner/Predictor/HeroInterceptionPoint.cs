@@ -2,7 +2,7 @@ using System.Numerics;
 
 namespace AllianceDM.ALPlanner;
 
-class EngineerInterceptionPoint : Component
+class HeroInterceptionPoint : Component
 {
     public Vector2 Position => targetPreDictor.Position;
     public bool Locked => targetPreDictor.Locked;

@@ -4,7 +4,7 @@ using Rosidl.Messages.Std;
 
 namespace AllianceDM.ALPlanner;
 
-class EngineerTargetPreDictor : Component
+class HeroTargetPreDictor : Component
 {
     public int vehicleCode { get; set; }
 

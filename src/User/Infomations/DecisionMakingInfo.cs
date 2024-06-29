@@ -20,7 +20,7 @@ namespace AllianceDM.PreInfo
         public bool SupplyRFID { get; private set; }
 
         public const float SentinelHPLimit = 400;
-        public const float OutpostlHPLimit = 1500;
+        public const float OutpostHPLimit = 1500;
 
 
         IO.ROS2Msgs.Std.Int32 friendOutPostHp;
