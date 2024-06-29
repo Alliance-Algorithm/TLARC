@@ -28,8 +28,8 @@ class ALPathFinder : Component
     private Transform2D target;
 
     public List<Vector3> Path => _path;
-    public Vector3 TargetVelocity => nonUniformBSpline.GetVelocity((DateTime.UtcNow.Ticks - _timeTicks) / TimeSpan.TicksPerSecond);
-    public Vector3 TargetAccelerate => nonUniformBSpline.GetAcceleration((DateTime.UtcNow.Ticks - _timeTicks) / TimeSpan.TicksPerSecond);
+    public Vector3 TargetVelocity => nonUniformBSpline.GetVelocity((DateTime.Now.Ticks - _timeTicks) / TimeSpan.TicksPerSecond);
+    public Vector3 TargetAccelerate => nonUniformBSpline.GetAcceleration((DateTime.Now.Ticks - _timeTicks) / TimeSpan.TicksPerSecond);
 
     private NonUniformBSpline nonUniformBSpline;
     private List<Vector3> _path;
@@ -50,7 +50,7 @@ class ALPathFinder : Component
         _pathPublisher.RegistryPublisher(pathTopicName);
         _targetPoint = new(100, 100);
         nonUniformBSpline = new NonUniformBSpline(limitVelocity, limitAccelerate, limitRatio);
-        _timeTicks = DateTime.UtcNow.Ticks;
+        _timeTicks = DateTime.Now.Ticks;
     }
 
     public override void Update()
@@ -58,7 +58,7 @@ class ALPathFinder : Component
         if (target.position != _targetPoint) { Build(); return; }
 
         var (id, isSafe) = nonUniformBSpline.Check(
-            (DateTime.UtcNow.Ticks - _timeTicks) / TimeSpan.TicksPerSecond, costMap, sentry.position);
+            (DateTime.Now.Ticks - _timeTicks) / TimeSpan.TicksPerSecond, costMap, sentry.position);
 
         if (!isSafe)
             Build();
@@ -66,7 +66,7 @@ class ALPathFinder : Component
 
     private void Build()
     {
-        _timeTicks = DateTime.UtcNow.Ticks;
+        _timeTicks = DateTime.Now.Ticks;
         nonUniformBSpline.ParametersToControlPoints([.. hybridAStar.Path.SkipLast(1), .. dijkstra.Path], [_beginSpeed, new(0, 0)]);
         nonUniformBSpline.BuildTimeLine(timeInterval);
 #if DEBUG

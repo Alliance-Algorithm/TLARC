@@ -22,7 +22,7 @@ class Aggression_FuSM : Component, IStateMachine
 
     IStateObject current_;
     EngineerTracker engineerTracker_;
-    PatrolState patrol_;
+    ReconnaissanceState patrol_;
     HeroTracker heroTracker_;
     private long currentTime_;
 
@@ -69,7 +69,7 @@ class Aggression_FuSM : Component, IStateMachine
     {
         AnyState();
         if (current_.Update(ref current_, currentTime_))
-            currentTime_ = DateTime.UtcNow.Ticks;
+            currentTime_ = DateTime.Now.Ticks;
 
         if (current_ != patrol_ && (current_.TargetPosition - sentry.position).Length() < 1.5f)
             TargetPosition = sentry.position;

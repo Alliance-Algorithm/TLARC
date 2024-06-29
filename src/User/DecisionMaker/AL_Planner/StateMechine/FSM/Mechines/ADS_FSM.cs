@@ -70,9 +70,9 @@ class ADS_FSM : Component, IStateMachine
     public override void Update()
     {
         AnyState();
-        if (current_.Update(ref current_, (DateTime.UtcNow.Ticks - currentTime_) / 1e7f))
+        if (current_.Update(ref current_, (DateTime.Now.Ticks - currentTime_) / 1e7f))
         {
-            currentTime_ = DateTime.UtcNow.Ticks;
+            currentTime_ = DateTime.Now.Ticks;
         }
     }
 }

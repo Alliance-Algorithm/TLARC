@@ -35,7 +35,7 @@ namespace AllianceDM.StateMechines
 
         public override void Start()
         {
-            Console.WriteLine(string.Format("AllianceDM.StateMechines PushFSM_RMUC_Actor: uuid:{0:D4}", ID));
+            Console.WriteLine(string.Format("AllianceDM.StateMachines PushFSM_RMUC_Actor: uuid:{0:D4}", ID));
             rand = DateTime.Now.Second + DateTime.Now.Minute * 60 + +60 * DateTime.Now.Minute;
 
             comeback = false;
@@ -43,8 +43,8 @@ namespace AllianceDM.StateMechines
             pub_angle1 = new();
             pub_angle2 = new();
 
-            pub_angle1.RegistetyPublisher(gimbalAngleTopicName + "1");
-            pub_angle2.RegistetyPublisher(gimbalAngleTopicName + "2");
+            pub_angle1.RegistryPublisher(gimbalAngleTopicName + "1");
+            pub_angle2.RegistryPublisher(gimbalAngleTopicName + "2");
         }
         public override void Update()
         {

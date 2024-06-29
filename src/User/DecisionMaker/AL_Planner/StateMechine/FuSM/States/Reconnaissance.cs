@@ -2,7 +2,7 @@ using System.Numerics;
 using AllianceDM.PreInfo;
 
 namespace AllianceDM.ALPlanner;
-class PatrolState : IStateObject
+class ReconnaissanceState : IStateObject
 {
     public bool FirePermit { get; private set; }
 

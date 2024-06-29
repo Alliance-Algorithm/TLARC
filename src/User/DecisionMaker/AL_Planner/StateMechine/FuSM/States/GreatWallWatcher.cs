@@ -14,6 +14,6 @@ class GreatWallWatcher : IStateObject
 
     public bool Update(ref IStateObject state, float timeCoefficient)
     {
-        throw new NotImplementedException();
+        throw new();
     }
 }
