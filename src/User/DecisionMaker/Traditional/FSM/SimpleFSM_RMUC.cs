@@ -37,7 +37,7 @@ namespace AllianceDM.StateMechines
             switch (state)
             {
                 case Status.Invinciable:
-                    if (!info.Output.Invinciable)
+                    if (!info.Output.Invincibly)
                         state = Status.Cruise;
                     break;
                 case Status.LowState:

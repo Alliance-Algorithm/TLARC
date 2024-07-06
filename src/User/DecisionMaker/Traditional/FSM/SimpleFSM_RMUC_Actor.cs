@@ -41,8 +41,8 @@ namespace AllianceDM.StateMechines
             pub_angle1 = new();
             pub_angle2 = new();
 
-            pub_angle1.RegistetyPublisher(gimbalAngleTopicName + "1");
-            pub_angle2.RegistetyPublisher(gimbalAngleTopicName + "2");
+            pub_angle1.RegistryPublisher(gimbalAngleTopicName + "1");
+            pub_angle2.RegistryPublisher(gimbalAngleTopicName + "2");
         }
         public override void Update()
         {

@@ -37,7 +37,7 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
                 receiveDatas.Enqueue(new((float)msg.X, (float)msg.Y, (float)msg.Z));
             });
         }
-        public void RegistetyPublisher(string topicName)
+        public void RegistryPublisher(string topicName)
         {
             publisher = Ros2Def.node.CreatePublisher<Rosidl.Messages.Geometry.Vector3>(topicName);
             nativeMsg = publisher.CreateBuffer();
