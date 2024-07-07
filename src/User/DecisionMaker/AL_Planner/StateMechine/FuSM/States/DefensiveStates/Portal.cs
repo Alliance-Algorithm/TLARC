@@ -24,10 +24,16 @@ class Portal : IStateObject
     public IStateObject GreatWallWatcher { get; set; }
     public IStateObject Hider { get; set; }
 
+    private long _timeTick = DateTime.Now.Ticks;
+
     public bool Update(ref IStateObject state, float timeCoefficient)
     {
-        if ((Sentry.position - positions_[iterator_]).Length() < 0.1f)
+        TargetPosition = positions_[iterator_];
+        if ((Sentry.position - positions_[iterator_]).Length() > 2)
+            _timeTick = DateTime.Now.Ticks;
+        if ((Sentry.position - positions_[iterator_]).Length() < 0.3f || (DateTime.Now.Ticks - _timeTick) / 1e7f > 2)
         {
+            _timeTick = DateTime.Now.Ticks;
             iterator_ = (iterator_ + 1) % positions_.Length;
             TargetPosition = positions_[iterator_];
         }

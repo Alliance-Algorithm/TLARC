@@ -104,10 +104,13 @@ public class NonUniformBSpline(float limitVelocity, float limitAccelerate, float
         }
 
 
-        _m_tk = new DenseMatrix(3);
-        _m_tk.SetRow(0, new float[] { 1 / 2f, 1 / 2f, 0 });
-        _m_tk.SetRow(1, new float[] { -2 / 2f, 2 / 2f, 0 });
-        _m_tk.SetRow(2, new float[] { 1 / 2f, -2 / 2f, 1 / 2f });
+        if (_m_tk == null)
+        {
+            _m_tk = new DenseMatrix(3);
+            _m_tk.SetRow(0, new float[] { 1 / 2f, 1 / 2f, 0 });
+            _m_tk.SetRow(1, new float[] { -2 / 2f, 2 / 2f, 0 });
+            _m_tk.SetRow(2, new float[] { 1 / 2f, -2 / 2f, 1 / 2f });
+        }
 
         DenseMatrix A = new DenseMatrix(n_ + 2, n_ + 2);
         DenseMatrix b = new DenseMatrix(n_ + 2, 1);
@@ -133,12 +136,14 @@ public class NonUniformBSpline(float limitVelocity, float limitAccelerate, float
 
     public (int, bool) Check(float t, GlobalESDFMap costMap, Vector2 position)
     {
+        if (_t.Count <= 1)
+            return (0, true);
         t = Math.Min(Math.Max(t, _t[0]), _t[n_ - 1]);
         int k = 0;
         while (_t[k + 1] < t) k++;
         var u = (t - _t[k]) / (_t[k + 1] - _t[k]);
         var temp = CalcPosition(u, k);
-        if ((temp - position).Length() > 0.6f)
+        if ((temp - position).Length() > 0.4f)
             return (k, false);
         for (t += 0.1f; t < _t[k + 1]; t += 0.1f)
         {

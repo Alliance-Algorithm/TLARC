@@ -57,7 +57,7 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
                 using var timer = Ros2Def.context.CreateTimer(Ros2Def.node.Clock, TimeSpan.FromMilliseconds(value: 1));
                 while (true)
                 {
-                    Thread.Sleep(1);
+                    await timer.WaitOneAsync(false);
                     if (!publishFlag)
                         continue;
                     nativeMsg.AsRef<Rosidl.Messages.Nav.Path.Priv>().Poses = new(data.Length);
@@ -67,13 +67,11 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
                         l.Pose.Position.X = data[i].X;
                         l.Pose.Position.Y = data[i].Y;
                         l.Pose.Position.Z = data[i].Z;
-                        l.Header.FrameId.CopyFrom("tlarc");
                         nativeMsg.AsRef<Rosidl.Messages.Nav.Path.Priv>().Poses.AsSpan()[i] = l;
                         nativeMsg.AsRef<Rosidl.Messages.Nav.Path.Priv>().Header.FrameId.CopyFrom("tlarc");
                     }
                     publisher.Publish(nativeMsg);
                     publishFlag = false;
-                    await timer.WaitOneAsync(false);
                 }
             });
         }

@@ -92,7 +92,14 @@ internal class Node3 : IEquatable<Node3>, IComparable<Node3>, IThreeDimensional
     {
         return AngleCost(Target) + ObsCost(CostMap) + TurnCost() + DistanceCost(Target);
     }
-
+    private float AngleNormalize(double angle)
+    {
+        while (angle > Math.Tau)
+            angle -= Math.Tau;
+        while (angle < 0)
+            angle += Math.Tau;
+        return (float)angle;
+    }
     private float AngleCost(in Node3 Target)
     {
         if (Target.Theta == float.PositiveInfinity)
@@ -100,7 +107,7 @@ internal class Node3 : IEquatable<Node3>, IComparable<Node3>, IThreeDimensional
         var p = Target.Pos - Pos;
         var a = MathF.Atan(p.Y / p.X);
         return HCalc_lambda12 * MathF.Exp(
-          Math.Abs(a - Target.Theta) - HCalc_lambda11
+          AngleNormalize(Math.Abs(a - Target.Theta)) - HCalc_lambda11
         );
     }
     private float DistanceCost(in Node3 Target)
@@ -118,7 +125,7 @@ internal class Node3 : IEquatable<Node3>, IComparable<Node3>, IThreeDimensional
     {
         if (Parent.Theta == float.PositiveInfinity)
             return 0;
-        return MathF.Abs(Parent.Theta - Theta) * HCalc_lambda3;
+        return AngleNormalize(MathF.Abs(Parent.Theta - Theta)) * HCalc_lambda3;
     }
 
     public static bool operator ==(Node3 node1, Node3 node2)

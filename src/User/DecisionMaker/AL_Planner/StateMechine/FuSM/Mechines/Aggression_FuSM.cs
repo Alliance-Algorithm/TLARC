@@ -12,7 +12,7 @@ class Aggression_FuSM : Component, IStateMachine
 
     public Vector2 GimbalAngle => current_.GimbalAngle;
 
-    public Vector2 TargetPosition { get; private set; }
+    public Vector2 TargetPosition => current_.TargetPosition;
 
     HeroAgent heroAgent;
     EngineerAgent engineerAgent;
@@ -73,10 +73,5 @@ class Aggression_FuSM : Component, IStateMachine
         AnyState();
         if (current_.Update(ref current_, currentTime_))
             currentTime_ = DateTime.Now.Ticks;
-
-        if (current_ != reconnaissanceState_ && (current_.TargetPosition - sentry.position).Length() < 1.5f)
-            TargetPosition = sentry.position;
-        else
-            TargetPosition = current_.TargetPosition;
     }
 }

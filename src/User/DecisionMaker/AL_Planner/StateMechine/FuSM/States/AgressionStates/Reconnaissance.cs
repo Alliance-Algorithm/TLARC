@@ -22,12 +22,17 @@ class ReconnaissanceState : IStateObject
     public IStateObject HeroTracker { get; set; }
 
 
-    Vector2[] positions_ = [new(3.94f, -6.96f), new(8.02f, 2.35f)];
+    Vector2[] positions_ = [new(3.94f, -6.96f), new(7.87f, 1.74f)];
     private int presetIndex_ = 0;
     private long timeTick_ = DateTime.Now.Ticks;
 
     public bool Update(ref IStateObject state, float timeCoefficient)
     {
+        if (DecisionMakingInfo.SupplyRFID)
+        {
+            state = EngineerTracker;
+            return true;
+        }
         if ((DateTime.Now.Ticks - timeTick_) / 1e7f > 10)
         {
             TargetPosition = positions_[presetIndex_];
@@ -41,8 +46,8 @@ class ReconnaissanceState : IStateObject
         GimbalAngle = new(EngineerAgent.Angle - MathF.PI / 2, EngineerAgent.Angle + MathF.PI / 2);
         FirePermit = (EngineerAgent.Distance < 6) && EngineerAgent.Locked;
         float engineerCoefficient = EngineerAgent.Value;
-        float heroCoefficient = HeroAgent.Value + (OutpostHp == DecisionMakingInfo.FriendOutPostHp ? 10000 : 0);
-        float patrolCoefficient = (HeroAgent.Found ? 1 : 10) * (EngineerAgent.Found ? 1 : 10);
+        float heroCoefficient = HeroAgent.Value + (OutpostHp != DecisionMakingInfo.FriendOutPostHp ? 100000 : 0);
+        float patrolCoefficient = (HeroAgent.Found ? 1 : 100) * (EngineerAgent.Found ? 1 : 100);
 
 
         float total = heroCoefficient + engineerCoefficient + patrolCoefficient;

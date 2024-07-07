@@ -36,7 +36,7 @@ namespace AllianceDM.IO.ROS2Msgs.Std
             TlarcMsgs.Input += Subscript;
             IOManager.RegistrySubscription<Rosidl.Messages.Std.Bool>(topicName, (Rosidl.Messages.Std.Bool msg) =>
             {
-                data = msg.Data;
+                receiveData.Enqueue(msg.Data);
             });
         }
         public void RegistryPublisher(string topicName)

@@ -48,7 +48,7 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
                 using var timer = Ros2Def.context.CreateTimer(Ros2Def.node.Clock, TimeSpan.FromMilliseconds(value: 1));
                 while (true)
                 {
-                    Thread.Sleep(1);
+                    await timer.WaitOneAsync(false);
                     if (!publishFlag)
                         continue;
                     nativeMsg.AsRef<Rosidl.Messages.Geometry.Vector3.Priv>().X = data.X;
@@ -56,7 +56,6 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
                     nativeMsg.AsRef<Rosidl.Messages.Geometry.Vector3.Priv>().Z = data.Z;
                     publisher.Publish(nativeMsg);
                     publishFlag = false;
-                    await timer.WaitOneAsync(false);
                 }
             });
         }

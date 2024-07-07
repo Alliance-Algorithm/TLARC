@@ -11,6 +11,7 @@ class ALPathFinder : Component
 {
     public string beginSpeedTopicName = "/chassis/speed";
     public string pathTopicName = "/chassis/path";
+    public string bSplineControlMatrixTopicName = "/chassis/trajectory/b_spline/control_matrix";
 
     public float limitVelocity = 5 + 1e-4f;
     public float limitAccelerate = 2f + 1e-4f;
@@ -37,15 +38,19 @@ class ALPathFinder : Component
 
     private IO.ROS2Msgs.Geometry.Pose2D _beginSpeedReceiver;
     private IO.ROS2Msgs.Nav.Path _pathPublisher;
+    private IO.ROS2Msgs.Nav.Path _bSplinePublisher;
 
-    private float _timeTicks;
+
+    private long _timeTicks;
 
     public override void Start()
     {
         _beginSpeedReceiver = new();
-        _beginSpeedReceiver.Subscript(beginSpeedTopicName, data => { _beginSpeed = data.pos; });
+        _beginSpeedReceiver.Subscript(beginSpeedTopicName, data => { _beginSpeed = data.pos; if (_beginSpeed.Length() < 0.1f) _beginSpeed = Vector2.Zero; });
         _pathPublisher = new();
         _pathPublisher.RegistryPublisher(pathTopicName);
+        _bSplinePublisher = new();
+        _bSplinePublisher.RegistryPublisher(bSplineControlMatrixTopicName);
         _targetPoint = new(100, 100);
         nonUniformBSpline = new NonUniformBSpline(limitVelocity, limitAccelerate, limitRatio);
         _timeTicks = DateTime.Now.Ticks;
@@ -61,7 +66,7 @@ class ALPathFinder : Component
         }
 
         var (id, isSafe) = nonUniformBSpline.Check(
-            (DateTime.Now.Ticks - _timeTicks) / TimeSpan.TicksPerSecond, costMap, sentry.position);
+            (DateTime.Now.Ticks - _timeTicks) / 1e7f, costMap, sentry.position);
 
         if (!isSafe)
             Build();
@@ -70,12 +75,22 @@ class ALPathFinder : Component
     private void Build()
     {
         _timeTicks = DateTime.Now.Ticks;
-        nonUniformBSpline.ParametersToControlPoints([.. hybridAStar.Path, .. dijkstra.Path.Skip(1)], [_beginSpeed, new(0, 0)]);
+        nonUniformBSpline.ParametersToControlPoints([.. hybridAStar.Path.SkipLast(1), .. dijkstra.Path.Skip(1)], [_beginSpeed, new(0, 0)]);
         nonUniformBSpline.BuildTimeLine(timeInterval);
+        var controlMatrix = nonUniformBSpline._controlPoints;
+        var timeControlMatrix = nonUniformBSpline._timeControlPoints;
+        List<Vector3> data = new();
+        for (int i = 0; i < controlMatrix.RowCount; i++)
+        {
+            data.Add(new(controlMatrix[i, 0], controlMatrix[i, 1], i < timeControlMatrix.RowCount ? timeControlMatrix[i, 0] : 0));
+        }
+        _bSplinePublisher.Publish([.. data]);
+
 #if DEBUG
         Path = nonUniformBSpline.GetPath();
-        _pathPublisher.Publish([.. Path]);
+        // _pathPublisher.Publish([.. Path]);
 #endif
+
     }
 
 }

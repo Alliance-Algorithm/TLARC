@@ -57,7 +57,7 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
                 using var timer = Ros2Def.context.CreateTimer(Ros2Def.node.Clock, TimeSpan.FromMilliseconds(value: 1));
                 while (true)
                 {
-                    Thread.Sleep(1);
+                    await timer.WaitOneAsync(false);
                     if (!publishFlag)
                         continue;
                     nativeMsg.AsRef<Rosidl.Messages.Nav.Path.Priv>().Poses = new(data.Map.Length);
@@ -69,7 +69,6 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
                     nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Info.Resolution = data.Resolution;
                     publisher.Publish(nativeMsg);
                     publishFlag = false;
-                    await timer.WaitOneAsync(false);
                 }
             });
         }

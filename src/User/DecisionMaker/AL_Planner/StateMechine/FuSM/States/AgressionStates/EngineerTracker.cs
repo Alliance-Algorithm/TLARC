@@ -44,7 +44,7 @@ class EngineerTracker : IStateObject
 
         var rand = Random.Shared.NextDouble();
 
-        if (EngineerAgent.Distance > 1.5f)
+        if (EngineerAgent.Distance > 0.5f)
             return false;
 
         if (rand < patrolCoefficient)

@@ -23,12 +23,10 @@ class HybridAStar : Component
 
     private float _beginSpeedAngle = float.PositiveInfinity;
 
-    private Pose2D _beginSpeedReceiver;
 
     public override void Start()
     {
-        _beginSpeedReceiver = new();
-        _beginSpeedReceiver.Subscript(beginSpeedTopicName, data => { _beginSpeedAngle = data.Theta; });
+
     }
 
     public override void Update()
@@ -81,6 +79,8 @@ class HybridAStar : Component
                 if (child.G > maxDistance)
                     continue;
                 xy = costMap.Vector2ToXY(child.Pos);
+                if (xy.x >= costMap.SizeX || xy.y >= costMap.SizeY || xy.y < 0 || xy.x < 0)
+                    continue;
                 if (_closeGrid[xy.x, xy.y])
                     continue;
                 if (costMap[xy.x, xy.y] <= 0)
