@@ -18,7 +18,7 @@ class ADS_FSM : Component, IStateMachine
 
     // Inputs
     private DecisionMakingInfo decisionMakingInfo;
-    private UnitInfo unitInfo;
+    private EnemyUnitInfo unitInfo;
     private Aggression_FuSM aggression;
     private Defensive_FuSM defensive;
 
@@ -32,7 +32,7 @@ class ADS_FSM : Component, IStateMachine
 
     public IStateObject AnyState()
     {
-        throw new NotImplementedException();
+        return current_;
     }
 
     public override void Start()

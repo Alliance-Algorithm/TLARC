@@ -8,7 +8,8 @@ class HybridAStar : Component
 {
     private GlobalESDFMap costMap;
     private Transform2D sentry;
-    private Transform2D target;
+    private Dijkstra dijkstra;
+
 
     public string beginSpeedTopicName = "/chassis/speed";
     public float maxSearchDistanceRatio = 1.2f;
@@ -20,12 +21,13 @@ class HybridAStar : Component
     private bool[,] _closeGrid;
     private PriorityQueue<Node3, float> openList;
 
-    private float _beginSpeedAngle;
+    private float _beginSpeedAngle = float.PositiveInfinity;
 
     private Pose2D _beginSpeedReceiver;
 
     public override void Start()
     {
+        _beginSpeedReceiver = new();
         _beginSpeedReceiver.Subscript(beginSpeedTopicName, data => { _beginSpeedAngle = data.Theta; });
     }
 
@@ -54,12 +56,12 @@ class HybridAStar : Component
 
     private bool Search()
     {
-        var maxDistance = maxSearchDistanceRatio * (sentry.position - target.position).Length();
+        var maxDistance = maxSearchDistanceRatio * (sentry.position - dijkstra.Path[1]).Length();
         _path = [];
         openList = new();
         _closeGrid = new bool[costMap.SizeX, costMap.SizeY];
         Node3 from = new(sentry.position, _beginSpeedAngle, null, 0);
-        Node3 to = new(target.position, float.PositiveInfinity, null, 0);
+        Node3 to = new(dijkstra.Path[1], float.PositiveInfinity, null, 0);
         openList.Enqueue(from, 0);
         while (openList.Count > 0)
         {

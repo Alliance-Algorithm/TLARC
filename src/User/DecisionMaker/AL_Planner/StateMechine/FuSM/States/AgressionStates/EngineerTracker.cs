@@ -17,7 +17,7 @@ class EngineerTracker : IStateObject
     public required HeroAgent HeroAgent { get; init; }
     public required EngineerAgent EngineerAgent { get; init; }
     public required DecisionMakingInfo DecisionMakingInfo { get; init; }
-    public required UnitInfo UnitInfo { get; init; }
+    public required EnemyUnitInfo UnitInfo { get; init; }
     public IStateObject Patrol { get; set; }
     public IStateObject HeroTracker { get; set; }
 
@@ -31,9 +31,8 @@ class EngineerTracker : IStateObject
         GimbalAngle = new(EngineerAgent.Angle - MathF.PI / 2, EngineerAgent.Angle + MathF.PI / 2);
         FirePermit = (EngineerAgent.Distance < 6) && EngineerAgent.Locked;
         float engineerCoefficient = EngineerAgent.Value;
-        float heroCoefficient = HeroAgent.Value + (OutpostHp == DecisionMakingInfo.FriendOutPostHp ? 100 : 0);
-        float patrolCoefficient = (HeroAgent.Found ? 1 : 10) * (EngineerAgent.Found ? 1 : 10)
-        / (HeroAgent.Value + EngineerAgent.Value);
+        float heroCoefficient = HeroAgent.Value + (OutpostHp != DecisionMakingInfo.FriendOutPostHp ? 100 : 0);
+        float patrolCoefficient = (HeroAgent.Found ? 1 : 10) * (EngineerAgent.Found ? 1 : 10);
 
 
         float total = heroCoefficient + engineerCoefficient + patrolCoefficient;
@@ -44,6 +43,9 @@ class EngineerTracker : IStateObject
         heroCoefficient *= Math.Clamp(timeCoefficient, 0, 1);
 
         var rand = Random.Shared.NextDouble();
+
+        if (EngineerAgent.Distance > 1.5f)
+            return false;
 
         if (rand < patrolCoefficient)
             state = Patrol;

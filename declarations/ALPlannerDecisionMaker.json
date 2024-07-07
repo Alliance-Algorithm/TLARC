@@ -1,0 +1,111 @@
+{
+    "list": [
+        {
+            "this_id": 201,
+            "input_id": {
+                "FSM": 202
+            },
+            "assembly": "AllianceDM.ALPlanner",
+            "type": "ALPlannerDecisionMaker",
+            "arg": {}
+        },
+        {
+            "this_id": 202,
+            "input_id": {
+                "decisionMakingInfo": 301,
+                "unitInfo": 302,
+                "aggression": 203,
+                "defensive": 208
+            },
+            "assembly": "AllianceDM.ALPlanner",
+            "type": "ADS_FSM",
+            "arg": {
+                "minEquivalentHpLimitToReturn": 300,
+                "minOutpostHpLimitToReturn": 500
+            }
+        },
+        {
+            "this_id": 203,
+            "input_id": {
+                "heroAgent": 204,
+                "engineerAgent": 206,
+                "decisionMakingInfo": 301,
+                "unitInfo": 302,
+                "sentry": 1
+            },
+            "assembly": "AllianceDM.ALPlanner",
+            "type": "Aggression_FuSM",
+            "arg": {}
+        },
+        {
+            "this_id": 204,
+            "input_id": {
+                "targetPreDictor": 205,
+                "unitInfo": 302
+            },
+            "assembly": "AllianceDM.ALPlanner",
+            "type": "HeroAgent",
+            "arg": {}
+        },
+        {
+            "this_id": 205,
+            "input_id": {
+                "sentry": 1,
+                "unitInfo": 302
+            },
+            "assembly": "AllianceDM.ALPlanner",
+            "type": "HeroTargetPreDictor",
+            "arg": {}
+        },
+        {
+            "this_id": 206,
+            "input_id": {
+                "targetPreDictor": 207,
+                "unitInfo": 302
+            },
+            "assembly": "AllianceDM.ALPlanner",
+            "type": "EngineerAgent",
+            "arg": {}
+        },
+        {
+            "this_id": 207,
+            "input_id": {
+                "sentry": 1,
+                "unitInfo": 302
+            },
+            "assembly": "AllianceDM.ALPlanner",
+            "type": "EngineerTargetPreDictor",
+            "arg": {}
+        },
+        {
+            "this_id": 208,
+            "input_id": {
+                "heroAgent": 204,
+                "UVAAgent": 209,
+                "jumperAgent": 210,
+                "sentry": 1
+            },
+            "assembly": "AllianceDM.ALPlanner",
+            "type": "Defensive_FuSM",
+            "arg": {}
+        },
+        {
+            "this_id": 209,
+            "input_id": {
+                "unitInfo": 302
+            },
+            "assembly": "AllianceDM.ALPlanner",
+            "type": "UVAAgent",
+            "arg": {}
+        },
+        {
+            "this_id": 210,
+            "input_id": {
+                "unitInfo": 302
+            },
+            "assembly": "AllianceDM.ALPlanner",
+            "type": "JumperAgent",
+            "arg": {}
+        }
+    ]
+}

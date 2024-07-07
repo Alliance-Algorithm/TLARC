@@ -26,8 +26,8 @@ namespace AllianceDM.Nav
         {
             pub_velocity = new();
             pub_current = new();
-            pub_velocity.RegistetyPublisher(speedTopicName);
-            pub_current.RegistetyPublisher("/sentry/sensor/velocity");
+            pub_velocity.RegistryPublisher(speedTopicName);
+            pub_current.RegistryPublisher("/sentry/sensor/velocity");
         }
         public override void Update()
         {

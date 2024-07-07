@@ -13,9 +13,9 @@ class EngineerAgent : Component
 
     public float Distance => targetPreDictor.Distance;
     EngineerTargetPreDictor targetPreDictor;
-    UnitInfo unitInfo;
-    public override void Start()
+    EnemyUnitInfo unitInfo;
+    public override void Update()
     {
-        Value = Math.Clamp(targetPreDictor.Distance * (targetPreDictor.Found ? 10 : 1) + 100 * (Locked ? 1 : 0) - unitInfo.EquivalentHp[(int)RobotType.Engineer], 0, float.PositiveInfinity) + 1;
+        Value = Math.Clamp(targetPreDictor.Distance * (targetPreDictor.Found ? 10 : 1) + 100 * (Locked ? 1 : 0) - unitInfo.EquivalentHp[(int)RobotType.Engineer] / 100f, 0, float.PositiveInfinity) + 1;
     }
 }

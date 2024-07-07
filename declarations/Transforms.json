@@ -1,0 +1,28 @@
+{
+    "list": [
+        {
+            "this_id": 1,
+            "input_id": {},
+            "assembly": "AllianceDM.StdComponent",
+            "type": "Transform2D",
+            "arg": {
+                "name": "Sentry",
+                "position": {
+                    "X": -7.5,
+                    "Y": 0.01
+                }
+            }
+        },
+        {
+            "this_id": 2,
+            "input_id": {
+                "transform": 1
+            },
+            "assembly": "AllianceDM.StdComponent",
+            "type": "Transform2DReceiver",
+            "arg": {
+                "topicName": "/sentry/position"
+            }
+        }
+    ]
+}

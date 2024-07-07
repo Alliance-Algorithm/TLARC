@@ -3,10 +3,10 @@ namespace AllianceDM.ALPlanner;
 
 class DijkstraMap
 {
-    private Vector2[] _points;
-    private int[,] _voronoi;
-    private bool[,] _access;
-    private float[,] _map;
+    public Vector2[] _points;
+    public int[,] _voronoi;
+    public bool[,] _access;
+    public float[,] _map;
 
 
     public Vector2[] Points => _points;

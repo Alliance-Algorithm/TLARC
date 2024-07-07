@@ -9,9 +9,9 @@ public class GlobalESDFMap : Component
 {
     private Transform2D sentry;
 
-    public string MapPath;
-    public string DynamicMapTopicName;
-    public float MaxDistance;
+    public string mapPath;
+    public string dynamicMapTopicName = "/map/local_map";
+    public float maxDistance;
 
     public int SizeX => _staticMap.SizeX;
     public int SizeY => _staticMap.SizeY;
@@ -41,15 +41,19 @@ public class GlobalESDFMap : Component
 
     public override void Start()
     {
-        _staticMap = JsonConvert.DeserializeObject<ESDFMapData>(MapPath);
-        _dynamicMapReceiver.Subscript(DynamicMapTopicName, data => _dynamicMap = data.Map);
+        var json = File.ReadAllText(DecisionMakerDef.ComponentsPath + mapPath);
+        _staticMap = JsonConvert.DeserializeObject<ESDFMapData>(json);
+        _dynamicMapReceiver = new OccupancyGrid();
+        _dynamicMapReceiver.Subscript(dynamicMapTopicName, data => _dynamicMap = data.Map);
+        _map = new sbyte[_staticMap.Map.GetLength(0), _staticMap.Map.GetLength(1)];
+        _obstacles = new int[_staticMap.Obstacles.GetLength(0), _staticMap.Obstacles.GetLength(1), _staticMap.Obstacles.GetLength(2)];
+        _dynamicMap = new sbyte[0, 0];
     }
 
     public override void Update()
     {
         var tmp = Vector2ToXY(sentry.position);
         int offsetX = tmp.x, offsetY = tmp.y;
-
         Buffer.BlockCopy(_staticMap.Map, 0, _map, 0, _map.Length * sizeof(sbyte));
         Buffer.BlockCopy(_staticMap.Obstacles, 0, _obstacles, 0, _obstacles.Length * sizeof(int));
         _colored = new bool[SizeX, SizeY];
@@ -95,7 +99,7 @@ public class GlobalESDFMap : Component
                     var cObstacleY = _obstacles[ci, cj, 1];
                     if (cObstacleX != -1)
                     {
-                        var m = (sbyte)(Math.Clamp(Math.Round(Math.Sqrt(Math.Pow(cObstacleX - c.x, 2) + Math.Pow(cObstacleY - c.y, 2))) * Resolution / MaxDistance, 0, 1) * 100);
+                        var m = (sbyte)(Math.Clamp(Math.Round(Math.Sqrt(Math.Pow(cObstacleX - c.x, 2) + Math.Pow(cObstacleY - c.y, 2))) * Resolution / maxDistance, 0, 1) * 100);
                         if (_map[c.x, c.y] > m)
                         {
                             _map[c.x, c.y] = m;

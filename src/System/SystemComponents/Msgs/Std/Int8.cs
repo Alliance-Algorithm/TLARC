@@ -4,15 +4,15 @@ using Rcl;
 
 namespace AllianceDM.IO.ROS2Msgs.Std
 {
-    class Int32 : TlarcMsgs
+    class Int8 : TlarcMsgs
     {
-        int data = 0;
-        Action<int> callback;
+        sbyte data = 0;
+        Action<sbyte> callback;
 
         static protected bool publishFlag = false;
 
-        IRclPublisher<Rosidl.Messages.Std.Int32> publisher;
-        ConcurrentQueue<int> receiveData = new();
+        IRclPublisher<Rosidl.Messages.Std.Int8> publisher;
+        ConcurrentQueue<sbyte> receiveData = new();
         Rcl.RosMessageBuffer nativeMsg;
 
         void Subscript()
@@ -26,24 +26,22 @@ namespace AllianceDM.IO.ROS2Msgs.Std
         {
             if (publisher == null)
                 return;
-            nativeMsg.AsRef<Rosidl.Messages.Std.Int32.Priv>().Data = data;
+            nativeMsg.AsRef<Rosidl.Messages.Std.Int8.Priv>().Data = data;
             publisher.Publish(nativeMsg);
             publishFlag = true;
         }
-        public void Subscript(string topicName, Action<int> callback)
+        public void Subscript(string topicName, Action<sbyte> callback)
         {
-            if (string.IsNullOrEmpty(topicName))
-                throw new ArgumentNullException("Int32 Subscript");
             this.callback = callback;
             TlarcMsgs.Input += Subscript;
-            IOManager.RegistrySubscription<Rosidl.Messages.Std.Int32>(topicName, (Rosidl.Messages.Std.Int32 msg) =>
+            IOManager.RegistrySubscription<Rosidl.Messages.Std.Int8>(topicName, (Rosidl.Messages.Std.Int8 msg) =>
             {
                 data = msg.Data;
             });
         }
-        public void RegistetyPublisher(string topicName)
+        public void RegistryPublisher(string topicName)
         {
-            publisher = Ros2Def.node.CreatePublisher<Rosidl.Messages.Std.Int32>(topicName);
+            publisher = Ros2Def.node.CreatePublisher<Rosidl.Messages.Std.Int8>(topicName);
             nativeMsg = publisher.CreateBuffer();
             // TlarcMsgs.Output += Publish;
 
@@ -55,13 +53,13 @@ namespace AllianceDM.IO.ROS2Msgs.Std
                     await timer.WaitOneAsync(false);
                     if (!publishFlag)
                         continue;
-                    nativeMsg.AsRef<Rosidl.Messages.Std.Int32.Priv>().Data = (int)data;
+                    nativeMsg.AsRef<Rosidl.Messages.Std.Int8.Priv>().Data = data;
                     publisher.Publish(nativeMsg);
                     publishFlag = false;
                 }
             });
         }
-        public void Publish(int data)
+        public void Publish(sbyte data)
         {
             this.data = data;
             Publish();

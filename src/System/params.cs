@@ -13,11 +13,9 @@ namespace AllianceDM
         internal static class DecisionMakerDef
         {
 #if DEBUG
-                internal static string ComponentsPath = "./Declaration/Component";
-                internal static string GameObjectsPath = "./Declaration/Gameobject";
+                internal static string ComponentsPath = "./declarations/";
 #else
-        internal static string ComponentsPath = Environment.ProcessPath + "/../../../share/decision_maker/Declaration/Component";
-        internal static string GameObjectsPath = Environment.ProcessPath + "/../../../share/decision_maker/Declaration/Gameobject";
+        internal static string ComponentsPath = Environment.ProcessPath + "/../../../share/decision_maker/declarations/";
 #endif
                 internal const int fps = 10;
         }

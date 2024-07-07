@@ -7,21 +7,18 @@ namespace AllianceDM.ALPlanner;
 class Defensive_FuSM : Component, IStateMachine
 {
     public float hideTime = 10;
-    public bool FirePermit => throw new NotImplementedException();
+    public bool FirePermit => current_.FirePermit;
 
-    public bool[] LockPermit => throw new NotImplementedException();
+    public bool[] LockPermit => current_.LockPermit;
 
-    public Vector2 GimbalAngle => throw new NotImplementedException();
+    public Vector2 GimbalAngle => current_.GimbalAngle;
 
-    public Vector2 TargetPosition => throw new NotImplementedException();
+    public Vector2 TargetPosition => current_.TargetPosition;
 
-    public IStateObject[] AllState => throw new NotImplementedException();
 
     HeroAgent heroAgent;
     UVAAgent UVAAgent;
     JumperAgent jumperAgent;
-    DecisionMakingInfo decisionMakingInfo;
-    UnitInfo unitInfo;
     Transform2D sentry;
 
     IStateObject current_;
@@ -32,7 +29,7 @@ class Defensive_FuSM : Component, IStateMachine
 
     public IStateObject AnyState()
     {
-        throw new NotImplementedException();
+        return current_;
     }
     public override void Start()
     {

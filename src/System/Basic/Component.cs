@@ -47,6 +47,8 @@ namespace AllianceDM
             }
             foreach (var p in this.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance))
             {
+                if (!Args.ContainsKey(p.Name))
+                    continue;
                 if (_args[p.Name].GetType().IsSubclassOf(typeof(JContainer)))
                     p.SetValue(this, _args[p.Name].GetType().GetMethod("ToObject",
                      BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, []).MakeGenericMethod(p.FieldType).Invoke(_args[p.Name], null));
@@ -92,6 +94,7 @@ namespace AllianceDM
     {
         uint _dim = 0;
         uint _ealy = 0;
+        bool _flag = false;
 
         Component _component = component;
 
@@ -100,6 +103,7 @@ namespace AllianceDM
         public Dictionary<string, uint> RecieveID => _component.RecieveID;
         public uint Dim { get => _dim; set => _dim = value; }
         public uint Ealy { get => _ealy; set => _ealy = value; }
+        public bool Flag { get => _flag; set => _flag = value; }
         List<ComponentCell> _forward = [];
         public List<ComponentCell> Forward { get => Forward = _forward; set => _forward = value; }
         public uint ID => _component.ID;

@@ -7,18 +7,18 @@ namespace AllianceDM.PreInfo
     public class DecisionMakingInfo : Component
     {
 
-        public string friendOutPostHpTopicName;
-        public string sentryHpTopicName;
+        public string friendOutPostHpTopicName = "/referee/friend/outpost";
+        public string sentryHpTopicName = "/referee/hp";
 
-        public float SentryHp { get; private set; }
-        public bool IsUVALaunch { get; private set; }
-        public int BulletCount { get; private set; }
-        public int BulletSupplCount { get; private set; }
-        public float DefenseBuff { get; private set; }
-        public float FriendOutPostHp { get; private set; }
-        public float BaseArmorOpeningCountdown { get; private set; }
-        public float GameCountdown { get; private set; }
-        public bool SupplyRFID { get; private set; }
+        public float SentryHp { get; private set; } = 400;
+        public bool IsUVALaunch { get; private set; } = false;
+        public int BulletCount { get; private set; } = 300;
+        public int BulletSupplCount { get; private set; } = 0;
+        public float DefenseBuff { get; private set; } = 0.6f;
+        public float FriendOutPostHp { get; private set; } = 1500;
+        public float BaseArmorOpeningCountdown { get; private set; } = 0;
+        public float GameCountdown { get; private set; } = 500;
+        public bool SupplyRFID { get; private set; } = false;
 
         public const float SentinelHPLimit = 400;
         public const float OutpostHPLimit = 1500;

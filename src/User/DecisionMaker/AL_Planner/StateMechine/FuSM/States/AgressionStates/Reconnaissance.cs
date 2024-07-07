@@ -8,29 +8,41 @@ class ReconnaissanceState : IStateObject
 
     public bool[] LockPermit => [true, true, false, false, false, false, false];
 
-    public Vector2 GimbalAngle { get; private set; }
+    public Vector2 GimbalAngle { get; private set; } = new(0, 0);
 
-    public Vector2 TargetPosition => throw new NotImplementedException();
+    public Vector2 TargetPosition { get; private set; } = new(3.94f, -6.96f);
 
 
     public required HeroAgent HeroAgent { get; init; }
     public required EngineerAgent EngineerAgent { get; init; }
     public required DecisionMakingInfo DecisionMakingInfo { get; init; }
-    public required UnitInfo UnitInfo { get; init; }
+    public required EnemyUnitInfo UnitInfo { get; init; }
     float OutpostHp = DecisionMakingInfo.OutpostHPLimit;
     public IStateObject EngineerTracker { get; set; }
     public IStateObject HeroTracker { get; set; }
 
+
+    Vector2[] positions_ = [new(3.94f, -6.96f), new(8.02f, 2.35f)];
+    private int presetIndex_ = 0;
+    private long timeTick_ = DateTime.Now.Ticks;
+
     public bool Update(ref IStateObject state, float timeCoefficient)
     {
+        if ((DateTime.Now.Ticks - timeTick_) / 1e7f > 10)
+        {
+            TargetPosition = positions_[presetIndex_];
+            timeTick_ = DateTime.Now.Ticks;
+            presetIndex_ = (presetIndex_ + 1) % 2;
+        }
+
+
         LockPermit[(int)RobotType.Hero] = UnitInfo.EquivalentHp[(int)RobotType.Hero] < 1000;
         LockPermit[(int)RobotType.Engineer] = UnitInfo.EquivalentHp[(int)RobotType.Engineer] < 1000;
         GimbalAngle = new(EngineerAgent.Angle - MathF.PI / 2, EngineerAgent.Angle + MathF.PI / 2);
         FirePermit = (EngineerAgent.Distance < 6) && EngineerAgent.Locked;
         float engineerCoefficient = EngineerAgent.Value;
-        float heroCoefficient = HeroAgent.Value + (OutpostHp == DecisionMakingInfo.FriendOutPostHp ? 100 : 0);
-        float patrolCoefficient = (HeroAgent.Found ? 1 : 10) * (EngineerAgent.Found ? 1 : 10)
-        / (HeroAgent.Value + EngineerAgent.Value);
+        float heroCoefficient = HeroAgent.Value + (OutpostHp == DecisionMakingInfo.FriendOutPostHp ? 10000 : 0);
+        float patrolCoefficient = (HeroAgent.Found ? 1 : 10) * (EngineerAgent.Found ? 1 : 10);
 
 
         float total = heroCoefficient + engineerCoefficient + patrolCoefficient;
@@ -44,9 +56,13 @@ class ReconnaissanceState : IStateObject
         var rand = Random.Shared.NextDouble();
 
         if (rand < engineerCoefficient)
+        {
             state = EngineerTracker;
+        }
         else if (rand < heroCoefficient)
+        {
             state = HeroTracker;
+        }
         else
             return false;
         return true;

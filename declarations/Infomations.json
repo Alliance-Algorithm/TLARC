@@ -1,0 +1,18 @@
+{
+    "list": [
+        {
+            "this_id": 301,
+            "input_id": {},
+            "assembly": "AllianceDM.PreInfo",
+            "type": "DecisionMakingInfo",
+            "arg": {}
+        },
+        {
+            "this_id": 302,
+            "input_id": {},
+            "assembly": "AllianceDM.PreInfo",
+            "type": "EnemyUnitInfo",
+            "arg": {}
+        }
+    ]
+}

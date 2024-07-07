@@ -11,7 +11,7 @@ class AggressionState(float minOutpostHpLimitToReturn) : IStateObject
     public Vector2 TargetPosition => AggressionMachine.TargetPosition;
     public required IStateMachine AggressionMachine { get; init; }
     required public DecisionMakingInfo DecisionMakingInfo { get; init; }
-    required public UnitInfo UnitInfo { get; init; }
+    required public EnemyUnitInfo UnitInfo { get; init; }
     public IStateObject DefensiveState { get; set; }
     public IStateObject SupplyState { get; set; }
     float MinOutpostHpLimitToReturn { get; } = minOutpostHpLimitToReturn;

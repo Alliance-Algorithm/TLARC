@@ -53,7 +53,7 @@ internal class Node3 : IEquatable<Node3>, IComparable<Node3>, IThreeDimensional
     internal Node3[] ChildrenGen()
     {
         Node3[] children;
-        if (Theta < float.MaxValue)
+        if (Theta < float.PositiveInfinity)
         {
             children = new Node3[Children_Headings];
 
@@ -95,7 +95,7 @@ internal class Node3 : IEquatable<Node3>, IComparable<Node3>, IThreeDimensional
 
     private float AngleCost(in Node3 Target)
     {
-        if (Target.Theta == float.MaxValue)
+        if (Target.Theta == float.PositiveInfinity)
             return 0;
         var p = Target.Pos - Pos;
         var a = MathF.Atan(p.Y / p.X);
@@ -116,7 +116,7 @@ internal class Node3 : IEquatable<Node3>, IComparable<Node3>, IThreeDimensional
 
     private float TurnCost()
     {
-        if (Parent.Theta == float.MaxValue)
+        if (Parent.Theta == float.PositiveInfinity)
             return 0;
         return MathF.Abs(Parent.Theta - Theta) * HCalc_lambda3;
     }
@@ -156,7 +156,7 @@ internal class Node3 : IEquatable<Node3>, IComparable<Node3>, IThreeDimensional
         if ((Math.Abs(Pos.X - other.Pos.X) + Math.Abs(Pos.Y - other.Pos.Y)) >= Equal_MaxDistance)
             return false;
 
-        if (Theta == float.MaxValue || other.Theta == float.MaxValue)
+        if (Theta == float.PositiveInfinity || other.Theta == float.PositiveInfinity)
             return true;
         if (Theta - other.Theta >= Equal_MaxTheta)
             return false;

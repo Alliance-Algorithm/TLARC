@@ -1,0 +1,54 @@
+{
+    "list": [
+        {
+            "this_id": 101,
+            "input_id": {
+                "costMap": 102,
+                "dijkstra": 103,
+                "hybridAStar": 104,
+                "sentry": 1,
+                "decisionMaker": 201
+            },
+            "assembly": "AllianceDM.ALPlanner",
+            "type": "ALPathFinder",
+            "arg": {}
+        },
+        {
+            "this_id": 102,
+            "input_id": {
+                "sentry": 1
+            },
+            "assembly": "AllianceDM.ALPlanner",
+            "type": "GlobalESDFMap",
+            "arg": {
+                "mapPath": "../maps/staticESDFMap.json"
+            }
+        },
+        {
+            "this_id": 103,
+            "input_id": {
+                "costMap": 102,
+                "sentry": 1,
+                "decisionMaker": 201
+            },
+            "assembly": "AllianceDM.ALPlanner",
+            "type": "Dijkstra",
+            "arg": {
+                "mapPath": "../maps/staticDijkstraMap.json"
+            }
+        },
+        {
+            "this_id": 104,
+            "input_id": {
+                "costMap": 102,
+                "sentry": 1,
+                "dijkstra": 103
+            },
+            "assembly": "AllianceDM.ALPlanner",
+            "type": "HybridAStar",
+            "arg": {
+                "mapPath": "../map/staticDijkstraMap.json"
+            }
+        }
+    ]
+}

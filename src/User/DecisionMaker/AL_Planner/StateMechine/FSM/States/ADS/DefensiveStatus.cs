@@ -16,7 +16,7 @@ class DefensiveState(float minEquivalentHpLimitToReturn) : IStateObject
     public bool Update(ref IStateObject state, float timeCoefficient = float.NaN)
     {
         //this -> Suplly
-        float equivalentHp = Info.SentryHp * Info.DefenseBuff;
+        float equivalentHp = Info.SentryHp / (1 - Info.DefenseBuff);
         if (equivalentHp < MinEquivalentHpLimitToReturn)
         {
             state = SupplyState;

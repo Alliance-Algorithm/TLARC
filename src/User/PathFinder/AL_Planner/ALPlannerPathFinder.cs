@@ -25,15 +25,13 @@ class ALPathFinder : Component
     private Dijkstra dijkstra;
     private HybridAStar hybridAStar;
     private Transform2D sentry;
-    private Transform2D target;
+    private ALPlannerDecisionMaker decisionMaker;
 
-    public List<Vector3> Path => _path;
+    public List<Vector3> Path { get; private set; }
     public Vector3 TargetVelocity => nonUniformBSpline.GetVelocity((DateTime.Now.Ticks - _timeTicks) / TimeSpan.TicksPerSecond);
     public Vector3 TargetAccelerate => nonUniformBSpline.GetAcceleration((DateTime.Now.Ticks - _timeTicks) / TimeSpan.TicksPerSecond);
 
     private NonUniformBSpline nonUniformBSpline;
-    private List<Vector3> _path;
-
     private Vector2 _beginSpeed;
     private Vector2 _targetPoint;
 
@@ -55,7 +53,12 @@ class ALPathFinder : Component
 
     public override void Update()
     {
-        if (target.position != _targetPoint) { Build(); return; }
+        if (decisionMaker.TargetPosition != _targetPoint)
+        {
+            Build();
+            _targetPoint = decisionMaker.TargetPosition;
+            return;
+        }
 
         var (id, isSafe) = nonUniformBSpline.Check(
             (DateTime.Now.Ticks - _timeTicks) / TimeSpan.TicksPerSecond, costMap, sentry.position);
@@ -67,11 +70,11 @@ class ALPathFinder : Component
     private void Build()
     {
         _timeTicks = DateTime.Now.Ticks;
-        nonUniformBSpline.ParametersToControlPoints([.. hybridAStar.Path.SkipLast(1), .. dijkstra.Path], [_beginSpeed, new(0, 0)]);
+        nonUniformBSpline.ParametersToControlPoints([.. hybridAStar.Path, .. dijkstra.Path.Skip(1)], [_beginSpeed, new(0, 0)]);
         nonUniformBSpline.BuildTimeLine(timeInterval);
 #if DEBUG
-        _path = nonUniformBSpline.GetPath();
-        _pathPublisher.Publish([.. _path]);
+        Path = nonUniformBSpline.GetPath();
+        _pathPublisher.Publish([.. Path]);
 #endif
     }
 

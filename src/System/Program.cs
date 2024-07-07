@@ -108,9 +108,13 @@ namespace AllianceDM
                     return;
                 for (var i = 0; i < cell.Forward.Count; i++)
                 {
-                    if (cell.Forward[i].Dim == cell.Forward[i].Ealy)
+                    if (cell.Forward[i].Flag)
+                        cell.Forward[i].Dim = Math.Min(max, cell.Forward[i].Dim);
+                    else
+                    {
                         cell.Forward[i].Dim = max;
-                    cell.Forward[i].Dim = Math.Min(max, cell.Forward[i].Dim);
+                        cell.Forward[i].Flag = true;
+                    }
                 }
                 return;
             }
@@ -151,6 +155,9 @@ namespace AllianceDM
                 FindPath(ref l[k], in colored);
                 PoolDim = Math.Max(l[k].Dim, PoolDim);
             }
+            foreach (var i in l)
+                if (!i.Flag)
+                    i.Dim = PoolDim;
             PoolDim += 1;
             for (int i = 0; i < PoolDim; i++)
                 UpdateFuncs.Add([]);

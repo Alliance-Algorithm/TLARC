@@ -11,12 +11,12 @@ class HeroTargetPreDictor : Component
 
     public bool Found => unitInfo.Found[VehicleCode];
     public bool Locked { get; private set; }
-    public Vector2 Position { get; private set; }
+    public Vector2 Position { get; private set; } = new Vector2(2.88f, -6.8f);
     public float Distance { get; private set; }
     public float Angle { get; private set; }
 
     Transform2D sentry;
-    UnitInfo unitInfo;
+    EnemyUnitInfo unitInfo;
 
     private int presetIndex_ = 0;
     private long timeTick_ = 0;

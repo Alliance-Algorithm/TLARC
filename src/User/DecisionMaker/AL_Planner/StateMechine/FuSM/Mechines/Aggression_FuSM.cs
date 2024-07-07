@@ -17,7 +17,7 @@ class Aggression_FuSM : Component, IStateMachine
     HeroAgent heroAgent;
     EngineerAgent engineerAgent;
     DecisionMakingInfo decisionMakingInfo;
-    UnitInfo unitInfo;
+    EnemyUnitInfo unitInfo;
     Transform2D sentry;
 
     IStateObject current_;
@@ -28,7 +28,7 @@ class Aggression_FuSM : Component, IStateMachine
 
     public IStateObject AnyState()
     {
-        throw new NotImplementedException();
+        return current_;
     }
 
     public override void Start()
