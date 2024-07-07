@@ -1,4 +1,5 @@
 using System.Numerics;
+using AllianceDM.PreInfo;
 
 namespace AllianceDM.ALPlanner;
 
@@ -17,12 +18,18 @@ class GreatWallWatcher : IStateObject
     public required JumperAgent JumperAgent { get; init; }
 
     static readonly Vector2 hidePosition_ = new(-3.27f, 5.64f);
-    static readonly Vector2 hightWallPosition_ = new(-2.08f, 7.13f);
-
+    static readonly Vector2 hightWallPosition_ = new(-3.6f, 2.79f);
+    required public DecisionMakingInfo Info { get; init; }
     public IStateObject Portal { get; set; }
     public IStateObject Hider { get; set; }
     public bool Update(ref IStateObject state, float timeCoefficient)
     {
+
+        if (Info.BaseArmorOpeningCountdown <= 15)
+        {
+            state = Portal;
+            return true;
+        }
         if (UVAAgent.AirSupport)
         {
             state = Hider;
@@ -35,7 +42,7 @@ class GreatWallWatcher : IStateObject
         if (HeroAgent.Position.X < 0)
         {
             TargetPosition = hightWallPosition_;
-            GimbalAngle = new(-0.1f, 0.1f);
+            GimbalAngle = new(-MathF.PI * 3 / 4 - 1f, -MathF.PI * 3 / 4 + 1f);
             for (int i = 0; i < 8; i++)
             {
                 LockPermit[i] = false;
@@ -52,7 +59,7 @@ class GreatWallWatcher : IStateObject
             }
             LockPermit[1] = false;
         }
-        if (!JumperAgent.Detected && !(HeroAgent.Position.X < 0))
+        if (!JumperAgent.Detected && (!(HeroAgent.Position.X < 0) || HeroAgent.EquivalentHp > 1000))
             state = Portal;
         else
             return false;

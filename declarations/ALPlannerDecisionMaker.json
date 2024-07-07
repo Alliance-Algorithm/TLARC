@@ -83,6 +83,7 @@
                 "heroAgent": 204,
                 "UVAAgent": 209,
                 "jumperAgent": 210,
+                "decisionMakingInfo": 301,
                 "sentry": 1
             },
             "assembly": "AllianceDM.ALPlanner",

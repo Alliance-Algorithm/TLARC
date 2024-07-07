@@ -1,4 +1,5 @@
 using AllianceDM.IO;
+using Rosidl.Messages.Builtin;
 
 namespace AllianceDM.PreInfo
 {
@@ -22,9 +23,11 @@ namespace AllianceDM.PreInfo
         public float BaseArmorOpeningCountdown { get; private set; } = 0;
         public float GameCountdown { get; private set; } = 500;
         public bool SupplyRFID { get; private set; } = false;
+        public bool PatrolRFID { get; private set; } = false;
 
         public const float SentinelHPLimit = 400;
         public const float OutpostHPLimit = 1500;
+        private long _tick = DateTime.Now.Ticks;
 
 
         IO.ROS2Msgs.Std.Int32 friendOutPostHp;
@@ -55,7 +58,14 @@ namespace AllianceDM.PreInfo
 
         public override void Update()
         {
-            base.Update();
+            GameCountdown -= (DateTime.Now.Ticks - _tick) / 1e7f;
+            if (FriendOutPostHp > 0 || PatrolRFID)
+                BaseArmorOpeningCountdown = 40;
+            else if (!PatrolRFID)
+            {
+                BaseArmorOpeningCountdown -= (DateTime.Now.Ticks - _tick) / 1e7f;
+            }
+            _tick = DateTime.Now.Ticks;
         }
 
         // Compatible with old versions

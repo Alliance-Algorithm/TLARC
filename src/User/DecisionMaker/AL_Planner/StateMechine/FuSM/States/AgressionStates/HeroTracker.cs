@@ -24,10 +24,10 @@ class HeroTracker : IStateObject
     {
         LockPermit[(int)RobotType.Hero] = UnitInfo.EquivalentHp[(int)RobotType.Hero] < 1000;
         LockPermit[(int)RobotType.Engineer] = UnitInfo.EquivalentHp[(int)RobotType.Engineer] < 100;
-        GimbalAngle = new(EngineerAgent.Angle - MathF.PI / 2, EngineerAgent.Angle + MathF.PI / 2);
-        FirePermit = (EngineerAgent.Distance < 6) && EngineerAgent.Locked;
+        GimbalAngle = new(HeroAgent.Angle - MathF.PI / 4, HeroAgent.Angle + MathF.PI / 4);
+        FirePermit = (HeroAgent.Distance < 6) && HeroAgent.Locked;
         float engineerCoefficient = EngineerAgent.Value;
-        float heroCoefficient = HeroAgent.Value + (OutpostHp == DecisionMakingInfo.FriendOutPostHp ? 100 : 0);
+        float heroCoefficient = HeroAgent.Value + (OutpostHp != DecisionMakingInfo.FriendOutPostHp ? 100 : 0);
         float patrolCoefficient = (HeroAgent.Found ? 1 : 10) * (EngineerAgent.Found ? 1 : 10);
 
 
@@ -36,10 +36,10 @@ class HeroTracker : IStateObject
         patrolCoefficient = patrolCoefficient / total + engineerCoefficient;
 
 
-        engineerCoefficient *= Math.Clamp(timeCoefficient, 0, 1);
-        patrolCoefficient *= Math.Clamp(timeCoefficient, 0, 1);
+        engineerCoefficient *= Math.Clamp(timeCoefficient / 10, 0, 1);
+        patrolCoefficient *= Math.Clamp(timeCoefficient / 10, 0, 1);
 
-        if (EngineerAgent.Distance > 1.5f)
+        if (HeroAgent.Distance > 1.5f)
             return false;
         var rand = Random.Shared.NextDouble();
 

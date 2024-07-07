@@ -4,15 +4,15 @@ using Rcl;
 
 namespace AllianceDM.IO.ROS2Msgs.Std
 {
-    class Int8 : TlarcMsgs
+    class FloatMultiArray : TlarcMsgs
     {
-        sbyte data = 0;
-        Action<sbyte> callback;
+        float[] data = [];
+        Action<float[]> callback;
 
         static protected bool publishFlag = false;
 
-        IRclPublisher<Rosidl.Messages.Std.Int8> publisher;
-        ConcurrentQueue<sbyte> receiveData = new();
+        IRclPublisher<Rosidl.Messages.Std.Int32> publisher;
+        ConcurrentQueue<float[]> receiveData = new();
         Rcl.RosMessageBuffer nativeMsg;
 
         void Subscript()
@@ -26,22 +26,24 @@ namespace AllianceDM.IO.ROS2Msgs.Std
         {
             if (publisher == null)
                 return;
-            nativeMsg.AsRef<Rosidl.Messages.Std.Int8.Priv>().Data = data;
+            nativeMsg.AsRef<Rosidl.Messages.Std.Float32MultiArray.Priv>().Data = new(data);
             publisher.Publish(nativeMsg);
             publishFlag = true;
         }
-        public void Subscript(string topicName, Action<sbyte> callback)
+        public void Subscript(string topicName, Action<float[]> callback)
         {
+            if (string.IsNullOrEmpty(topicName))
+                throw new ArgumentNullException("Int32 Subscript");
             this.callback = callback;
             TlarcMsgs.Input += Subscript;
-            IOManager.RegistrySubscription<Rosidl.Messages.Std.Int8>(topicName, (Rosidl.Messages.Std.Int8 msg) =>
+            IOManager.RegistrySubscription<Rosidl.Messages.Std.Float32MultiArray>(topicName, msg =>
             {
                 receiveData.Enqueue(msg.Data);
             });
         }
-        public void RegistryPublisher(string topicName)
+        public void RegistetyPublisher(string topicName)
         {
-            publisher = Ros2Def.node.CreatePublisher<Rosidl.Messages.Std.Int8>(topicName);
+            publisher = Ros2Def.node.CreatePublisher<Rosidl.Messages.Std.Int32>(topicName);
             nativeMsg = publisher.CreateBuffer();
             // TlarcMsgs.Output += Publish;
 
@@ -53,13 +55,13 @@ namespace AllianceDM.IO.ROS2Msgs.Std
                     await timer.WaitOneAsync(false);
                     if (!publishFlag)
                         continue;
-                    nativeMsg.AsRef<Rosidl.Messages.Std.Int8.Priv>().Data = data;
+                    nativeMsg.AsRef<Rosidl.Messages.Std.Float32MultiArray.Priv>().Data = new(data);
                     publisher.Publish(nativeMsg);
                     publishFlag = false;
                 }
             });
         }
-        public void Publish(sbyte data)
+        public void Publish(float[] data)
         {
             this.data = data;
             Publish();

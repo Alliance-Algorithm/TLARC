@@ -75,7 +75,7 @@ class ALPathFinder : Component
     private void Build()
     {
         _timeTicks = DateTime.Now.Ticks;
-        nonUniformBSpline.ParametersToControlPoints([.. hybridAStar.Path.SkipLast(1), .. dijkstra.Path.Skip(1)], [_beginSpeed, new(0, 0)]);
+        nonUniformBSpline.ParametersToControlPoints([.. hybridAStar.Path.SkipLast(1), .. dijkstra.Path.Skip(hybridAStar.Path.Count > 1 ? 1 : 0)], [_beginSpeed, new(0, 0)]);
         nonUniformBSpline.BuildTimeLine(timeInterval);
         var controlMatrix = nonUniformBSpline._controlPoints;
         var timeControlMatrix = nonUniformBSpline._timeControlPoints;

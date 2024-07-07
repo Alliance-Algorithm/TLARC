@@ -11,7 +11,7 @@ class EngineerTargetPreDictor : Component
 
     public bool Found => unitInfo.Found[VehicleCode];
     public bool Locked { get; private set; }
-    public Vector2 Position { get; private set; } = new(5.73f, -2.8f);
+    public Vector2 Position { get; private set; } = new(5.98f, -2.8f);
     public float Distance { get; private set; }
     public float Angle { get; private set; }
 
@@ -20,22 +20,24 @@ class EngineerTargetPreDictor : Component
 
     private int presetIndex_ = 0;
     private long timeTick_ = 0;
+    private long timeTick2_ = DateTime.Now.Ticks;
 
-    Vector2[] positions_ = [new(7.68f, -1.8f), new(0.49f, 3.5f)];
+    Vector2[] positions_ = [new(5.98f, -2.8f), new(0.49f, 3.5f)];
     float[] angles_ = { -MathF.PI, 0 };
 
     public override void Update()
     {
-        Locked = unitInfo.Locked == 1;
-        if (Found)
+        Locked = unitInfo.Locked == 2;
+        if (!Found)
+            Position = positions_[presetIndex_];
+        if (Found && DateTime.Now.Ticks - timeTick2_ > 2e7f)
         {
             Position = unitInfo.Position[VehicleCode];
-            var trans = Position - sentry.position;
-            Angle = MathF.Atan(trans.Y / trans.X);
+            timeTick2_ = DateTime.Now.Ticks;
             return;
         }
-
-        Position = positions_[presetIndex_];
+        var trans = Position - sentry.position;
+        Angle = MathF.Atan2(trans.Y, trans.X);
         if ((sentry.position - Position).Length() < 0.1f)
             if (Angle != angles_[presetIndex_])
             {
@@ -45,7 +47,12 @@ class EngineerTargetPreDictor : Component
             }
             else if ((DateTime.Now.Ticks - timeTick_) * 1e-7 > 1)
                 presetIndex_ = (presetIndex_ + 1) % 2;
-
-        Distance = (Position - sentry.position).Length();
+        if (Found)
+            Distance = (sentry.position - unitInfo.Position[VehicleCode]).Length();
+        else
+            Distance = (sentry.position - Position).Length();
+        if (Distance < 1.5f)
+            Position = sentry.position;
+        Distance = (sentry.position - Position).Length();
     }
 }

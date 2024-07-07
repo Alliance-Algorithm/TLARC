@@ -83,7 +83,7 @@ class HybridAStar : Component
                     continue;
                 if (_closeGrid[xy.x, xy.y])
                     continue;
-                if (costMap[xy.x, xy.y] <= 0)
+                if (costMap[xy.x, xy.y] <= -80)
                     continue;
                 openList.Enqueue(child, child.CalcF(to, costMap));
             }

@@ -16,6 +16,6 @@ class EngineerAgent : Component
     EnemyUnitInfo unitInfo;
     public override void Update()
     {
-        Value = Math.Clamp(targetPreDictor.Distance * (targetPreDictor.Found ? 10 : 1) + 100 * (Locked ? 1 : 0) - unitInfo.EquivalentHp[(int)RobotType.Engineer] / 100f, 0, float.PositiveInfinity) + 1;
+        Value = Math.Clamp((targetPreDictor.Found ? 200 : 1) + 100 * (Locked ? 1 : 0) - unitInfo.EquivalentHp[(int)RobotType.Engineer] / 100f, 0, float.PositiveInfinity) + 1;
     }
 }

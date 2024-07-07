@@ -28,10 +28,10 @@ class EngineerTracker : IStateObject
     {
         LockPermit[(int)RobotType.Hero] = UnitInfo.EquivalentHp[(int)RobotType.Hero] < 100;
         LockPermit[(int)RobotType.Engineer] = UnitInfo.EquivalentHp[(int)RobotType.Engineer] < 1000;
-        GimbalAngle = new(EngineerAgent.Angle - MathF.PI / 2, EngineerAgent.Angle + MathF.PI / 2);
+        GimbalAngle = new(EngineerAgent.Angle - MathF.PI / 4, EngineerAgent.Angle + MathF.PI / 4);
         FirePermit = (EngineerAgent.Distance < 6) && EngineerAgent.Locked;
         float engineerCoefficient = EngineerAgent.Value;
-        float heroCoefficient = HeroAgent.Value + (OutpostHp != DecisionMakingInfo.FriendOutPostHp ? 100 : 0);
+        float heroCoefficient = HeroAgent.Value + (OutpostHp != DecisionMakingInfo.FriendOutPostHp ? 10000 : 0);
         float patrolCoefficient = (HeroAgent.Found ? 1 : 10) * (EngineerAgent.Found ? 1 : 10);
 
 

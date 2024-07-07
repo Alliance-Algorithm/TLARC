@@ -43,10 +43,10 @@ class ReconnaissanceState : IStateObject
 
         LockPermit[(int)RobotType.Hero] = UnitInfo.EquivalentHp[(int)RobotType.Hero] < 1000;
         LockPermit[(int)RobotType.Engineer] = UnitInfo.EquivalentHp[(int)RobotType.Engineer] < 1000;
-        GimbalAngle = new(EngineerAgent.Angle - MathF.PI / 2, EngineerAgent.Angle + MathF.PI / 2);
         FirePermit = (EngineerAgent.Distance < 6) && EngineerAgent.Locked;
         float engineerCoefficient = EngineerAgent.Value;
         float heroCoefficient = HeroAgent.Value + (OutpostHp != DecisionMakingInfo.FriendOutPostHp ? 100000 : 0);
+        OutpostHp = DecisionMakingInfo.FriendOutPostHp;
         float patrolCoefficient = (HeroAgent.Found ? 1 : 100) * (EngineerAgent.Found ? 1 : 100);
 
 

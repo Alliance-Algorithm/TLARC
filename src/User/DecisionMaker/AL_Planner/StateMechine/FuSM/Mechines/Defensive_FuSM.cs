@@ -20,6 +20,7 @@ class Defensive_FuSM : Component, IStateMachine
     UVAAgent UVAAgent;
     JumperAgent jumperAgent;
     Transform2D sentry;
+    DecisionMakingInfo decisionMakingInfo;
 
     IStateObject current_;
     GreatWallWatcher greatWallWatcher_;
@@ -39,7 +40,8 @@ class Defensive_FuSM : Component, IStateMachine
         {
             HeroAgent = heroAgent,
             UVAAgent = UVAAgent,
-            JumperAgent = jumperAgent
+            JumperAgent = jumperAgent,
+            Info = decisionMakingInfo
         };
         hider_ = new(hideTime)
         {

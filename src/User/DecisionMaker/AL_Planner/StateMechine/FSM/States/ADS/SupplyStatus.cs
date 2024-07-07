@@ -19,6 +19,12 @@ class SupplyState(float minOutpostHpLimitToReturn) : IStateObject
 
     public bool Update(ref IStateObject state, float timeCoefficient)
     {
+        if (Info.BaseArmorOpeningCountdown <= 15)
+        {
+            state = Info.FriendOutPostHp >= MinOutpostHpLimitToReturn
+                    ? AggressionState : DefensiveState;
+            return true;
+        }
         // this -> LastState
         if (Info.SupplyRFID)
             if (Info.SentryHp >= DecisionMakingInfo.SentinelHPLimit - 20)
