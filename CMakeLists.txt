@@ -10,6 +10,7 @@ add_custom_command(
           --self-contained true -o ./bin/ TARGET run POST_BUILD
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
+
 install(
   FILES bin/${PROJECT_NAME}
   DESTINATION lib/${PROJECT_NAME}

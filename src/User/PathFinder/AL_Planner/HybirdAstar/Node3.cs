@@ -19,7 +19,7 @@ internal class Node3 : IEquatable<Node3>, IComparable<Node3>, IThreeDimensional
     const float HCalc_lambda12 = 1;
     const float HCalc_lambda2 = 1f;
     const float HCalc_lambda3 = 10;
-    const float HCalc_lambda4 = 1;
+    const float HCalc_lambda4 = 0.1f;
     internal Vector2 Pos;
     internal float Theta;
 
