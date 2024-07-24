@@ -49,6 +49,16 @@
             "arg": {
                 "mapPath": "../map/staticDijkstraMap.json"
             }
+        },
+        {
+            "this_id": 105,
+            "input_id": {
+                "sentry": 1,
+                "pathFinder": 101
+            },
+            "assembly": "AllianceDM.Controller.MPC",
+            "type": "MPCController",
+            "arg": {}
         }
     ]
 }

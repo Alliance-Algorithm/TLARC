@@ -143,7 +143,7 @@ public class NonUniformBSpline(float limitVelocity, float limitAccelerate, float
         while (_t[k + 1] < t) k++;
         var u = (t - _t[k]) / (_t[k + 1] - _t[k]);
         var temp = CalcPosition(u, k);
-        if ((temp - position).Length() > 0.4f)
+        if ((temp - position).Length() > 3f)
             return (k, false);
         for (t += 0.1f; t < _t[k + 1]; t += 0.1f)
         {
@@ -168,6 +168,16 @@ public class NonUniformBSpline(float limitVelocity, float limitAccelerate, float
             ret.Add(new(CalcPosition(u, k), 0));
         }
         return ret;
+    }
+    public Vector2 GetPosition(float t)
+    {
+        if (_t.Count <= 1)
+            return new(float.NaN, float.NaN);
+        t = Math.Min(Math.Max(t, _t[0]), _t[n_ - 1]);
+        int k = 0;
+        while (_t[k + 1] < t) k++;
+        var u = (t - _t[k]) / (_t[k + 1] - _t[k]);
+        return CalcPosition(u, k);
     }
     private Vector2 CalcPosition(float U, int N)
     {

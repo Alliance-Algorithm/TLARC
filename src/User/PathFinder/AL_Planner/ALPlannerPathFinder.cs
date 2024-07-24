@@ -29,8 +29,6 @@ class ALPathFinder : Component
     private ALPlannerDecisionMaker decisionMaker;
 
     public List<Vector3> Path { get; private set; }
-    public Vector3 TargetVelocity => nonUniformBSpline.GetVelocity((DateTime.Now.Ticks - _timeTicks) / TimeSpan.TicksPerSecond);
-    public Vector3 TargetAccelerate => nonUniformBSpline.GetAcceleration((DateTime.Now.Ticks - _timeTicks) / TimeSpan.TicksPerSecond);
 
     private NonUniformBSpline nonUniformBSpline;
     private Vector2 _beginSpeed;
@@ -39,6 +37,21 @@ class ALPathFinder : Component
     private IO.ROS2Msgs.Geometry.Pose2D _beginSpeedReceiver;
     private IO.ROS2Msgs.Nav.Path _pathPublisher;
     private IO.ROS2Msgs.Nav.Path _bSplinePublisher;
+
+    public Vector3 TargetVelocity(float t) => nonUniformBSpline.GetVelocity((DateTime.Now.Ticks - _timeTicks) / 1e7f + t);
+    public Vector3 TargetAccelerate(float t) => nonUniformBSpline.GetAcceleration((DateTime.Now.Ticks - _timeTicks) / 1e7f + t);
+    public Vector2 TargetPosition(float t)
+    {
+        var pos = nonUniformBSpline.GetPosition((DateTime.Now.Ticks - _timeTicks) / 1e7f + t);
+        return float.IsNaN(pos.X) ? sentry.position : pos;
+    }
+    public double TargetKesi(float t, float deltaT)
+    {
+        var tmp = TargetVelocity(t);
+        var tmp2 = nonUniformBSpline.GetVelocity((DateTime.Now.Ticks - _timeTicks) / 1e7f + t + deltaT);
+        var cos_kesi = Vector3.Dot(tmp, tmp2) / tmp.Length() / tmp2.Length();
+        return Math.Acos(cos_kesi) * Math.Sign(Vector3.Cross(tmp, tmp2).Z);
+    }
 
 
     private long _timeTicks;
@@ -55,6 +68,7 @@ class ALPathFinder : Component
         nonUniformBSpline = new NonUniformBSpline(limitVelocity, limitAccelerate, limitRatio);
         _timeTicks = DateTime.Now.Ticks;
     }
+
 
     public override void Update()
     {

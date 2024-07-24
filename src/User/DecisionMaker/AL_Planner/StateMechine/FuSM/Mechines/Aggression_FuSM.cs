@@ -18,7 +18,7 @@ class Aggression_FuSM : Component, IStateMachine
     EngineerAgent engineerAgent;
     DecisionMakingInfo decisionMakingInfo;
     EnemyUnitInfo unitInfo;
-    Transform2D sentry;
+    // Transform2D sentry;
 
     IStateObject current_;
     EngineerTracker engineerTracker_;
