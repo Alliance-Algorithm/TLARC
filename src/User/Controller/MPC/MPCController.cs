@@ -28,13 +28,13 @@ class MPCController : Component
 
     override public void Update()
     {
-        var targetPos = pathFinder.TargetPosition(1);
+        var targetPos = pathFinder.TargetPosition(1f);
         if (targetPos == sentry.position)
         {
             calculator.Reset();
         }
-        var targetVel = pathFinder.TargetVelocity(1);
-        var kesi = pathFinder.TargetKesi(1, t);
+        var targetVel = pathFinder.TargetVelocity(1f);
+        var kesi = pathFinder.TargetKesi(1f, t);
 
         var a = new DenseMatrix(3, 3);
         var b = new DenseMatrix(3, 2);
@@ -69,10 +69,10 @@ class MPCController : Component
         uMax[0, 1] = 1;
         DenseMatrix deltaUMin = new DenseMatrix(1, 2);
         DenseMatrix deltaUMax = new DenseMatrix(1, 2);
-        deltaUMin[0, 0] = -5;
-        deltaUMin[0, 1] = -1;
-        deltaUMax[0, 0] = 5;
-        deltaUMax[0, 1] = 1;
+        deltaUMin[0, 0] = -0.1;
+        deltaUMin[0, 1] = -0.1;
+        deltaUMax[0, 0] = 0.1;
+        deltaUMax[0, 1] = 0.1;
         _u = calculator.Calculate(a, b, x, xRef, uMin, uMax, deltaUMin, deltaUMax);
         var vel = new Vector2((float)((_u[0] + targetVel.Length()) * Math.Cos(_u[1] + tempAngle)), (float)((_u[0] + targetVel.Length()) * Math.Sin(_u[1] + tempAngle)));
         lastAngle = tempAngle;
