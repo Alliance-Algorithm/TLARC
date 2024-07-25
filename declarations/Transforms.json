@@ -21,7 +21,7 @@
             "assembly": "AllianceDM.StdComponent",
             "type": "Transform2DReceiver",
             "arg": {
-                "topicName": "/sentry/position"
+                "topicName": "/rmcs_slam/pose"
             }
         }
     ]

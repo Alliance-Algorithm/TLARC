@@ -28,11 +28,17 @@ namespace AllianceDM.StdComponent
     {
 
         public string topicName;
+        public string type = "pose_stampd";
         Transform2D transform;
         IO.ROS2Msgs.Geometry.Pose2D pose = new();
+        IO.ROS2Msgs.Geometry.PoseStampd poseStampd = new();
         public override void Start()
         {
-            pose.Subscript(topicName, msg => transform.Set(msg.pos, msg.Theta));
+            if (type == "pose2d")
+                pose.Subscript(topicName, msg => transform.Set(msg.pos, msg.Theta));
+            else if (type == "pose_stampd")
+                poseStampd.Subscript(topicName, msg => transform.Set(msg.pos, msg.Theta));
+
         }
 
         public override void Update()
