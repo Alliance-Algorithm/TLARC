@@ -68,6 +68,7 @@ namespace AllianceDM.IO
                 _ = i.AsRef<Rosidl.Messages.Geometry.Pose2D.Priv>();
                 handler(i);
                 l = false;
+                i.Dispose();
             }
             Console.WriteLine(name + ":Registry");
         }
