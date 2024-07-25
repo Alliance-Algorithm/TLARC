@@ -73,7 +73,7 @@ class ALPathFinder : Component
 
     public override void Update()
     {
-        _beginSpeed = (sentry.position  - _lastPosition) * DecisionMakerDef.fps / 1000.0;
+        _beginSpeed = (sentry.position - _lastPosition) * DecisionMakerDef.fps / 1000.0f;
         _lastPosition = sentry.position;
         if (decisionMaker.TargetPosition != _targetPoint)
         {
