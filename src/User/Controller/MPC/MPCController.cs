@@ -60,6 +60,7 @@ class MPCController : Component
         DenseVector x = new DenseVector(3);
         x[0] = sentry.position.X;
         x[1] = sentry.position.Y;
+
         x[2] = Math.Atan2(sentry.position.Y - _lastPos.Y, sentry.position.X - _lastPos.X); ;
         DenseMatrix uMin = new DenseMatrix(1, 2);
         DenseMatrix uMax = new DenseMatrix(1, 2);
