@@ -12,7 +12,7 @@ class HybridAStar : Component
 
 
     public string beginSpeedTopicName = "/chassis/speed";
-    public float maxSearchDistanceRatio = 1.8f;
+    public float maxSearchDistanceRatio = 5f;
     public float retentionRatio = 0.2f;
 
     public List<Vector2> Path => _path;
