@@ -32,6 +32,7 @@ class ALPathFinder : Component
 
     private NonUniformBSpline nonUniformBSpline;
     private Vector2 _beginSpeed;
+    private Vector2 _lastPosition;
     private Vector2 _targetPoint;
 
     private IO.ROS2Msgs.Geometry.Pose2D _beginSpeedReceiver;
@@ -72,6 +73,8 @@ class ALPathFinder : Component
 
     public override void Update()
     {
+        _beginSpeed = (sentry.position  - _lastPosition) * DecisionMakerDef.fps / 1000.0;
+        _lastPosition = sentry.position;
         if (decisionMaker.TargetPosition != _targetPoint)
         {
             Build();
