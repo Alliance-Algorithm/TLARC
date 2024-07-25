@@ -25,7 +25,8 @@
             "assembly": "AllianceDM.StdComponent",
             "type": "Transform2DReceiver",
             "arg": {
-                "topicName": "/rmcs_navigation/pose"
+                "topicName": "/rmcs_navigation/pose",
+                "type": "pose2d"
             }
         }
     ]

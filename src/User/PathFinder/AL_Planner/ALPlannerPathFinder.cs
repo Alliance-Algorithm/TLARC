@@ -14,7 +14,7 @@ class ALPathFinder : Component
     public string bSplineControlMatrixTopicName = "/chassis/trajectory/b_spline/control_matrix";
 
     public float limitVelocity = 5 + 1e-4f;
-    public float limitAccelerate = 2f + 1e-4f;
+    public float limitAccelerate = 1f + 1e-4f;
     public float limitRatio = 4f + 1e-4f;
     public float lambda1 = 0f;
     public float lambda2 = 1f;

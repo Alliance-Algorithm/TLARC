@@ -33,7 +33,7 @@ namespace AllianceDM.StdComponent
     {
 
         public string topicName;
-        public string type = "pose_stampd";
+        public string type = "pose_stamped";
         public Vector2 Position { get; set; } = new();
         IO.ROS2Msgs.Geometry.Pose2D pose = new();
         IO.ROS2Msgs.Geometry.PoseStampd poseStampd = new();
@@ -41,7 +41,7 @@ namespace AllianceDM.StdComponent
         {
             if (type == "pose2d")
                 pose.Subscript(topicName, msg => { Position = msg.pos; });
-            else if (type == "pose_stampd")
+            else if (type == "pose_stamped")
                 poseStampd.Subscript(topicName, msg => { Position = msg.pos; });
 
         }
