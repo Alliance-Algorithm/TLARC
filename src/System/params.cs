@@ -15,7 +15,7 @@ namespace AllianceDM
 #if DEBUG
                 internal static string ComponentsPath = "./declarations/";
 #else
-        internal static string ComponentsPath = Environment.ProcessPath + "/../../../share/decision_maker/declarations/";
+        internal static string ComponentsPath = Environment.ProcessPath + "/../../../share/tlarc/declarations/";
 #endif
                 internal const int fps = 10;
         }

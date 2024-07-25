@@ -21,7 +21,7 @@
             "assembly": "AllianceDM.ALPlanner",
             "type": "GlobalESDFMap",
             "arg": {
-                "mapPath": "../maps/staticESDFMap.json"
+                "mapPath": "../maps/StaticESDFMap.json"
             }
         },
         {
@@ -34,7 +34,7 @@
             "assembly": "AllianceDM.ALPlanner",
             "type": "Dijkstra",
             "arg": {
-                "mapPath": "../maps/staticDijkstraMap.json"
+                "mapPath": "../maps/StaticDijkstraMap.json"
             }
         },
         {
