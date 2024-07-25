@@ -32,14 +32,14 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
         {
             this.callback = callback;
             Input += Subscript;
-            IOManager.RegistrySubscription<Rosidl.Messages.Geometry.PoseStamped>(topicName, (RosMessageBuffer msg) =>
+            IOManager.RegistrySubscription(topicName, (Rosidl.Messages.Geometry.PoseStamped msg) =>
             {
-                var q = msg.AsRef<Rosidl.Messages.Geometry.PoseStamped.Priv>().Pose.Orientation;
+                var q = msg.Pose.Orientation;
                 double siny_cosp = 2 * (q.W * q.Z + q.X * q.Y);
                 double cosy_cosp = 1 - 2 * (q.Y * q.Y + q.Z * q.Z);
                 var angle = -Math.Atan2(siny_cosp, cosy_cosp);
 
-                receiveDatas.Enqueue((new((float)msg.AsRef<Rosidl.Messages.Geometry.PoseStamped.Priv>().Pose.Position.X, (float)msg.AsRef<Rosidl.Messages.Geometry.PoseStamped.Priv>().Pose.Position.Y), (float)angle));
+                receiveDatas.Enqueue((new((float)msg.Pose.Position.X, (float)msg.Pose.Position.Y), (float)angle));
             });
         }
         public void RegistryPublisher(string topicName)
