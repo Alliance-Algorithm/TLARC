@@ -37,7 +37,7 @@ namespace AllianceDM.StdComponent
             if (type == "pose2d")
                 pose.Subscript(topicName, msg => transform.Set(msg.pos, msg.Theta));
             else if (type == "pose_stampd")
-                poseStampd.Subscript(topicName, msg => transform.Set(msg.pos, msg.Theta));
+                poseStampd.Subscript(topicName, msg => transform.Set(new(-msg.pos.X, msg.pos.Y), msg.Theta));
 
         }
 
