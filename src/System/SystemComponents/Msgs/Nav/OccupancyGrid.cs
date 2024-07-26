@@ -60,15 +60,18 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
                     await timer.WaitOneAsync(false);
                     if (!publishFlag)
                         continue;
-                    nativeMsg.AsRef<Rosidl.Messages.Nav.Path.Priv>().Poses = new(data.Map.Length);
                     var temp_map = new sbyte[data.Map.Length];
                     Buffer.BlockCopy(data.Map, 0, temp_map, 0, temp_map.Length);
                     nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Data.CopyFrom(temp_map);
                     nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Info.Height = (uint)data.Map.GetLength(0);
                     nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Info.Width = (uint)data.Map.GetLength(1);
                     nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Info.Resolution = data.Resolution;
-                    nativeMsg.AsRef<Rosidl.Messages.Nav.Path.Priv>().Header.FrameId.CopyFrom("tlarc");
+                    nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Header.FrameId.CopyFrom("world");
+                    nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Info.Origin.Position.X = 15;
+                    nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Info.Origin.Position.Y = 7.5;
                     publisher.Publish(nativeMsg);
+                    nativeMsg.Dispose();
+                    nativeMsg = publisher.CreateBuffer();
                     publishFlag = false;
                 }
             });

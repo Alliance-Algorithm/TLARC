@@ -75,7 +75,7 @@ class MPCController : Component
         deltaUMax[0, 0] = 2;
         deltaUMax[0, 1] = 0.2;
         _u = calculator.Calculate(a, b, x, xRef, uMin, uMax, deltaUMin, deltaUMax);
-        var vel = new Vector2((float)((_u[0] + targetVel.Length()) * Math.Cos(_u[1] + tempAngle)), (float)((_u[0] + targetVel.Length()) * Math.Sin(_u[1] + tempAngle)));
+        var vel = new Vector2((float)((_u[0] + targetVel.Length()) * Math.Cos(_u[1] + tempAngle - sentry.angle)), (float)((_u[0] + targetVel.Length()) * Math.Sin(_u[1] + tempAngle - sentry.angle)));
         lastAngle = tempAngle;
         velocityPub.Publish((vel, (float)_u[1]));
         _lastPos = sentry.position;

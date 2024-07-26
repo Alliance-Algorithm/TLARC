@@ -79,7 +79,7 @@ public class GlobalESDFMap : Component
                     continue;
                 if (y < 0 || y >= SizeY)
                     continue;
-                if (_dynamicMap[i, j] != 0 && _staticMap.Map[x, y] != 0)
+                if (_dynamicMap[i, j] == 0 && _staticMap.Map[x, y] != 0)
                     continue;
                 _map[x, y] = 0;
                 _obstacles[x, y, 0] = x;
