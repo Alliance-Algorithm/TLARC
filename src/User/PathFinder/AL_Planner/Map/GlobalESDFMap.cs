@@ -73,8 +73,8 @@ public class GlobalESDFMap : Component
             for (int j = 0; j < k; j++)
             {
                 var k_2 = k / 2;
-                var x = (int)Math.Round(-(i - k_2) * sentry_forward.Cos - (j - k_2) * sentry_forward.Sin + offsetX);
-                var y = (int)Math.Round(-(j - k_2) * sentry_forward.Cos + (i - k_2) * sentry_forward.Sin + offsetY);
+                var x = (int)Math.Round((i - k_2) * sentry_forward.Cos - (j - k_2) * sentry_forward.Sin + offsetX);
+                var y = (int)Math.Round((j - k_2) * sentry_forward.Cos + (i - k_2) * sentry_forward.Sin + offsetY);
                 if (x < 0 || x >= SizeX)
                     continue;
                 if (y < 0 || y >= SizeY)
