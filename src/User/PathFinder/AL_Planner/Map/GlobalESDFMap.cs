@@ -11,7 +11,8 @@ public class GlobalESDFMap : Component
 
     public string mapPath;
     public string dynamicMapTopicName = "/map/local_map";
-    public float maxDistance;
+    public float maxDistance = 1;
+    public bool debug = false;
 
     public int SizeX => _staticMap.SizeX;
     public int SizeY => _staticMap.SizeY;
@@ -24,6 +25,7 @@ public class GlobalESDFMap : Component
     private bool[,] _colored;
 
     private OccupancyGrid _dynamicMapReceiver;
+    private OccupancyGrid _esdfPublisher;
 
     public sbyte this[int x, int y]
     {
@@ -48,6 +50,12 @@ public class GlobalESDFMap : Component
         _map = new sbyte[_staticMap.Map.GetLength(0), _staticMap.Map.GetLength(1)];
         _obstacles = new int[_staticMap.Obstacles.GetLength(0), _staticMap.Obstacles.GetLength(1), _staticMap.Obstacles.GetLength(2)];
         _dynamicMap = new sbyte[0, 0];
+
+        if (debug)
+        {
+            _esdfPublisher = new();
+            _esdfPublisher.RegistryPublisher("/tlarc/esdf");
+        }
     }
 
     public override void Update()
@@ -60,17 +68,18 @@ public class GlobalESDFMap : Component
 
         Queue<(int x, int y)> openList = new Queue<(int x, int y)>();
 
-
-        for (int i = 1, k = _dynamicMap.GetLength(0); i <= k; i++)
-            for (int j = 1; j <= k; j++)
+        var sentry_forward = Math.SinCos(sentry.angle);
+        for (int i = 0, k = _dynamicMap.GetLength(0); i < k; i++)
+            for (int j = 0; j < k; j++)
             {
-                var x = -i + offsetX + k / 2;
-                var y = -j + offsetY + k / 2;
+                var k_2 = k / 2;
+                var x = (int)Math.Round(-(i - k_2) * sentry_forward.Cos - (j - k_2) * sentry_forward.Sin + offsetX);
+                var y = (int)Math.Round(-(j - k_2) * sentry_forward.Cos + (i - k_2) * sentry_forward.Sin + offsetY);
                 if (x < 0 || x >= SizeX)
                     continue;
                 if (y < 0 || y >= SizeY)
                     continue;
-                if (_dynamicMap[k - i, k - j] != 0 && _staticMap.Map[x, y] != 0)
+                if (_dynamicMap[i, j] != 0 && _staticMap.Map[x, y] != 0)
                     continue;
                 _map[x, y] = 0;
                 _obstacles[x, y, 0] = x;
@@ -117,5 +126,7 @@ public class GlobalESDFMap : Component
                     openList.Enqueue((ci, cj));
                 }
         }
+        if (debug)
+            _esdfPublisher.Publish((_map, Resolution, (uint)SizeX, (uint)SizeY));
     }
 }

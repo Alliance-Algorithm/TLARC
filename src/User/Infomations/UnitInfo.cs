@@ -14,7 +14,6 @@ class EnemyUnitInfo : Component
     public float[] Hp { get; private set; } = new float[7];
     public float[] EquivalentHp { get; private set; } = new float[7];
     public bool AirSupport { get; private set; } = false;
-    public bool JumpPointDetect { get; private set; } = false;
 
     private IO.ROS2Msgs.Std.Int8 _foundedReceiver;
     private IO.ROS2Msgs.Std.FloatMultiArray _positionReceiver;

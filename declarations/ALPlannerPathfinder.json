@@ -21,7 +21,9 @@
             "assembly": "AllianceDM.ALPlanner",
             "type": "GlobalESDFMap",
             "arg": {
-                "mapPath": "../maps/StaticESDFMap.json"
+                "mapPath": "../maps/StaticESDFMap.json",
+                "dynamicMapTopicName": "/rmcs_map/map/grid",
+                "debug": true
             }
         },
         {
@@ -46,9 +48,7 @@
             },
             "assembly": "AllianceDM.ALPlanner",
             "type": "HybridAStar",
-            "arg": {
-                "mapPath": "../map/staticDijkstraMap.json"
-            }
+            "arg": {}
         },
         {
             "this_id": 105,
