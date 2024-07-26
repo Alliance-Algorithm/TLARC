@@ -69,6 +69,8 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
                     nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Info.Resolution = data.Resolution;
                     nativeMsg.AsRef<Rosidl.Messages.Nav.Path.Priv>().Header.FrameId.CopyFrom("tlarc");
                     publisher.Publish(nativeMsg);
+                    nativeMsg.Dispose();
+                    nativeMsg = publisher.CreateBuffer();
                     publishFlag = false;
                 }
             });

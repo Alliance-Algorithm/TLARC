@@ -37,7 +37,7 @@ namespace AllianceDM.IO.ROS2Msgs.Geometry
                 var q = msg.Pose.Orientation;
                 double siny_cosp = 2 * (q.W * q.Z + q.X * q.Y);
                 double cosy_cosp = 1 - 2 * (q.Y * q.Y + q.Z * q.Z);
-                var angle = -Math.Atan2(siny_cosp, cosy_cosp);
+                var angle = Math.PI + Math.Atan2(siny_cosp, cosy_cosp);
 
                 receiveDatas.Enqueue((new((float)msg.Pose.Position.X, (float)msg.Pose.Position.Y), (float)angle));
             });
