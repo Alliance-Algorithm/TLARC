@@ -5,6 +5,12 @@ using Rcl;
 
 namespace AllianceDM.IO.ROS2Msgs.RmcsMap
 {
+    enum RFID : sbyte
+    {
+        None = 0,
+        Portal = 1,
+        Supply = 2
+    }
     struct RobotStatusInfo(
         int @Hp,
         Vector2 Position
@@ -17,7 +23,10 @@ namespace AllianceDM.IO.ROS2Msgs.RmcsMap
             new(info.Hp, new((float)info.Pose.Y, -(float)info.Pose.X));
     }
     struct GameStatusInfo(
+        int @SentryHp = 0,
         int @Bullet = 0,
+        int @SupplyBullet = 0,
+        RFID @RFID = 0,
         RobotStatusInfo? @EnemiesHero = null,
         RobotStatusInfo? @EnemiesEngineer = null,
         RobotStatusInfo? @EnemiesInfantryIii = null,
@@ -34,7 +43,10 @@ namespace AllianceDM.IO.ROS2Msgs.RmcsMap
         int @FriendsBaseHp = 0
         )
     {
+        public int SentryHp { get; set; } = @SentryHp;
         public int Bullet { get; set; } = @Bullet;
+        public int SupplyBullet { get; set; } = @SupplyBullet;
+        public RFID RFID { get; set; } = @RFID;
         public RobotStatusInfo? EnemiesHero { get; set; } = @EnemiesHero;
         public RobotStatusInfo? EnemiesEngineer { get; set; } = @EnemiesEngineer;
         public RobotStatusInfo? EnemiesInfantryIii { get; set; } = @EnemiesInfantryIii;
@@ -81,7 +93,10 @@ namespace AllianceDM.IO.ROS2Msgs.RmcsMap
             {
                 receiveData.Enqueue(
                     new(
+                        SentryHp: msg.FriendsSentry.Hp,
                         Bullet: msg.Bullet,
+                        SupplyBullet: msg.SupplyBullet,
+                        RFID: (RFID)msg.Rfid,
                         EnemiesHero: msg.EnemiesHero,
                         EnemiesEngineer: msg.EnemiesEngineer,
                         EnemiesInfantryIii: msg.EnemiesInfantryIii,

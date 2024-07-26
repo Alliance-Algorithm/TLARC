@@ -1,6 +1,8 @@
+
 #define humble
 using Rcl;
 
+[assembly: System.Runtime.CompilerServices.DisableRuntimeMarshalling]
 namespace AllianceDM
 {
         internal static class Ros2Def

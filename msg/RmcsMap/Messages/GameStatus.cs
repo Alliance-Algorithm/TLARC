@@ -88,6 +88,12 @@ namespace Rosidl.Messages.RmcsMap
         /// <param name='bullet'>
         /// Originally defined as: <c><![CDATA[int32 bullet]]></c>
         /// </param>
+        /// <param name='supplyBullet'>
+        /// Originally defined as: <c><![CDATA[int32 supply_bullet]]></c>
+        /// </param>
+        /// <param name='rfid'>
+        /// Originally defined as: <c><![CDATA[int8 rfid]]></c>
+        /// </param>
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ros2cs", "1.3.2+da40d8cd913b1d7f1523f4fd2ce6a86ea7d47c2e")]
         public GameStatus(
@@ -107,7 +113,9 @@ namespace Rosidl.Messages.RmcsMap
             int @enemiesOutpostHp = 0,
             int @friendsBaseHp = 0,
             int @enemiesBaseHp = 0,
-            int @bullet = 0
+            int @bullet = 0,
+            int @supplyBullet = 0,
+            sbyte @rfid = 0
         )
         {
             FriendsHero = @friendsHero ?? new global::Rosidl.Messages.RmcsMap.RobotStatus();
@@ -127,6 +135,8 @@ namespace Rosidl.Messages.RmcsMap
             FriendsBaseHp = @friendsBaseHp;
             EnemiesBaseHp = @enemiesBaseHp;
             Bullet = @bullet;
+            SupplyBullet = @supplyBullet;
+            Rfid = @rfid;
         }
         
         
@@ -156,6 +166,8 @@ namespace Rosidl.Messages.RmcsMap
             this.FriendsBaseHp = priv.FriendsBaseHp;
             this.EnemiesBaseHp = priv.EnemiesBaseHp;
             this.Bullet = priv.Bullet;
+            this.SupplyBullet = priv.SupplyBullet;
+            this.Rfid = priv.Rfid;
         }
         
         
@@ -278,6 +290,20 @@ namespace Rosidl.Messages.RmcsMap
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ros2cs", "1.3.2+da40d8cd913b1d7f1523f4fd2ce6a86ea7d47c2e")]
         public int Bullet { get; set; }
         
+        /// <summary>
+        /// Originally defined as: <c><![CDATA[int32 supply_bullet]]></c>
+        /// </summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ros2cs", "1.3.2+da40d8cd913b1d7f1523f4fd2ce6a86ea7d47c2e")]
+        public int SupplyBullet { get; set; }
+        
+        /// <summary>
+        /// Originally defined as: <c><![CDATA[int8 rfid]]></c>
+        /// </summary>
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ros2cs", "1.3.2+da40d8cd913b1d7f1523f4fd2ce6a86ea7d47c2e")]
+        public sbyte Rfid { get; set; }
+        
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ros2cs", "1.3.2+da40d8cd913b1d7f1523f4fd2ce6a86ea7d47c2e")]
         public void WriteTo(nint data, global::System.Text.Encoding textEncoding)
@@ -306,6 +332,8 @@ namespace Rosidl.Messages.RmcsMap
             priv.FriendsBaseHp = this.FriendsBaseHp;
             priv.EnemiesBaseHp = this.EnemiesBaseHp;
             priv.Bullet = this.Bullet;
+            priv.SupplyBullet = this.SupplyBullet;
+            priv.Rfid = this.Rfid;
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -448,6 +476,16 @@ namespace Rosidl.Messages.RmcsMap
             /// </summary>
             public int Bullet;
             
+            /// <summary>
+            /// Originally defined as: <c><![CDATA[int32 supply_bullet]]></c>
+            /// </summary>
+            public int SupplyBullet;
+            
+            /// <summary>
+            /// Originally defined as: <c><![CDATA[int8 rfid]]></c>
+            /// </summary>
+            public sbyte Rfid;
+            
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ros2cs", "1.3.2+da40d8cd913b1d7f1523f4fd2ce6a86ea7d47c2e")]
             public Priv()
@@ -552,6 +590,8 @@ namespace Rosidl.Messages.RmcsMap
                 __hashCode.Add(this.FriendsBaseHp);
                 __hashCode.Add(this.EnemiesBaseHp);
                 __hashCode.Add(this.Bullet);
+                __hashCode.Add(this.SupplyBullet);
+                __hashCode.Add(this.Rfid);
                 return __hashCode.ToHashCode();
             }
             
