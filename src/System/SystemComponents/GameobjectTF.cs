@@ -22,6 +22,7 @@ namespace AllianceDM.StdComponent
         public override void Update()
         {
             _position = receiver.Position;
+            angle = receiver.Angle;
         }
         public void Set(Vector2 position, float angle = 0)
         {
@@ -35,14 +36,15 @@ namespace AllianceDM.StdComponent
         public string topicName;
         public string type = "pose_stamped";
         public Vector2 Position { get; set; } = new();
+        public float Angle { get; set; } = new();
         IO.ROS2Msgs.Geometry.Pose2D pose = new();
         IO.ROS2Msgs.Geometry.PoseStampd poseStampd = new();
         public override void Start()
         {
             if (type == "pose2d")
-                pose.Subscript(topicName, msg => { Position = msg.pos; });
+                pose.Subscript(topicName, msg => { Position = msg.pos; Angle = msg.Theta; });
             else if (type == "pose_stamped")
-                poseStampd.Subscript(topicName, msg => { Position = msg.pos; });
+                poseStampd.Subscript(topicName, msg => { Position = msg.pos; Angle = msg.Theta; });
 
         }
 
