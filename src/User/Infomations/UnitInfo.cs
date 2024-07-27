@@ -4,14 +4,14 @@ namespace AllianceDM.PreInfo;
 
 class EnemyUnitInfo : Component
 {
-    // public string positionTopicName = "/unit_info/enemy/position";
-    // public string hpTopicName = "/unit_info/enemy/hp";
-    // public string foundedTopicName = "/unit_info/enemy/founded";
+    public string positionTopicName = "/unit_info/enemy/position";
+    public string hpTopicName = "/unit_info/enemy/hp";
+    public string foundedTopicName = "/unit_info/enemy/founded";
 
-    public bool[] Found => communicators.Found;
-    public Vector2[] Position => communicators.Position;
+    public bool[] Found { get; private set; }
+    public Vector2[] Position { get; private set; }
     public int Locked { get; private set; } = -1;
-    public float[] Hp => communicators.EnemyHp;
+    public float[] Hp { get; private set; }
     public float[] _lastHp = new float[7];
     public float[] EquivalentHp { get; private set; } = new float[7];
     public bool AirSupport { get; private set; } = false;
@@ -20,28 +20,29 @@ class EnemyUnitInfo : Component
 
     private float _lastSentryHp = 400;
 
-    InformationCommunicators communicators;
+    private float SentryHp { get; set; } = 400;
 
-    // private IO.ROS2Msgs.Std.Int8 _foundedReceiver;
-    // private IO.ROS2Msgs.Std.FloatMultiArray _positionReceiver;
-    // private IO.ROS2Msgs.Std.FloatMultiArray _hpReceiver;
+
+    private IO.ROS2Msgs.Std.Int8 _foundedReceiver;
+    private IO.ROS2Msgs.Std.FloatMultiArray _positionReceiver;
+    private IO.ROS2Msgs.Std.FloatMultiArray _hpReceiver;
 
     public override void Start()
     {
-        // _foundedReceiver = new();
-        // _foundedReceiver.Subscript(foundedTopicName, msg =>
-        // {
-        //     for (int i = 0; i < 7; i++)
-        //         Found[i] = ((msg >> i) & 0x1) == 1;
-        // });
-        // _positionReceiver = new();
-        // _positionReceiver.Subscript(positionTopicName, msg =>
-        // {
-        //     for (int i = 0; i < 7; i++)
-        //         Position[i] = new(msg[i], msg[i + 7]);
-        // });
-        // _hpReceiver = new();
-        // _hpReceiver.Subscript(hpTopicName, msg => Hp = msg);
+        _foundedReceiver = new();
+        _foundedReceiver.Subscript(foundedTopicName, msg =>
+        {
+            for (int i = 0; i < 7; i++)
+                Found[i] = ((msg >> i) & 0x1) == 1;
+        });
+        _positionReceiver = new();
+        _positionReceiver.Subscript(positionTopicName, msg =>
+        {
+            for (int i = 0; i < 7; i++)
+                Position[i] = new(msg[i], msg[i + 7]);
+        });
+        _hpReceiver = new();
+        _hpReceiver.Subscript(hpTopicName, msg => Hp = msg);
     }
     private static bool CheckPosition(Vector2 position)
     {
@@ -56,13 +57,13 @@ class EnemyUnitInfo : Component
         {
             if ((DateTime.Now.Ticks - _airSupportTimeTick) / 1e7f > 30)
                 AirSupport = false;
-            if (communicators.SentryHp == _lastSentryHp) break;
+            if (SentryHp == _lastSentryHp) break;
             if (AirSupport == true)
                 break;
             int i = 0;
             for (i = 0; i < 7; i++)
             {
-                if (!communicators.Found[i])
+                if (!Found[i])
                     continue;
                 if (!CheckPosition(Position[i]))
                     continue;
@@ -91,7 +92,7 @@ class EnemyUnitInfo : Component
                 EquivalentHp[1] = float.PositiveInfinity;
         } while (false);
 
-        _lastSentryHp = communicators.SentryHp;
+        _lastSentryHp = SentryHp;
         Hp.CopyTo(_lastHp, 0);
     }
 }
