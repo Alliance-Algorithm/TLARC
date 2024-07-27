@@ -8,10 +8,10 @@ class EnemyUnitInfo : Component
     public string hpTopicName = "/unit_info/enemy/hp";
     public string foundedTopicName = "/unit_info/enemy/founded";
 
-    public bool[] Found { get; private set; }
-    public Vector2[] Position { get; private set; }
+    public bool[] Found { get; private set; } = new bool[7];
+    public Vector2[] Position { get; private set; } = new Vector2[7];
     public int Locked { get; private set; } = -1;
-    public float[] Hp { get; private set; }
+    public float[] Hp { get; private set; } = new float[7];
     public float[] _lastHp = new float[7];
     public float[] EquivalentHp { get; private set; } = new float[7];
     public bool AirSupport { get; private set; } = false;
@@ -42,7 +42,7 @@ class EnemyUnitInfo : Component
                 Position[i] = new(msg[i], msg[i + 7]);
         });
         _hpReceiver = new();
-        _hpReceiver.Subscript(hpTopicName, msg => Hp = msg);
+        _hpReceiver.Subscript(hpTopicName, msg => { if (msg != null) Hp = msg; });
     }
     private static bool CheckPosition(Vector2 position)
     {
