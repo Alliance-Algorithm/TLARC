@@ -7,7 +7,7 @@ class EnemyUnitInfo : Component
     public string positionTopicName = "/unit_info/enemy/position";
     public string hpTopicName = "/unit_info/enemy/hp";
     public string foundedTopicName = "/unit_info/enemy/founded";
-
+    DecisionMakingInfo info;
     public bool[] Found { get; private set; } = new bool[7];
     public Vector2[] Position { get; private set; } = new Vector2[7];
     public int Locked { get; private set; } = -1;
@@ -20,7 +20,7 @@ class EnemyUnitInfo : Component
 
     private float _lastSentryHp = 400;
 
-    private float SentryHp { get; set; } = 400;
+    private float _sentryHp => info.SentryHp;
 
 
     private IO.ROS2Msgs.Std.Int8 _foundedReceiver;
@@ -57,7 +57,7 @@ class EnemyUnitInfo : Component
         {
             if ((DateTime.Now.Ticks - _airSupportTimeTick) / 1e7f > 30)
                 AirSupport = false;
-            if (SentryHp == _lastSentryHp) break;
+            if (_sentryHp == _lastSentryHp) break;
             if (AirSupport == true)
                 break;
             int i = 0;
@@ -92,7 +92,7 @@ class EnemyUnitInfo : Component
                 EquivalentHp[1] = float.PositiveInfinity;
         } while (false);
 
-        _lastSentryHp = SentryHp;
+        _lastSentryHp = _sentryHp;
         Hp.CopyTo(_lastHp, 0);
     }
 }

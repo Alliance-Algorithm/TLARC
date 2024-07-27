@@ -15,15 +15,15 @@ namespace AllianceDM.PreInfo
         public string sentrySupplyRFIDTopicName = "/referee/sentry/rfid/supply";
 
 
-        public float SentryHp { get; private set; }
-        public int BulletCount { get; private set; }
-        public int BulletSupplyCount { get; private set; }
+        public float SentryHp { get; private set; } = SentylHPLimit;
+        public int BulletCount { get; private set; } = 400;
+        public int BulletSupplyCount { get; private set; } = 0;
         public float DefenseBuff { get; private set; } = 0.6f;
-        public float FriendOutPostHp { get; private set; }
+        public float FriendOutPostHp { get; private set; } = OutpostHPLimit;
         public float BaseArmorOpeningCountdown { get; private set; } = 40;
-        public bool SupplyRFID { get; private set; }
-        public bool PatrolRFID { get; private set; }
-        public const float SentinelHPLimit = 400;
+        public bool SupplyRFID { get; private set; } = false;
+        public bool PatrolRFID { get; private set; } = true;
+        public const float SentylHPLimit = 400;
         public const float OutpostHPLimit = 1500;
         private long _tick = DateTime.Now.Ticks;
 

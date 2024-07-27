@@ -27,7 +27,7 @@ class SupplyState(float minOutpostHpLimitToReturn) : IStateObject
         }
         // this -> LastState
         if (Info.SupplyRFID)
-            if (Info.SentryHp >= DecisionMakingInfo.SentinelHPLimit - 20)
+            if (Info.SentryHp >= DecisionMakingInfo.SentylHPLimit - 20)
             {
                 state = Info.FriendOutPostHp >= MinOutpostHpLimitToReturn
                 ? AggressionState : DefensiveState;

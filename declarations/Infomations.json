@@ -9,7 +9,9 @@
         },
         {
             "this_id": 302,
-            "input_id": {},
+            "input_id": {
+                "info": 301
+            },
             "assembly": "AllianceDM.PreInfo",
             "type": "EnemyUnitInfo",
             "arg": {}

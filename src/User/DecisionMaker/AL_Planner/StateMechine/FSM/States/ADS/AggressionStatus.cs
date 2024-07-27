@@ -30,7 +30,7 @@ class AggressionState(float minOutpostHpLimitToReturn) : IStateObject
         if (DecisionMakingInfo.BulletCount == 0 ||
         (UnitInfo.EquivalentHp[(int)RobotType.Hero] == float.PositiveInfinity
         && UnitInfo.EquivalentHp[(int)RobotType.Engineer] == float.PositiveInfinity))
-            if (DecisionMakingInfo.SentryHp < DecisionMakingInfo.SentinelHPLimit || DecisionMakingInfo.BulletSupplyCount == 0)
+            if (DecisionMakingInfo.SentryHp < DecisionMakingInfo.SentylHPLimit || DecisionMakingInfo.BulletSupplyCount == 0)
             {
                 return false;
             }

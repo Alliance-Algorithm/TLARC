@@ -7,7 +7,7 @@ class ALPlannerDecisionMaker : Component
     public Vector2 TargetPosition => FSM.TargetPosition;
     public string firePermitTopicName = "/sentry/fire_permit";
     public string lockPermitTopicName = "/sentry/lock_permit";
-    public string gimbalAngleTopicName = "/sentry/gimbal/angle";
+    public string gimbalAngleTopicName = "/sentry/control/angle";
     public string targetTopicName = "/sentry/target";
 
     ADS_FSM FSM;
