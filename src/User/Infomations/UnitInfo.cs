@@ -11,8 +11,8 @@ class EnemyUnitInfo : Component
     public bool[] Found { get; private set; } = new bool[7];
     public Vector2[] Position { get; private set; } = new Vector2[7];
     public int Locked { get; private set; } = -1;
-    public float[] Hp { get; private set; } = new float[7];
-    public float[] _lastHp = new float[7];
+    public float[] Hp { get; private set; } = [100, 100, 100, 100, 100, 100, 100];
+    public float[] _lastHp = [100, 100, 100, 100, 100, 100, 100];
     public float[] EquivalentHp { get; private set; } = new float[7];
     public bool AirSupport { get; private set; } = false;
     private long _airSupportTimeTick = DateTime.Now.Ticks;
@@ -84,6 +84,7 @@ class EnemyUnitInfo : Component
                 if (_lastHp[i] == 0 && Hp[i] != 0)
                     _responseTime[i] = DateTime.Now.Ticks;
 
+                EquivalentHp[i] = Hp[i];
                 if (Hp[i] == 0 || (DateTime.Now.Ticks - _responseTime[i]) / 1e7f < 10)
                     EquivalentHp[i] = float.PositiveInfinity;
 
