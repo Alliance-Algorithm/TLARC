@@ -89,16 +89,16 @@ class ALPathFinder : Component
             (_timeTicksTarget - _timeTicks) / 1e7f, costMap, sentry.position);
         if (!isSafe)
             Build();
-        else if ((sentry.position - target).Length() < 0.1)
+        else if ((sentry.position - target).Length() < 0.5)
         {
-            _timeTicksTarget += (long)5e6f;
+            _timeTicksTarget += (long)1e6f;
         }
     }
 
     private void Build()
     {
         _timeTicks = DateTime.Now.Ticks;
-        _timeTicksTarget = _timeTicks + (long)5e6;
+        _timeTicksTarget = _timeTicks + (long)1e6;
         nonUniformBSpline.ParametersToControlPoints([.. hybridAStar.Path.SkipLast(1), .. dijkstra.Path.Skip(hybridAStar.Path.Count > 1 ? 1 : 0)], [_beginSpeed, new(0, 0)]);
         nonUniformBSpline.BuildTimeLine(timeInterval);
         var controlMatrix = nonUniformBSpline._controlPoints;

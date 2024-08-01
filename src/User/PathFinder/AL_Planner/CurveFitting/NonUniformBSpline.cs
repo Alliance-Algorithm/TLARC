@@ -143,7 +143,7 @@ public class NonUniformBSpline(float limitVelocity, float limitAccelerate, float
         while (_t[k + 1] < t) k++;
         var u = (t - _t[k]) / (_t[k + 1] - _t[k]);
         var save = CalcPosition(u, k);
-        if ((sentryPosition - save).Length() > 3)
+        if ((sentryPosition - save).Length() > 1)
             return (new(), false);
         for (t += 0.1f; t < _t[k + 1]; t += 0.1f)
         {
