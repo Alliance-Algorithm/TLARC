@@ -13,7 +13,7 @@ class MPCController : Component
     AllianceDM.IO.ROS2Msgs.Geometry.Pose2D velocityPub;
     private double lastAngle = 0;
     private double lastKesiAngle = 0;
-    private float t = 0.1f;
+    private float t = 0.05f;
     private float l = 0.15f;
     MPCCalculator calculator;
 
@@ -28,13 +28,13 @@ class MPCController : Component
 
     override public void Update()
     {
-        var targetPos = pathFinder.TargetPosition(1f);
+        var targetPos = pathFinder.TargetPosition;
         if (targetPos == sentry.position)
         {
             calculator.Reset();
         }
-        var targetVel = pathFinder.TargetVelocity(1f);
-        var kesi = pathFinder.TargetKesi(1f, t);
+        var targetVel = pathFinder.TargetVelocity;
+        var kesi = pathFinder.TargetKesi(t);
 
         var a = new DenseMatrix(3, 3);
         var b = new DenseMatrix(3, 2);
@@ -74,10 +74,11 @@ class MPCController : Component
         deltaUMin[0, 1] = -0.2;
         deltaUMax[0, 0] = 2;
         deltaUMax[0, 1] = 0.2;
-        _u = calculator.Calculate(a, b, x, xRef, uMin, uMax, deltaUMin, deltaUMax);
-        var vel = new Vector2((float)((_u[0] + targetVel.Length()) * Math.Cos(_u[1] + tempAngle - sentry.angle)), (float)((_u[0] + targetVel.Length()) * Math.Sin(_u[1] + tempAngle - sentry.angle)));
+        // _u = calculator.Calculate(a, b, x, xRef, uMin, uMax, deltaUMin, deltaUMax);
+        // var vel = new Vector2((float)((_u[0] + targetVel.Length()) * Math.Cos(_u[1] + tempAngle - sentry.angle)), (float)((_u[0] + targetVel.Length()) * Math.Sin(_u[1] + tempAngle - sentry.angle)));
+        var vel = (targetPos - sentry.position) / 0.1f;
         lastAngle = tempAngle;
-        velocityPub.Publish((vel, (float)_u[1]));
+        velocityPub.Publish((vel / vel.Length() * Math.Clamp(vel.Length(), 0, 5), (float)_u[1]));
         _lastPos = sentry.position;
     }
 
