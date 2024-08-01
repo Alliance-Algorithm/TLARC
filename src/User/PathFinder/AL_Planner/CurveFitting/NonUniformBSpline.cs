@@ -134,26 +134,26 @@ public class NonUniformBSpline(float limitVelocity, float limitAccelerate, float
         _t = (DenseVector)(A * _timeControlPoints).Transpose().Row(0);
     }
 
-    public (int, bool) Check(float t, GlobalESDFMap costMap, Vector2 position)
+    public (Vector2, bool) Check(float t, GlobalESDFMap costMap, Vector2 sentryPosition)
     {
         if (_t.Count <= 1)
-            return (0, true);
+            return (sentryPosition, true);
         t = Math.Min(Math.Max(t, _t[0]), _t[n_ - 1]);
         int k = 0;
         while (_t[k + 1] < t) k++;
         var u = (t - _t[k]) / (_t[k + 1] - _t[k]);
-        var temp = CalcPosition(u, k);
-        if ((temp - position).Length() > 4f)
-            return (k, false);
+        var save = CalcPosition(u, k);
+        if ((sentryPosition - save).Length() > 3)
+            return (new(), false);
         for (t += 0.1f; t < _t[k + 1]; t += 0.1f)
         {
             u = (t - _t[k]) / (_t[k + 1] - _t[k]);
-            temp = CalcPosition(u, k);
+            var temp = CalcPosition(u, k);
             var t2 = costMap.Vector2ToXY(temp);
             if (costMap[t2.x, t2.y] <= 0)
-                return (k, false);
+                return (sentryPosition, false);
         }
-        return (k, true);
+        return (save, true);
     }
     public List<Vector3> GetPath()
     {

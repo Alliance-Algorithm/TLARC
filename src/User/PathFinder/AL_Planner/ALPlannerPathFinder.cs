@@ -39,23 +39,26 @@ class ALPathFinder : Component
     private IO.ROS2Msgs.Nav.Path _pathPublisher;
     private IO.ROS2Msgs.Nav.Path _bSplinePublisher;
 
-    public Vector3 TargetVelocity(float t) => nonUniformBSpline.GetVelocity((DateTime.Now.Ticks - _timeTicks) / 1e7f + t);
-    public Vector3 TargetAccelerate(float t) => nonUniformBSpline.GetAcceleration((DateTime.Now.Ticks - _timeTicks) / 1e7f + t);
-    public Vector2 TargetPosition(float t)
+    public Vector3 TargetVelocity => nonUniformBSpline.GetVelocity((_timeTicksTarget - _timeTicks) / 1e7f);
+    public Vector3 TargetAccelerate => nonUniformBSpline.GetAcceleration((_timeTicksTarget - _timeTicks) / 1e7f);
+    public Vector2 TargetPosition
     {
-        var pos = nonUniformBSpline.GetPosition((DateTime.Now.Ticks - _timeTicks) / 1e7f + t);
-        return float.IsNaN(pos.X) ? sentry.position : pos;
+        get
+        {
+            var pos = nonUniformBSpline.GetPosition((_timeTicksTarget - _timeTicks) / 1e7f);
+            return float.IsNaN(pos.X) ? sentry.position : pos;
+        }
     }
-    public double TargetKesi(float t, float deltaT)
+    public double TargetKesi(float deltaT)
     {
-        var tmp = TargetVelocity(t);
-        var tmp2 = nonUniformBSpline.GetVelocity((DateTime.Now.Ticks - _timeTicks) / 1e7f + t + deltaT);
+        var tmp = TargetVelocity;
+        var tmp2 = nonUniformBSpline.GetVelocity((_timeTicksTarget - _timeTicks) / 1e7f + deltaT);
         var cos_kesi = Vector3.Dot(tmp, tmp2) / tmp.Length() / tmp2.Length();
         return Math.Acos(cos_kesi) * Math.Sign(Vector3.Cross(tmp, tmp2).Z);
     }
 
 
-    private long _timeTicks;
+    private long _timeTicks, _timeTicksTarget;
 
     public override void Start()
     {
@@ -82,16 +85,20 @@ class ALPathFinder : Component
             return;
         }
 
-        var (id, isSafe) = nonUniformBSpline.Check(
-            (DateTime.Now.Ticks - _timeTicks) / 1e7f, costMap, sentry.position);
-
+        var (target, isSafe) = nonUniformBSpline.Check(
+            (_timeTicksTarget - _timeTicks) / 1e7f, costMap, sentry.position);
         if (!isSafe)
             Build();
+        else if ((sentry.position - target).Length() < 0.1)
+        {
+            _timeTicksTarget += (long)5e6f;
+        }
     }
 
     private void Build()
     {
         _timeTicks = DateTime.Now.Ticks;
+        _timeTicksTarget = _timeTicks + (long)5e6;
         nonUniformBSpline.ParametersToControlPoints([.. hybridAStar.Path.SkipLast(1), .. dijkstra.Path.Skip(hybridAStar.Path.Count > 1 ? 1 : 0)], [_beginSpeed, new(0, 0)]);
         nonUniformBSpline.BuildTimeLine(timeInterval);
         var controlMatrix = nonUniformBSpline._controlPoints;

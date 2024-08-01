@@ -38,7 +38,7 @@ class Portal : IStateObject
             TargetPosition = positions_[iterator_];
         }
 
-        if (JumperAgent.Detected || HeroAgent.Position.X < 0)
+        if (JumperAgent.Detected || (HeroAgent.Position.X < 0 && HeroAgent.EquivalentHp < 1000))
             state = GreatWallWatcher;
         else if (UVAAgent.AirSupport)
             state = Hider;
