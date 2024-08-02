@@ -93,6 +93,7 @@ class ALPathFinder : Component
         {
             _timeTicksTarget += (long)1e6f;
         }
+        else { _timeTicksTarget += (long)2e5f; }
     }
 
     private void Build()
