@@ -78,7 +78,7 @@ class MPCController : Component
         // var vel = new Vector2((float)((_u[0] + targetVel.Length()) * Math.Cos(_u[1] + tempAngle - sentry.angle)), (float)((_u[0] + targetVel.Length()) * Math.Sin(_u[1] + tempAngle - sentry.angle)));
         var vel = (targetPos - sentry.position) / 0.1f;
         // lastAngle = tempAngle;
-        vel = vel / vel.Length() * Math.Clamp(vel.Length(),5,0);
+        vel = vel / vel.Length() * Math.Clamp(vel.Length(),0,5);
         tempAngle =  Math.Atan2(vel.Y,vel.X);
 
         velocityPub.Publish((new((float)(( vel.Length()) * Math.Cos( tempAngle + sentry.angle)), (float)(( targetVel.Length()) * Math.Sin( tempAngle + sentry.angle))), (float)_u[1]));
