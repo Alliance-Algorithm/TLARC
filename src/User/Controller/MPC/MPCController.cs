@@ -1,4 +1,5 @@
 using System.Numerics;
+using AllianceDM.PreInfo;
 using AllianceDM.StdComponent;
 using MathNet.Numerics.LinearAlgebra.Double;
 
@@ -7,10 +8,12 @@ namespace AllianceDM.Controller.MPC;
 class MPCController : Component
 {
     private ALPlanner.ALPathFinder pathFinder;
+    private DecisionMakingInfo info;
     private Transform2D sentry;
     private Vector2 _lastPos;
     private DenseVector _u;
     AllianceDM.IO.ROS2Msgs.Geometry.Pose2D velocityPub;
+    AllianceDM.IO.ROS2Msgs.Std.Bool spinningPub;
     private double lastAngle = 0;
     private double lastKesiAngle = 0;
     private float t = 0.05f;
@@ -23,7 +26,9 @@ class MPCController : Component
         calculator.Init();
         _u = new DenseVector(2);
         velocityPub = new();
+        spinningPub = new();
         velocityPub.RegistryPublisher("/sentry/control/velocity");
+        spinningPub.RegistryPublisher("/sentry/control/spinning");
     }
 
     override public void Update()
@@ -78,11 +83,15 @@ class MPCController : Component
         // var vel = new Vector2((float)((_u[0] + targetVel.Length()) * Math.Cos(_u[1] + tempAngle - sentry.angle)), (float)((_u[0] + targetVel.Length()) * Math.Sin(_u[1] + tempAngle - sentry.angle)));
         var vel = (targetPos - sentry.position) / 0.1f;
         // lastAngle = tempAngle;
-        vel = vel / vel.Length() * Math.Clamp(vel.Length(),0,5);
-        tempAngle =  Math.Atan2(vel.Y,vel.X);
+        vel = vel / vel.Length() * Math.Clamp(vel.Length(), 0, 5);
+        tempAngle = Math.Atan2(vel.Y, vel.X);
 
-        velocityPub.Publish((new((float)(( vel.Length()) * Math.Cos( tempAngle + sentry.angle)), (float)(( targetVel.Length()) * Math.Sin( tempAngle + sentry.angle))), (float)_u[1]));
+
+        velocityPub.Publish((new((float)((vel.Length()) * Math.Cos(tempAngle + sentry.angle)), (float)((targetVel.Length()) * Math.Sin(tempAngle + sentry.angle))), (float)_u[1]));
         _lastPos = sentry.position;
+        spinningPub.Publish(sentry.position.X < 0 && info.FriendOutPostHp <= 0);
+
+
     }
 
 }
