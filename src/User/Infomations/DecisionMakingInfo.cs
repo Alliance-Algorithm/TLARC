@@ -12,7 +12,8 @@ namespace AllianceDM.PreInfo
         public string sentryHpTopicName = "/referee/sentry/hp";
         public string sentryBulletCountTopicName = "/referee/sentry/bullet_count";
         public string supportBulletCountTopicName = "/referee/sentry/support_bullet_count";
-        public string sentrySupplyRFIDTopicName = "/referee/sentry/rfid/supply";
+        public string RFIDTopicName = "/referee/rfid";
+        public string gameStartTopicName = "/referee/game/start";
 
 
         public float SentryHp { get; private set; } = SentylHPLimit;
@@ -26,13 +27,15 @@ namespace AllianceDM.PreInfo
         public const float SentylHPLimit = 400;
         public const float OutpostHPLimit = 1500;
         private long _tick = DateTime.Now.Ticks;
+        private long _gamestart_time = DateTime.Now.Ticks;
 
 
         IO.ROS2Msgs.Std.Int32 friendOutPostHp;
         IO.ROS2Msgs.Std.Int32 sentryHp;
         IO.ROS2Msgs.Std.Int32 sentryBulletCount;
-        IO.ROS2Msgs.Std.Int32 supportBulletCount;
-        IO.ROS2Msgs.Std.Bool sentrySupplyRFID;
+        // IO.ROS2Msgs.Std.Int32 supportBulletCount;
+        IO.ROS2Msgs.Std.Int32 RFID;
+        IO.ROS2Msgs.Std.Bool gameStart;
 
         public override void Start()
         {
@@ -40,16 +43,19 @@ namespace AllianceDM.PreInfo
             friendOutPostHp = new();
             sentryHp = new();
             sentryBulletCount = new();
-            supportBulletCount = new();
-            sentrySupplyRFID = new();
+            // supportBulletCount = new();
+            RFID = new();
+            gameStart = new();
+
             friendOutPostHp.Subscript(friendOutPostHpTopicName, (int msg) => { FriendOutPostHp = msg; });
             sentryHp.Subscript(sentryHpTopicName, (int msg) => { SentryHp = msg; });
             sentryBulletCount.Subscript(sentryBulletCountTopicName, (int msg) =>
             {
                 BulletCount = msg;
             });
-            supportBulletCount.Subscript(supportBulletCountTopicName, (int msg) => { BulletSupplyCount = msg; });
-            sentrySupplyRFID.Subscript(sentrySupplyRFIDTopicName, msg => { SupplyRFID = msg; });
+            // supportBulletCount.Subscript(supportBulletCountTopicName, msg => { SupplyRFID = (msg &= (1 << 13) != 0); });
+            RFID.Subscript(RFIDTopicName, msg => { BulletSupplyCount = 0; });
+            gameStart.Subscript(gameStartTopicName, _ => { _gamestart_time = DateTime.Now.Ticks; BulletSupplyCount = 0; });
         }
 
         public override void Update()
@@ -61,6 +67,10 @@ namespace AllianceDM.PreInfo
                 BaseArmorOpeningCountdown -= (DateTime.Now.Ticks - _tick) / 1e7f;
             }
             _tick = DateTime.Now.Ticks;
+            if ((DateTime.Now.Ticks - _tick) / 1e7f >= 60)
+                BulletSupplyCount += 100;
+            if (SupplyRFID)
+                BulletSupplyCount = 0;
         }
 
         // Compatible with old versions
