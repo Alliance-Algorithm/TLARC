@@ -6,7 +6,6 @@ class EnemyUnitInfo : Component
 {
     public string positionTopicName = "/unit_info/enemy/position";
     public string hpTopicName = "/unit_info/enemy/hp";
-    public string foundedTopicName = "/unit_info/enemy/founded";
     DecisionMakingInfo info;
     public bool[] Found { get; private set; } = new bool[7];
     public Vector2[] Position { get; private set; } = new Vector2[7];
@@ -22,24 +21,24 @@ class EnemyUnitInfo : Component
 
     private float _sentryHp => info.SentryHp;
 
-
-    private IO.ROS2Msgs.Std.Int8 _foundedReceiver;
     private IO.ROS2Msgs.Std.FloatMultiArray _positionReceiver;
     private IO.ROS2Msgs.Std.FloatMultiArray _hpReceiver;
 
     public override void Start()
     {
-        _foundedReceiver = new();
-        _foundedReceiver.Subscript(foundedTopicName, msg =>
-        {
-            for (int i = 0; i < 7; i++)
-                Found[i] = ((msg >> i) & 0x1) == 1;
-        });
+
         _positionReceiver = new();
         _positionReceiver.Subscript(positionTopicName, msg =>
         {
             for (int i = 0; i < 7; i++)
-                Position[i] = new(msg[i], msg[i + 7]);
+            {
+                if (msg[i] != -114514)
+                {
+                    Found[i] = true;
+                    Position[i] = new(msg[i], msg[i + 7]);
+                }
+                else Found[i] = false;
+            }
         });
         _hpReceiver = new();
         _hpReceiver.Subscript(hpTopicName, msg => { if (msg != null) Hp = msg; });
@@ -88,8 +87,11 @@ class EnemyUnitInfo : Component
                 if (Hp[i] == 0 || (DateTime.Now.Ticks - _responseTime[i]) / 1e7f < 10)
                     EquivalentHp[i] = float.PositiveInfinity;
 
+                if (EquivalentHp[i] > 1e5)
+                    EquivalentHp[i] = float.PositiveInfinity;
+
             }
-            if (Position[1].X > 11 && Position[1].Y > 3)
+            if (Position[1].X > 10.5 && Position[1].Y > 2.5)
                 EquivalentHp[1] = float.PositiveInfinity;
         } while (false);
 

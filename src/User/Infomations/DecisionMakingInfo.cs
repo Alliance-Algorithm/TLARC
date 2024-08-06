@@ -15,7 +15,6 @@ namespace AllianceDM.PreInfo
         public string RFIDTopicName = "/referee/rfid";
         public string gameStartTopicName = "/referee/game/start";
 
-
         public float SentryHp { get; private set; } = SentylHPLimit;
         public int BulletCount { get; private set; } = 400;
         public int BulletSupplyCount { get; private set; } = 0;
@@ -49,13 +48,12 @@ namespace AllianceDM.PreInfo
 
             friendOutPostHp.Subscript(friendOutPostHpTopicName, (int msg) => { FriendOutPostHp = msg; });
             sentryHp.Subscript(sentryHpTopicName, (int msg) => { SentryHp = msg; });
-            sentryBulletCount.Subscript(sentryBulletCountTopicName, (int msg) =>
-            {
-                BulletCount = msg;
-            });
+            sentryBulletCount.Subscript(sentryBulletCountTopicName, (int msg) => { BulletCount = msg; });
             // supportBulletCount.Subscript(supportBulletCountTopicName, msg => { SupplyRFID = (msg &= (1 << 13) != 0); });
-            RFID.Subscript(RFIDTopicName, msg => { SupplyRFID = ((msg & (1 << 13) )!= 0);PatrolRFID= ((msg & (1 << 14) )!= 0);;BulletSupplyCount = 0; });
+            RFID.Subscript(RFIDTopicName, msg => { SupplyRFID = ((msg & (1 << 13)) != 0); PatrolRFID = ((msg & (1 << 14)) != 0); ; BulletSupplyCount = 0; });
             gameStart.Subscript(gameStartTopicName, _ => { _gamestart_time = DateTime.Now.Ticks; BulletSupplyCount = 0; });
+
+            _tick = DateTime.Now.Ticks;
         }
 
         public override void Update()
@@ -71,6 +69,8 @@ namespace AllianceDM.PreInfo
                 BulletSupplyCount += 100;
             if (SupplyRFID)
                 BulletSupplyCount = 0;
+
+
         }
 
         // Compatible with old versions

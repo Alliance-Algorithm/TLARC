@@ -6,7 +6,8 @@ namespace AllianceDM.ALPlanner;
 class AggressionState(float minOutpostHpLimitToReturn) : IStateObject
 {
     public bool FirePermit => AggressionMachine.FirePermit;
-    public bool[] LockPermit => AggressionMachine.LockPermit;
+    public bool[] LockPermit => _lockPermit;
+    private bool[] _lockPermit;
     public Vector2 GimbalAngle => AggressionMachine.GimbalAngle;
     public Vector2 TargetPosition => AggressionMachine.TargetPosition;
     public required IStateMachine AggressionMachine { get; init; }
@@ -19,6 +20,8 @@ class AggressionState(float minOutpostHpLimitToReturn) : IStateObject
 
     public bool Update(ref IStateObject state, float timeCoefficient = float.NaN)
     {
+        _lockPermit = AggressionMachine.LockPermit;
+        _lockPermit[5] = float.IsInfinity(UnitInfo.Hp[5]);
         // this -> defensive
         if (DecisionMakingInfo.FriendOutPostHp <= MinOutpostHpLimitToReturn)
         {
