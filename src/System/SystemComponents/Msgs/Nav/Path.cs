@@ -11,7 +11,7 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
         System.Numerics.Vector3[] data;
         Action<System.Numerics.Vector3[]> callback;
 
-        static protected bool publishFlag = false;
+        private bool publishFlag;
 
         IRclPublisher<Rosidl.Messages.Nav.Path> publisher;
         ConcurrentQueue<System.Numerics.Vector3[]> receiveDatas = new();
@@ -22,13 +22,12 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
             if (receiveDatas.Count == 0)
                 return;
             while (receiveDatas.Count > 1) receiveDatas.TryDequeue(out _);
-            callback(data);
+            callback(receiveDatas.Last());
         }
         void Publish()
         {
             if (publisher == null)
                 return;
-            publisher.Publish(nativeMsg);
             publishFlag = true;
         }
         public void Subscript(string topicName, Action<System.Numerics.Vector3[]> callback)
@@ -39,7 +38,7 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
             {
 
                 var k = msg.Poses;
-                data = new System.Numerics.Vector3[k.Length];
+                var data = new System.Numerics.Vector3[k.Length];
                 for (int i = 0; i < k.Length; i++)
                 {
                     data[i] = new System.Numerics.Vector3((float)k[i].Pose.Position.X, (float)k[i].Pose.Position.Y, (float)k[i].Pose.Position.Z);
@@ -61,14 +60,16 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
                     if (!publishFlag)
                         continue;
                     nativeMsg.AsRef<Rosidl.Messages.Nav.Path.Priv>().Poses = new(data.Length);
+                    nativeMsg.AsRef<Rosidl.Messages.Nav.Path.Priv>().Header.FrameId.CopyFrom("tlarc");
                     for (int i = 0; i < data.Length; i++)
                     {
                         var l = new PoseStamped.Priv();
-                        l.Pose.Position.X = data[i].X;
-                        l.Pose.Position.Y = data[i].Y;
+                        l.Pose.Position.X = -7.5 - data[i].X;
+                        l.Pose.Position.Y = -data[i].Y;
                         l.Pose.Position.Z = data[i].Z;
+                        l.Pose.Orientation.W = 1;
+                        l.Header.FrameId.CopyFrom("tlarc");
                         nativeMsg.AsRef<Rosidl.Messages.Nav.Path.Priv>().Poses.AsSpan()[i] = l;
-                        nativeMsg.AsRef<Rosidl.Messages.Nav.Path.Priv>().Header.FrameId.CopyFrom("tlarc");
                     }
                     publisher.Publish(nativeMsg);
                     publishFlag = false;

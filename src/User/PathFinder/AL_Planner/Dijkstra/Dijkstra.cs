@@ -21,6 +21,8 @@ class Dijkstra : Component
     private DijkstraMap _pathMap;
     private float[,] _map;
 
+    private int lastFrom = -1;
+
 
     public override void Start()
     {
@@ -40,7 +42,13 @@ class Dijkstra : Component
         Buffer.BlockCopy(_pathMap.Map, 0, _map, 0, _pathMap.Map.Length * sizeof(float));
         var tempMap = new float[k];
         var (x, y) = costMap.Vector2ToXY(sentry.position);
+        if (x < 0 || x > _pathMap.Voronoi.GetLength(0) || y < 0 || y > _pathMap.Voronoi.GetLength(1))
+            return;
         int From = _pathMap.Voronoi[x, y];
+        if (costMap[x, y] <= 0)
+            From = lastFrom;
+        lastFrom = From;
+
         (x, y) = costMap.Vector2ToXY(decisionMaker.TargetPosition);
         int To = _pathMap.Voronoi[x, y];
         Colored[From] = true;

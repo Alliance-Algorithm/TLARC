@@ -10,15 +10,15 @@ internal class Node3 : IEquatable<Node3>, IComparable<Node3>, IThreeDimensional
     const float Equal_MaxTheta = MathF.PI / 12.0f;
     const int Children_Headings = 3;
     const float Children_TimeInterval = 0.1f;
-    const float Children_Speed = 3;
+    const float Children_Speed = 2;
     const float Children_GInterval = Children_Speed * Children_TimeInterval;
     const float Children_ThetaInterval = Equal_MaxTheta;
     const float Children_ThetaMax = Children_ThetaInterval * Children_Headings / 2;
 
     const float HCalc_lambda11 = Equal_MaxTheta * 3;
     const float HCalc_lambda12 = 1;
-    const float HCalc_lambda2 = 1f;
-    const float HCalc_lambda3 = 10;
+    const float HCalc_lambda2 = 50f;
+    const float HCalc_lambda3 = 1;
     const float HCalc_lambda4 = 0.1f;
     internal Vector2 Pos;
     internal float Theta;

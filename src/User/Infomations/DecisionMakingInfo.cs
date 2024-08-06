@@ -23,7 +23,7 @@ namespace AllianceDM.PreInfo
         public float FriendOutPostHp { get; private set; } = OutpostHPLimit;
         public float BaseArmorOpeningCountdown { get; private set; } = 40;
         public bool SupplyRFID { get; private set; } = false;
-        public bool PatrolRFID { get; private set; } = true;
+        public bool PatrolRFID { get; private set; } = false;
         public const float SentylHPLimit = 400;
         public const float OutpostHPLimit = 1500;
         private long _tick = DateTime.Now.Ticks;
@@ -54,7 +54,7 @@ namespace AllianceDM.PreInfo
                 BulletCount = msg;
             });
             // supportBulletCount.Subscript(supportBulletCountTopicName, msg => { SupplyRFID = (msg &= (1 << 13) != 0); });
-            RFID.Subscript(RFIDTopicName, msg => { BulletSupplyCount = 0; });
+            RFID.Subscript(RFIDTopicName, msg => { SupplyRFID = ((msg & (1 << 13) )!= 0);PatrolRFID= ((msg & (1 << 14) )!= 0);;BulletSupplyCount = 0; });
             gameStart.Subscript(gameStartTopicName, _ => { _gamestart_time = DateTime.Now.Ticks; BulletSupplyCount = 0; });
         }
 

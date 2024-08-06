@@ -10,9 +10,10 @@ class HybridAStar : Component
     private Transform2D sentry;
     private Dijkstra dijkstra;
 
+    public Vector2 AgentPosition => _agentPosition;
 
     public string beginSpeedTopicName = "/chassis/speed";
-    public float maxSearchDistanceRatio = 5f;
+    public float maxSearchDistanceRatio = 3f;
     public float retentionRatio = 0.2f;
 
     public List<Vector2> Path => _path;
@@ -23,6 +24,8 @@ class HybridAStar : Component
 
     private float _beginSpeedAngle = float.PositiveInfinity;
 
+    private Vector2 _agentPosition = new();
+    public bool Found { get; set; }
 
     public override void Start()
     {
@@ -31,7 +34,13 @@ class HybridAStar : Component
 
     public override void Update()
     {
-        Search();
+        var tempPosition = sentry.position;
+        var (x, y) = costMap.Vector2ToXY(tempPosition);
+        if (costMap[x, y] <= 0)
+            tempPosition = _agentPosition;
+        _agentPosition = tempPosition;
+
+        Found = Search();
         DownSample();
     }
 
@@ -54,11 +63,12 @@ class HybridAStar : Component
 
     private bool Search()
     {
-        var maxDistance = maxSearchDistanceRatio * (sentry.position - dijkstra.Path[1]).Length();
+        var lastPath = _path;
+        var maxDistance = maxSearchDistanceRatio * (_agentPosition - dijkstra.Path[1]).Length();
         _path = [];
         openList = new();
         _closeGrid = new bool[costMap.SizeX, costMap.SizeY];
-        Node3 from = new(sentry.position, _beginSpeedAngle, null, 0);
+        Node3 from = new(_agentPosition, _beginSpeedAngle, null, 0);
         Node3 to = new(dijkstra.Path[1], float.PositiveInfinity, null, 0);
         openList.Enqueue(from, 0);
         while (openList.Count > 0)
@@ -83,14 +93,18 @@ class HybridAStar : Component
                     continue;
                 if (_closeGrid[xy.x, xy.y])
                     continue;
-                if (costMap[xy.x, xy.y] <= -80)
+                if (costMap[xy.x, xy.y] <= 0)
                     continue;
                 openList.Enqueue(child, child.CalcF(to, costMap));
             }
         }
 
         if (to.Parent is null)
+        {
+            _path.Add(from.Pos);
+            _path.Add(to.Pos);
             return false;
+        }
         else
         {
             var k = to;

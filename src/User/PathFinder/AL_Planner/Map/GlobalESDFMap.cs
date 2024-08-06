@@ -126,7 +126,8 @@ public class GlobalESDFMap : Component
                     openList.Enqueue((ci, cj));
                 }
         }
-        if (debug)
-            _esdfPublisher.Publish((_map, Resolution, (uint)SizeX, (uint)SizeY));
+        if (debug){
+            _map[tmp.x,tmp.y] = 120;
+            _esdfPublisher.Publish((_map, Resolution, (uint)SizeX, (uint)SizeY));}
     }
 }

@@ -66,9 +66,10 @@ namespace AllianceDM.IO.ROS2Msgs.Nav
                     nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Info.Height = (uint)data.Map.GetLength(0);
                     nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Info.Width = (uint)data.Map.GetLength(1);
                     nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Info.Resolution = data.Resolution;
-                    nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Header.FrameId.CopyFrom("world");
-                    nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Info.Origin.Position.X = 15;
-                    nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Info.Origin.Position.Y = 7.5;
+                    nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Header.FrameId.CopyFrom("tlarc");
+                    nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Info.Origin.Position.X = -14 - 7.5;
+                    nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Info.Origin.Position.Y = -7.5;
+                    nativeMsg.AsRef<Rosidl.Messages.Nav.OccupancyGrid.Priv>().Info.Origin.Orientation.W = -1;
                     publisher.Publish(nativeMsg);
                     nativeMsg.Dispose();
                     nativeMsg = publisher.CreateBuffer();

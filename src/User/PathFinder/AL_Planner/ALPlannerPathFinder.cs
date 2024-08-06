@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Numerics;
 using AllianceDM.IO.ROS2Msgs.Nav;
 using AllianceDM.StdComponent;
@@ -13,8 +14,8 @@ class ALPathFinder : Component
     public string pathTopicName = "/chassis/path";
     public string bSplineControlMatrixTopicName = "/chassis/trajectory/b_spline/control_matrix";
 
-    public float limitVelocity = 4.0f + 1e-4f;
-    public float limitAccelerate = 0.5f + 1e-4f;
+    public float limitVelocity = 5.0f + 1e-4f;
+    public float limitAccelerate = 1.5f + 1e-4f;
     public float limitRatio = 4f + 1e-4f;
     public float lambda1 = 0f;
     public float lambda2 = 1f;
@@ -85,21 +86,36 @@ class ALPathFinder : Component
             return;
         }
 
-        var (target, isSafe) = nonUniformBSpline.Check(
-            (_timeTicksTarget - _timeTicks) / 1e7f, costMap, sentry.position);
-        if (!isSafe)
-            Build();
-        else if ((sentry.position - target).Length() < 0.5)
+        do
         {
-            _timeTicksTarget += (long)1e6f;
+            var timeTemp = (_timeTicksTarget - _timeTicks) / 1e7f;
+            var (target, isSafe) = nonUniformBSpline.Check(timeTemp
+                , costMap, hybridAStar.AgentPosition);
+            if (!isSafe || !hybridAStar.Found)
+                Build();
+            else
+            {
+                var v1 = new Vector3(sentry.position - target, 0);
+                var v2 = nonUniformBSpline.GetVelocity(timeTemp);
+                if (Vector3.Dot(v1 / v1.Length(), v2 / v2.Length()) < 0.5 && v1.Length() < 0.6f)
+                {
+                    _timeTicksTarget += (long)1e6f;
+                    continue;
+                }
+
+                else { _timeTicksTarget += (long)2e5f; break; }
+            }
+            break;
         }
-        else { _timeTicksTarget += (long)2e5f; }
+        while (true);
     }
 
     private void Build()
     {
         _timeTicks = DateTime.Now.Ticks;
         _timeTicksTarget = _timeTicks + (long)1e6;
+
+
         nonUniformBSpline.ParametersToControlPoints([.. hybridAStar.Path.SkipLast(1), .. dijkstra.Path.Skip(hybridAStar.Path.Count > 1 ? 1 : 0)], [_beginSpeed, new(0, 0)]);
         nonUniformBSpline.BuildTimeLine(timeInterval);
         var controlMatrix = nonUniformBSpline._controlPoints;
@@ -111,11 +127,9 @@ class ALPathFinder : Component
         }
         _bSplinePublisher.Publish([.. data]);
 
-#if DEBUG
-        Path = nonUniformBSpline.GetPath();
-        // _pathPublisher.Publish([.. Path]);
-#endif
 
+        Path = nonUniformBSpline.GetPath();
+        _pathPublisher.Publish([.. Path]);
     }
 
 }

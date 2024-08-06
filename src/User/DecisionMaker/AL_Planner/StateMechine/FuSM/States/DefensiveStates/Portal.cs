@@ -15,7 +15,7 @@ class Portal : IStateObject
 
     public required Transform2D Sentry { get; init; }
 
-    static readonly Vector2[] positions_ = [new(-9.24f, 2.05f), new(-7.37f, 2.12f), new(-9.55f, 0.02f)];
+    static readonly Vector2[] positions_ = [new(-9.24f, 1.05f), new(-7.37f, 1.12f), new(-9.55f, -1.02f)];
     int iterator_ = 0;
     long timer_ = DateTime.Now.Ticks;
     public required HeroAgent HeroAgent { get; init; }

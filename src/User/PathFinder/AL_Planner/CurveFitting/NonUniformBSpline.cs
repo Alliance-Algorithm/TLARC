@@ -136,6 +136,12 @@ public class NonUniformBSpline(float limitVelocity, float limitAccelerate, float
 
     public (Vector2, bool) Check(float t, GlobalESDFMap costMap, Vector2 sentryPosition)
     {
+        var tempPosition = sentryPosition;
+        var (x, y) = costMap.Vector2ToXY(tempPosition);
+        var collisder = false;
+        if (costMap[x, y] <= 0)
+            collisder = true;
+
         if (_t.Count <= 1)
             return (sentryPosition, true);
         t = Math.Min(Math.Max(t, _t[0]), _t[n_ - 1]);
@@ -145,7 +151,7 @@ public class NonUniformBSpline(float limitVelocity, float limitAccelerate, float
         var save = CalcPosition(u, k);
         if ((sentryPosition - save).Length() > 1)
             return (new(), false);
-        for (t += 0.1f; t < _t[k + 1]; t += 0.1f)
+        for (t += 0.1f; t < _t[k + 1] && !collisder; t += 0.1f)
         {
             u = (t - _t[k]) / (_t[k + 1] - _t[k]);
             var temp = CalcPosition(u, k);
