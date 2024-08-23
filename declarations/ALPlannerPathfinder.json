@@ -1,4 +1,5 @@
 {
+    "fps": 10,
     "list": [
         {
             "this_id": 101,
@@ -9,7 +10,7 @@
                 "sentry": 1,
                 "decisionMaker": 201
             },
-            "assembly": "AllianceDM.ALPlanner",
+            "assembly": "Tlarc.ALPlanner",
             "type": "ALPathFinder",
             "arg": {}
         },
@@ -18,7 +19,7 @@
             "input_id": {
                 "sentry": 1
             },
-            "assembly": "AllianceDM.ALPlanner",
+            "assembly": "Tlarc.ALPlanner",
             "type": "GlobalESDFMap",
             "arg": {
                 "mapPath": "../maps/StaticESDFMap.json",
@@ -33,7 +34,7 @@
                 "sentry": 1,
                 "decisionMaker": 201
             },
-            "assembly": "AllianceDM.ALPlanner",
+            "assembly": "Tlarc.ALPlanner",
             "type": "Dijkstra",
             "arg": {
                 "mapPath": "../maps/StaticDijkstraMap.json"
@@ -46,7 +47,7 @@
                 "sentry": 1,
                 "dijkstra": 103
             },
-            "assembly": "AllianceDM.ALPlanner",
+            "assembly": "Tlarc.ALPlanner",
             "type": "HybridAStar",
             "arg": {}
         },
@@ -57,7 +58,7 @@
                 "pathFinder": 101,
                 "info": 301
             },
-            "assembly": "AllianceDM.Controller.MPC",
+            "assembly": "Tlarc.Controller.MPC",
             "type": "MPCController",
             "arg": {}
         }

@@ -1,9 +1,10 @@
 {
+    "fps": 10,
     "list": [
         {
             "this_id": 301,
             "input_id": {},
-            "assembly": "AllianceDM.PreInfo",
+            "assembly": "Tlarc.PreInfo",
             "type": "DecisionMakingInfo",
             "arg": {}
         },
@@ -12,7 +13,7 @@
             "input_id": {
                 "info": 301
             },
-            "assembly": "AllianceDM.PreInfo",
+            "assembly": "Tlarc.PreInfo",
             "type": "EnemyUnitInfo",
             "arg": {}
         }

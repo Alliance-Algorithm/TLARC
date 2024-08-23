@@ -1,11 +1,12 @@
 {
+    "fps": 20,
     "list": [
         {
             "this_id": 1,
             "input_id": {
                 "receiver": 2
             },
-            "assembly": "AllianceDM.StdComponent",
+            "assembly": "Tlarc.StdComponent",
             "type": "Transform2D",
             "arg": {
                 "name": "Sentry",
@@ -22,10 +23,11 @@
         {
             "this_id": 2,
             "input_id": {},
-            "assembly": "AllianceDM.StdComponent",
+            "assembly": "Tlarc.StdComponent",
             "type": "Transform2DReceiver",
             "arg": {
-                "topicName": "/rmcs_navigation/pose"
+                "topicName": "/rmcs_navigation/pose",
+                "type": "pose2d"
             }
         }
     ]

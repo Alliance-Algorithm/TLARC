@@ -1,11 +1,12 @@
 {
+    "fps": 10,
     "list": [
         {
             "this_id": 201,
             "input_id": {
                 "FSM": 202
             },
-            "assembly": "AllianceDM.ALPlanner",
+            "assembly": "Tlarc.ALPlanner",
             "type": "ALPlannerDecisionMaker",
             "arg": {}
         },
@@ -17,7 +18,7 @@
                 "aggression": 203,
                 "defensive": 208
             },
-            "assembly": "AllianceDM.ALPlanner",
+            "assembly": "Tlarc.ALPlanner",
             "type": "ADS_FSM",
             "arg": {
                 "minEquivalentHpLimitToReturn": 300,
@@ -33,7 +34,7 @@
                 "unitInfo": 302,
                 "sentry": 1
             },
-            "assembly": "AllianceDM.ALPlanner",
+            "assembly": "Tlarc.ALPlanner",
             "type": "Aggression_FuSM",
             "arg": {}
         },
@@ -43,7 +44,7 @@
                 "targetPreDictor": 205,
                 "unitInfo": 302
             },
-            "assembly": "AllianceDM.ALPlanner",
+            "assembly": "Tlarc.ALPlanner",
             "type": "HeroAgent",
             "arg": {}
         },
@@ -53,7 +54,7 @@
                 "sentry": 1,
                 "unitInfo": 302
             },
-            "assembly": "AllianceDM.ALPlanner",
+            "assembly": "Tlarc.ALPlanner",
             "type": "HeroTargetPreDictor",
             "arg": {}
         },
@@ -63,7 +64,7 @@
                 "targetPreDictor": 207,
                 "unitInfo": 302
             },
-            "assembly": "AllianceDM.ALPlanner",
+            "assembly": "Tlarc.ALPlanner",
             "type": "EngineerAgent",
             "arg": {}
         },
@@ -73,7 +74,7 @@
                 "sentry": 1,
                 "unitInfo": 302
             },
-            "assembly": "AllianceDM.ALPlanner",
+            "assembly": "Tlarc.ALPlanner",
             "type": "EngineerTargetPreDictor",
             "arg": {}
         },
@@ -86,7 +87,7 @@
                 "decisionMakingInfo": 301,
                 "sentry": 1
             },
-            "assembly": "AllianceDM.ALPlanner",
+            "assembly": "Tlarc.ALPlanner",
             "type": "Defensive_FuSM",
             "arg": {}
         },
@@ -95,7 +96,7 @@
             "input_id": {
                 "unitInfo": 302
             },
-            "assembly": "AllianceDM.ALPlanner",
+            "assembly": "Tlarc.ALPlanner",
             "type": "UVAAgent",
             "arg": {}
         },
@@ -104,7 +105,7 @@
             "input_id": {
                 "unitInfo": 302
             },
-            "assembly": "AllianceDM.ALPlanner",
+            "assembly": "Tlarc.ALPlanner",
             "type": "JumperAgent",
             "arg": {}
         }
