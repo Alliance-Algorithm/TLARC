@@ -26,7 +26,7 @@ namespace Tlarc.Nav
 
         public override void Update()
         {
-            var fastpos = new Vector2(-sentry.position.X, sentry.position.Y);
+            var fastpos = new Vector2(-sentry.Position.X, sentry.Position.Y);
             Dir = nav.Output - fastpos;
             // model.Output.Current.Length();
             Dir = Vector2.Zero;

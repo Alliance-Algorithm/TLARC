@@ -8,9 +8,9 @@ namespace Tlarc.StdComponent
 
         public string name;
         public Vector2 FixedupVector = new();
-        public Vector2 position
-        { get => _position + FixedupVector; set => _position = value; }
-        private Vector2 _position;
+        public Vector2 Position
+        { get => positionRaw + FixedupVector; set => positionRaw = value; }
+        public Vector2 positionRaw = new();
         Transform2DReceiver receiver = new();
         public double angle = 0;
 
@@ -21,12 +21,12 @@ namespace Tlarc.StdComponent
 
         public override void Update()
         {
-            _position = receiver.Position;
+            Position = receiver.Position;
             angle = receiver.Angle;
         }
         public void Set(Vector2 position, float angle = 0)
         {
-            this.position = position;
+            this.Position = position;
             this.angle = angle;
         }
     }

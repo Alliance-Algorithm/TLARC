@@ -82,5 +82,13 @@ namespace Tlarc.IO.ROS2Msgs.Nav
             this.data = data;
             Publish();
         }
+        public void Publish(System.Numerics.Vector2[] data)
+        {
+            this.data = new System.Numerics.Vector3[data.Length];
+            for (int i = 0; i < this.data.Length; i++)
+                this.data[i] = new(data[i], 0);
+
+            Publish();
+        }
     }
 }

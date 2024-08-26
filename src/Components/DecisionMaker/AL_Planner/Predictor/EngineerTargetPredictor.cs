@@ -36,9 +36,9 @@ class EngineerTargetPreDictor : Component
             timeTick2_ = DateTime.Now.Ticks;
             return;
         }
-        var trans = Position - sentry.position;
+        var trans = Position - sentry.Position;
         Angle = MathF.Atan2(trans.Y, trans.X);
-        if ((sentry.position - Position).Length() < 0.1f)
+        if ((sentry.Position - Position).Length() < 0.1f)
             if (Angle != angles_[presetIndex_])
             {
                 Angle = angles_[presetIndex_];
@@ -48,11 +48,11 @@ class EngineerTargetPreDictor : Component
             else if ((DateTime.Now.Ticks - timeTick_) * 1e-7 > 1)
                 presetIndex_ = (presetIndex_ + 1) % 2;
         if (Found)
-            Distance = (sentry.position - unitInfo.Position[VehicleCode]).Length();
+            Distance = (sentry.Position - unitInfo.Position[VehicleCode]).Length();
         else
-            Distance = (sentry.position - Position).Length();
+            Distance = (sentry.Position - Position).Length();
         if (Distance < 1.5f)
-            Position = sentry.position;
-        Distance = (sentry.position - Position).Length();
+            Position = sentry.Position;
+        Distance = (sentry.Position - Position).Length();
     }
 }

@@ -48,13 +48,13 @@ namespace Tlarc.StateMachines
         {
             gimbalForward1 = new(0, 0, 0);
             gimbalForward2 = new(0, 0, 0);
-            var sentryPos = new Vector2(-SentryPos.position.X, SentryPos.position.Y);
+            var sentryPos = new Vector2(-SentryPos.Position.X, SentryPos.Position.Y);
             switch (fsm.Output)
             {
                 case Status.Invincibly:
                     comeback = false;
                     timer = DateTime.Now.Second + DateTime.Now.Minute * 60;
-                    TargetPos.Set(ControlPos.position);
+                    TargetPos.Set(ControlPos.Position);
                     gimbalForward1 = new(0, 1, 1);
                     gimbalForward2 = new(0, -1, 1);
                     break;
@@ -65,16 +65,16 @@ namespace Tlarc.StateMachines
                         comeback = true;
                     if (comeback)
                     {
-                        TargetPos.Set(CruisePosMain.position);
-                        if ((sentryPos - CruisePosMain.position +
-                         SentryTargetRevisePos.position).Length() < 0.7f)
+                        TargetPos.Set(CruisePosMain.Position);
+                        if ((sentryPos - CruisePosMain.Position +
+                         SentryTargetRevisePos.Position).Length() < 0.7f)
                         {
                             timer = DateTime.Now.Second + DateTime.Now.Minute * 60;
                             comeback = false;
                         }
                     }
                     else
-                        TargetPos.Set(RechargeArea.position);
+                        TargetPos.Set(RechargeArea.Position);
                     break;
                 case Status.Cruise:
                     timer = DateTime.Now.Second + DateTime.Now.Minute * 60;
@@ -82,13 +82,13 @@ namespace Tlarc.StateMachines
                     switch ((int)(DateTime.Now.Second + DateTime.Now.Minute * 60 - rand) / 2 % 3)
                     {
                         case 0:
-                            TargetPos.Set(CruisePosMain.position);
+                            TargetPos.Set(CruisePosMain.Position);
                             break;
                         case 1:
-                            TargetPos.Set(CruisePos2.position);
+                            TargetPos.Set(CruisePos2.Position);
                             break;
                         case 2:
-                            TargetPos.Set(CruisePos3.position);
+                            TargetPos.Set(CruisePos3.Position);
                             break;
                     }
                     break;
@@ -97,13 +97,13 @@ namespace Tlarc.StateMachines
                         comeback = true;
                     if (comeback)
                     {
-                        TargetPos.Set(CruisePosMain.position);
-                        if ((sentryPos - CruisePosMain.position +
-                         SentryTargetRevisePos.position).Length() < 0.1f)
+                        TargetPos.Set(CruisePosMain.Position);
+                        if ((sentryPos - CruisePosMain.Position +
+                         SentryTargetRevisePos.Position).Length() < 0.1f)
                             timer = DateTime.Now.Second + DateTime.Now.Minute * 60;
                     }
                     else
-                        TargetPos.Set(HiddenPos.position);
+                        TargetPos.Set(HiddenPos.Position);
                     break;
             }
 

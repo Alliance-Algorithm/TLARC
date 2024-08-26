@@ -38,6 +38,7 @@ class ALPathFinder : Component
 
     private IO.ROS2Msgs.Geometry.Pose2D _beginSpeedReceiver;
     private IO.ROS2Msgs.Nav.Path _pathPublisher;
+    private IO.ROS2Msgs.Nav.Path _hybridAStarPathPublisher;
     private IO.ROS2Msgs.Nav.Path _bSplinePublisher;
 
     public Vector3 TargetVelocity => nonUniformBSpline.GetVelocity((_timeTicksTarget - _timeTicks) / 1e7f);
@@ -47,7 +48,7 @@ class ALPathFinder : Component
         get
         {
             var pos = nonUniformBSpline.GetPosition((_timeTicksTarget - _timeTicks) / 1e7f);
-            return float.IsNaN(pos.X) ? sentry.position : pos;
+            return float.IsNaN(pos.X) ? sentry.Position : pos;
         }
     }
     public double TargetKesi(float deltaT)
@@ -66,7 +67,9 @@ class ALPathFinder : Component
         _beginSpeedReceiver = new(IOManager);
         _beginSpeedReceiver.Subscript(beginSpeedTopicName, data => { _beginSpeed = data.pos; if (_beginSpeed.Length() < 0.1f) _beginSpeed = Vector2.Zero; });
         _pathPublisher = new(IOManager);
-        _pathPublisher.RegistryPublisher(pathTopicName);
+        _pathPublisher.RegistryPublisher(pathTopicName + "/Trajectory");
+        _hybridAStarPathPublisher = new(IOManager);
+        _hybridAStarPathPublisher.RegistryPublisher(pathTopicName + "/AStar");
         _bSplinePublisher = new(IOManager);
         _bSplinePublisher.RegistryPublisher(bSplineControlMatrixTopicName);
         _targetPoint = new(100, 100);
@@ -77,9 +80,9 @@ class ALPathFinder : Component
 
     public override void Update()
     {
-        _beginSpeed = (sentry.position - _lastPosition) * DecisionMakerDef.fps / 1000.0f;
-        _lastPosition = sentry.position;
-        if (decisionMaker.TargetPosition != _targetPoint)
+        _beginSpeed = (sentry.Position - _lastPosition) * DecisionMakerDef.fps / 1000.0f;
+        _lastPosition = sentry.Position;
+        if (dijkstra.IsNewRegion || decisionMaker.TargetPosition != _targetPoint)
         {
             Build();
             _targetPoint = decisionMaker.TargetPosition;
@@ -96,8 +99,8 @@ class ALPathFinder : Component
                 Build();
             else
             {
-                var v1 = new Vector3(sentry.position - target, 0);
-                var v2 = new Vector3(sentry.position - t2, 0);
+                var v1 = new Vector3(sentry.Position - target, 0);
+                var v2 = new Vector3(sentry.Position - t2, 0);
                 if (v1.Length() != 0 && (v2.Length() < v1.Length() || v1.Length() < 0.3f))
                 {
                     _timeTicksTarget += (long)1e6f;
@@ -116,8 +119,7 @@ class ALPathFinder : Component
         _timeTicks = DateTime.Now.Ticks;
         _timeTicksTarget = _timeTicks + (long)2e6;
 
-
-        nonUniformBSpline.ParametersToControlPoints([.. hybridAStar.Path.SkipLast(1), .. dijkstra.Path.Skip(hybridAStar.Path.Count > 1 ? 1 : 0)], [_beginSpeed, new(0, 0)]);
+        nonUniformBSpline.ParametersToControlPoints(hybridAStar.Path, [_beginSpeed, new(0, 0)]);
         nonUniformBSpline.BuildTimeLine(timeInterval);
         var controlMatrix = nonUniformBSpline._controlPoints;
         var timeControlMatrix = nonUniformBSpline._timeControlPoints;
@@ -131,6 +133,7 @@ class ALPathFinder : Component
 
         Path = nonUniformBSpline.GetPath();
         _pathPublisher.Publish([.. Path]);
+        _hybridAStarPathPublisher.Publish([.. hybridAStar.Path]);
     }
 
 }

@@ -27,10 +27,7 @@ namespace Tlarc.IO
 
         public delegate void MessageHandler<T>(T msg) where T : IMessage;
         public delegate void BufferHandler(RosMessageBuffer msg);
-        public override void Start()
-        {
 
-        }
         /// <summary>
         /// Receive Msg
         /// </summary>
@@ -77,11 +74,6 @@ namespace Tlarc.IO
             Console.WriteLine(name + ":Registry");
         }
 
-        internal void ArgsAppend(string[] args)
-        {
-
-        }
-
         public void Input()
         {
             TlarcRosMsgs.InputData();
@@ -92,10 +84,6 @@ namespace Tlarc.IO
         {
             foreach (var k in CopyForOut)
                 k.Item2.CopyFrom(k.src);
-        }
-        public override void Update()
-        {
-            // _update = true;
         }
     }
 }

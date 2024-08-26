@@ -29,9 +29,9 @@ class Portal : IStateObject
     public bool Update(ref IStateObject state, float timeCoefficient)
     {
         TargetPosition = positions_[iterator_];
-        if ((Sentry.position - positions_[iterator_]).Length() > 2)
+        if ((Sentry.Position - positions_[iterator_]).Length() > 2)
             _timeTick = DateTime.Now.Ticks;
-        if ((Sentry.position - positions_[iterator_]).Length() < 0.3f || (DateTime.Now.Ticks - _timeTick) / 1e7f > 2)
+        if ((Sentry.Position - positions_[iterator_]).Length() < 0.3f || (DateTime.Now.Ticks - _timeTick) / 1e7f > 2)
         {
             _timeTick = DateTime.Now.Ticks;
             iterator_ = (iterator_ + 1) % positions_.Length;

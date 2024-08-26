@@ -50,7 +50,7 @@ namespace Tlarc.StateMachines
         {
             gimbalForward1 = new(0, 0, 0);
             gimbalForward2 = new(0, 0, 0);
-            var sentryPos = new Vector2(-sentry.position.X, sentry.position.Y);
+            var sentryPos = new Vector2(-sentry.Position.X, sentry.Position.Y);
             switch (fsm.state)
             {
                 case Status.Invincibly:
@@ -70,16 +70,16 @@ namespace Tlarc.StateMachines
 
                     if (comeback)
                     {
-                        target.Set(cruisePosMain.position);
-                        if ((sentryPos - cruisePosMain.position +
-                         sentryTargetRevisePos.position).Length() < 0.7f)
+                        target.Set(cruisePosMain.Position);
+                        if ((sentryPos - cruisePosMain.Position +
+                         sentryTargetRevisePos.Position).Length() < 0.7f)
                         {
                             timer = DateTime.Now.Second + DateTime.Now.Minute * 60;
                             comeback = false;
                         }
                     }
                     else
-                        target.Set(rechargeArea.position);
+                        target.Set(rechargeArea.Position);
                     break;
                 case Status.Cruise:
                     timer = DateTime.Now.Second + DateTime.Now.Minute * 60;
@@ -87,13 +87,13 @@ namespace Tlarc.StateMachines
                     switch (Math.Clamp(Math.Abs((int)(DateTime.Now.Second + DateTime.Now.Minute * 60 - rand) / 2 % 3), 0, 2))
                     {
                         case 0:
-                            target.Set(cruisePosMain.position);
+                            target.Set(cruisePosMain.Position);
                             break;
                         case 1:
-                            target.Set(cruisePos2.position);
+                            target.Set(cruisePos2.Position);
                             break;
                         case 2:
-                            target.Set(cruisePos3.position);
+                            target.Set(cruisePos3.Position);
                             break;
                     }
                     break;
@@ -102,13 +102,13 @@ namespace Tlarc.StateMachines
                         comeback = true;
                     if (comeback)
                     {
-                        target.Set(cruisePosMain.position);
-                        if ((sentryPos - cruisePosMain.position +
-                         sentryTargetRevisePos.position).Length() < 0.1f)
+                        target.Set(cruisePosMain.Position);
+                        if ((sentryPos - cruisePosMain.Position +
+                         sentryTargetRevisePos.Position).Length() < 0.1f)
                             timer = DateTime.Now.Second + DateTime.Now.Minute * 60;
                     }
                     else
-                        target.Set(hiddenPos.position);
+                        target.Set(hiddenPos.Position);
                     break;
             }
             pub_angle1.Publish(gimbalForward1);

@@ -30,7 +30,7 @@ namespace Tlarc.Nav
 
         public override void Update()
         {
-            var fastpos = new Vector2(-sentry.position.X, sentry.position.Y);
+            var fastpos = new Vector2(-sentry.Position.X, sentry.Position.Y);
             Dir = nav.Output - fastpos;
             maxValue = 0;
             model.Output.Current.Length();
@@ -66,7 +66,7 @@ namespace Tlarc.Nav
 
         float Evaluate(Vector2 predict)
         {
-            var fastpos = new Vector2(-sentry.position.X, sentry.position.Y);
+            var fastpos = new Vector2(-sentry.Position.X, sentry.Position.Y);
             float angle = Vector2.Dot(predict, model.Output.Current);
             if (currentSpeed == 0)
                 angle = 0;

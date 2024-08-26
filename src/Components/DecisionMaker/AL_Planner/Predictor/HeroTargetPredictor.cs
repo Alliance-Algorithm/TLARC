@@ -35,9 +35,9 @@ class HeroTargetPreDictor : Component
             timeTick_ = DateTime.Now.Ticks;
             return;
         }
-        var trans = Position - sentry.position;
+        var trans = Position - sentry.Position;
         Angle = MathF.Atan2(trans.Y, trans.X);
-        if ((sentry.position - Position).Length() < 0.1f)
+        if ((sentry.Position - Position).Length() < 0.1f)
             if (Angle != angles_[presetIndex_])
             {
                 Angle = angles_[presetIndex_];
@@ -45,11 +45,11 @@ class HeroTargetPreDictor : Component
                 return;
             }
         if (Found)
-            Distance = (sentry.position - unitInfo.Position[VehicleCode]).Length();
+            Distance = (sentry.Position - unitInfo.Position[VehicleCode]).Length();
         else
-            Distance = (sentry.position - Position).Length();
+            Distance = (sentry.Position - Position).Length();
         if (Distance < 1.5f)
-            Position = sentry.position;
-        Distance = (Position - sentry.position).Length();
+            Position = sentry.Position;
+        Distance = (Position - sentry.Position).Length();
     }
 }

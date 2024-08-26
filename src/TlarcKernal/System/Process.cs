@@ -80,7 +80,7 @@ class Process
     }
     void OutputUpdate()
     {
-        ((IOManager)Components[0].Component).Input();
+        ((IOManager)Components[0].Component).Output();
     }
 
     void FindPath(ref ComponentCell cell, in Hashtable colored)

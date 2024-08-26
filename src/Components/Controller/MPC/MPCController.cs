@@ -17,7 +17,7 @@ class MPCController : Component
     private double lastAngle = 0;
     private double lastKesiAngle = 0;
     private float t = 0.05f;
-    private float l = 0.15f;
+    // private float l = 0.15f;
     MPCCalculator calculator;
 
     public override void Start()
@@ -34,7 +34,7 @@ class MPCController : Component
     override public void Update()
     {
         var targetPos = pathFinder.TargetPosition;
-        if (targetPos == sentry.position)
+        if (targetPos == sentry.Position)
         {
             calculator.Reset();
         }
@@ -63,10 +63,10 @@ class MPCController : Component
         xRef[1] = targetPos.Y;
         xRef[2] = Math.Atan2(targetVel.Y, targetVel.X);
         DenseVector x = new DenseVector(3);
-        x[0] = sentry.position.X;
-        x[1] = sentry.position.Y;
+        x[0] = sentry.Position.X;
+        x[1] = sentry.Position.Y;
 
-        x[2] = Math.Atan2(sentry.position.Y - _lastPos.Y, sentry.position.X - _lastPos.X); ;
+        x[2] = Math.Atan2(sentry.Position.Y - _lastPos.Y, sentry.Position.X - _lastPos.X); ;
         DenseMatrix uMin = new DenseMatrix(1, 2);
         DenseMatrix uMax = new DenseMatrix(1, 2);
         uMin[0, 0] = -10;
@@ -93,8 +93,8 @@ class MPCController : Component
 
 
         // velocityPub.Publish((new((float)(vel.Length() * Math.Cos(tempAngle + sentry.angle)), (float)((targetVel.Length()) * Math.Sin(tempAngle + sentry.angle))), (float)_u[1]));
-        _lastPos = sentry.position;
-        spinningPub.Publish(sentry.position.X < -2 && info.FriendOutPostHp <= 0);
+        _lastPos = sentry.Position;
+        spinningPub.Publish(sentry.Position.X < -2 && info.FriendOutPostHp <= 0);
 
 
     }

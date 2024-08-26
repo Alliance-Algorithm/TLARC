@@ -10,7 +10,7 @@
             "type": "Transform2D",
             "arg": {
                 "name": "Sentry",
-                "position": {
+                "positionRaw": {
                     "X": -7.5,
                     "Y": 0.01
                 },

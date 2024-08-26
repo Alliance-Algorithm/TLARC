@@ -31,7 +31,7 @@ namespace Tlarc.Nav
         }
         public override void Update()
         {
-            var fastPos = new Vector2(-sentry.position.X, sentry.position.Y);
+            var fastPos = new Vector2(-sentry.Position.X, sentry.Position.Y);
             var vec = globalPathFinder.Output - fastPos;
             vec = new(vec.X, vec.Y);
             if (vec.Length() != 0)

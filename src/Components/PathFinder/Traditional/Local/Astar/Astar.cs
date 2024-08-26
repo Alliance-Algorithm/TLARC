@@ -13,7 +13,7 @@ namespace Tlarc.Nav
         }
         public override void Update()
         {
-            Dir = nav.Output - sentry.position;
+            Dir = nav.Output - sentry.Position;
         }
     }
 }
