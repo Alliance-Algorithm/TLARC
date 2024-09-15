@@ -31,7 +31,7 @@ namespace Tlarc.Init
         internal static void Init(ref Dictionary<uint, Process> processes, ref Dictionary<uint, ComponentCell> componentCells)
         {
             uint pid = 1;
-            string path = DecisionMakerDef.ComponentsPath;
+            string path = TlarcSystem.ConfigurationPath;
             string[] files = Directory.GetFiles(path, "*.json");
             foreach (var i in files)
             {

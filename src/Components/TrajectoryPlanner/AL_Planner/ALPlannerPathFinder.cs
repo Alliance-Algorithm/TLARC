@@ -5,8 +5,9 @@ using Tlarc.StdComponent;
 using Rosidl.Messages.Geometry;
 
 using Vector3 = System.Numerics.Vector3;
+using Tlarc.TrajectoryPlanner.Utils;
 
-namespace Tlarc.ALPlanner;
+namespace Tlarc.ALPlanner.Trajectory;
 
 class ALPathFinder : Component
 {
@@ -23,8 +24,8 @@ class ALPathFinder : Component
     public int order = 4;
     public float timeInterval = 0.5f;
 
-    private GlobalESDFMap costMap;
-    private Dijkstra dijkstra;
+    private ESDFMap costMap;
+    private JumpPointMap jumpMap;
     private HybridAStar hybridAStar;
     private Transform2D sentry;
     private ALPlannerDecisionMaker decisionMaker;
@@ -80,60 +81,12 @@ class ALPathFinder : Component
 
     public override void Update()
     {
-        _beginSpeed = (sentry.Position - _lastPosition) * DecisionMakerDef.fps / 1000.0f;
-        _lastPosition = sentry.Position;
-        if (dijkstra.IsNewRegion || decisionMaker.TargetPosition != _targetPoint)
-        {
-            Build();
-            _targetPoint = decisionMaker.TargetPosition;
-            return;
-        }
 
-        do
-        {
-            var timeTemp = (_timeTicksTarget - _timeTicks) / 1e7f;
-            var (target, isSafe) = nonUniformBSpline.Check(timeTemp
-                , costMap, hybridAStar.AgentPosition);
-            var t2 = nonUniformBSpline.GetPosition(timeTemp + 0.05f);
-            if (!isSafe && hybridAStar.Found)
-                Build();
-            else
-            {
-                var v1 = new Vector3(sentry.Position - target, 0);
-                var v2 = new Vector3(sentry.Position - t2, 0);
-                if (v1.Length() != 0 && (v2.Length() < v1.Length() || v1.Length() < 0.3f))
-                {
-                    _timeTicksTarget += (long)1e6f;
-                    continue;
-                }
-
-                else { _timeTicksTarget += (long)2e5f; break; }
-            }
-            break;
-        }
-        while (true);
     }
 
     private void Build()
     {
-        _timeTicks = DateTime.Now.Ticks;
-        _timeTicksTarget = _timeTicks + (long)2e6;
 
-        nonUniformBSpline.ParametersToControlPoints(hybridAStar.Path, [_beginSpeed, new(0, 0)]);
-        nonUniformBSpline.BuildTimeLine(timeInterval);
-        var controlMatrix = nonUniformBSpline._controlPoints;
-        var timeControlMatrix = nonUniformBSpline._timeControlPoints;
-        List<Vector3> data = new();
-        for (int i = 0; i < controlMatrix.RowCount; i++)
-        {
-            data.Add(new(controlMatrix[i, 0], controlMatrix[i, 1], i < timeControlMatrix.RowCount ? timeControlMatrix[i, 0] : 0));
-        }
-        _bSplinePublisher.Publish([.. data]);
-
-
-        Path = nonUniformBSpline.GetPath();
-        _pathPublisher.Publish([.. Path]);
-        _hybridAStarPathPublisher.Publish([.. hybridAStar.Path]);
     }
 
 }

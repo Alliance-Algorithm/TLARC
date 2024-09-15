@@ -35,18 +35,27 @@ class Process
     }
     void Awake()
     {
-
         tasks = new List<Task>[PoolDim + 1];
-        foreach (var i in Components.Values)
-            if (!i.Image)
-                i.Start();
+        for (int i = 0; i < PoolDim + 1; i++)
+            tasks[i] = [];
+        for (int i = 1; i < PoolDim; i++)
+        {
+            foreach (var a in UpdateFuncs[i])
+            {
+                if (!a.Image)
+                    tasks[a.Early].Add(Task.Run(a.Start));
+            }
+            TasksId = (uint)i;
+
+            Task.WaitAll([.. tasks[i]]);
+        }
     }
 
     void LifeCycle(object? source, ElapsedEventArgs e)
     {
         if (_lockWasTaken)
         {
-            Ros2Def.node.Logger.LogWarning("Warning: did not fix in fps : " + DecisionMakerDef.fps + "At Tasks :" + TasksId.ToString());
+            Ros2Def.node.Logger.LogWarning("Warning: did not fix in fps : " + fps + "At Tasks :" + TasksId.ToString());
         }
         lock (_lock)
         {

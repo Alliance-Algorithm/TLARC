@@ -12,14 +12,14 @@ namespace Tlarc
                 internal static IRclNode node;
 #endif
         }
-        internal static class DecisionMakerDef
+        internal static class TlarcSystem
         {
 #if DEBUG
-                internal static string ComponentsPath = "./declarations/";
+                internal static string ConfigurationPath = "./configuration/";
+                internal static string RootPath = "./";
 #else
-        internal static string ComponentsPath = Environment.ProcessPath + "/../../../share/tlarc/declarations/";
+                internal static string ConfigurationPath = Environment.ProcessPath + "/../../../share/tlarc/declarations/";
+                internal static string RootPath = Environment.ProcessPath + "/../../../share/tlarc/";
 #endif
-                internal const int fps = 10;
         }
-
 }
