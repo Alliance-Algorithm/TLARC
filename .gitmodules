@@ -1,0 +1,3 @@
+[submodule "src/TLARCKernel"]
+	path = src/TLARCKernel
+	url = https://github.com/Alliance-Algorithm/TLARCKernel
