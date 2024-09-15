@@ -5,14 +5,15 @@ using System.Diagnostics;
 using TlarcKernel;
 using TlarcKernel.Transform;
 using TlarcKernel.Extensions.Array;
-using ALPlanner.PathPlanner.HybridAStar.Nodes;
+using ALPlanner.PathPlanner;
+using ALPlanner.PathPlanner.Nodes;
 using System.Collections;
 
-namespace ALPlanner.PathPlanner.HybridAStar;
+namespace ALPlanner.PathPlanner.PathSearching;
 
 using Node = Omni2DConsecNode;
 
-class HybridAStar : Component
+class HybridAStar : Component, IPathSearcher
 {
     Transform sentry;
     IGridMap gridMap;
@@ -27,13 +28,15 @@ class HybridAStar : Component
         _closeMap = new bool[gridMap.Size.x, gridMap.Size.y, gridMap.Size.z];
     }
 
-    public IEnumerable<Vector3d> Search(Vector3d target)
+    public INode? Search(Vector3d target)
     {
         Array.Clear(_closeMap, 0, _closeMap.Length);
         _openList = new();
 
         Node begin = new(sentry.Position);
         Node end = new(target);
+
+        Node.Target = end;
 
         _openList.Enqueue(begin, 0);
         while (_openList.Count > 0)
@@ -64,13 +67,7 @@ class HybridAStar : Component
             }
         }
         Stack<Vector3d> path = new();
-        INode? currentPathNode = end;
-        while (currentPathNode != null)
-        {
-            path.Push(currentPathNode.PositionInWorld);
-            currentPathNode = currentPathNode.Parent;
-        }
-        return path;
+        return end;
     }
 
 }
