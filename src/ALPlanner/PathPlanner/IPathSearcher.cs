@@ -4,6 +4,6 @@ namespace ALPlanner.PathPlanner;
 
 interface IPathSearcher
 {
-    public INode? Search(Vector3d target);
+    public INode? Search(Vector3d origin, Vector3d target);
 
 }
