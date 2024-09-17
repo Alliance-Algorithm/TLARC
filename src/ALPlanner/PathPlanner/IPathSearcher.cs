@@ -1,9 +1,9 @@
 using g4;
 
-namespace ALPlanner.PathPlanner;
+namespace ALPlanner.PathPlanner.PathSearcher;
 
 interface IPathSearcher
 {
-    public INode? Search(Vector3d origin, Vector3d target);
+    public Nodes.INode? Search(Vector3d origin, Vector3d target);
 
 }

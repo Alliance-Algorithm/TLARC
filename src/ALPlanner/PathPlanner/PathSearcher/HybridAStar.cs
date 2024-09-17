@@ -9,7 +9,7 @@ using ALPlanner.PathPlanner;
 using ALPlanner.PathPlanner.Nodes;
 using System.Collections;
 
-namespace ALPlanner.PathPlanner.PathSearching;
+namespace ALPlanner.PathPlanner.PathSearcher;
 
 using Node = Omni2DConsecNode;
 

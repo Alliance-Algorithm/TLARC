@@ -1,6 +1,6 @@
 using g4;
 
-namespace ALPlanner.PathPlanner;
+namespace ALPlanner.PathPlanner.Nodes;
 
 internal interface INode
 {
