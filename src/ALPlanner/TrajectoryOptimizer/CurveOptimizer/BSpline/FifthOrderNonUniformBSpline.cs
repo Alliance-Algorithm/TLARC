@@ -9,12 +9,12 @@ class FifthOrderNonUniformBSpline : IKOrderCurve
         throw new NotImplementedException();
     }
 
-    public IEnumerable<Vector3d> TrajectoryPoints(float fromWhen, float toWhen, float step)
+    public IEnumerable<Vector3d> TrajectoryPoints(double fromWhen, double toWhen, double step)
     {
         throw new NotImplementedException();
     }
 
-    public Vector3d Value(float time)
+    public Vector3d Value(double time)
     {
         throw new NotImplementedException();
     }

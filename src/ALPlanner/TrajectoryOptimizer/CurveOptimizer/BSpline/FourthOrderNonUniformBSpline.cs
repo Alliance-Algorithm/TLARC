@@ -26,6 +26,7 @@ class FourthOrderNonUniformBSpline : Component, IKOrderCurve
     }.Divide(6);
     private static double[,] H4S = new double[order, order];
     private readonly double[,] M4Data = new double[order, order];
+    private int lastTimeIndex = -1;
     private double[,] M4(int i)
     {
         var tmp = Math.Pow(timeline[i + 1] - timeline[i], 2);
@@ -131,14 +132,32 @@ class FourthOrderNonUniformBSpline : Component, IKOrderCurve
         ReallocTimeline();
     }
 
-    public IEnumerable<Vector3d> TrajectoryPoints(float fromWhen, float toWhen, float step)
+    public Vector3d Value(double time)
     {
-        throw new NotImplementedException();
+        int k = 2;
+        time = Math.Max(0, Math.Min(time, timeline[^3]));
+        while (timeline[k + 1] < time)
+            k++;
+        var u = (time - timeline[k]) / (timeline[k + 1] - timeline[k]);
+        if (lastTimeIndex != k)
+        {
+            M4(k);
+            lastTimeIndex = k;
+        }
+
+        var p = new double[1][] { [1, u, u * u, u * u * u] }.Dot(M4Data);
+
+        return new(p.Dot(controlPoints.Get(0, 0, k, k + 3))[0][0], p.Dot(controlPoints.Get(1, 1, k, k + 3))[0][0], p.Dot(controlPoints.Get(2, 2, k, k + 3))[0][0]);
+
+
     }
 
-    public Vector3d Value(float time)
+    public IEnumerable<Vector3d> TrajectoryPoints(double fromWhen, double toWhen, double step)
     {
-        throw new NotImplementedException();
+        List<Vector3d> data = [];
+        for (var b = fromWhen; b < toWhen; b += step)
+            data.Add(Value(b));
+        return data;
     }
 
     public override void Start()
@@ -152,6 +171,7 @@ class FourthOrderNonUniformBSpline : Component, IKOrderCurve
 
     private void ReallocTimeline()
     {
+        lastTimeIndex = -1;
         timeline = new double[controlPoints[0].Length + order - 1];
         timeline[0] = -2 * timeInterval;
         for (int i = 1; i < timeline.Length; i++)
