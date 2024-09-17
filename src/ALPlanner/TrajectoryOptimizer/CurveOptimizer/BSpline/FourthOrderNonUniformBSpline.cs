@@ -9,9 +9,13 @@ namespace ALPlanner.TrajectoryOptimizer.Curves;
 
 class FourthOrderNonUniformBSpline : Component, IKOrderCurve
 {
-    private double LooseSize = 0.15;
+    private double looseSize = 0.15;
+    private double vLimit = 6;
+    private double aLimit = 12;
+    private double ratioLimit = 1.01;
+    private double timeInterval = 0.05f;
     const int order = 4;
-    private double[] timeLine;
+    private double[] timeline;
     private double[][] controlPoints = new double[3][];
     private readonly static double[,] M4S = new double[order, order]
     {
@@ -24,13 +28,13 @@ class FourthOrderNonUniformBSpline : Component, IKOrderCurve
     private readonly double[,] M4Data = new double[order, order];
     private double[,] M4(int i)
     {
-        var tmp = Math.Pow(timeLine[i + 1] - timeLine[i], 2);
-        M4Data[0, 0] = tmp / (timeLine[i + 1] - timeLine[i - 1]) / (timeLine[i + 1] - timeLine[i - 2]);
-        M4Data[0, 2] = tmp / (timeLine[i + 2] - timeLine[i - 1]) / (timeLine[i + 1] - timeLine[i - 1]);
-        M4Data[1, 2] = 3 * (timeLine[i + 1] - timeLine[i]) * (timeLine[i] - timeLine[i - 1]) / (timeLine[i + 2] - timeLine[i - 1]) / (timeLine[i + 1] - timeLine[i - 1]);
-        M4Data[2, 2] = 3 * tmp / (timeLine[i + 2] - timeLine[i - 1]) / (timeLine[i + 1] - timeLine[i - 1]);
-        M4Data[3, 3] = tmp / (timeLine[i + 3] - timeLine[i]) / (timeLine[i + 2] - timeLine[i]);
-        M4Data[3, 2] = -M4Data[2, 2] / 3 - M4Data[3, 3] - tmp / (timeLine[i + 2] - timeLine[i]) / (timeLine[i + 2] - timeLine[i - 1]);
+        var tmp = Math.Pow(timeline[i + 1] - timeline[i], 2);
+        M4Data[0, 0] = tmp / (timeline[i + 1] - timeline[i - 1]) / (timeline[i + 1] - timeline[i - 2]);
+        M4Data[0, 2] = tmp / (timeline[i + 2] - timeline[i - 1]) / (timeline[i + 1] - timeline[i - 1]);
+        M4Data[1, 2] = 3 * (timeline[i + 1] - timeline[i]) * (timeline[i] - timeline[i - 1]) / (timeline[i + 2] - timeline[i - 1]) / (timeline[i + 1] - timeline[i - 1]);
+        M4Data[2, 2] = 3 * tmp / (timeline[i + 2] - timeline[i - 1]) / (timeline[i + 1] - timeline[i - 1]);
+        M4Data[3, 3] = tmp / (timeline[i + 3] - timeline[i]) / (timeline[i + 2] - timeline[i]);
+        M4Data[3, 2] = -M4Data[2, 2] / 3 - M4Data[3, 3] - tmp / (timeline[i + 2] - timeline[i]) / (timeline[i + 2] - timeline[i - 1]);
 
         M4Data[1, 0] = -3 * M4Data[0, 0];
         M4Data[2, 0] = -M4Data[1, 0];
@@ -84,12 +88,12 @@ class FourthOrderNonUniformBSpline : Component, IKOrderCurve
                 B[2][1] = position.z;
                 continue;
             }
-            B[0][index + 5] = position.x + LooseSize;
-            B[1][index + 5] = position.y + LooseSize;
-            B[2][index + 5] = position.z + LooseSize;
-            B[0][index + positionList.Count() - 2] = -position.x + LooseSize;
-            B[1][index + positionList.Count() - 2] = -position.y + LooseSize;
-            B[2][index + positionList.Count() - 2] = -position.z + LooseSize;
+            B[0][index + 5] = position.x + looseSize;
+            B[1][index + 5] = position.y + looseSize;
+            B[2][index + 5] = position.z + looseSize;
+            B[0][index + positionList.Count() - 2] = -position.x + looseSize;
+            B[1][index + positionList.Count() - 2] = -position.y + looseSize;
+            B[2][index + positionList.Count() - 2] = -position.z + looseSize;
         }
         B[0][2] = HeadTailVelocity.V0.x;
         B[1][2] = HeadTailVelocity.V0.y;
@@ -123,6 +127,8 @@ class FourthOrderNonUniformBSpline : Component, IKOrderCurve
         solver = new GoldfarbIdnani(func, constraints3);
         solver.Minimize();
         controlPoints[2] = solver.Solution;
+
+        ReallocTimeline();
     }
 
     public IEnumerable<Vector3d> TrajectoryPoints(float fromWhen, float toWhen, float step)
@@ -141,6 +147,112 @@ class FourthOrderNonUniformBSpline : Component, IKOrderCurve
         {
             var k = new double[1, 4] { { 0, 0, 2, 6 * u / 100 } }.Dot(M4S);
             H4S = H4S.Add(k.TransposeAndDot(k));
+        }
+    }
+
+    private void ReallocTimeline()
+    {
+        timeline = new double[controlPoints[0].Length + order - 1];
+        timeline[0] = -2 * timeInterval;
+        for (int i = 1; i < timeline.Length; i++)
+            timeline[i] = timeline[i - 1] + timeInterval;
+
+        while (true)
+        {
+            var tmpControlPoints = new double[3, controlPoints[0].Length];
+            for (int j = 0; j < controlPoints[0].Length - 1; j++)
+            {
+                tmpControlPoints[0, j] = 3 * (controlPoints[0][j + 1] - controlPoints[0][j]) / (timeline[j + 3] - timeline[j]);
+                tmpControlPoints[1, j] = 3 * (controlPoints[1][j + 1] - controlPoints[1][j]) / (timeline[j + 3] - timeline[j]);
+                tmpControlPoints[2, j] = 3 * (controlPoints[2][j + 1] - controlPoints[2][j]) / (timeline[j + 3] - timeline[j]);
+            }
+
+            double vMax = 0;
+            int index = -1;
+
+            for (int k = 2; k <= timeline.Length - 3; k++)
+            {
+                var m_00 = (timeline[k + 1] - timeline[k]) / (timeline[k + 1] - timeline[k - 1]);
+                var m_01 = (timeline[k] - timeline[k - 1]) / (timeline[k + 1] - timeline[k - 1]);
+
+                var v = tmpControlPoints.Get(0, 2, k - 2, k - 1).Dot(new double[,] { { m_00 }, { m_01 } }).Euclidean();
+                if (vMax < v)
+                {
+                    index = k;
+                    vMax = v;
+                }
+            }
+            if (vMax < vLimit)
+                break;
+
+            var i = index;
+
+            var ratio = Math.Min(ratioLimit, vMax / vLimit) + 1e-4;
+            var tOld = timeline[i + 2] - timeline[i - 2];
+            var tNew = ratio * tOld;
+            var tInt = tNew / 4;
+
+            var head = i - 1;
+            var tail = i + 2;
+
+            for (var j = head; j <= tail; j++)
+                timeline[j] = tInt + timeline[j - 1];
+
+            for (var j = tail + 1; j < timeline.Length; j++)
+                timeline[j] = tNew - tOld + timeline[j];
+
+        }
+
+        while (true)
+        {
+            var tmpControlPoints = new double[3, controlPoints[0].Length];
+            for (int j = 0; j < controlPoints[0].Length - 1; j++)
+            {
+                tmpControlPoints[0, j] = 3 * (controlPoints[0][j + 1] - controlPoints[0][j]) / (timeline[j + 3] - timeline[j]);
+                tmpControlPoints[1, j] = 3 * (controlPoints[1][j + 1] - controlPoints[1][j]) / (timeline[j + 3] - timeline[j]);
+                tmpControlPoints[2, j] = 3 * (controlPoints[2][j + 1] - controlPoints[2][j]) / (timeline[j + 3] - timeline[j]);
+            }
+            for (int j = 0; j < controlPoints[0].Length - 2; j++)
+            {
+                tmpControlPoints[0, j] = 2 * (controlPoints[0][j + 1] - controlPoints[0][j]) / (timeline[j + 2] - timeline[j]);
+                tmpControlPoints[1, j] = 2 * (controlPoints[1][j + 1] - controlPoints[1][j]) / (timeline[j + 2] - timeline[j]);
+                tmpControlPoints[2, j] = 2 * (controlPoints[2][j + 1] - controlPoints[2][j]) / (timeline[j + 2] - timeline[j]);
+            }
+
+            double aMax = 0;
+            int index = -1;
+
+            for (int k = 2; k <= timeline.Length - 3; k++)
+            {
+                var m_00 = (timeline[k + 1] - timeline[k]) / (timeline[k + 1] - timeline[k - 1]);
+                var m_01 = (timeline[k] - timeline[k - 1]) / (timeline[k + 1] - timeline[k - 1]);
+
+                var a = tmpControlPoints.Get(0, 2, k - 2, k - 1).Dot(new double[,] { { m_00 }, { m_01 } }).Euclidean();
+                if (aMax < a)
+                {
+                    index = k;
+                    aMax = a;
+                }
+            }
+            if (aMax < aLimit)
+                break;
+
+            var i = index;
+
+            var ratio = Math.Min(ratioLimit, aMax / aLimit) + 1e-4;
+            var tOld = timeline[i + 2] - timeline[i - 2];
+            var tNew = ratio * tOld;
+            var tInt = tNew / 4;
+
+            var head = i - 1;
+            var tail = i + 2;
+
+            for (var j = head; j <= tail; j++)
+                timeline[j] = tInt + timeline[j - 1];
+
+            for (var j = tail + 1; j < timeline.Length; j++)
+                timeline[j] = tNew - tOld + timeline[j];
+
         }
     }
 
