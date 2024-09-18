@@ -1,6 +1,6 @@
 using g4;
 
-namespace ALPlanner.TrajectoryOptimizer.Curves;
+namespace ALPlanner.TrajectoryOptimizer.Curves.BSpline;
 
 class FifthOrderNonUniformBSpline : IKOrderCurve
 {

@@ -66,7 +66,6 @@ class HybridAStar : Component, IPathSearcher
                 _openList.Enqueue(child, child.TotalCost);
             }
         }
-        Stack<Vector3d> path = new();
         return end;
     }
 

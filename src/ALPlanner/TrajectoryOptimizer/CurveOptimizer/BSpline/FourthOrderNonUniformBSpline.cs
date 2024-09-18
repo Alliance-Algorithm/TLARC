@@ -5,7 +5,7 @@ using g4;
 using Microsoft.Toolkit.HighPerformance;
 using TlarcKernel;
 
-namespace ALPlanner.TrajectoryOptimizer.Curves;
+namespace ALPlanner.TrajectoryOptimizer.Curves.BSpline;
 
 class FourthOrderNonUniformBSpline : Component, IKOrderCurve
 {

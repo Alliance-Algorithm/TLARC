@@ -2,15 +2,14 @@
 using g4;
 using TlarcKernel.Transform;
 using TlarcKernel;
-using System.Diagnostics;
 using ALPlanner.Interfaces;
+using ALPlanner.PathPlanner.PathSearcher;
+using ALPlanner.PathPlanner.Sampler;
 
 namespace ALPlanner.PathPlanner;
 
 class ALPlanner : Component
 {
-    IPathSearcher pathSearcher;
-    ISampler sampler;
     Transform sentry;
 
     IPositionDecider target;
