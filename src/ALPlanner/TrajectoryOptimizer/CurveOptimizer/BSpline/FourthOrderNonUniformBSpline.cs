@@ -4,11 +4,13 @@ using Accord.Math.Optimization;
 using g4;
 using Microsoft.Toolkit.HighPerformance;
 using TlarcKernel;
+using TlarcKernel.TrajectoryOptimizer.Curves;
 
 namespace ALPlanner.TrajectoryOptimizer.Curves.BSpline;
 
-class FourthOrderNonUniformBSpline : Component, IKOrderCurve
+class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
 {
+    ControlPointOptimizer controlPointOptimizer;
     private double looseSize = 0.15;
     private double vLimit = 6;
     private double aLimit = 12;
@@ -27,6 +29,9 @@ class FourthOrderNonUniformBSpline : Component, IKOrderCurve
     private static double[,] H4S = new double[order, order];
     private readonly double[,] M4Data = new double[order, order];
     private int lastTimeIndex = -1;
+
+    public ref double[][] ControlPoint => ref controlPoints;
+
     private double[,] M4(int i)
     {
         var tmp = Math.Pow(timeline[i + 1] - timeline[i], 2);
@@ -128,6 +133,8 @@ class FourthOrderNonUniformBSpline : Component, IKOrderCurve
         solver = new GoldfarbIdnani(func, constraints3);
         solver.Minimize();
         controlPoints[2] = solver.Solution;
+
+        controlPointOptimizer.Optimize(this);
 
         ReallocTimeline();
     }
@@ -272,7 +279,6 @@ class FourthOrderNonUniformBSpline : Component, IKOrderCurve
 
             for (var j = tail + 1; j < timeline.Length; j++)
                 timeline[j] = tNew - tOld + timeline[j];
-
         }
     }
 

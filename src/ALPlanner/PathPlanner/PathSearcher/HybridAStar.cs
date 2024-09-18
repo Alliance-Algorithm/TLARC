@@ -16,7 +16,7 @@ using Node = Omni2DConsecNode;
 class HybridAStar : Component, IPathSearcher
 {
     Transform sentry;
-    IGridMap gridMap;
+    ISemanticMap gridMap;
 
     PriorityQueue<INode, float> _openList;
     bool[,,] _closeMap;
@@ -59,7 +59,7 @@ class HybridAStar : Component, IPathSearcher
             foreach (var child in children)
             {
                 var childIndex = gridMap.PositionInWorldToIndex(child.PositionInWorld);
-                if (!gridMap.CheckAccessibility(childIndex))
+                if (!gridMap.CheckAccessibility(index, childIndex))
                     continue;
                 if (_closeMap.Indexer(childIndex))
                     continue;
