@@ -2,7 +2,7 @@ using Accord.Math.Optimization;
 using TlarcKernel;
 namespace TrajectoryTracer.Controller;
 
-class ModelPredictController : Component, IPositionVelocityController
+class VelocityMPC : Component, IPositionVelocityController
 {
     ICarModel car;
     private int ControlPredictLength = 40;
