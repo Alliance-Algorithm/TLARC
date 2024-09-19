@@ -7,7 +7,13 @@ namespace ALPlanner.TrajectoryOptimizer.Curves.BSpline;
 
 class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
 {
+    public DateTime constructTime;
+    public double[] controlPointsX;
+    public double[] controlPointsY;
+    public double[] controlPointsZ;
+
     ControlPointOptimizer controlPointOptimizer;
+
     private double looseSize = 0.15;
     private double vLimit = 6;
     private double aLimit = 12;
@@ -15,7 +21,6 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
     private double timeInterval = 0.05f;
     const int order = 4;
     private double[] timeline;
-    private double[][] controlPoints = new double[3][];
     private readonly static double[,] M4S = new double[order, order]
     {
         {1, 4,1,0},
@@ -27,8 +32,15 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
     private readonly double[,] M4Data = new double[order, order];
     private int lastTimeIndex = -1;
 
-    public ref double[][] ControlPoint => ref controlPoints;
+    public double[][] ControlPoint => [controlPointsX, controlPointsY, controlPointsZ];
 
+    public Vector3d Position
+    {
+        get
+        {
+            return Value((DateTime.Now - constructTime).Duration().TotalSeconds);
+        }
+    }
     private double[,] M4(int i)
     {
         var tmp = Math.Pow(timeline[i + 1] - timeline[i], 2);
@@ -53,6 +65,7 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
 
     public void Construction(Vector3d[] positionList, Vector3dTuple2 HeadTailVelocity, Vector3dTuple2 HeadTailAcceleration)
     {
+        constructTime = DateTime.Now;
         double[,] A = new double[(positionList.Length - 2) * 2 + 6, positionList.Length + order - 1];
         double[][] B = [
             new double[(positionList.Length - 2) * 2 + 6],
@@ -123,26 +136,26 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
         QuadraticObjectiveFunction func = new QuadraticObjectiveFunction(H, null);
         var solver = new GoldfarbIdnani(func, constraints1);
         solver.Minimize();
-        controlPoints[0] = solver.Solution;
+        controlPointsX = solver.Solution;
         solver = new GoldfarbIdnani(func, constraints2);
         solver.Minimize();
-        controlPoints[1] = solver.Solution;
+        controlPointsY = solver.Solution;
         solver = new GoldfarbIdnani(func, constraints3);
         solver.Minimize();
-        controlPoints[2] = solver.Solution;
+        controlPointsZ = solver.Solution;
 
         controlPointOptimizer.Optimize(this);
 
         ReallocTimeline();
     }
 
-    public Vector3d Value(double time)
+    public Vector3d Value(double timeInSecond)
     {
         int k = 2;
-        time = Math.Max(0, Math.Min(time, timeline[^3]));
-        while (timeline[k + 1] < time)
+        timeInSecond = Math.Max(0, Math.Min(timeInSecond, timeline[^3]));
+        while (timeline[k + 1] < timeInSecond)
             k++;
-        var u = (time - timeline[k]) / (timeline[k + 1] - timeline[k]);
+        var u = (timeInSecond - timeline[k]) / (timeline[k + 1] - timeline[k]);
         if (lastTimeIndex != k)
         {
             M4(k);
@@ -151,7 +164,7 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
 
         var p = new double[1][] { [1, u, u * u, u * u * u] }.Dot(M4Data);
 
-        return new(p.Dot(controlPoints.Get(0, 0, k, k + 3))[0][0], p.Dot(controlPoints.Get(1, 1, k, k + 3))[0][0], p.Dot(controlPoints.Get(2, 2, k, k + 3))[0][0]);
+        return new(p.Dot(ControlPoint.Get(0, 0, k, k + 3))[0][0], p.Dot(ControlPoint.Get(1, 1, k, k + 3))[0][0], p.Dot(ControlPoint.Get(2, 2, k, k + 3))[0][0]);
 
 
     }
@@ -176,19 +189,19 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
     private void ReallocTimeline()
     {
         lastTimeIndex = -1;
-        timeline = new double[controlPoints[0].Length + order - 1];
+        timeline = new double[controlPointsX.Length + order - 1];
         timeline[0] = -2 * timeInterval;
         for (int i = 1; i < timeline.Length; i++)
             timeline[i] = timeline[i - 1] + timeInterval;
 
         while (true)
         {
-            var tmpControlPoints = new double[3, controlPoints[0].Length];
-            for (int j = 0; j < controlPoints[0].Length - 1; j++)
+            var tmpControlPoints = new double[3, controlPointsX.Length];
+            for (int j = 0; j < controlPointsX.Length - 1; j++)
             {
-                tmpControlPoints[0, j] = 3 * (controlPoints[0][j + 1] - controlPoints[0][j]) / (timeline[j + 3] - timeline[j]);
-                tmpControlPoints[1, j] = 3 * (controlPoints[1][j + 1] - controlPoints[1][j]) / (timeline[j + 3] - timeline[j]);
-                tmpControlPoints[2, j] = 3 * (controlPoints[2][j + 1] - controlPoints[2][j]) / (timeline[j + 3] - timeline[j]);
+                tmpControlPoints[0, j] = 3 * (controlPointsX[j + 1] - controlPointsX[j]) / (timeline[j + 3] - timeline[j]);
+                tmpControlPoints[1, j] = 3 * (controlPointsY[j + 1] - controlPointsY[j]) / (timeline[j + 3] - timeline[j]);
+                tmpControlPoints[2, j] = 3 * (controlPointsZ[j + 1] - controlPointsZ[j]) / (timeline[j + 3] - timeline[j]);
             }
 
             double vMax = 0;
@@ -229,18 +242,18 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
 
         while (true)
         {
-            var tmpControlPoints = new double[3, controlPoints[0].Length];
-            for (int j = 0; j < controlPoints[0].Length - 1; j++)
+            var tmpControlPoints = new double[3, controlPointsX.Length];
+            for (int j = 0; j < controlPointsX.Length - 1; j++)
             {
-                tmpControlPoints[0, j] = 3 * (controlPoints[0][j + 1] - controlPoints[0][j]) / (timeline[j + 3] - timeline[j]);
-                tmpControlPoints[1, j] = 3 * (controlPoints[1][j + 1] - controlPoints[1][j]) / (timeline[j + 3] - timeline[j]);
-                tmpControlPoints[2, j] = 3 * (controlPoints[2][j + 1] - controlPoints[2][j]) / (timeline[j + 3] - timeline[j]);
+                tmpControlPoints[0, j] = 3 * (controlPointsX[j + 1] - controlPointsX[j]) / (timeline[j + 3] - timeline[j]);
+                tmpControlPoints[1, j] = 3 * (controlPointsY[j + 1] - controlPointsY[j]) / (timeline[j + 3] - timeline[j]);
+                tmpControlPoints[2, j] = 3 * (controlPointsZ[j + 1] - controlPointsZ[j]) / (timeline[j + 3] - timeline[j]);
             }
-            for (int j = 0; j < controlPoints[0].Length - 2; j++)
+            for (int j = 0; j < controlPointsX.Length - 2; j++)
             {
-                tmpControlPoints[0, j] = 2 * (controlPoints[0][j + 1] - controlPoints[0][j]) / (timeline[j + 2] - timeline[j]);
-                tmpControlPoints[1, j] = 2 * (controlPoints[1][j + 1] - controlPoints[1][j]) / (timeline[j + 2] - timeline[j]);
-                tmpControlPoints[2, j] = 2 * (controlPoints[2][j + 1] - controlPoints[2][j]) / (timeline[j + 2] - timeline[j]);
+                tmpControlPoints[0, j] = 2 * (controlPointsX[j + 1] - controlPointsX[j]) / (timeline[j + 2] - timeline[j]);
+                tmpControlPoints[1, j] = 2 * (controlPointsY[j + 1] - controlPointsY[j]) / (timeline[j + 2] - timeline[j]);
+                tmpControlPoints[2, j] = 2 * (controlPointsZ[j + 1] - controlPointsZ[j]) / (timeline[j + 2] - timeline[j]);
             }
 
             double aMax = 0;

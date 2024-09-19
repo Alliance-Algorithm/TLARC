@@ -3,6 +3,8 @@ namespace ALPlanner.TrajectoryOptimizer.Curves.BSpline;
 
 class FifthOrderNonUniformBSpline : IKOrderCurve
 {
+    public Vector3d Position => throw new NotImplementedException();
+
     public void Construction(Vector3d[] positionList, Vector3dTuple2 HeadTailVelocity, Vector3dTuple2 HeadTailAcceleration)
     {
         throw new System.NotImplementedException();

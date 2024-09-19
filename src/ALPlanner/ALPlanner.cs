@@ -10,7 +10,7 @@ class ALPlanner : Component
     Transform sentry;
     IPositionDecider target;
     PathPlanner pathPlanner;
-    Trajectory trajectory;
+    TrajectoryOptimizer trajectoryOptimizer;
 
 
     private Vector3d lastTarget;
@@ -20,10 +20,13 @@ class ALPlanner : Component
         {
             return;
         }
-
-        trajectory.CalcTrajectory
-        (
-            pathPlanner.Search(sentry.Position, target.TargetPosition)
-        );
+        do
+        {
+            trajectoryOptimizer.CalcTrajectory
+            (
+                pathPlanner.Search(sentry.Position, target.TargetPosition)
+            );
+        }
+        while (true);
     }
 }

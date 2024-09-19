@@ -4,5 +4,5 @@ namespace TlarcKernel.TrajectoryOptimizer.Curves;
 
 interface IKOrderBSpline : IKOrderCurve
 {
-    public ref double[][] ControlPoint { get; }
+    public double[][] ControlPoint { get; }
 }

@@ -1,10 +1,10 @@
+using TrajectoryTracer;
+
 namespace ALPlanner.TrajectoryOptimizer.Curves;
 
-interface IKOrderCurve
+interface IKOrderCurve : ITrajectory
 {
     public IEnumerable<Vector3d> TrajectoryPoints(double fromWhen, double toWhen, double step);
-
-    public Vector3d Value(double time);
 
     public void Construction(Vector3d[] positionList, Vector3dTuple2 HeadTailVelocity, Vector3dTuple2 HeadTailAcceleration);
 }
