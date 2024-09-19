@@ -1,16 +1,15 @@
 using TlarcKernel.Transform;
 using TlarcKernel;
 using ALPlanner.Interfaces;
-using ALPlanner.TrajectoryOptimizer;
 
-namespace ALPlanner.PathPlanner;
+namespace ALPlanner;
 
 class ALPlanner : Component
 {
     Transform sentry;
     IPositionDecider target;
-    PathPlanner pathPlanner;
-    TrajectoryOptimizer trajectoryOptimizer;
+    PathPlanner.PathPlanner pathPlanner;
+    TrajectoryOptimizer.TrajectoryOptimizer trajectoryOptimizer;
 
 
     private Vector3d lastTarget;

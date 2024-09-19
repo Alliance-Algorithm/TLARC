@@ -1,6 +1,6 @@
 using TrajectoryTracer;
 
-namespace ALPlanner.TrajectoryOptimizer.Curves;
+namespace ALPlanner.TrajectoryOptimizer;
 
 interface IKOrderCurve : ITrajectory
 {
