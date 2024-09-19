@@ -3,10 +3,7 @@ using g4;
 using TlarcKernel.Transform;
 using TlarcKernel;
 using ALPlanner.Interfaces;
-using ALPlanner.PathPlanner.PathSearcher;
-using ALPlanner.PathPlanner.Sampler;
 using ALPlanner.TrajectoryOptimizer;
-using System.Numerics;
 
 namespace ALPlanner.PathPlanner;
 
@@ -25,7 +22,7 @@ class ALPlanner : Component
         {
             return;
         }
-        ;
+
         trajectory.CalcTrajectory
         (
             pathPlanner.Search(sentry.Position, target.TargetPosition)
