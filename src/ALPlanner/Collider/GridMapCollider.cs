@@ -1,6 +1,7 @@
+
 namespace ALPlanner.Collider;
 
-class GridMapCollider : ColliderBase
+class GridMapCollider : Component, ICollider
 {
-
+    public Vector3d Position => throw new NotImplementedException();
 }

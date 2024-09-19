@@ -1,8 +1,6 @@
 
 using Maps;
 using System.Diagnostics;
-using TlarcKernel;
-using TlarcKernel.Transform;
 using TlarcKernel.Extensions.Array;
 using ALPlanner.PathPlanner.Nodes;
 
@@ -12,7 +10,6 @@ using Node = Omni2DConsecNode;
 
 class HybridAStar : Component, IPathSearcher
 {
-    Transform sentry;
     ISemanticMap gridMap;
 
     PriorityQueue<INode, float> _openList;
@@ -30,7 +27,7 @@ class HybridAStar : Component, IPathSearcher
         Array.Clear(_closeMap, 0, _closeMap.Length);
         _openList = new();
 
-        Node begin = new(sentry.Position);
+        Node begin = new(origin);
         Node end = new(target);
 
         Node.Target = end;

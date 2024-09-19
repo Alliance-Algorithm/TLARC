@@ -2,7 +2,10 @@ using TlarcKernel;
 
 namespace ALPlanner.Collider;
 
-class ColliderBase : Component
+interface ICollider
 {
-
+    public Vector3d Position
+    {
+        get;
+    }
 }

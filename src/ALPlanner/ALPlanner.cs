@@ -1,12 +1,11 @@
-using TlarcKernel.Transform;
-using TlarcKernel;
 using ALPlanner.Interfaces;
+using ALPlanner.Collider;
 
 namespace ALPlanner;
 
 class ALPlanner : Component
 {
-    Transform sentry;
+    ICollider sentry;
     IPositionDecider target;
     PathPlanner.PathPlanner pathPlanner;
     TrajectoryOptimizer.TrajectoryOptimizer trajectoryOptimizer;
