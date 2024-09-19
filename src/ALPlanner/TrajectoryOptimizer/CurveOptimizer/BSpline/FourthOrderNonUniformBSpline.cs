@@ -1,7 +1,4 @@
-
-using Accord.Math;
 using Accord.Math.Optimization;
-using g4;
 using Microsoft.Toolkit.HighPerformance;
 using TlarcKernel;
 using TlarcKernel.TrajectoryOptimizer.Curves;
@@ -54,27 +51,27 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
     }
 
 
-    public void Construction(IEnumerable<Vector3d> positionList, Vector3dTuple2 HeadTailVelocity, Vector3dTuple2 HeadTailAcceleration)
+    public void Construction(Vector3d[] positionList, Vector3dTuple2 HeadTailVelocity, Vector3dTuple2 HeadTailAcceleration)
     {
-        double[,] A = new double[(positionList.Count() - 2) * 2 + 6, positionList.Count() + order - 1];
+        double[,] A = new double[(positionList.Length - 2) * 2 + 6, positionList.Length + order - 1];
         double[][] B = [
-            new double[(positionList.Count() - 2) * 2 + 6],
-            new double[(positionList.Count() - 2) * 2 + 6],
-            new double[(positionList.Count() - 2) * 2 + 6]
+            new double[(positionList.Length - 2) * 2 + 6],
+            new double[(positionList.Length - 2) * 2 + 6],
+            new double[(positionList.Length - 2) * 2 + 6]
             ];
-        double[,] H = new double[positionList.Count() + order - 1, positionList.Count() + order - 1];
-        for (int i = 1; i < positionList.Count() - 1; i++)
+        double[,] H = new double[positionList.Length + order - 1, positionList.Length + order - 1];
+        for (int i = 1; i < positionList.Length - 1; i++)
             for (int j = 0; j < order; j++)
             {
-                A[positionList.Count() - 2 + i + 5, i + j] = -M4S[0, j];
-                A[i + 5, i + j] = -A[positionList.Count() - 2 + i, i - 1 + j];
+                A[positionList.Length - 2 + i + 5, i + j] = -M4S[0, j];
+                A[i + 5, i + j] = -A[positionList.Length - 2 + i, i - 1 + j];
             }
 
         for (int j = 0; j < order; j++)
         {
-            A[0, j] = A[1, j + positionList.Count() - 1] = M4S[0, j];
-            A[2, j] = A[3, j + positionList.Count() - 1] = M4S[1, j];
-            A[4, j] = A[5, j + positionList.Count() - 1] = M4S[2, j];
+            A[0, j] = A[1, j + positionList.Length - 1] = M4S[0, j];
+            A[2, j] = A[3, j + positionList.Length - 1] = M4S[1, j];
+            A[4, j] = A[5, j + positionList.Length - 1] = M4S[2, j];
         }
 
         int index = 0;
@@ -87,7 +84,7 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
                 B[2][0] = position.z;
                 continue;
             }
-            if (index == positionList.Count() - 1)
+            if (index == positionList.Length - 1)
             {
                 B[0][1] = position.x;
                 B[1][1] = position.y;
@@ -97,9 +94,9 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
             B[0][index + 5] = position.x + looseSize;
             B[1][index + 5] = position.y + looseSize;
             B[2][index + 5] = position.z + looseSize;
-            B[0][index + positionList.Count() - 2] = -position.x + looseSize;
-            B[1][index + positionList.Count() - 2] = -position.y + looseSize;
-            B[2][index + positionList.Count() - 2] = -position.z + looseSize;
+            B[0][index + positionList.Length - 2] = -position.x + looseSize;
+            B[1][index + positionList.Length - 2] = -position.y + looseSize;
+            B[2][index + positionList.Length - 2] = -position.z + looseSize;
         }
         B[0][2] = HeadTailVelocity.V0.x;
         B[1][2] = HeadTailVelocity.V0.y;
@@ -118,7 +115,7 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
         var constraints2 = LinearConstraintCollection.Create(A, B[1], 6);
         var constraints3 = LinearConstraintCollection.Create(A, B[2], 6);
 
-        for (int i = 0; i < positionList.Count(); i++)
+        for (int i = 0; i < positionList.Length; i++)
             for (int j = 0; j < order; j++)
                 for (int k = 0; k < order; k++)
                     H[i + j, i + k] += H4S[j, k];
@@ -281,5 +278,6 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
                 timeline[j] = tNew - tOld + timeline[j];
         }
     }
+
 
 }

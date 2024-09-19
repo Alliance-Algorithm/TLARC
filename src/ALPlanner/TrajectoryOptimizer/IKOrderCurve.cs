@@ -1,5 +1,3 @@
-using g4;
-
 namespace ALPlanner.TrajectoryOptimizer.Curves;
 
 interface IKOrderCurve
@@ -8,5 +6,5 @@ interface IKOrderCurve
 
     public Vector3d Value(double time);
 
-    public void Construction(IEnumerable<Vector3d> positionList, Vector3dTuple2 HeadTailVelocity, Vector3dTuple2 HeadTailAcceleration);
+    public void Construction(Vector3d[] positionList, Vector3dTuple2 HeadTailVelocity, Vector3dTuple2 HeadTailAcceleration);
 }

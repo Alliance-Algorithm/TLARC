@@ -8,7 +8,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>12</LangVersion>
     <NoWarn>$(NoWarn);IDE0044;0649;CS8618;8601;8604</NoWarn>
-    <ImplicitUsings> enable </ImplicitUsings>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>

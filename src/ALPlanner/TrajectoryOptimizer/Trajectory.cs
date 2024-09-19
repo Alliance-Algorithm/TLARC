@@ -1,7 +1,6 @@
+
 using ALPlanner.TrajectoryOptimizer.Curves;
-using g4;
 using TlarcKernel;
-using TlarcKernel.TrajectoryOptimizer.Curves;
 using TlarcKernel.Transform;
 
 namespace ALPlanner.TrajectoryOptimizer;
@@ -13,7 +12,7 @@ class Trajectory : Component
     Vector3d lastSentryPosition;
     Vector3d sentryVelocity;
 
-    public void CalcTrajectory(IEnumerable<Vector3d> path)
+    public void CalcTrajectory(Vector3d[] path)
     {
         kOrderCurve.Construction(path, new(sentryVelocity, Vector3d.Zero), new(Vector3d.Zero, Vector3d.Zero));
     }
