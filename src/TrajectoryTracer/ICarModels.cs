@@ -2,9 +2,10 @@ namespace TrajectoryTracer;
 
 interface ICarModel
 {
-    public double[] ControlVolume { get; }
+    public double ControlCycleTime { get; }
     public double[] ObservableVolume { get; }
     public double[] ReferenceObservationVolume { get; }
+    public int ControlVolumeSize { get; }
 
 
     public double[,] MatrixA { get; }
@@ -12,7 +13,7 @@ interface ICarModel
 
 
     public double[] X => ObservableVolume;
-    public double[] U => ControlVolume;
+    public int SizeU => ControlVolumeSize;
     public double[] RefX => ReferenceObservationVolume;
 
     public double[,] A => MatrixA;
