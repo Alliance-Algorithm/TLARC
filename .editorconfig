@@ -23,3 +23,6 @@ dotnet_diagnostic.IDE0049.severity = none
 
 # IDE0049: Simplify Names
 dotnet_style_predefined_type_for_locals_parameters_members = true
+
+# IDE0051: Remove unused private members
+dotnet_diagnostic.IDE0051.severity = none

@@ -1,4 +1,4 @@
-using ALPlanner.TrajectoryOptimizer.Curves;
+using ALPlanner.TrajectoryOptimizer;
 
 namespace TlarcKernel.TrajectoryOptimizer.Curves;
 
