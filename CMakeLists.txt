@@ -11,7 +11,7 @@ add_custom_command(
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 
-install(DIRECTORY declarations DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY configuration DESTINATION share/${PROJECT_NAME})
 install(DIRECTORY maps DESTINATION share/${PROJECT_NAME})
 
 

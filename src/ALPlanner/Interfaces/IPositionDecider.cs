@@ -1,6 +1,7 @@
+using TlarcKernel;
 namespace ALPlanner.Interfaces;
 
-interface IPositionDecider
+public interface IPositionDecider
 {
     public Vector3d TargetPosition { get; }
 }

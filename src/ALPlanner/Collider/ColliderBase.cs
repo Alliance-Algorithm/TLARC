@@ -2,7 +2,7 @@ using TlarcKernel;
 
 namespace ALPlanner.Collider;
 
-interface ICollider
+public interface ICollider
 {
     public Vector3d Position
     {
