@@ -10,6 +10,7 @@ class PathPlanner : Component
     private ISampler sampler;
 
 
+
     public Vector3d[] Search(Vector3d origin, Vector3d target)
     => sampler.Sample(pathSearcher.Search(origin, target));
 }

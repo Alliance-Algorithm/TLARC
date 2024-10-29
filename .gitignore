@@ -1,5 +1,4 @@
 .mono
-.vscode
 .github
 Docker*
 obj/

@@ -24,7 +24,7 @@ class TrajectoryOptimizer : Component
     public override void Update()
     {
         constructTimeToNowInSeconds = (constructTime - constructTime).Duration().TotalSeconds;
-        sentryVelocity = (sentry.Position - lastSentryPosition) * Program.GetProcessWithPID(ProcessID).fps;
+        sentryVelocity = (sentry.Position - lastSentryPosition) * Program.GetProcessWithPID(ProcessID).Fps;
         lastSentryPosition = sentry.Position;
     }
 
