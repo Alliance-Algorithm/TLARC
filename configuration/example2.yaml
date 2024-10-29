@@ -1,0 +1,10 @@
+- Fps: 1
+  Components:
+    LearnToUse->Example5:
+    LearnToUse->Example6:
+    LearnToUse->Example7:
+    LearnToUse->Example8:
+
+- Fps: 10
+  Components:
+    LearnToUse->Example1:

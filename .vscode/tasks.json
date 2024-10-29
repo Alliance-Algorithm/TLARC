@@ -1,0 +1,22 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "source",
+			"command": "source",
+			"args": [
+				"/workspaces/TLARC/msg/install/setup.sh"
+			],
+			"group": "build"
+		},
+		{
+			"type": "dotnet",
+			"task": "build /workspaces/TLARC/tlarc.csproj",
+			"file": "/workspaces/TLARC/tlarc.csproj",
+			"group": "build",
+			"problemMatcher": [],
+			"label": "build"
+		}
+	]
+}
