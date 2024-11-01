@@ -1,5 +1,5 @@
 
-- Fps: 10
+- Fps: 500
   Components:
     LearnToUse->Example2:
       Args:

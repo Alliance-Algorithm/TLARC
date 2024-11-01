@@ -13,6 +13,8 @@ add_custom_command(
 
 install(DIRECTORY configuration DESTINATION share/${PROJECT_NAME})
 install(DIRECTORY maps DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY Lib/runtimes DESTINATION lib/${PROJECT_NAME})
+install(DIRECTORY Lib DESTINATION lib)
 
 
 install(

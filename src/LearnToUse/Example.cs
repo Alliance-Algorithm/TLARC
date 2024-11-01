@@ -14,7 +14,6 @@ namespace LearnToUse
     };
     public class Example2 : Component
     {
-        int a;
         public Vector3d vector3;
 
 
