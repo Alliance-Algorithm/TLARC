@@ -2,7 +2,7 @@ using TrajectoryTracer;
 
 namespace ALPlanner.TrajectoryOptimizer;
 
-interface IKOrderCurve : ITrajectory
+interface IKOrderCurve : ITrajectory<Vector3d>
 {
     public IEnumerable<Vector3d> TrajectoryPoints(double fromWhen, double toWhen, double step);
 

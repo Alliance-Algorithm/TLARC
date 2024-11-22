@@ -1,11 +1,12 @@
 using System.ComponentModel;
 using ALPlanner.Maps;
 using TlarcKernel.TrajectoryOptimizer.Curves;
+using TlarcKernel.TrajectoryOptimizer.Optimizer;
 
-namespace ALPlanner.TrajectoryOptimizer.Curves.BSpline;
+namespace ALPlanner.TrajectoryOptimizer.Optimizer;
 
 
-class ControlPointOptimizer : Component
+class ControlPointOptimizer : Component, IOptimizer
 {
     private double gradientRatio = 0.1f;
     SemanticESDF semanticESDF;

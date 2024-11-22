@@ -14,7 +14,8 @@
   <ItemGroup>
     <PackageReference Include="Accord" Version="3.8.0" />
     <PackageReference Include="Accord.Math" Version="3.8.0" />
-    <PackageReference Include="Costura.Fody" Version="5.7.0" PrivateAssets="All"/>
+    <PackageReference Include="BepuPhysics" Version="1.5.2" />
+    <PackageReference Include="Costura.Fody" Version="5.7.0" PrivateAssets="All" />
     <PackageReference Include="Emgu.CV" Version="4.9.0.5494" />
     <PackageReference Include="Emgu.CV.runtime.ubuntu-x64" Version="4.9.0.5494" />
     <PackageReference Include="geometry4Sharp" Version="1.0.0" />
@@ -23,6 +24,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Rcl.NET" Version="1.3.0" />
     <PackageReference Include="Rosidl.Runtime" Version="1.3.0" />
+    <PackageReference Include="SeeShark" Version="4.0.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.4" />
     <PackageReference Include="System.Drawing.Common" Version="8.0.10" />
@@ -40,4 +42,5 @@
   <ItemGroup>
     <RuntimeHostConfigurationOption Include="System.Runtime.Loader.UseRidGraph" Value="true" />
   </ItemGroup>
+  
 </Project>

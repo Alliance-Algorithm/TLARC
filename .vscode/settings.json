@@ -1,6 +1,9 @@
 {
     "cSpell.words": [
         "Alray",
+        "Bepu",
+        "Collidable",
+        "Collidables",
         "Consec",
         "ESDF",
         "Fixedup",
@@ -8,6 +11,7 @@
         "Goldfarb",
         "Hashtable",
         "Idnani",
+        "Ldnull",
         "Lothric",
         "minqpcreate",
         "minqpoptimize",
@@ -31,10 +35,13 @@
         "rmcs",
         "RMUC",
         "Rosidl",
+        "Scara",
         "stampd",
         "Submatrix",
         "Tlarc",
         "UART",
+        "Uphysics",
+        "Uutilities",
         "Voronoi"
     ]
 }

@@ -2,6 +2,7 @@ using Accord.Math.Optimization;
 using Microsoft.Toolkit.HighPerformance;
 using TlarcKernel;
 using TlarcKernel.TrajectoryOptimizer.Curves;
+using TlarcKernel.TrajectoryOptimizer.Optimizer;
 
 namespace ALPlanner.TrajectoryOptimizer.Curves.BSpline;
 
@@ -12,13 +13,22 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
     public double[] controlPointsY;
     public double[] controlPointsZ;
 
-    ControlPointOptimizer controlPointOptimizer;
+    IOptimizer controlPointOptimizer;
 
-    private double looseSize = 0.15;
-    private double vLimit = 6;
-    private double aLimit = 12;
-    private double ratioLimit = 1.01;
-    private double timeInterval = 0.05f;
+    public FourthOrderNonUniformBSpline(double looseSize = 0.15, double vLimit = 6, double aLimit = 12, double ratioLimit = 1.01, double timeInterval = 0.05f)
+    {
+        _looseSize = looseSize;
+        _vLimit = vLimit;
+        _aLimit = aLimit;
+        _ratioLimit = ratioLimit;
+        _timeInterval = timeInterval;
+    }
+
+    private double _looseSize = 0.15;
+    private double _vLimit = 6;
+    private double _aLimit = 12;
+    private double _ratioLimit = 1.01;
+    private double _timeInterval = 0.05f;
     const int order = 4;
     private double[] timeline;
     private readonly static double[,] M4S = new double[order, order]
@@ -45,7 +55,7 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
     {
         var tmp = Math.Pow(timeline[i + 1] - timeline[i], 2);
         M4Data[0, 0] = tmp / (timeline[i + 1] - timeline[i - 1]) / (timeline[i + 1] - timeline[i - 2]);
-        M4Data[0, 2] = tmp / (timeline[i + 2] - timeline[i - 1]) / (timeline[i + 1] - timeline[i - 1]);
+        M4Data[0, 2] = Math.Pow(timeline[i] - timeline[i - 1], 2) / (timeline[i + 2] - timeline[i - 1]) / (timeline[i + 1] - timeline[i - 1]);
         M4Data[1, 2] = 3 * (timeline[i + 1] - timeline[i]) * (timeline[i] - timeline[i - 1]) / (timeline[i + 2] - timeline[i - 1]) / (timeline[i + 1] - timeline[i - 1]);
         M4Data[2, 2] = 3 * tmp / (timeline[i + 2] - timeline[i - 1]) / (timeline[i + 1] - timeline[i - 1]);
         M4Data[3, 3] = tmp / (timeline[i + 3] - timeline[i]) / (timeline[i + 2] - timeline[i]);
@@ -104,12 +114,12 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
                 B[2][1] = position.z;
                 continue;
             }
-            B[0][index + 5] = position.x + looseSize;
-            B[1][index + 5] = position.y + looseSize;
-            B[2][index + 5] = position.z + looseSize;
-            B[0][index + positionList.Length - 2] = -position.x + looseSize;
-            B[1][index + positionList.Length - 2] = -position.y + looseSize;
-            B[2][index + positionList.Length - 2] = -position.z + looseSize;
+            B[0][index + 5] = position.x + _looseSize;
+            B[1][index + 5] = position.y + _looseSize;
+            B[2][index + 5] = position.z + _looseSize;
+            B[0][index + positionList.Length - 2] = -position.x + _looseSize;
+            B[1][index + positionList.Length - 2] = -position.y + _looseSize;
+            B[2][index + positionList.Length - 2] = -position.z + _looseSize;
         }
         B[0][2] = HeadTailVelocity.V0.x;
         B[1][2] = HeadTailVelocity.V0.y;
@@ -190,9 +200,9 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
     {
         lastTimeIndex = -1;
         timeline = new double[controlPointsX.Length + order - 1];
-        timeline[0] = -2 * timeInterval;
+        timeline[0] = -2 * _timeInterval;
         for (int i = 1; i < timeline.Length; i++)
-            timeline[i] = timeline[i - 1] + timeInterval;
+            timeline[i] = timeline[i - 1] + _timeInterval;
 
         while (true)
         {
@@ -219,12 +229,12 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
                     vMax = v;
                 }
             }
-            if (vMax < vLimit)
+            if (vMax < _vLimit)
                 break;
 
             var i = index;
 
-            var ratio = Math.Min(ratioLimit, vMax / vLimit) + 1e-4;
+            var ratio = Math.Min(_ratioLimit, vMax / _vLimit) + 1e-4;
             var tOld = timeline[i + 2] - timeline[i - 2];
             var tNew = ratio * tOld;
             var tInt = tNew / 4;
@@ -271,12 +281,12 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
                     aMax = a;
                 }
             }
-            if (aMax < aLimit)
+            if (aMax < _aLimit)
                 break;
 
             var i = index;
 
-            var ratio = Math.Min(ratioLimit, aMax / aLimit) + 1e-4;
+            var ratio = Math.Min(_ratioLimit, aMax / _aLimit) + 1e-4;
             var tOld = timeline[i + 2] - timeline[i - 2];
             var tNew = ratio * tOld;
             var tInt = tNew / 4;

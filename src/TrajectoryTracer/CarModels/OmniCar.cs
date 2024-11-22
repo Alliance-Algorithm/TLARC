@@ -7,7 +7,7 @@ namespace TrajectoryTracer.CarModels;
 class OmniCar : Component, ICarModel
 {
     Transform sentry;
-    ITrajectory trajectory;
+    ITrajectory<Vector3d> trajectory;
     private const float controlCycleTime = 0.1f;
     public double ControlCycleTime => controlCycleTime;
     public int ControlVolumeSize => 2;

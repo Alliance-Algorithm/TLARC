@@ -1,16 +1,6 @@
--   Components:
-        HikCamera->VideoCapture:
-            Args:
-                readOnlyUnmanagedInterface: "{name:\"yes\"}"
--   Fps: 20 
-    Components:
-        HikCamera->VideoTest:
-            Args:
-                windowsName: "\"VideoTest1 with 20 fps\""
-                cap: "{name:\"yes\"}"
-                
--   Fps: 10 
-    Components:
-        HikCamera->VideoTest:
-            Args: 
-                windowsName: "\"VideoTest1 with 10 fps\""
+- Fps: 60
+  Components:
+    ArmSolver.Trajectory->TrajectoryConstructor:
+    ArmSolver.Debug->TargetReceiver:
+    ArmSolver.InverseDynamicSolver->Scara2025InverseDynamic:
+

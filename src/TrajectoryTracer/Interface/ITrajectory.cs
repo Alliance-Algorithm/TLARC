@@ -2,7 +2,7 @@ using Rosidl.Messages.Builtin;
 
 namespace TrajectoryTracer;
 
-interface ITrajectory
+interface ITrajectory<T>
 {
-    public Vector3d Position { get; }
+    public T Position { get; }
 }
