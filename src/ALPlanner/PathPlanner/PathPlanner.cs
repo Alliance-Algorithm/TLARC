@@ -6,8 +6,12 @@ namespace ALPlanner.PathPlanner;
 
 class PathPlanner : Component
 {
+    [ComponentReferenceFiled]
     private IPathSearcher pathSearcher;
+
+    [ComponentReferenceFiled]
     private ISampler sampler;
+
 
 
 

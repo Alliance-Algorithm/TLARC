@@ -1,11 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.NetworkInformation;
-using g4;
-using Unity.VisualScripting;
-using UnityEditor.Experimental.GraphView;
-using Utils;
+
+using RapidlyArmPlanner.ArmSolver.ForwardDynamic;
+using RapidlyArmPlanner.ArmSolver.InverseDynamic;
+using RapidlyArmPlanner.ColliderDetector;
+using RapidlyArmPlanner.PathFinder.RRT_BHAStar;
+using RapidlyArmPlanner.TrajectoryFit;
 
 class Scara2025AutoExchangeOre
 {
@@ -24,8 +22,8 @@ class Scara2025AutoExchangeOre
         colliderDetector = new Scara2025BepuDetector();
         searcher = new(
             new RRT_BHAStar(
-                new double[] { Math.PI, 0.8, Math.PI, Math.PI, Math.PI, Math.PI },
-                new double[] { -Math.PI, 0, -Math.PI, -Math.PI, -Math.PI, -Math.PI })
+                [Math.PI, 0.8, Math.PI, Math.PI, Math.PI, Math.PI],
+                [-Math.PI, 0, -Math.PI, -Math.PI, -Math.PI, -Math.PI])
             {
                 forwardDynamic = forwardDynamic,
                 obstacleDetector = colliderDetector

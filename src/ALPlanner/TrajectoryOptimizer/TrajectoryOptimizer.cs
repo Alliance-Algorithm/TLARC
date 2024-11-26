@@ -8,6 +8,7 @@ namespace ALPlanner.TrajectoryOptimizer;
 
 class TrajectoryOptimizer : Component
 {
+    [ComponentReferenceFiled]
     IKOrderCurve kOrderCurve;
     Transform sentry;
     Vector3d lastSentryPosition;
@@ -16,15 +17,25 @@ class TrajectoryOptimizer : Component
     DateTime constructTime;
     double constructTimeToNowInSeconds;
 
+    public double MaxTime => kOrderCurve.MaxTime;
     public void CalcTrajectory(Vector3d[] path)
     {
         constructTime = DateTime.Now;
         kOrderCurve.Construction(path, new(sentryVelocity, Vector3d.Zero), new(Vector3d.Zero, Vector3d.Zero));
     }
+
+    public void Construction(Vector3d[] positionList, Vector3dTuple2 HeadTailVelocity, Vector3dTuple2 HeadTailAcceleration)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IEnumerable<Vector3d> TrajectoryPoints(double fromWhen, double toWhen, double step)
+    => kOrderCurve.TrajectoryPoints(fromWhen, toWhen, step);
+
     public override void Update()
     {
         constructTimeToNowInSeconds = (constructTime - constructTime).Duration().TotalSeconds;
-        sentryVelocity = (sentry.Position - lastSentryPosition) * Program.GetProcessWithPID(ProcessID).Fps;
+        // sentryVelocity = (sentry.Position - lastSentryPosition) / Program.GetProcessWithPID(ProcessID).deltaTime;
         lastSentryPosition = sentry.Position;
     }
 

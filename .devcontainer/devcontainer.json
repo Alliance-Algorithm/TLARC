@@ -4,13 +4,13 @@
     "name": "tlarc-dev",
     "image": "alrayqiu/tlarc-dev:latest",
     "privileged": true,
-    "mounts": [
-        {
-            "source": "/dev",
-            "target": "/dev",
-            "type": "bind"
-        }
-    ],
+    // "mounts": [
+    //     {
+    //         "source": "/dev",
+    //         "target": "/dev",
+    //         "type": "bind"
+    //     }
+    // ],
     "runArgs": [
         "--network",
         "host"

@@ -4,7 +4,7 @@ interface ICarModel
 {
     public double ControlCycleTime { get; }
     public double[] ObservableVolume { get; }
-    public double[] ReferenceObservationVolume { get; }
+    public double[] ReferenceObservationVolume(int window);
     public int ControlVolumeSize { get; }
 
 
@@ -14,7 +14,7 @@ interface ICarModel
 
     public double[] X => ObservableVolume;
     public int SizeU => ControlVolumeSize;
-    public double[] RefX => ReferenceObservationVolume;
+    public double[] RefX(int window) => ReferenceObservationVolume(window);
 
     public double[,] A => MatrixA;
     public double[,] B => MatrixB;

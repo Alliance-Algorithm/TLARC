@@ -1,10 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using Accord.Math;
-using Accord.Math.Optimization;
-using UnityEngine.UIElements;
 
+
+using System.Diagnostics;
+using Accord.Math.Optimization;
+namespace RapidlyArmPlanner.TrajectoryFit;
 class BSplineTrajectoryWithMinimalSnap
 {
     double _value;
@@ -188,7 +186,7 @@ class BSplineTrajectoryWithMinimalSnap
         for (int j = 0; j < 4; j++)
         {
             A[values.Count, j] = M4S[1, j];
-            A[values.Count + 1, j + values.Count - 1] = M4S[1, j];
+            A[values.Count + 1, j + values.Count] = M4S[1, j];
         }
         var head = values.First;
         for (int i = 0, k = values.Count; i < k; i++)

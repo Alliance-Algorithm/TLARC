@@ -2,10 +2,11 @@ namespace ALPlanner.PathPlanner.Nodes;
 
 class Omni2DConsecNode : INode
 {
-    const double IterationStep = 0.2f;
+    const double IterationStep = 0.7f;
     const int Headings = 18;
 
     double _g = 0;
+    double _h = 0;
 
     public static INode? Target { get; set; }
 
@@ -18,6 +19,7 @@ class Omni2DConsecNode : INode
         PositionInWorld = position;
         Parent = parent;
         _g = parent._g + IterationStep;
+        _h = (Target.PositionInWorld - PositionInWorld).Length;
     }
     public Vector3d PositionInWorld { get; private set; }
 
@@ -37,7 +39,7 @@ class Omni2DConsecNode : INode
 
     public INode? Parent { get; set; } = null;
 
-    public float TotalCost => (float)(_g + (Target.PositionInWorld - PositionInWorld).Length);
+    public float TotalCost => (float)(_g + _h);
 
     public bool GeometricallyEqualTo(INode node)
     {

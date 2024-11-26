@@ -1,7 +1,4 @@
-using System;
-using Accord.Math;
-using UnityEngine.UIElements;
-
+namespace RapidlyArmPlanner.TrajectoryFit;
 class BSplineTrajectory
 {
     private readonly static double[,] M4S = new double[4, 4]
@@ -17,8 +14,8 @@ class BSplineTrajectory
     public double MaxTime => timeline[^3];
     private readonly double _timeInterval = 0.1f;
     private readonly double _vLimit = 3;
-    private readonly double _aLimit = 3;
-    private readonly double _ratioLimit = 1.01;
+    // private readonly double _aLimit = 3;
+    // private readonly double _ratioLimit = 1.01;
     int lastIndex = -1;
     public BSplineTrajectory(double[] values)
     {

@@ -8,10 +8,10 @@ namespace ALPlanner.PathPlanner.PathSearcher;
 
 using Node = Omni2DConsecNode;
 
-class HybridAStar : Component, IPathSearcher
+class HybridAStarWithDistance : Component, IPathSearcher
 {
     [ComponentReferenceFiled]
-    IGridMap gridMap;
+    IESDF gridMap;
 
     PriorityQueue<INode, float> _openList;
     bool[,,] _closeMap;
@@ -61,7 +61,7 @@ class HybridAStar : Component, IPathSearcher
                     continue;
                 if (_closeMap.Indexer(childIndex))
                     continue;
-                _openList.Enqueue(child, child.TotalCost);
+                _openList.Enqueue(child, child.TotalCost + (float)(100 - gridMap[childIndex]) * 0.1f);
             }
         }
         return end;

@@ -1,5 +1,5 @@
-using System.Collections.Generic;
-using System.IO;
+
+using RapidlyArmPlanner.PathFinder;
 
 class PathToPathLoose : IPathFinder<(double value, double loose)>
 {

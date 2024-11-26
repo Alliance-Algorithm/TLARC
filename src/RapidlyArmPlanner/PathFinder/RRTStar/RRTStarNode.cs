@@ -1,8 +1,5 @@
 
 using Accord.Math;
-using UnityEditor.Experimental.GraphView;
-using UnityEngine.InputSystem;
-
 class RRTStarNode
 {
     double[] _values;
@@ -12,10 +9,10 @@ class RRTStarNode
     double _cost = 0;
     public double Cost => _cost;
 
-    RRTStarNode _parent = null;
-    public RRTStarNode Parent => _parent;
+    RRTStarNode? _parent = null;
+    public RRTStarNode? Parent => _parent;
 
-    public RRTStarNode(double[] values, double cost = 0, RRTStarNode parent = null)
+    public RRTStarNode(double[] values, double cost = 0, RRTStarNode? parent = null)
     {
         _values = values;
         _cost = cost;

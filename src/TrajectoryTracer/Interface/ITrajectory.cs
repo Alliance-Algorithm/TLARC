@@ -1,8 +1,8 @@
 using Rosidl.Messages.Builtin;
 
-namespace TrajectoryTracer;
+namespace TrajectoryTracer.Trajectory;
 
 interface ITrajectory<T>
 {
-    public T Position { get; }
+    public T[] Trajectory(double howLong, int count);
 }

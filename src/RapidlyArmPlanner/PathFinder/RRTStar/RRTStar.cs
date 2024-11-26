@@ -9,7 +9,7 @@ class RRTStar
     public IForwardDynamic forwardDynamic { get; set; }
     public IColliderDetector obstacleDetector { get; set; }
 
-    int iterator = 10000;
+    // int iterator = 10000;
     public double goalBias = 0.1;
     double[] _upperBound;
     double[] _lowerBound;

@@ -5,7 +5,7 @@ namespace LearnToUse
 {
     public class Example1 : Component
     {
-        Example2 example;
+        // Example2 example;
 
         public override void Update()
         {
@@ -55,7 +55,7 @@ namespace LearnToUse
     };
     public class Example7 : Component
     {
-        Example8 example;
+        // Example8 example;
     };
     public class Example8 : Component
     {

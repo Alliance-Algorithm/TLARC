@@ -4,7 +4,7 @@ namespace ALPlanner.Collider;
 
 class SemanticMapCollider : Component, ICollider
 {
-    ISemanticMap map;
+    IGridMap map;
     Transform sentry;
     public Vector3d Position { get; private set; }
 

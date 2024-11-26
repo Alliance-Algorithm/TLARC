@@ -1,6 +1,7 @@
 using ALPlanner.Interfaces;
 using ALPlanner.Collider;
 using TlarcKernel;
+using Maps;
 
 namespace ALPlanner;
 
@@ -11,24 +12,61 @@ class ALPlanner : Component
 
     [ComponentReferenceFiled]
     IPositionDecider target;
+
+    [ComponentReferenceFiled]
+    IGridMap gridMap;
     PathPlanner.PathPlanner pathPlanner;
     TrajectoryOptimizer.TrajectoryOptimizer trajectoryOptimizer;
 
-
+    IO.ROS2Msgs.Nav.Path debugPath1;
+    IO.ROS2Msgs.Nav.Path debugPath2;
+    Vector3d[] path = [];
+    Vector3d[] trajectory = [];
     private Vector3d lastTarget;
+    public override void Start()
+    {
+#if DEBUG
+        debugPath1 = new(IOManager);
+        debugPath1.RegistryPublisher("debug/path");
+        debugPath2 = new(IOManager);
+        debugPath2.RegistryPublisher("debug/trajectory");
+#endif
+    }
     public override void Update()
     {
-        if (target.TargetPosition == lastTarget)
+        bool check = true;
+        foreach (var point in path)
         {
+            if (!gridMap.CheckAccessibility(Vector3i.Zero,
+             gridMap.PositionInWorldToIndex(point), 30))
+            {
+                check = false;
+                break;
+            }
+        }
+        foreach (var point in trajectory)
+        {
+            if (check == false || !gridMap.CheckAccessibility(Vector3i.Zero,
+             gridMap.PositionInWorldToIndex(point), 0))
+            {
+                check = false;
+                break;
+            }
+        }
+        if (check && target.TargetPosition == lastTarget)
             return;
-        }
-        do
-        {
-            trajectoryOptimizer.CalcTrajectory
-            (
-                pathPlanner.Search(sentry.Position, target.TargetPosition)
-            );
-        }
-        while (true);
+
+        path = pathPlanner.Search(sentry.Position, target.TargetPosition);
+        if (path.Length < 2)
+            return;
+        trajectoryOptimizer.CalcTrajectory(path);
+
+        trajectory = trajectoryOptimizer.TrajectoryPoints(0, trajectoryOptimizer.MaxTime, trajectoryOptimizer.MaxTime / 50).ToArray();
+        lastTarget = target.TargetPosition;
+
+#if DEBUG
+        debugPath1.Publish(path);
+        debugPath2.Publish(trajectory);
+#endif
     }
 }

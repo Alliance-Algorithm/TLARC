@@ -9,11 +9,17 @@ namespace ALPlanner.TrajectoryOptimizer.Curves.BSpline;
 class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
 {
     public DateTime constructTime;
-    public double[] controlPointsX;
-    public double[] controlPointsY;
-    public double[] controlPointsZ;
+    public double[] controlPointsX = [];
+    public double[] controlPointsY = [];
+    public double[] controlPointsZ = [];
+    public double[] timeline = [];
 
+    [ComponentReferenceFiled]
     IOptimizer controlPointOptimizer;
+    public FourthOrderNonUniformBSpline()
+    {
+
+    }
 
     public FourthOrderNonUniformBSpline(double looseSize = 0.15, double vLimit = 6, double aLimit = 12, double ratioLimit = 1.01, double timeInterval = 0.05f)
     {
@@ -24,13 +30,13 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
         _timeInterval = timeInterval;
     }
 
+    public double MaxTime => timeline[^5];
     private double _looseSize = 0.15;
-    private double _vLimit = 6;
-    private double _aLimit = 12;
+    private double _vLimit = 3;
+    private double _aLimit = 5;
     private double _ratioLimit = 1.01;
     private double _timeInterval = 0.05f;
     const int order = 4;
-    private double[] timeline;
     private readonly static double[,] M4S = new double[order, order]
     {
         {1, 4,1,0},
@@ -51,15 +57,19 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
             return Value((DateTime.Now - constructTime).Duration().TotalSeconds);
         }
     }
+
+    public DateTime ConstructTime => constructTime;
+
     private double[,] M4(int i)
     {
         var tmp = Math.Pow(timeline[i + 1] - timeline[i], 2);
+
         M4Data[0, 0] = tmp / (timeline[i + 1] - timeline[i - 1]) / (timeline[i + 1] - timeline[i - 2]);
         M4Data[0, 2] = Math.Pow(timeline[i] - timeline[i - 1], 2) / (timeline[i + 2] - timeline[i - 1]) / (timeline[i + 1] - timeline[i - 1]);
         M4Data[1, 2] = 3 * (timeline[i + 1] - timeline[i]) * (timeline[i] - timeline[i - 1]) / (timeline[i + 2] - timeline[i - 1]) / (timeline[i + 1] - timeline[i - 1]);
         M4Data[2, 2] = 3 * tmp / (timeline[i + 2] - timeline[i - 1]) / (timeline[i + 1] - timeline[i - 1]);
         M4Data[3, 3] = tmp / (timeline[i + 3] - timeline[i]) / (timeline[i + 2] - timeline[i]);
-        M4Data[3, 2] = -M4Data[2, 2] / 3 - M4Data[3, 3] - tmp / (timeline[i + 2] - timeline[i]) / (timeline[i + 2] - timeline[i - 1]);
+        M4Data[3, 2] = (-M4Data[2, 2] / 3) - M4Data[3, 3] - (tmp / (timeline[i + 2] - timeline[i]) / (timeline[i + 2] - timeline[i - 1]));
 
         M4Data[1, 0] = -3 * M4Data[0, 0];
         M4Data[2, 0] = -M4Data[1, 0];
@@ -69,81 +79,108 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
         M4Data[1, 1] = -M4Data[1, 0] - M4Data[1, 2];
         M4Data[2, 1] = -M4Data[2, 0] - M4Data[2, 2];
         M4Data[3, 1] = M4Data[0, 0] - M4Data[3, 2] - M4Data[3, 3];
+
+        M4Data[0, 3] = 0;
+        M4Data[1, 3] = 0;
+        M4Data[2, 3] = 0;
         return M4Data;
     }
+    public LinearConstraintCollection CreateConstraints(double[,] a, double[] b)
+    {
+        int length = a.GetLength(1);
+        int length2 = b.Length;
+        List<LinearConstraint> array = new();
+        for (int i = 0; i < length2; i++)
+        {
+            if (i > length2 - 3)
+                continue;
+            else
+             if (i >= length2 - 5 || i == 0)
+            {
+                var constraint = new LinearConstraint(length);
+                a.GetRow(i, constraint.CombinedAs);
+                constraint.ShouldBe = ConstraintType.EqualTo;
+                constraint.Value = b[i];
+                array.Add(constraint);
+            }
+            else
+            {
+                var constraint1 = new LinearConstraint(length);
+                a.GetRow(i, constraint1.CombinedAs);
+                var constraint2 = new LinearConstraint(length);
+                a.GetRow(i, constraint2.CombinedAs);
+                constraint1.ShouldBe = ConstraintType.GreaterThanOrEqualTo;
+                constraint2.ShouldBe = ConstraintType.LesserThanOrEqualTo;
+                constraint1.Value = b[i] - _looseSize;
+                constraint2.Value = b[i] + _looseSize;
+                array.Add(constraint1);
+                array.Add(constraint2);
+            }
+        }
 
-
+        return new LinearConstraintCollection(array);
+    }
     public void Construction(Vector3d[] positionList, Vector3dTuple2 HeadTailVelocity, Vector3dTuple2 HeadTailAcceleration)
     {
         constructTime = DateTime.Now;
-        double[,] A = new double[(positionList.Length - 2) * 2 + 6, positionList.Length + order - 1];
+        if (positionList.Length == 1)
+        {
+            TlarcSystem.LogError("No Enough Point");
+            return;
+        }
+
+        double[,] A = new double[positionList.Length + 4, positionList.Length + 4 - 1];
         double[][] B = [
-            new double[(positionList.Length - 2) * 2 + 6],
-            new double[(positionList.Length - 2) * 2 + 6],
-            new double[(positionList.Length - 2) * 2 + 6]
+            new double[positionList.Length + 4],
+            new double[positionList.Length + 4],
+            new double[positionList.Length + 4]
             ];
-        double[,] H = new double[positionList.Length + order - 1, positionList.Length + order - 1];
-        for (int i = 1; i < positionList.Length - 1; i++)
-            for (int j = 0; j < order; j++)
-            {
-                A[positionList.Length - 2 + i + 5, i + j] = -M4S[0, j];
-                A[i + 5, i + j] = -A[positionList.Length - 2 + i, i - 1 + j];
-            }
 
-        for (int j = 0; j < order; j++)
-        {
-            A[0, j] = A[1, j + positionList.Length - 1] = M4S[0, j];
-            A[2, j] = A[3, j + positionList.Length - 1] = M4S[1, j];
-            A[4, j] = A[5, j + positionList.Length - 1] = M4S[2, j];
-        }
-
-        int index = 0;
-        foreach (var position in positionList)
-        {
-            if (index == 0)
-            {
-                B[0][0] = position.x;
-                B[1][0] = position.y;
-                B[2][0] = position.z;
-                continue;
-            }
-            if (index == positionList.Length - 1)
-            {
-                B[0][1] = position.x;
-                B[1][1] = position.y;
-                B[2][1] = position.z;
-                continue;
-            }
-            B[0][index + 5] = position.x + _looseSize;
-            B[1][index + 5] = position.y + _looseSize;
-            B[2][index + 5] = position.z + _looseSize;
-            B[0][index + positionList.Length - 2] = -position.x + _looseSize;
-            B[1][index + positionList.Length - 2] = -position.y + _looseSize;
-            B[2][index + positionList.Length - 2] = -position.z + _looseSize;
-        }
-        B[0][2] = HeadTailVelocity.V0.x;
-        B[1][2] = HeadTailVelocity.V0.y;
-        B[2][2] = HeadTailVelocity.V0.z;
-        B[0][3] = HeadTailVelocity.V1.x;
-        B[1][3] = HeadTailVelocity.V1.y;
-        B[2][3] = HeadTailVelocity.V1.z;
-        B[0][4] = HeadTailAcceleration.V0.x;
-        B[1][4] = HeadTailAcceleration.V0.y;
-        B[2][4] = HeadTailAcceleration.V0.z;
-        B[0][5] = HeadTailAcceleration.V1.x;
-        B[1][5] = HeadTailAcceleration.V1.y;
-        B[2][5] = HeadTailAcceleration.V1.z;
-
-        var constraints1 = LinearConstraintCollection.Create(A, B[0], 6);
-        var constraints2 = LinearConstraintCollection.Create(A, B[1], 6);
-        var constraints3 = LinearConstraintCollection.Create(A, B[2], 6);
 
         for (int i = 0; i < positionList.Length; i++)
+            for (int j = 0; j < 4; j++)
+                A[i, i + j] = M4S[0, j];
+
+        for (int j = 0; j < 4; j++)
+        {
+            A[positionList.Length, j] = M4S[1, j];
+            A[positionList.Length + 1, j + positionList.Length - 1] = M4S[1, j];
+            A[positionList.Length + 2, j] = M4S[2, j];
+            A[positionList.Length + 3, j + positionList.Length - 1] = M4S[2, j];
+        }
+        for (int i = 0, k = positionList.Length; i < k; i++)
+        {
+            B[0][i] = positionList[i].x;
+            B[1][i] = positionList[i].y;
+            B[2][i] = positionList[i].z;
+        }
+        B[0][positionList.Length] = HeadTailVelocity.V0.x;
+        B[1][positionList.Length] = HeadTailVelocity.V0.y;
+        B[2][positionList.Length] = HeadTailVelocity.V0.z;
+        B[0][positionList.Length + 1] = HeadTailVelocity.V1.x;
+        B[1][positionList.Length + 1] = HeadTailVelocity.V1.y;
+        B[2][positionList.Length + 1] = HeadTailVelocity.V1.z;
+        B[0][positionList.Length + 2] = HeadTailAcceleration.V0.x;
+        B[1][positionList.Length + 2] = HeadTailAcceleration.V0.y;
+        B[2][positionList.Length + 2] = HeadTailAcceleration.V0.z;
+        B[0][positionList.Length + 3] = HeadTailAcceleration.V1.x;
+        B[1][positionList.Length + 3] = HeadTailAcceleration.V1.y;
+        B[2][positionList.Length + 3] = HeadTailAcceleration.V1.z;
+
+
+
+        var constraints1 = CreateConstraints(A, B[0]);
+        var constraints2 = CreateConstraints(A, B[1]);
+        var constraints3 = CreateConstraints(A, B[2]);
+        double[,] H = new double[positionList.Length + 4 - 1, positionList.Length + 4 - 1];
+
+        for (int i = 0; i < positionList.Length + 3; i++)
             for (int j = 0; j < order; j++)
                 for (int k = 0; k < order; k++)
-                    H[i + j, i + k] += H4S[j, k];
+                    if (i + j < positionList.Length + 3 && i + k < positionList.Length + 3)
+                        H[i + j, i + k] += H4S[j, k];
 
-        QuadraticObjectiveFunction func = new QuadraticObjectiveFunction(H, null);
+        QuadraticObjectiveFunction func = new QuadraticObjectiveFunction(H, new double[positionList.Length + 4 - 1]);
         var solver = new GoldfarbIdnani(func, constraints1);
         solver.Minimize();
         controlPointsX = solver.Solution;
@@ -162,19 +199,26 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
     public Vector3d Value(double timeInSecond)
     {
         int k = 2;
-        timeInSecond = Math.Max(0, Math.Min(timeInSecond, timeline[^3]));
+        if (timeline.Length < 5) return new();
+        timeInSecond = Math.Max(0, Math.Min(timeInSecond, timeline[^5]));
         while (timeline[k + 1] < timeInSecond)
             k++;
+
+        if (k + 3 >= timeline.Length)
+        {
+            k = k - 1;
+        }
+
         var u = (timeInSecond - timeline[k]) / (timeline[k + 1] - timeline[k]);
         if (lastTimeIndex != k)
         {
             M4(k);
             lastTimeIndex = k;
         }
-
-        var p = new double[1][] { [1, u, u * u, u * u * u] }.Dot(M4Data);
-
-        return new(p.Dot(ControlPoint.Get(0, 0, k, k + 3))[0][0], p.Dot(ControlPoint.Get(1, 1, k, k + 3))[0][0], p.Dot(ControlPoint.Get(2, 2, k, k + 3))[0][0]);
+        var x = new double[] { 1, u, u * u, u * u * u }.Dot(M4S).Dot(controlPointsX.Get(k - 2, k + 2));
+        var y = new double[] { 1, u, u * u, u * u * u }.Dot(M4S).Dot(controlPointsY.Get(k - 2, k + 2));
+        var z = new double[] { 1, u, u * u, u * u * u }.Dot(M4S).Dot(controlPointsZ.Get(k - 2, k + 2));
+        return new(x, y, z);
 
 
     }
@@ -182,18 +226,17 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
     public IEnumerable<Vector3d> TrajectoryPoints(double fromWhen, double toWhen, double step)
     {
         List<Vector3d> data = [];
-        for (var b = fromWhen; b < toWhen; b += step)
+        for (var b = fromWhen + step; b <= toWhen + 1e-7; b += step)
             data.Add(Value(b));
         return data;
     }
 
     public override void Start()
     {
-        for (double u = 0; u < 1; u += 0.1)
-        {
-            var k = new double[1, 4] { { 0, 0, 2, 6 * u / 100 } }.Dot(M4S);
-            H4S = H4S.Add(k.TransposeAndDot(k));
-        }
+        H4S = new double[4, 4];
+        var k = new double[1, 4] { { 0, 0, 0, 6 } }.Dot(M4S);
+        H4S = H4S.Add(k.TransposeAndDot(k));
+
     }
 
     private void ReallocTimeline()
@@ -237,16 +280,17 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
             var ratio = Math.Min(_ratioLimit, vMax / _vLimit) + 1e-4;
             var tOld = timeline[i + 2] - timeline[i - 2];
             var tNew = ratio * tOld;
-            var tInt = tNew / 4;
+            var tInt = (tNew - tOld) / 4;
+
 
             var head = i - 1;
             var tail = i + 2;
 
             for (var j = head; j <= tail; j++)
-                timeline[j] = tInt + timeline[j - 1];
+                timeline[j] = tInt * (j - head) + timeline[j];
 
             for (var j = tail + 1; j < timeline.Length; j++)
-                timeline[j] = tNew - tOld + timeline[j];
+                timeline[j] = tInt * 4 + timeline[j];
 
         }
 
@@ -289,17 +333,20 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
             var ratio = Math.Min(_ratioLimit, aMax / _aLimit) + 1e-4;
             var tOld = timeline[i + 2] - timeline[i - 2];
             var tNew = ratio * tOld;
-            var tInt = tNew / 4;
+            var tInt = (tNew - tOld) / 4;
 
             var head = i - 1;
             var tail = i + 2;
 
             for (var j = head; j <= tail; j++)
-                timeline[j] = tInt + timeline[j - 1];
+                timeline[j] = tInt * (j - head) + timeline[j];
 
             for (var j = tail + 1; j < timeline.Length; j++)
-                timeline[j] = tNew - tOld + timeline[j];
+                timeline[j] = tInt * 4 + timeline[j];
         }
+        var tTmp = timeline[2];
+        for (int i = 0; i < timeline.Length; i++)
+            timeline[i] -= tTmp;
     }
 
 
