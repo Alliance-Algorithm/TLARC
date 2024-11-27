@@ -11,7 +11,7 @@ class SemanticMapCollider : Component, ICollider
     public override void Start() => Position = sentry.Position;
     public override void Update()
     {
-        if (map.CheckAccessibility(map.PositionInWorldToIndex(Position), map.PositionInWorldToIndex(sentry.Position)))
+        if (map.CheckAccessibility(Position, sentry.Position))
             Position = sentry.Position;
     }
 }

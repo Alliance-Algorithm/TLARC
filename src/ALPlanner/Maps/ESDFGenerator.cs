@@ -161,8 +161,25 @@ public class ESDFGenerator : Component, IESDF
         (int)Math.Round((position.y + ((SizeY - 1) * Resolution / 2.0f)) / Resolution), 0);
 
 
-    public bool CheckAccessibility(Vector3i fromIndex, Vector3i index, float value = 100)
+    public bool CheckAccessibility(Vector3i index, float value = 0)
     {
         return this[index.x, index.y] > value;
+    }
+
+    public bool CheckAccessibility(Vector3d from, Vector3d to, float value = 0)
+    {
+        bool ret = true;
+        var err = to - from;
+        var len = Math.Clamp(err.Length / Resolution, 0, double.MaxValue);
+        err = err.Normalized;
+        for (int i = 0; i < len; i++)
+        {
+            var index = PositionInWorldToIndex(from + err * Resolution * i);
+            ret = this[index.x, index.y] > value;
+            if (!ret)
+                return ret;
+        }
+        var indexTail = PositionInWorldToIndex(to);
+        return this[indexTail.x, indexTail.y] > value;
     }
 }

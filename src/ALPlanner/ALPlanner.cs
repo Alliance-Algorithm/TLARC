@@ -37,7 +37,7 @@ class ALPlanner : Component
         bool check = true;
         foreach (var point in path)
         {
-            if (!gridMap.CheckAccessibility(Vector3i.Zero,
+            if (!gridMap.CheckAccessibility(
              gridMap.PositionInWorldToIndex(point), 30))
             {
                 check = false;
@@ -46,13 +46,17 @@ class ALPlanner : Component
         }
         foreach (var point in trajectory)
         {
-            if (check == false || !gridMap.CheckAccessibility(Vector3i.Zero,
+            if (check == false || !gridMap.CheckAccessibility(
              gridMap.PositionInWorldToIndex(point), 0))
             {
                 check = false;
                 break;
             }
         }
+        var t = trajectoryOptimizer.constructTimeToNowInSeconds;
+        var traj = trajectoryOptimizer.TrajectoryPoints(t - 0.1f, t, 0.1f);
+        check &= gridMap.CheckAccessibility(sentry.Position, traj.First(), 20);
+
         if (check && target.TargetPosition == lastTarget)
             return;
 

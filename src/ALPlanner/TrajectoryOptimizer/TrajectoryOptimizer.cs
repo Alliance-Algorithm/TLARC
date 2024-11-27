@@ -14,8 +14,8 @@ class TrajectoryOptimizer : Component
     Vector3d lastSentryPosition;
     Vector3d sentryVelocity;
 
-    DateTime constructTime;
-    double constructTimeToNowInSeconds;
+    public DateTime constructTime { get; private set; }
+    public double constructTimeToNowInSeconds => (DateTime.Now - constructTime).Duration().TotalSeconds;
 
     public double MaxTime => kOrderCurve.MaxTime;
     public void CalcTrajectory(Vector3d[] path)
@@ -34,7 +34,7 @@ class TrajectoryOptimizer : Component
 
     public override void Update()
     {
-        constructTimeToNowInSeconds = (constructTime - constructTime).Duration().TotalSeconds;
+        // constructTimeToNowInSeconds = (DateTime.Now - constructTime).Duration().TotalSeconds;
         // sentryVelocity = (sentry.Position - lastSentryPosition) / Program.GetProcessWithPID(ProcessID).deltaTime;
         lastSentryPosition = sentry.Position;
     }
