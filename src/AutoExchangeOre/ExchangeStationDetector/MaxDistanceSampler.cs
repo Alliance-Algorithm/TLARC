@@ -1,50 +1,57 @@
 using System.Drawing;
+using Emgu.CV.Structure;
 
 namespace AutoExchange.ExchangeStationDetector;
 
 static class MaxDistanceSampler
 {
 
-    public static List<PointF> MaxDistanceSampling(List<PointF> points, int sampleSize)
+    public static List<(PointF Point2D, MCvPoint3D32f Point3D)> MaxDistanceSampling(List<LLightBar> points, int sampleSize)
     {
-        List<PointF> sampledPoints = [];
+        List<(PointF Point2D, MCvPoint3D32f Point3D)> sampledPoints = [];
 
         // 随机选择第一个点
         Random rnd = new Random();
-        PointF firstPoint = points[rnd.Next(points.Count)];
+        var tmp = points[rnd.Next(points.Count)];
+        var tmpIndex = rnd.Next(6);
+        (PointF, MCvPoint3D32f) firstPoint = tmp[tmpIndex];
         sampledPoints.Add(firstPoint);
 
         for (int i = 1; i < sampleSize; i++)
         {
-            PointF farthestPoint = GetFarthestPoint(points, sampledPoints);
+            (PointF Point2D, MCvPoint3D32f Point3D) farthestPoint = GetFarthestPoint(points, sampledPoints);
             sampledPoints.Add(farthestPoint);
         }
 
         return sampledPoints;
     }
 
-    static PointF GetFarthestPoint(List<PointF> points, List<PointF> sampledPoints)
+    static (PointF Point2D, MCvPoint3D32f Point3D) GetFarthestPoint(List<LLightBar> points, List<(PointF Point2D, MCvPoint3D32f Point3D)> sampledPoints)
     {
-        PointF farthestPoint = new();
+
+        (PointF Point2D, MCvPoint3D32f Point3D) farthestPoint = new();
         double maxDistance = double.MinValue;
 
         foreach (var point in points)
         {
-            double minDistance = double.MaxValue;
-
-            foreach (var sampledPoint in sampledPoints)
+            for (int i = 0; i < 6; i++)
             {
-                double distance = Distance(point, sampledPoint);
-                if (distance < minDistance)
+                double minDistance = double.MaxValue;
+
+                foreach (var (Point2D, Point3D) in sampledPoints)
                 {
-                    minDistance = distance;
+                    double distance = Distance(point.point2D[i], Point2D);
+                    if (distance < minDistance)
+                    {
+                        minDistance = distance;
+                    }
                 }
-            }
 
-            if (minDistance > maxDistance)
-            {
-                maxDistance = minDistance;
-                farthestPoint = point;
+                if (minDistance > maxDistance)
+                {
+                    maxDistance = minDistance;
+                    farthestPoint = point[i];
+                }
             }
         }
 

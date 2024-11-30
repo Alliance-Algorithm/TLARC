@@ -17,6 +17,8 @@ class ExchangeStationDetector : Component
     public double epsilonCoefficient = 0.01f;
     public double minArea = 500;
     public Vector2d thresholdMinMax = new() { x = 70, y = 255 };
+
+
     public override void Start()
     {
         thresholdMinMax.y = Math.Clamp(thresholdMinMax.y, 0, 255);
@@ -170,6 +172,7 @@ class ExchangeStationDetector : Component
         approxPub.LoadInstance(ref image);
         blurredPub.LoadInstance(ref blurred);
         edgesPub.LoadInstance(ref edges);
+
     }
     static bool IsPointWithinImage(Point pt, int width, int height) { return pt.X >= 0 && pt.X < width && pt.Y >= 0 && pt.Y < height; }
     static double Distance(PointF pt1, PointF pt2) { return Math.Sqrt(Math.Pow(pt1.X - pt2.X, 2) + Math.Pow(pt1.Y - pt2.Y, 2)); }
