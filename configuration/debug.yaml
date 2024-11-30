@@ -1,42 +1,36 @@
-- Fps: 10
-  Components:
-    ALPlanner.Interfaces.ROS->PoseTransform2D->1:
+- Components:
+    HikCamera->VideoCapture:
       Args:
-        topicName: "\"/transform/sentry/publish\""
-    ALPlanner.Interfaces.ROS->PoseTransform2D->2:
-      Args:
-        topicName: "\"/transform/target/publish\""
-    Maps->ESDFGenerator:
-      Relies:
-        sentry: 1
-      Args:
-        debug: true
-    ALPlanner->ALPlanner:
-    ALPlanner.Collider->GridMapCollider:
-      Relies:
-        sentry: 1
-    ALPlanner.Interfaces->TransformPositionDeciderDecorator:
-      Relies:
-        target: 2
-    ALPlanner.PathPlanner->PathPlanner:
-    ALPlanner.PathPlanner.PathSearcher->HybridAStarWithDistance:
-    ALPlanner.PathPlanner.Sampler->EquidistantSampler:
-    ALPlanner.TrajectoryOptimizer->TrajectoryOptimizer:
-      Relies:
-        sentry: 1
-    ALPlanner.TrajectoryOptimizer.Curves.BSpline->FourthOrderNonUniformBSpline:
-    ALPlanner.TrajectoryOptimizer.Optimizer->ControlPointOptimizer:
+        readOnlyUnmanagedInterface: "{name:\"/image/raw\"}"
 
-- Fps: 20
-  Components:
-    TrajectoryTracer->Tracer:
-      Relies:
-        sentry: 1
-    TrajectoryTracer.Controller->VelocityMPC:
-    TrajectoryTracer.CarModels->OmniCar:
-      Relies:
-        sentry: 1
-    TrajectoryTracer.Trajectory->ALPlannerKOrderTrajectoryDecorator:
-
-
-
+-   Fps: 30
+    Components:
+        AutoExchange.ExchangeStationDetector->ExchangeStationDetector:
+            Args:
+                epsilonCoefficient: 0.02
+                IsBlue: false
+        
+-   Fps: 20 
+    Components:
+        HikCamera->VideoTest:
+            Args: 
+                windowsName: "\"approx\""
+                cap: "{name:\"/image/approx\"}"
+# -   Fps: 20 
+#     Components:
+#         HikCamera->VideoTest:
+#             Args: 
+#                 windowsName: "\"edges\""
+#                 cap: "{name:\"/image/edges\"}"
+# -   Fps: 20 
+#     Components:
+#         HikCamera->VideoTest:
+#             Args: 
+#                 windowsName: "\"raw\""
+#                 cap: "{name:\"/image/raw\"}"
+-   Fps: 20 
+    Components:
+        HikCamera->VideoTest:
+            Args: 
+                windowsName: "\"blurred\""
+                cap: "{name:\"/image/blurred\"}"

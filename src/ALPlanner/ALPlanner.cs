@@ -55,7 +55,7 @@ class ALPlanner : Component
         }
         var t = trajectoryOptimizer.constructTimeToNowInSeconds;
         var traj = trajectoryOptimizer.TrajectoryPoints(t - 0.1f, t, 0.1f);
-        check &= gridMap.CheckAccessibility(sentry.Position, traj.First(), 20);
+        check &= ((sentry.Position - traj.First()).LengthSquared < 2 || gridMap.CheckAccessibility(sentry.Position, traj.First(), 0));
 
         if (check && target.TargetPosition == lastTarget)
             return;

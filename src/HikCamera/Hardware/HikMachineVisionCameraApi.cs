@@ -311,6 +311,7 @@ public static class HikCameraApi
         KinTN.Hardware.HikMachineVisionCamera.MV_ERROR_CODE mV_ERROR_CODE = NativeFunction.MV_CC_StopGrabbing(handle);
         if (mV_ERROR_CODE != 0)
         {
+
             throw new KinTN.Hardware.HikMachineVisionCamera.HikMachineVisionCameraException(mV_ERROR_CODE);
         }
     }

@@ -49,7 +49,10 @@ class VideoCapture : Component
                         }
                     }
                 }
-                catch (Exception e) { TlarcSystem.LogError(e.Message); }
+                catch (Exception e)
+                {
+                    TlarcSystem.LogError(e.Message);
+                }
                 finally
                 {
                     if (handle != 0)

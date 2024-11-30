@@ -4,7 +4,7 @@ using RapidlyArmPlanner.ArmSolver.InverseDynamic;
 using RapidlyArmPlanner.ColliderDetector;
 using RapidlyArmPlanner.PathFinder.RRT_BHAStar;
 using RapidlyArmPlanner.TrajectoryFit;
-
+namespace AutoExchange;
 class Scara2025AutoExchangeOre
 {
     readonly IForwardDynamic forwardDynamic;
