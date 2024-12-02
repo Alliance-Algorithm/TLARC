@@ -19,6 +19,7 @@
     <PackageReference Include="Emgu.CV" Version="4.9.0.5494" />
     <PackageReference Include="Emgu.CV.runtime.ubuntu-x64" Version="4.9.0.5494" />
     <PackageReference Include="geometry4Sharp" Version="1.0.0" />
+    <PackageReference Include="Intel.RealSenseWithNativeDll" Version="2.51.1.1" />
     <PackageReference Include="KinTN.Hardware.HikMachineVisionCamera" Version="1.2.0" />
     <PackageReference Include="LibUsbDotNet" Version="2.2.29" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />

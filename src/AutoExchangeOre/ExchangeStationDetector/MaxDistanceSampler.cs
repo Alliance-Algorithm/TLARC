@@ -6,7 +6,7 @@ namespace AutoExchange.ExchangeStationDetector;
 static class MaxDistanceSampler
 {
 
-    public static List<(PointF Point2D, MCvPoint3D32f Point3D)> MaxDistanceSampling(List<LLightBar> points, int sampleSize)
+    public static List<(PointF Point2D, MCvPoint3D32f Point3D)> Sample(List<LLightBar> points, int sampleSize)
     {
         List<(PointF Point2D, MCvPoint3D32f Point3D)> sampledPoints = [];
 
@@ -36,16 +36,22 @@ static class MaxDistanceSampler
         {
             for (int i = 0; i < 6; i++)
             {
-                double minDistance = double.MaxValue;
+                double minDistance = 0;
+                bool isInSample = false;
 
                 foreach (var (Point2D, Point3D) in sampledPoints)
                 {
-                    double distance = Distance(point.point2D[i], Point2D);
-                    if (distance < minDistance)
+                    double distance = Distance(point.point3D[i], Point3D);
+                    minDistance += distance;
+                    if (point[i].Point2D == Point2D)
                     {
-                        minDistance = distance;
+                        isInSample = true;
+                        break;
                     }
                 }
+
+                if (isInSample)
+                    continue;
 
                 if (minDistance > maxDistance)
                 {
@@ -58,8 +64,8 @@ static class MaxDistanceSampler
         return farthestPoint;
     }
 
-    static double Distance(PointF pt1, PointF pt2)
+    static double Distance(MCvPoint3D32f pt1, MCvPoint3D32f pt2)
     {
-        return Math.Sqrt(Math.Pow(pt1.X - pt2.X, 2) + Math.Pow(pt1.Y - pt2.Y, 2));
+        return Math.Sqrt(Math.Pow(pt1.X - pt2.X, 2) + Math.Pow(pt1.Y - pt2.Y, 2) + Math.Pow(pt1.Z - pt2.Z, 2));
     }
 }

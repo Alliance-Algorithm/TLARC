@@ -1,6 +1,7 @@
 
 using System.Drawing;
 using Emgu.CV;
+using Emgu.CV.Structure;
 using Emgu.CV.Util;
 using TlarcKernel.IO.ProcessCommunicateInterfaces;
 
@@ -18,6 +19,10 @@ class ExchangeStationDetector : Component
     public double minArea = 500;
     public Vector2d thresholdMinMax = new() { x = 70, y = 255 };
 
+    LLightBarFilter lLightBarFilter = new();
+
+
+    PnpSolver solver = new();
 
     public override void Start()
     {
@@ -68,7 +73,8 @@ class ExchangeStationDetector : Component
         CvInvoke.FindContours(edges, contours, null, Emgu.CV.CvEnum.RetrType.External, Emgu.CV.CvEnum.ChainApproxMethod.ChainApproxSimple);
         int width = image.Width; int height = image.Height;
         List<Point> vectorOfPoint = new();
-        List<(Point point, int index, double length)> LPositions = new();
+        List<(LLightBar lLightBar, int index, double length)> LPositions = [];
+        List<LLightBar> bar = [];
         for (int i = 0; i < contours.Size; i++)
         {
             using var contour = contours[i];
@@ -76,13 +82,18 @@ class ExchangeStationDetector : Component
             if (area < minArea)
                 continue;
             double length = CvInvoke.ArcLength(contour, true);
-            double epsilon = epsilonCoefficient * CvInvoke.ArcLength(contour, true);
+            double epsilon = epsilonCoefficient * length;
             using var approx = new VectorOfPoint();
             CvInvoke.ApproxPolyDP(contour, approx, epsilon, true);
             if (CvInvoke.IsContourConvex(approx))
             {
                 using var moments = CvInvoke.Moments(approx, true);
                 int centerX = (int)(moments.M10 / moments.M00); int centerY = (int)(moments.M01 / moments.M00);
+                double max = double.MinValue;
+                for (int k = 0; k < approx.Size; k++)
+                    max = Math.Max(Distance(approx[k], new(centerX, centerY)), max);
+                if (max > length / 4.5)
+                    continue;
                 vectorOfPoint.Add(new(centerX, centerY));
                 CvInvoke.DrawContours(image, contours, i, new Emgu.CV.Structure.MCvScalar(255, 0, 255), 2);
                 continue;
@@ -128,12 +139,31 @@ class ExchangeStationDetector : Component
                 bool NotTypeA = false;
                 for (int j = 0; j < 3; j++)
                 {
-                    NotTypeA = allAngles.Dequeue() > 10;
+                    NotTypeA = allAngles.Dequeue() > 12;
                     if (NotTypeA)
                         break;
                 }
                 if (!NotTypeA)
-                    CvInvoke.DrawContours(image, contours, i, new Emgu.CV.Structure.MCvScalar(255, 0, 0), 2);
+                    for (int j = 0, count = approx.Size; j < count; j++)
+                    {
+                        Point p1 = approx[j];
+                        Point p2 = approx[(j + 1) % count];
+                        Point p3 = approx[(j + 2) % count];
+
+                        Vector2d v1 = new(p1.X - p2.X, p1.Y - p2.Y);
+                        Vector2d v2 = new(p2.X - p3.X, p2.Y - p3.Y);
+
+                        if (v2.Cross(v1) < 0)
+                        {
+                            Vector2d v3 = new(p3.X + p1.X - p2.X - p2.X, p3.Y + p1.Y - p2.Y - p2.Y);
+                            List<Point> points1 = [];
+                            for (int k = 0; k < 6; k++)
+                                points1.Add(approx[(j + k + 1) % count]);
+                            bar.Add(new() { center = new(p2.X, p2.Y), forward = v3, point2D = [.. points1], type = LLightBarType.Beside });
+                            CvInvoke.Circle(image, p2, 1, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 6);
+                            CvInvoke.Line(image, p2, new((int)v3.x + p2.X, (int)v3.y + p2.Y), new Emgu.CV.Structure.MCvScalar(0, 255, 0), 3);
+                        }
+                    }
                 else
                 {
                     using var moments = CvInvoke.Moments(approx, true);
@@ -153,26 +183,46 @@ class ExchangeStationDetector : Component
                             Vector2d v3 = new(p3.X + p1.X - p2.X - p2.X, p3.Y + p1.Y - p2.Y - p2.Y);
                             CvInvoke.Circle(image, p2, 1, new Emgu.CV.Structure.MCvScalar(255, 0, 0), 6);
                             CvInvoke.Line(image, p2, new((int)v3.x + p2.X, (int)v3.y + p2.Y), new Emgu.CV.Structure.MCvScalar(255, 0, 0), 3);
-                            LPositions.Add((p2, i, length));
+                            List<Point> points1 = [];
+                            for (int k = 0; k < 6; k++)
+                                points1.Add(approx[(j + k + 1) % count]);
+                            LPositions.Add((new() { center = new(p2.X, p2.Y), forward = v3, point2D = [.. points1] }, i, length));
                         }
                     }
                     // LPositions.Add((new(centerX, centerY), i, length));
                 }
             }
-            for (int j = 0; j < approx.Size; j++)
-                CvInvoke.Circle(image, approx[j], 1, new Emgu.CV.Structure.MCvScalar(0, 255, 0));
+            // for (int j = 0; j < approx.Size; j++)
+            //     CvInvoke.Circle(image, approx[j], 1, new Emgu.CV.Structure.MCvScalar(0, 255, 0));
         }
-        foreach (var (point, index, length) in LPositions)
+        foreach (var (lightBar, index, length) in LPositions)
         {
-            if (FindNearestPoint(point, vectorOfPoint, length / 2))
-                CvInvoke.DrawContours(image, contours, index, new Emgu.CV.Structure.MCvScalar(255, 255, 0), 2);
+            if (FindNearestPoint(lightBar.center, vectorOfPoint, length / 3))
+            {
+                var tmpLight = lightBar;
+                tmpLight.type = LLightBarType.ForwardShort;
+                bar.Add(tmpLight);
+                // CvInvoke.DrawContours(image, contours, index, new Emgu.CV.Structure.MCvScalar(255, 255, 0), 2);
+            }
             else
-                CvInvoke.DrawContours(image, contours, index, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);
-        }
-        approxPub.LoadInstance(ref image);
-        blurredPub.LoadInstance(ref blurred);
-        edgesPub.LoadInstance(ref edges);
+            {
+                var tmpLight = lightBar;
+                tmpLight.type = LLightBarType.ForwardLong;
+                bar.Add(tmpLight);
+                // CvInvoke.DrawContours(image, contours, index, new Emgu.CV.Structure.MCvScalar(0, 255, 0), 2);}
+            }
 
+        }
+        var list = lLightBarFilter.FilterLightBar(bar);
+        edgesPub.LoadInstance(ref edges);
+        blurredPub.LoadInstance(ref blurred);
+        if (list.Count < 1)
+            return;
+        // Math.Clamp(2 * list.Count + 2, 4, int.MaxValue)
+        List<(PointF Point2D, MCvPoint3D32f Point3D)> points = MaxDistanceSampler.Sample(list, list.Count * 6);
+
+        solver.Solve(points, image);
+        approxPub.LoadInstance(ref image);
     }
     static bool IsPointWithinImage(Point pt, int width, int height) { return pt.X >= 0 && pt.X < width && pt.Y >= 0 && pt.Y < height; }
     static double Distance(PointF pt1, PointF pt2) { return Math.Sqrt(Math.Pow(pt1.X - pt2.X, 2) + Math.Pow(pt1.Y - pt2.Y, 2)); }

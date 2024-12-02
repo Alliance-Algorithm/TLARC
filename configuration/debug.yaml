@@ -1,21 +1,19 @@
 - Components:
-    HikCamera->VideoCapture:
-      Args:
-        readOnlyUnmanagedInterface: "{name:\"/image/raw\"}"
+    RealSenseForTlarc->RealSenseCapture:
 
--   Fps: 30
-    Components:
-        AutoExchange.ExchangeStationDetector->ExchangeStationDetector:
-            Args:
-                epsilonCoefficient: 0.02
-                IsBlue: false
+# -   Fps: 30
+#     Components:
+#         AutoExchange.ExchangeStationDetector->ExchangeStationDetector:
+#             Args:
+#                 epsilonCoefficient: 0.02
+#                 IsBlue: false
         
--   Fps: 20 
-    Components:
-        HikCamera->VideoTest:
-            Args: 
-                windowsName: "\"approx\""
-                cap: "{name:\"/image/approx\"}"
+# -   Fps: 20 
+#     Components:
+#         HikCamera->VideoTest:
+#             Args: 
+#                 windowsName: "\"approx\""
+#                 cap: "{name:\"/image/approx\"}"
 # -   Fps: 20 
 #     Components:
 #         HikCamera->VideoTest:
@@ -28,9 +26,22 @@
 #             Args: 
 #                 windowsName: "\"raw\""
 #                 cap: "{name:\"/image/raw\"}"
+# -   Fps: 20 
+#     Components:
+#         HikCamera->VideoTest:
+#             Args: 
+#                 windowsName: "\"blurred\""
+#                 cap: "{name:\"/image/blurred\"}"
+
 -   Fps: 20 
     Components:
         HikCamera->VideoTest:
             Args: 
-                windowsName: "\"blurred\""
-                cap: "{name:\"/image/blurred\"}"
+                windowsName: "\"rgb\""
+                cap: "{name:\"/real_sense/rgb\"}"
+-   Fps: 20 
+    Components:
+        HikCamera->VideoTest:
+            Args: 
+                windowsName: "\"depth\""
+                cap: "{name:\"/real_sense/depth\"}"
