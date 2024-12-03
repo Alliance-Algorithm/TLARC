@@ -16,8 +16,8 @@ class ExchangeStationDetector : Component
     public ReadOnlyUnmanagedInterfacePublisher<Mat> approxPub = new("/image/approx");
     public bool IsBlue = false;
     public double epsilonCoefficient = 0.01f;
-    public double minArea = 500;
-    public Vector2d thresholdMinMax = new() { x = 70, y = 255 };
+    public double minArea = 100;
+    public Vector2d thresholdMinMax = new() { x = 80, y = 255 };
 
     LLightBarFilter lLightBarFilter = new();
 
@@ -221,7 +221,7 @@ class ExchangeStationDetector : Component
         // Math.Clamp(2 * list.Count + 2, 4, int.MaxValue)
         List<(PointF Point2D, MCvPoint3D32f Point3D)> points = MaxDistanceSampler.Sample(list, list.Count * 6);
 
-        solver.Solve(points, image);
+        // solver.Solve(points, image);
         approxPub.LoadInstance(ref image);
     }
     static bool IsPointWithinImage(Point pt, int width, int height) { return pt.X >= 0 && pt.X < width && pt.Y >= 0 && pt.Y < height; }

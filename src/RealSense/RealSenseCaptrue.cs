@@ -18,8 +18,8 @@ class RealSenseCapture : Component
             using var pipeLine = new Pipeline(ctx);
 
             var cfg = new Config();
-            cfg.EnableStream(Intel.RealSense.Stream.Depth, 640, 480, Format.Z16, 30);
-            cfg.EnableStream(Intel.RealSense.Stream.Color, 640, 480, Format.Rgb8, 30);
+            cfg.EnableStream(Intel.RealSense.Stream.Depth, 1280, 720, Format.Z16, 30);
+            cfg.EnableStream(Intel.RealSense.Stream.Color, 1280, 720, Format.Rgb8, 30);
             pipeLine.Start(cfg);
 
             while (true)
@@ -36,7 +36,6 @@ class RealSenseCapture : Component
 
                 // 获取颜色帧
                 using var colorFrame = frames.ColorFrame;
-                Console.WriteLine($"Color Frame: {colorFrame.Width}x{colorFrame.Height}, {colorFrame.BitsPerPixel} bits per pixel");
 
                 // 处理颜色帧数据
                 var colorData = new byte[colorFrame.Width * colorFrame.Height * 3];
@@ -45,6 +44,7 @@ class RealSenseCapture : Component
                 {
                     Buffer.MemoryCopy(colorFrame.Data.ToPointer(), colorMat.DataPointer.ToPointer(), colorFrame.Height * depthFrame.Width * 3, colorFrame.Height * depthFrame.Width * 3);
                 }
+                CvInvoke.CvtColor(colorMat, colorMat, Emgu.CV.CvEnum.ColorConversion.Rgb2Bgr);
                 rgb.LoadInstance(ref colorMat);
                 depth.LoadInstance(ref depthMat);
 
