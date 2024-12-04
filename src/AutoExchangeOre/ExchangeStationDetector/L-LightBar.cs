@@ -10,7 +10,7 @@ enum LLightBarType
 }
 struct LLightBar
 {
-    public readonly (PointF Point2D, Emgu.CV.Structure.MCvPoint3D32f Point3D) this[int index] => (point2D[index], point3D[index]);
+    public readonly (Point Point2D, Emgu.CV.Structure.MCvPoint3D32f Point3D) this[int index] => (point2D[index], point3D[index]);
     public Point center;
     public Point[] point2D;
     public Emgu.CV.Structure.MCvPoint3D32f[] point3D;

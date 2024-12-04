@@ -8,6 +8,7 @@ class RealSenseCapture : Component
 {
     public ReadOnlyUnmanagedInterfacePublisher<Mat> rgb = new("/real_sense/rgb");
     public ReadOnlyUnmanagedInterfacePublisher<Mat> depth = new("/real_sense/depth");
+    public ReadOnlyUnmanagedInterfacePublisher<Points> pointCloud = new("/real_sense/frame/pc");
 
     public override void Start()
     {
@@ -25,28 +26,31 @@ class RealSenseCapture : Component
             while (true)
             {
                 using var frames = pipeLine.WaitForFrames();
-                using var depthFrame = frames.DepthFrame;
-
+                var align = new Align(Intel.RealSense.Stream.Color);
+                var alignedFrames = align.Process(frames).AsFrameSet();
+                using var depthFrame = alignedFrames?.DepthFrame;
+                using var colorFrame = alignedFrames?.ColorFrame;
                 Mat depthMat = new Mat(depthFrame.Height, depthFrame.Width, Emgu.CV.CvEnum.DepthType.Cv16U, 1);
                 unsafe
                 {
                     Buffer.MemoryCopy(depthFrame.Data.ToPointer(), depthMat.DataPointer.ToPointer(), depthFrame.Height * depthFrame.Width * 2, depthFrame.Height * depthFrame.Width * 2);
                 }
-                // 在此添加处理深度数据的代码
 
-                // 获取颜色帧
-                using var colorFrame = frames.ColorFrame;
 
                 // 处理颜色帧数据
                 var colorData = new byte[colorFrame.Width * colorFrame.Height * 3];
                 Mat colorMat = new Mat(colorFrame.Height, colorFrame.Width, Emgu.CV.CvEnum.DepthType.Cv8U, 3);
                 unsafe
                 {
-                    Buffer.MemoryCopy(colorFrame.Data.ToPointer(), colorMat.DataPointer.ToPointer(), colorFrame.Height * depthFrame.Width * 3, colorFrame.Height * depthFrame.Width * 3);
+                    Buffer.MemoryCopy(colorFrame.Data.ToPointer(), colorMat.DataPointer.ToPointer(), colorFrame.Height * colorFrame.Width * 3, colorFrame.Height * colorFrame.Width * 3);
                 }
+                using PointCloud pc = new();
+                pc.MapTexture(colorFrame);
+                var verticals = pc.Process(depthFrame).As<Points>();
                 CvInvoke.CvtColor(colorMat, colorMat, Emgu.CV.CvEnum.ColorConversion.Rgb2Bgr);
                 rgb.LoadInstance(ref colorMat);
                 depth.LoadInstance(ref depthMat);
+                pointCloud.LoadInstance(ref verticals);
 
                 // 在此添加处理颜色数据的代码
             }

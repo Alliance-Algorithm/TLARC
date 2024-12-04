@@ -22,12 +22,12 @@ class PnpSolver
     }
 
 
-    public (Vector3d position, Quaterniond rotation) Solve(List<(PointF Point2D, MCvPoint3D32f Point3D)> list, IInputOutputArray img)
+    public (Vector3d position, Quaterniond rotation) Solve(List<(Point Point2D, MCvPoint3D32f Point3D)> list, IInputOutputArray img)
     {
         using Mat rvec = new();
         using Mat tvec = new();
 
-        if (!CvInvoke.SolvePnP(list.Select(x => x.Point3D).ToArray(), list.Select(x => x.Point2D).ToArray(), cameraMatrix, distCoeffs, rvec, tvec, false, SolvePnpMethod.EPnP))
+        if (!CvInvoke.SolvePnP(list.Select(x => x.Point3D).ToArray(), list.Select(x => new PointF(x.Point2D.X, x.Point2D.Y)).ToArray(), cameraMatrix, distCoeffs, rvec, tvec, false, SolvePnpMethod.EPnP))
             return (new(), new());
 
         using Mat rotationMatrix = new();

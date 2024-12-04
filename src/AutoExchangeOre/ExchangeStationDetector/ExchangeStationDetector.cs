@@ -1,8 +1,12 @@
 
 using System.Drawing;
+using System.Runtime.InteropServices;
 using Emgu.CV;
 using Emgu.CV.Structure;
 using Emgu.CV.Util;
+using Emgu.Util;
+using Intel.RealSense;
+using Intel.RealSense.Math;
 using TlarcKernel.IO.ProcessCommunicateInterfaces;
 
 namespace AutoExchange.ExchangeStationDetector;
@@ -10,6 +14,8 @@ namespace AutoExchange.ExchangeStationDetector;
 class ExchangeStationDetector : Component
 {
 
+    public ReadOnlyUnmanagedSubscription<Points> pointCloudSub = new("/real_sense/frame/pc");
+    public ReadOnlyUnmanagedSubscription<Mat> depthSub = new("/real_sense/depth");
     public ReadOnlyUnmanagedSubscription<Mat> rawImage = new("/image/raw");
     public ReadOnlyUnmanagedInterfacePublisher<Mat> blurredPub = new("/image/blurred");
     public ReadOnlyUnmanagedInterfacePublisher<Mat> edgesPub = new("/image/edges");
@@ -17,7 +23,7 @@ class ExchangeStationDetector : Component
     public bool IsBlue = false;
     public double epsilonCoefficient = 0.01f;
     public double minArea = 100;
-    public Vector2d thresholdMinMax = new() { x = 80, y = 255 };
+    public Vector2d thresholdMinMax = new() { x = 128, y = 255 };
 
     LLightBarFilter lLightBarFilter = new();
 
@@ -43,6 +49,9 @@ class ExchangeStationDetector : Component
     {
         using var raw = rawImage.Rent;
         if (raw == null) return;
+        using var pc = pointCloudSub.Rent;
+        if (pc == null)
+            return;
         Mat image = raw.Instance.Value.Clone();
         Mat blurred = new();
         Mat edges = new();
@@ -219,11 +228,31 @@ class ExchangeStationDetector : Component
         if (list.Count < 1)
             return;
         // Math.Clamp(2 * list.Count + 2, 4, int.MaxValue)
-        List<(PointF Point2D, MCvPoint3D32f Point3D)> points = MaxDistanceSampler.Sample(list, list.Count * 6);
+        List<(Point Point2D, MCvPoint3D32f Point3D)> points = MaxDistanceSampler.Sample(list, list.Count * 6);
 
+        List<(MCvPoint3D32f point3dInCamera, MCvPoint3D32f Point3dInWorld)> point3dPairs = new();
+        IntPtr vertexData = pc.Instance.Value.VertexData;
+        int vertexCount = pc.Instance.Value.Count;
+
+        foreach ((var _2d, var _3d) in points)
+        {
+            int index = _2d.Y * image.Width + _2d.X;
+            if (index > vertexCount)
+                continue;
+            IntPtr ptr = IntPtr.Add(vertexData, index * Marshal.SizeOf(typeof(Vertex)));
+            var tmp = Marshal.PtrToStructure<Vertex>(ptr);
+            MCvPoint3D32f tmpVec = new(tmp.X * 1000, tmp.Y * 1000, tmp.Z * 1000);
+            if (tmpVec.Norm != 0)
+                point3dPairs.Add((tmpVec, _3d));
+        }
+        point3dPairs = PointCloudFilter.RemoveOutliers(point3dPairs);
+        var (translation, quaternion) = ICPSolver.ICP(point3dPairs);
+        DrawCameraCoordinateSystem(translation, quaternion, ref image);
         // solver.Solve(points, image);
         approxPub.LoadInstance(ref image);
     }
+
+    [StructLayout(LayoutKind.Sequential)] public struct Vertex { public float X; public float Y; public float Z; }
     static bool IsPointWithinImage(Point pt, int width, int height) { return pt.X >= 0 && pt.X < width && pt.Y >= 0 && pt.Y < height; }
     static double Distance(PointF pt1, PointF pt2) { return Math.Sqrt(Math.Pow(pt1.X - pt2.X, 2) + Math.Pow(pt1.Y - pt2.Y, 2)); }
     static double CalculateAngle(double a, double b, double c)
@@ -245,4 +274,83 @@ class ExchangeStationDetector : Component
         }
         return false;
     }
+
+    static MCvPoint3D32f DeprojectPixelToPoint(Intrinsics intrinsics, PointF pixel, float depth)
+    {
+        float x = (pixel.X - intrinsics.ppx) / intrinsics.fx;
+        float y = (pixel.Y - intrinsics.ppy) / intrinsics.fy;
+        return new(x * depth, y * depth, depth);
+    }
+
+    public static void DrawCameraCoordinateSystem(Vector3d translation, Quaterniond quaternion, ref Mat image)
+    {
+
+        // 计算旋转矩阵
+        var rotationMatrix = quaternion.ToRotationMatrix();
+
+        // 定义相机坐标系中的原点
+        Vector3d cameraOrigin = -translation;
+        cameraOrigin = rotationMatrix.Transpose() * cameraOrigin;
+        // 定义坐标轴长度
+        double axisLength = 100.0;
+
+        // 计算坐标轴终点位置
+        Vector3d xEnd = cameraOrigin + rotationMatrix.Transpose() * new Vector3d(axisLength, 0, 0);
+        Vector3d yEnd = cameraOrigin + rotationMatrix.Transpose() * new Vector3d(0, axisLength, 0);
+        Vector3d zEnd = cameraOrigin + rotationMatrix.Transpose() * new Vector3d(0, 0, axisLength);
+        Point center = new(image.Width / 2, image.Height / 2);
+        // 投影到图像平面 (简单起见，只保留X和Y轴，忽略Z轴)
+        Point origin = new((int)cameraOrigin.x + center.X, (int)cameraOrigin.y + center.Y);
+        Point xAxis = new((int)xEnd.x + center.X, (int)xEnd.y + center.Y);
+        Point yAxis = new((int)yEnd.x + center.X, (int)yEnd.y + center.Y);
+        Point zAxis = new((int)zEnd.x + center.X, (int)zEnd.y + center.Y);
+
+        // 绘制坐标轴
+        CvInvoke.Line(image, origin, xAxis, new MCvScalar(0, 0, 255), 2);  // X轴红色
+        CvInvoke.Line(image, origin, yAxis, new MCvScalar(0, 255, 0), 2);  // Y轴绿色
+        CvInvoke.Line(image, origin, zAxis, new MCvScalar(255, 0, 0), 2);  // Z轴蓝色
+
+    }
+    public static class PointCloudFilter
+    {
+        public static List<(MCvPoint3D32f point3dInCamera, MCvPoint3D32f Point3dInWorld)> RemoveOutliers(
+            List<(MCvPoint3D32f point3dInCamera, MCvPoint3D32f Point3dInWorld)> points)
+        {
+            if (points == null || points.Count == 0)
+                return new List<(MCvPoint3D32f point3dInCamera, MCvPoint3D32f Point3dInWorld)>();
+
+            // 获取Z轴值
+            var zValues = points.Select(p => p.point3dInCamera.Z).ToList();
+
+            // 计算IQR
+            double q1 = GetPercentile(zValues, 25);
+            double q3 = GetPercentile(zValues, 75);
+            double iqr = q3 - q1;
+
+            // 定义上下限
+            double lowerBound = q1 - 1 * iqr;
+            double upperBound = q3 + 1 * iqr;
+
+            // 过滤离群点
+            var filteredPoints = points.Where(p => p.point3dInCamera.Z >= lowerBound && p.point3dInCamera.Z <= upperBound).ToList();
+
+            return filteredPoints;
+        }
+
+        private static double GetPercentile(List<float> sortedValues, double percentile)
+        {
+            if (sortedValues == null || sortedValues.Count == 0)
+                throw new ArgumentException("sortedValues cannot be null or empty");
+
+            sortedValues.Sort();
+            int n = sortedValues.Count;
+            double rank = percentile / 100.0 * (n - 1);
+            int lowerIndex = (int)rank;
+            int upperIndex = Math.Min(lowerIndex + 1, n - 1);
+            double weight = rank - lowerIndex;
+
+            return sortedValues[lowerIndex] * (1 - weight) + sortedValues[upperIndex] * weight;
+        }
+    }
+
 }

@@ -6,30 +6,30 @@ namespace AutoExchange.ExchangeStationDetector;
 static class MaxDistanceSampler
 {
 
-    public static List<(PointF Point2D, MCvPoint3D32f Point3D)> Sample(List<LLightBar> points, int sampleSize)
+    public static List<(Point Point2D, MCvPoint3D32f Point3D)> Sample(List<LLightBar> points, int sampleSize)
     {
-        List<(PointF Point2D, MCvPoint3D32f Point3D)> sampledPoints = [];
+        List<(Point Point2D, MCvPoint3D32f Point3D)> sampledPoints = [];
 
         // 随机选择第一个点
         Random rnd = new Random();
         var tmp = points[rnd.Next(points.Count)];
         var tmpIndex = rnd.Next(6);
-        (PointF, MCvPoint3D32f) firstPoint = tmp[tmpIndex];
+        (Point, MCvPoint3D32f) firstPoint = tmp[tmpIndex];
         sampledPoints.Add(firstPoint);
 
         for (int i = 1; i < sampleSize; i++)
         {
-            (PointF Point2D, MCvPoint3D32f Point3D) farthestPoint = GetFarthestPoint(points, sampledPoints);
+            (Point Point2D, MCvPoint3D32f Point3D) farthestPoint = GetFarthestPoint(points, sampledPoints);
             sampledPoints.Add(farthestPoint);
         }
 
         return sampledPoints;
     }
 
-    static (PointF Point2D, MCvPoint3D32f Point3D) GetFarthestPoint(List<LLightBar> points, List<(PointF Point2D, MCvPoint3D32f Point3D)> sampledPoints)
+    static (Point Point2D, MCvPoint3D32f Point3D) GetFarthestPoint(List<LLightBar> points, List<(Point Point2D, MCvPoint3D32f Point3D)> sampledPoints)
     {
 
-        (PointF Point2D, MCvPoint3D32f Point3D) farthestPoint = new();
+        (Point Point2D, MCvPoint3D32f Point3D) farthestPoint = new();
         double maxDistance = double.MinValue;
 
         foreach (var point in points)
