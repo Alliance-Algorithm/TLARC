@@ -20,9 +20,14 @@ class RealSenseCapture : Component
 
             var cfg = new Config();
             cfg.EnableStream(Intel.RealSense.Stream.Depth, 1280, 720, Format.Z16, 30);
-            cfg.EnableStream(Intel.RealSense.Stream.Color, 1280, 720, Format.Rgb8, 30);
-            pipeLine.Start(cfg);
 
+            cfg.EnableStream(Intel.RealSense.Stream.Color, 1280, 720, Format.Rgb8, 30);
+            var profile = pipeLine.Start(cfg);
+
+            var device = profile.Device;
+            var sensor = device.Sensors[0];
+            sensor.Options[Option.EnableAutoExposure].Value = 0;
+            sensor.Options[Option.Exposure].Value = 30f;
             while (true)
             {
                 using var frames = pipeLine.WaitForFrames();

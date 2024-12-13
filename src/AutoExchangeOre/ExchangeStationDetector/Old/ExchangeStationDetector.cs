@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Runtime.InteropServices;
 using Emgu.CV;
+using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 using Emgu.CV.Util;
 using Emgu.Util;
@@ -68,15 +69,12 @@ class ExchangeStationDetector : Component
         }
         else
         {
-            using var red = SharpenImage(redChannel);
-            CvInvoke.GaussianBlur(red, blurred, new System.Drawing.Size(5, 5), 0);
+            CvInvoke.MedianBlur(redChannel, blurred, 5);
+            using Mat kernel = CvInvoke.GetStructuringElement(ElementShape.Rectangle, new Size(5, 5), new Point(-1, -1));
+            CvInvoke.MorphologyEx(blurred, blurred, MorphOp.Close, kernel, new Point(-1, -1), 1, BorderType.Default, new MCvScalar(1));
         }
 
-        CvInvoke.Threshold(blurred, blurred, thresholdMinMax.x, thresholdMinMax.y, Emgu.CV.CvEnum.ThresholdType.Binary);
-        CvInvoke.Canny(blurred, edges, 50, 150);
-        using Mat kernel = CvInvoke.GetStructuringElement(Emgu.CV.CvEnum.ElementShape.Rectangle, new System.Drawing.Size(3, 3), new System.Drawing.Point(-1, -1));
-        CvInvoke.Dilate(edges, edges, kernel, new System.Drawing.Point(-1, -1), 1, Emgu.CV.CvEnum.BorderType.Default, new Emgu.CV.Structure.MCvScalar(1));
-        CvInvoke.Erode(edges, edges, kernel, new System.Drawing.Point(-1, -1), 1, Emgu.CV.CvEnum.BorderType.Default, new Emgu.CV.Structure.MCvScalar(1));
+        CvInvoke.Canny(blurred, edges, 5, 6000, 5, false);
 
         using var contours = new VectorOfVectorOfPoint();
         CvInvoke.FindContours(edges, contours, null, Emgu.CV.CvEnum.RetrType.External, Emgu.CV.CvEnum.ChainApproxMethod.ChainApproxSimple);

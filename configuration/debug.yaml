@@ -4,9 +4,8 @@
 
 -   Fps: 30
     Components:
-        AutoExchange.ExchangeStationDetector->ExchangeStationDetector:
+        AutoExchange.ExchangeStationDetector->Redemption:
             Args:
-                epsilonCoefficient: 0.025
                 IsBlue: false
                 rawImage: "{name:\"/real_sense/rgb\"}"
         
@@ -16,12 +15,12 @@
             Args: 
                 windowsName: "\"approx\""
                 cap: "{name:\"/image/approx\"}"
-# -   Fps: 20 
-#     Components:
-#         HikCamera->VideoTest:
-#             Args: 
-#                 windowsName: "\"edges\""
-#                 cap: "{name:\"/image/edges\"}"
+-   Fps: 20 
+    Components:
+        HikCamera->VideoTest:
+            Args: 
+                windowsName: "\"edges\""
+                cap: "{name:\"/image/edges\"}"
 # -   Fps: 20 
 #     Components:
 #         HikCamera->VideoTest:
@@ -35,12 +34,12 @@
                 windowsName: "\"blurred\""
                 cap: "{name:\"/image/blurred\"}"
 
--   Fps: 20 
-    Components:
-        HikCamera->VideoTest:
-            Args: 
-                windowsName: "\"rgb\""
-                cap: "{name:\"/real_sense/rgb\"}"
+# -   Fps: 20 
+#     Components:
+#         HikCamera->VideoTest:
+#             Args: 
+#                 windowsName: "\"rgb\""
+#                 cap: "{name:\"/real_sense/rgb\"}"
 # -   Fps: 20 
 #     Components:
 #         HikCamera->VideoTest:
