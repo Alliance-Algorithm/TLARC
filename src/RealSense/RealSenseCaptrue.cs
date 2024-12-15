@@ -25,9 +25,15 @@ class RealSenseCapture : Component
             var profile = pipeLine.Start(cfg);
 
             var device = profile.Device;
-            var sensor = device.Sensors[0];
-            sensor.Options[Option.EnableAutoExposure].Value = 0;
-            sensor.Options[Option.Exposure].Value = 30f;
+            var sensor = device.QuerySensors();
+
+            sensor[0].Options[Option.EnableAutoExposure].Value = 0;
+            sensor[0].Options[Option.Exposure].Value = 3000f;
+
+            sensor[1].Options[Option.EnableAutoExposure].Value = 0;
+            sensor[1].Options[Option.Exposure].Value = 10f;
+            sensor[1].Options[Option.Gain].Value = sensor[1].Options[Option.Gain].Min;
+
             while (true)
             {
                 using var frames = pipeLine.WaitForFrames();
@@ -36,6 +42,7 @@ class RealSenseCapture : Component
                 using var depthFrame = alignedFrames?.DepthFrame;
                 using var colorFrame = alignedFrames?.ColorFrame;
                 Mat depthMat = new Mat(depthFrame.Height, depthFrame.Width, Emgu.CV.CvEnum.DepthType.Cv16U, 1);
+
                 unsafe
                 {
                     Buffer.MemoryCopy(depthFrame.Data.ToPointer(), depthMat.DataPointer.ToPointer(), depthFrame.Height * depthFrame.Width * 2, depthFrame.Height * depthFrame.Width * 2);

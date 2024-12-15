@@ -1,6 +1,6 @@
 using System.Drawing;
 
-namespace AutoExchange.ExchangeStationDetector;
+namespace AutoExchange.ExchangeStationDetector.Old;
 
 enum LLightBarType
 {
@@ -74,6 +74,7 @@ class LLightBarFilter
         ]},
 
     ];
+
 
     public List<LLightBar> FilterLightBar(List<LLightBar> lightBars)
     {

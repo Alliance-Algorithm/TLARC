@@ -2,37 +2,38 @@
   Components:
     RealSenseForTlarc->RealSenseCapture:
 
--   Fps: 30
+-   Fps: 5
+
     Components:
-        AutoExchange.ExchangeStationDetector->Redemption:
+        AutoExchange.ExchangeStationDetector->YoloDetector:
             Args:
                 IsBlue: false
                 rawImage: "{name:\"/real_sense/rgb\"}"
         
--   Fps: 20 
+-   Fps: 10 
     Components:
         HikCamera->VideoTest:
             Args: 
                 windowsName: "\"approx\""
                 cap: "{name:\"/image/approx\"}"
--   Fps: 20 
-    Components:
-        HikCamera->VideoTest:
-            Args: 
-                windowsName: "\"edges\""
-                cap: "{name:\"/image/edges\"}"
+# -   Fps: 20 
+#     Components:
+#         HikCamera->VideoTest:
+#             Args: 
+#                 windowsName: "\"edges\""
+#                 cap: "{name:\"/image/edges\"}"
 # -   Fps: 20 
 #     Components:
 #         HikCamera->VideoTest:
 #             Args: 
 #                 windowsName: "\"raw\""
 #                 cap: "{name:\"/image/raw\"}"
--   Fps: 20 
-    Components:
-        HikCamera->VideoTest:
-            Args: 
-                windowsName: "\"blurred\""
-                cap: "{name:\"/image/blurred\"}"
+# -   Fps: 20 
+#     Components:
+#         HikCamera->VideoTest:
+#             Args: 
+#                 windowsName: "\"blurred\""
+#                 cap: "{name:\"/image/blurred\"}"
 
 # -   Fps: 20 
 #     Components:

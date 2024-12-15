@@ -9,8 +9,8 @@ using Emgu.Util;
 using Intel.RealSense;
 using Intel.RealSense.Math;
 using TlarcKernel.IO.ProcessCommunicateInterfaces;
+namespace AutoExchange.ExchangeStationDetector.Old;
 
-namespace AutoExchange.ExchangeStationDetector;
 
 class ExchangeStationDetector : Component
 {

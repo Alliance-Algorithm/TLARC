@@ -1,46 +1,88 @@
-
+using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using AutoExchange.ExchangeStationDetector.Yolo;
+using Compunet.YoloSharp;
 using Emgu.CV;
-using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
-using Emgu.CV.Util;
-using Emgu.Util;
-using g4;
 using Intel.RealSense;
-using Intel.RealSense.Math;
+using Microsoft.ML.OnnxRuntime;
+using Microsoft.ML.OnnxRuntime.Tensors;
+using Microsoft.Toolkit.HighPerformance;
 using TlarcKernel.IO.ProcessCommunicateInterfaces;
 
 namespace AutoExchange.ExchangeStationDetector;
 
-class Redemption : Component
+class YoloDetector : Component
 {
+
 
     public ReadOnlyUnmanagedSubscription<Points> pointCloudSub = new("/real_sense/frame/pc");
     public ReadOnlyUnmanagedSubscription<Mat> depthSub = new("/real_sense/depth");
     public ReadOnlyUnmanagedSubscription<Mat> rawImage = new("/image/raw");
-    public ReadOnlyUnmanagedInterfacePublisher<Mat> blurredPub = new("/image/blurred");
-    public ReadOnlyUnmanagedInterfacePublisher<Mat> edgesPub = new("/image/edges");
     public ReadOnlyUnmanagedInterfacePublisher<Mat> approxPub = new("/image/approx");
-    public bool IsBlue = false;
-    public double epsilonCoefficient = 0.01f;
-    public double minArea = 100;
-    public Vector2d thresholdMinMax = new() { x = 80, y = 255 };
-    List<LampInfo> lampInfos = [];
-
-    public override void Start()
+    string modelPath = "onnxModel/redemption.onnx";
+    OnnxYoloHelper predictor;
+    KeypointHelper keypointHelper;
+    override public void Start()
     {
-        thresholdMinMax.y = Math.Clamp(thresholdMinMax.y, 0, 255);
-        thresholdMinMax.x = Math.Clamp(thresholdMinMax.x, 0, thresholdMinMax.y);
-    }
 
-    public static Mat SharpenImage(Mat image)
-    {
-        Mat sharpened = new Mat(image.Height, image.Width, image.Depth, image.NumberOfChannels);
-        using Mat kernel = new Mat(new System.Drawing.Size(3, 3), Emgu.CV.CvEnum.DepthType.Cv64F, 1);
-        kernel.SetTo(new double[] { -1, -1, -1, -1, 9, -1, -1, -1, -1 });
-        CvInvoke.Filter2D(image, sharpened, kernel, new System.Drawing.Point(-1, -1));
-        return sharpened;
+        predictor = new(TlarcSystem.RootPath + modelPath);
+
+        LLightBar[] lightBars = [
+        new(){center = new(),point3D= [
+            new(0,-126.5f,126.5f),
+            new(0,-108.5f,126.5f),
+            new(0,-108.5f,137.5f),
+            new(0,-126.5f,108.5f),
+            new(0,-137.5f,137.5f),
+            new(0,-137.5f,108.5f),
+        ]},
+        new(){center = new(),point3D= [
+            new(0,126.5f,126.5f),
+            new(0,126.5f,87.5f),
+            new(0,137.5f,87.5f),
+            new(0,137.5f,137.5f),
+            new(0,87.5f,137.5f),
+            new(0,87.5f,126.5f),
+        ]},
+        new(){center = new(),point3D= [
+            new(0,126.5f,-126.5f),
+            new(0,87.5f,-126.5f),
+            new(0,87.5f,-137.5f),
+            new(0,137.5f,-137.5f),
+            new(0,137.5f,-87.5f),
+            new(0,126.5f,-87.5f),
+        ]},
+        new(){center = new(),point3D= [
+            new(0,-126.5f,-126.5f),
+            new(0,-126.5f,-87.5f),
+            new(0,-137.5f,-87.5f),
+            new(0,-137.5f,-137.5f),
+            new(0,-87.5f,-137.5f),
+            new(0,-87.5f,-126.5f),
+        ]},
+        new(){center = new(),point3D= [
+            new(59.642136f,-144f,0),
+            new(145.5f,-144f,-85.857864f),
+            new(145.5f,-144f,-100f),
+            new(45.5f, -144,0f),
+            new(145.5f,-144f,100f),
+            new(145.5f,-144f,85.857864f),
+        ]},
+        new(){center = new(),point3D= [
+            new(59.642136f,144f,0),
+            new(145.5f,144f,85.857864f),
+            new(145.5f,144f,100f),
+            new(45.5f, 144,0f),
+            new(145.5f,144f,-100f),
+            new(145.5f,144f,-85.857864f),
+        ]}
+
+    ];
+
+        keypointHelper = new KeypointHelper(lightBars);
+
     }
     public override void Update()
     {
@@ -49,51 +91,87 @@ class Redemption : Component
         using var pc = pointCloudSub.Rent;
         if (pc == null)
             return;
-        lampInfos = [];
-        // Mat image = SharpenImage(raw.Instance.Value.Clone());
         Mat image = raw.Instance.Value.Clone();
-        Mat blurred = new();
-        Mat edges = new();
+
         Mat[] channels = image.Split();
         using Mat blueChannel = channels[0] - channels[2];
         using Mat redChannel = channels[2] - channels[0];
         channels[0].Dispose();
         channels[1].Dispose();
         channels[2].Dispose();
-        if (IsBlue)
-        {
-            CvInvoke.MedianBlur(blueChannel, blurred, 1);
-        }
-        else
-        {
 
-            CvInvoke.MedianBlur(redChannel, blurred, 5);
-            using Mat kernel = CvInvoke.GetStructuringElement(ElementShape.Rectangle, new Size(5, 5), new Point(-1, -1));
-            CvInvoke.MorphologyEx(blurred, blurred, MorphOp.Close, kernel, new Point(-1, -1), 1, BorderType.Default, new MCvScalar(1));
-        }
-        CvInvoke.Canny(blurred, edges, 5, 6000, 5, false);
 
-        using VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint();
-        CvInvoke.FindContours(edges, contours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
-        List<Vector2d> others = [];
-        // edges.Dispose();
-        // edges = Mat.Zeros(image.Rows, image.Cols, DepthType.Cv8U, 1);
-        // 获取最小外接矩形（ROI）
-        if (contours.Size > 0)
+        var output = predictor.ProcessImage(redChannel);
+
+        var pointPairs = keypointHelper.UpdateKeypoints(output);
+        keypointHelper.DrawDetections(image, output);
+        // predictor.DrawDetections(image, output);
+
+        List<(MCvPoint3D32f point3dInCamera, MCvPoint3D32f Point3dInWorld)> point3dPairs = new();
+        IntPtr vertexData = pc.Instance.Value.VertexData;
+        int vertexCount = pc.Instance.Value.Count;
+
+        foreach ((var _2d, var _3d) in pointPairs)
         {
-            for (int i = 0, k = (int)contours.Size; i < k; i++)
-            {
-                RotatedRect rotatedRect = CvInvoke.MinAreaRect(contours[i]);
-                PointF[] vertices = rotatedRect.GetVertices();
-                Point[] points = Array.ConvertAll(vertices, Point.Round);
-
-                for (int j = 0; j < points.Length; j++) { CvInvoke.Line(image, points[j], points[(j + 1) % points.Length], new MCvScalar(0, 255, 0), 2); }
-            }
+            int index = _2d.Y * image.Width + _2d.X;
+            if (index >= vertexCount)
+                continue;
+            IntPtr ptr = IntPtr.Add(vertexData, index * Marshal.SizeOf(typeof(Vertex)));
+            var tmp = Marshal.PtrToStructure<Vertex>(ptr);
+            MCvPoint3D32f tmpVec = new(tmp.X * 1000, tmp.Y * 1000, tmp.Z * 1000);
+            if (tmpVec.Norm != 0)
+                point3dPairs.Add((tmpVec, _3d));
         }
 
+        var (translation, quaternion) = ICPSolver.ICP(point3dPairs);
+        DrawCameraCoordinateSystem(translation, quaternion, image);
 
-        edgesPub.LoadInstance(ref edges);
-        blurredPub.LoadInstance(ref blurred);
         approxPub.LoadInstance(ref image);
     }
+    [StructLayout(LayoutKind.Sequential)] public struct Vertex { public float X; public float Y; public float Z; }
+
+    public static void DrawCameraCoordinateSystem(Vector3d translation, Quaterniond quaternion, Mat image)
+    {
+        // 计算旋转矩阵
+        var rotationMatrix = quaternion.ToRotationMatrix();
+
+        // 定义相机坐标系中的原点
+        Vector3d cameraOrigin = -translation;
+        cameraOrigin = rotationMatrix.Transpose() * cameraOrigin;
+
+        // 定义坐标轴长度
+        double axisLength = 100.0;
+
+        // 计算坐标轴终点位置
+        Vector3d xEnd = cameraOrigin + rotationMatrix.Transpose() * new Vector3d(axisLength, 0, 0);
+        Vector3d yEnd = cameraOrigin + rotationMatrix.Transpose() * new Vector3d(0, axisLength, 0);
+        Vector3d zEnd = cameraOrigin + rotationMatrix.Transpose() * new Vector3d(0, 0, axisLength);
+
+        // 投影到图像平面
+        Point origin = ProjectPoint(cameraOrigin);
+        Point xAxis = ProjectPoint(xEnd);
+        Point yAxis = ProjectPoint(yEnd);
+        Point zAxis = ProjectPoint(zEnd);
+
+        // 绘制坐标轴
+        CvInvoke.Line(image, origin, xAxis, new MCvScalar(0, 0, 255), 2);  // X轴红色
+        CvInvoke.Line(image, origin, yAxis, new MCvScalar(0, 255, 0), 2);  // Y轴绿色
+        CvInvoke.Line(image, origin, zAxis, new MCvScalar(255, 0, 0), 2);  // Z轴蓝色
+    }
+
+    private static Point ProjectPoint(Vector3d point)
+    {
+        // 提取相机内参
+        double fx = 642.5304;
+        double fy = 641.76654;
+        double cx = 652.053;
+        double cy = 370.06146;
+
+        // 投影到图像平面
+        double x = (fx * point.x / point.z) + cx;
+        double y = (fy * point.y / point.z) + cy;
+
+        return new Point((int)x, (int)y);
+    }
+
 }

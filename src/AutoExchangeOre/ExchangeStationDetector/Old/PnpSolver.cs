@@ -4,8 +4,7 @@ using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 using Emgu.CV.Util;
-
-namespace AutoExchange.ExchangeStationDetector;
+namespace AutoExchange.ExchangeStationDetector.Old;
 
 
 class PnpSolver
@@ -36,6 +35,7 @@ class PnpSolver
 
         var arr = (double[,])tvec.GetData();
         Vector3d position = new(arr[0, 0], arr[1, 0], arr[2, 0]);
+
 
         MCvPoint3D32f[] axisPoints = [new(0, 0, 0), new(1, 0, 0), new(0, 1, 0), new(0, 0, 1)];
         var imagePoints = CvInvoke.ProjectPoints(axisPoints, rvec, tvec, cameraMatrix, distCoeffs);

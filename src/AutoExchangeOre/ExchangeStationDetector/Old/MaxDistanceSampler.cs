@@ -1,7 +1,7 @@
 using System.Drawing;
 using Emgu.CV.Structure;
 
-namespace AutoExchange.ExchangeStationDetector;
+namespace AutoExchange.ExchangeStationDetector.Old;
 
 static class MaxDistanceSampler
 {
