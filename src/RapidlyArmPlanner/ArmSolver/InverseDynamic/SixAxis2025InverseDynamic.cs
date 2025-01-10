@@ -6,7 +6,7 @@ namespace RapidlyArmPlanner.ArmSolver.ForwardDynamic;
 
 class SixAxis2025InverseDynamic : IInverseDynamicSolver
 {
-    double[] _pole = new double[] { 0.05, 0.3, 0.05, 0.3, 0.05 };
+    double[] _pole = [0.05, 0.3, 0.05, 0.3, 0.05];
     (double min, double max)[] _limit = new (double min, double max)[] { (-Math.PI * 2, Math.PI * 2), (-Math.PI / 2, Math.PI / 2), (0, Math.PI), (-Math.PI * 2, Math.PI * 2), (-Math.PI / 2, Math.PI / 2), (-Math.PI * 2, Math.PI * 2) };
     double angle2Offset = 0.0;
     public SixAxis2025InverseDynamic((double mim, double max)[]? limits = null, double[]? pole = null)

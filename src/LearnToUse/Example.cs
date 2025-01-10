@@ -14,13 +14,14 @@ namespace LearnToUse
     };
     public class Example2 : Component
     {
-        public Vector3d vector3;
+        public (Vector3d position, Quaterniond rotation) translate;
 
 
         public override void Update()
         {
-            vector3.x += 0.01;
-            TlarcSystem.LogInfo($"{vector3.x}");
+            translate.position.x += 0.01;
+            translate.rotation.z += 0.01;
+            TlarcSystem.LogInfo($"{translate.position.x}, {translate.rotation.z}");
         }
     };
     public class Example3 : Component
@@ -29,7 +30,7 @@ namespace LearnToUse
         Example2 example;
         public override void Update()
         {
-            TlarcSystem.LogInfo($"same process {example.vector3.x}");
+            TlarcSystem.LogInfo($"same process {example.translate.position.x}");
         }
     };
     public class Example4 : Component
@@ -37,7 +38,7 @@ namespace LearnToUse
         Example2 example;
         public override void Update()
         {
-            TlarcSystem.LogInfo($"diff process {example.vector3.x}");
+            TlarcSystem.LogInfo($"diff process {example.translate.position.x},{example.translate.rotation.z}");
         }
     };
     public class Example5 : Component

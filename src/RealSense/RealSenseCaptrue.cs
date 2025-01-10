@@ -13,7 +13,7 @@ class RealSenseCapture : Component
     public override void Start()
     {
 
-        Mat depthMat = new Mat(1,1, Emgu.CV.CvEnum.DepthType.Cv16U, 1);
+        Mat depthMat = new Mat(1, 1, Emgu.CV.CvEnum.DepthType.Cv16U, 1);
 
         Task.Run(() =>
         {

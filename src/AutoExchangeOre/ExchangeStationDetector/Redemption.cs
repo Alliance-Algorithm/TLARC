@@ -24,7 +24,8 @@ class YoloRedemptionDetector : Component
     OnnxYoloHelper predictor;
     KeypointHelper keypointHelper;
 
-    public (Vector3d position, Quaterniond rotation) Translate;
+    (Vector3d position, Quaterniond rotation) translate;
+    public (Vector3d position, Quaterniond rotation) redemptionInCamera;
     override public void Start()
     {
 
@@ -124,8 +125,9 @@ class YoloRedemptionDetector : Component
                 point3dPairs.Add((tmpVec, _3d));
         }
 
-        Translate = ICPSolver.ICP(point3dPairs);
-        DrawCameraCoordinateSystem(Translate.position, Translate.rotation, image);
+        translate = ICPSolver.ICP(point3dPairs);
+        redemptionInCamera = (-translate.position, translate.rotation.ToRotationMatrix().Transpose().ToQuaternion());
+        DrawCameraCoordinateSystem(translate.position, translate.rotation, image);
 
         approxPub.LoadInstance(ref image);
     }

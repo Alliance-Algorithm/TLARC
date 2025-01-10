@@ -1,12 +1,11 @@
 
-- Fps: 500
+- Fps: 10
   Components:
     LearnToUse->Example2:
       Args:
         vector3: "{x:1,y:3,z:3}"
-    LearnToUse->Example3:
     
-- Fps: 1
+- Fps: 10
   Components:
     LearnToUse->Example4:
 

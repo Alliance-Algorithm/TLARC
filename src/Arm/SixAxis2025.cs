@@ -1,5 +1,6 @@
 using AutoExchange.ExchangeStationDetector;
 using AutoExchange.ExchangeStationDetector.Old;
+using Compunet.YoloSharp.Data;
 using RapidlyArmPlanner.ArmSolver.ForwardDynamic;
 using RapidlyArmPlanner.ArmSolver.InverseDynamic;
 using RapidlyArmPlanner.ColliderDetector;
@@ -10,18 +11,20 @@ namespace Engineer.Arm;
 
 class SixAxis : Component
 {
+    (Vector3d position, Quaterniond rotation) cameraInBase;
+    readonly double[] _pole = [0.05, 0.3, 0.05, 0.3, 0.05];
     AutoExchange.ArmPlanner planner;
     YoloRedemptionDetector redemptionDetector;
     public DateTime constructTime = DateTime.MinValue;
-    Joint[] joints;
+    double[] joints;
     List<RapidlyArmPlanner.TrajectoryFit.BSplineTrajectoryWithMinimalSnap> trajectory;
     Bool beginSub;
     bool begin = false;
     FloatMultiArray floatMultiArray;
     public override void Start()
     {
-        var forwardDynamic = new SixAxis2025ForwardDynamic();
-        var inverseDynamicSolver = new SixAxis2025InverseDynamic();
+        var forwardDynamic = new SixAxis2025ForwardDynamic(pole: _pole);
+        var inverseDynamicSolver = new SixAxis2025InverseDynamic(pole: _pole);
         var colliderDetector = new SixAxisRedemptionDetector();
         var searcher = new PathToPathLoose(
             new RRT_BHAStar(
@@ -35,8 +38,9 @@ class SixAxis : Component
         beginSub = new(IOManager);
         floatMultiArray = new(IOManager);
         beginSub.Subscript("/engineer/exchange", x => begin = x);
-        floatMultiArray.RegistryPublisher("/engineer/joint_target");
-        joints = [new("Yaw1", IOManager), new("Pitch1", IOManager), new("Pitch2", IOManager), new("Roll1", IOManager), new("Pitch3", IOManager), new("Roll2", IOManager)];
+        joints = new double[6];
+        floatMultiArray.RegistryPublisher("/engineer/joint/control");
+        floatMultiArray.Subscript("/engineer/joint/measure", x => { for (int i = 0; i < 6; i++) joints[i] = x[i]; });
 
         planner = new() { forwardDynamic = forwardDynamic, inverseDynamicSolver = inverseDynamicSolver, colliderDetector = colliderDetector, searcher = searcher };
     }
@@ -47,7 +51,9 @@ class SixAxis : Component
             return;
         if (!isSuccess || (DateTime.Now - constructTime).TotalSeconds >= trajectory.Max(x => x.MaxTime))
         {
-            isSuccess = planner.PlanTrajectory(joints.GetValueArray(), redemptionDetector.Translate, out var tmpTrajectory);
+            var redemptionInCamera = redemptionDetector.redemptionInCamera;
+
+            isSuccess = planner.PlanTrajectory(joints, (cameraInBase.position + redemptionInCamera.rotation * redemptionInCamera.position, cameraInBase.rotation * redemptionInCamera.rotation), out var tmpTrajectory);
             trajectory = tmpTrajectory;
             constructTime = DateTime.Now;
         }

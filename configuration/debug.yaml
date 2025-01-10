@@ -2,7 +2,7 @@
     Components:
         RealSenseForTlarc->RealSenseCapture:
 
--   Fps: 5
+-   Fps: 10
     Components:
         AutoExchange.ExchangeStationDetector->YoloDetector:
             Args:
@@ -15,6 +15,10 @@
             Args: 
                 windowsName: "\"approx\""
                 cap: "{name:\"/image/approx\"}"
+
+-   Fps: 20
+    Components:
+        Engineer.Arm->SixAxis:
 # -   Fps: 20 
 #     Components:
 #         HikCamera->VideoTest:
