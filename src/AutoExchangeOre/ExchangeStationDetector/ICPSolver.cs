@@ -61,7 +61,7 @@ static class ICPSolver
 
         // 计算平移
         double[] t = Q.Subtract(R.Dot(P));
-        TlarcSystem.LogInfo($"trans:{t[0]:F2},{t[1]:F2},{t[2]:F2}");
+        // TlarcSystem.LogInfo($"trans:{t[0]:F2},{t[1]:F2},{t[2]:F2}");
 
         // 将旋转矩阵转换为四元数
         Quaterniond quaternion = Tools.MatrixToQuaternion(R);
