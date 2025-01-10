@@ -96,6 +96,9 @@ class ArmPlanner
 
             trajectories.Enqueue(i, tmpSpline.Max(x => x.Value));
         }
+        trajectory = [];
+        if (trajectories.Count <= 2)
+            return false;
         var index = trajectories.Dequeue();
 
         List<LinkedList<(double value, double loose)>> tail = new();
@@ -118,6 +121,8 @@ class ArmPlanner
 
         for (int i = 0; i < path.Count; i++)
         {
+            if (path[i].Count == 0)
+                return false;
             path[i].RemoveLast();
             path[i].AddLast(tail[i].First.Value);
             foreach (var item in tail[i])

@@ -20,7 +20,7 @@ class RRT_BHAStarNode
     RRT_BHAStarNode? _parent = null;
     public RRT_BHAStarNode? Parent => _parent;
     const double step = 0.08;
-    const int childrenCount = 10;
+    const int childrenCount = 30;
 
 
     public RRT_BHAStarNode(double[] values, double cost = 0, RRT_BHAStarNode? parent = null)
@@ -47,7 +47,7 @@ class RRT_BHAStarNode
                 direction = direction.Normalize();
                 node = new(direction.Multiply(step).Add(_values), _cost + step, this);
                 List<(Vector3d pos, Quaterniond rotation)> pose = forwardDynamic.GetPose(node.Values);
-                if (!obstacleDetector.Detect(pose))
+                // if (!obstacleDetector.Detect(pose))
                     break;
             }
             news.Add(node);

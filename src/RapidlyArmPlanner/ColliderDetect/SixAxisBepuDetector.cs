@@ -22,8 +22,10 @@ class SixAxisRedemptionDetector : IColliderDetector
     List<Entity> poles;
     List<Entity> redemptions;
     int[] bools;
-    public SixAxisRedemptionDetector()
+    double[] _pole = [0.05, 0.3, 0.05, 0.3, 0.05];
+    public SixAxisRedemptionDetector( double[]? pole = null)
     {
+        _pole = pole ?? _pole; 
         space = new Space();
         bools = new int[5];
         space.ForceUpdater.Gravity = Vector3.Zero;
@@ -35,17 +37,17 @@ class SixAxisRedemptionDetector : IColliderDetector
         // space.Add(ground);
         poles = new List<Entity>
         {
-            new Box(Vector3.Zero, 0.05f, 0.05f, 0.05f, 1),
-            new Box(Vector3.Zero, 0.05f, 0.05f,0.3f, 1),
-            new Box(Vector3.Zero, 0.05f, 0.05f, 0.05f, 1),
-            new Box(Vector3.Zero, 0.05f, 0.05f, 0.3f, 1),
-            new Box(Vector3.Zero, 0.05f, 0.05f, 0.05f, 1),
+            new Box(Vector3.Zero, 0.05f, 0.05f, (float)_pole[0], 1),
+            new Box(Vector3.Zero, 0.05f, 0.05f, (float)_pole[1], 1),
+            new Box(Vector3.Zero, 0.05f, 0.05f, (float)_pole[2], 1),
+            new Box(Vector3.Zero, 0.05f, 0.05f, (float)_pole[3], 1),
+            new Box(Vector3.Zero, 0.05f, 0.05f, (float)_pole[4], 1),
             new Box(Vector3.Zero, 0.24f, 0.24f, 0.24f, 1),
         };
-        foreach (var pole in poles)
+        foreach (var pole_ in poles)
         {
-            pole.CollisionInformation.CollisionRules.Personal = CollisionRule.NoSolver;
-            space.Add(pole);
+            pole_.CollisionInformation.CollisionRules.Personal = CollisionRule.NoSolver;
+            space.Add(pole_);
         }
 
         redemptions = new List<Entity>()

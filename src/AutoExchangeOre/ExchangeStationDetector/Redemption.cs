@@ -126,8 +126,8 @@ class YoloRedemptionDetector : Component
         }
 
         translate = ICPSolver.ICP(point3dPairs);
-        redemptionInCamera = (-translate.position, translate.rotation.ToRotationMatrix().Transpose().ToQuaternion());
-        DrawCameraCoordinateSystem(translate.position, translate.rotation, image);
+        redemptionInCamera = (-(translate.rotation.ToRotationMatrix().Transpose() *translate.position) / 1000, translate.rotation.ToRotationMatrix().Transpose().ToQuaternion());
+        DrawCameraCoordinateSystem(redemptionInCamera.position, redemptionInCamera.rotation, image);
 
         approxPub.LoadInstance(ref image);
     }
@@ -139,16 +139,15 @@ class YoloRedemptionDetector : Component
         var rotationMatrix = quaternion.ToRotationMatrix();
 
         // 定义相机坐标系中的原点
-        Vector3d cameraOrigin = -translation;
-        cameraOrigin = rotationMatrix.Transpose() * cameraOrigin;
+        Vector3d cameraOrigin = translation;
 
         // 定义坐标轴长度
-        double axisLength = 100.0;
+        double axisLength = 0.1;
 
         // 计算坐标轴终点位置
-        Vector3d xEnd = cameraOrigin + rotationMatrix.Transpose() * new Vector3d(axisLength, 0, 0);
-        Vector3d yEnd = cameraOrigin + rotationMatrix.Transpose() * new Vector3d(0, axisLength, 0);
-        Vector3d zEnd = cameraOrigin + rotationMatrix.Transpose() * new Vector3d(0, 0, axisLength);
+        Vector3d xEnd = cameraOrigin + rotationMatrix * new Vector3d(axisLength, 0, 0);
+        Vector3d yEnd = cameraOrigin + rotationMatrix * new Vector3d(0, axisLength, 0);
+        Vector3d zEnd = cameraOrigin + rotationMatrix * new Vector3d(0, 0, axisLength);
 
         // 投影到图像平面
         Point origin = ProjectPoint(cameraOrigin);

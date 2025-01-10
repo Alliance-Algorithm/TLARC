@@ -57,7 +57,7 @@ class RRT_BHAStar : IPathFinder<double>
                 for (int j = 0; j < node.Values.Length; j++)
                     if (node.Values[j] < _lowerBound[j] || node.Values[j] > _upperBound[j])
                     {
-                        isIn = false;
+                            
                         break;
                     }
                 if (!isIn)
