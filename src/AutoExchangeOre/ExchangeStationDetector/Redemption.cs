@@ -20,7 +20,7 @@ class YoloRedemptionDetector : Component
     public ReadOnlyUnmanagedSubscription<Mat> depthSub = new("/real_sense/depth");
     public ReadOnlyUnmanagedSubscription<Mat> rawImage = new("/image/raw");
     public ReadOnlyUnmanagedInterfacePublisher<Mat> approxPub = new("/image/approx");
-    string modelPath = "onnxModel/r2.onnx";
+    string modelPath = "onnxModel/redemption.onnx";
     OnnxYoloHelper predictor;
     KeypointHelper keypointHelper;
 

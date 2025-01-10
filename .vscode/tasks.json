@@ -3,8 +3,8 @@
 	"tasks": [
 		{
 			"type": "dotnet",
-			"task": "build /workspaces/TLARC/tlarc.csproj",
-			"file": "/workspaces/TLARC/tlarc.csproj",
+			"task": "build /workspaces/RMCS/rmcs_ws/src/TLARC/tlarc.csproj",
+			"file": "/workspaces/RMCS/rmcs_ws/src/TLARC/tlarc.csproj",
 			"group": "build",
 			"problemMatcher": [],
 			"label": "build"

@@ -1,9 +1,8 @@
-- Fps: 10
-  Components:
-    RealSenseForTlarc->RealSenseCapture:
+-   Fps: 10
+    Components:
+        RealSenseForTlarc->RealSenseCapture:
 
 -   Fps: 5
-
     Components:
         AutoExchange.ExchangeStationDetector->YoloDetector:
             Args:

@@ -13,6 +13,8 @@ class RealSenseCapture : Component
     public override void Start()
     {
 
+        Mat depthMat = new Mat(1,1, Emgu.CV.CvEnum.DepthType.Cv16U, 1);
+
         Task.Run(() =>
         {
             using var ctx = new Context();
@@ -48,7 +50,6 @@ class RealSenseCapture : Component
                     Buffer.MemoryCopy(depthFrame.Data.ToPointer(), depthMat.DataPointer.ToPointer(), depthFrame.Height * depthFrame.Width * 2, depthFrame.Height * depthFrame.Width * 2);
                 }
 
-
                 // 处理颜色帧数据
                 var colorData = new byte[colorFrame.Width * colorFrame.Height * 3];
                 Mat colorMat = new Mat(colorFrame.Height, colorFrame.Width, Emgu.CV.CvEnum.DepthType.Cv8U, 3);
@@ -66,6 +67,7 @@ class RealSenseCapture : Component
 
                 // 在此添加处理颜色数据的代码
             }
+
         });
     }
 
