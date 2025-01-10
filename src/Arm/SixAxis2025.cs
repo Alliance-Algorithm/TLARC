@@ -51,9 +51,9 @@ class SixAxis : Component
             return;
         if (!isSuccess || (DateTime.Now - constructTime).TotalSeconds >= trajectory.Max(x => x.MaxTime))
         {
-            var redemptionInCamera = redemptionDetector.redemptionInCamera;
+            var (position, rotation) = redemptionDetector.redemptionInCamera;
 
-            isSuccess = planner.PlanTrajectory(joints, (cameraInBase.position + redemptionInCamera.rotation * redemptionInCamera.position, cameraInBase.rotation * redemptionInCamera.rotation), out var tmpTrajectory);
+            isSuccess = planner.PlanTrajectory(joints, (Quaterniond.AxisAngleR(Vector3d.AxisZ, joints[0]) * (cameraInBase.position + rotation * position), cameraInBase.rotation * rotation), out var tmpTrajectory);
             trajectory = tmpTrajectory;
             constructTime = DateTime.Now;
         }
