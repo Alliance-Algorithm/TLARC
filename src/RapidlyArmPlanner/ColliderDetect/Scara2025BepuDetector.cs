@@ -57,7 +57,7 @@ class Scara2025BepuDetector : IColliderDetector
         }
 
     }
-    internal void Update(List<(Vector3d Position, Quaterniond Rotation)> poleTransforms, (Vector3d Position, Quaterniond Rotation) redemptionTransform)
+    public void Update(List<(Vector3d Position, Quaterniond Rotation)> poleTransforms, (Vector3d Position, Quaterniond Rotation) redemptionTransform)
     {
         Vector3d X = redemptionTransform.Rotation * Vector3d.AxisX;
         Vector3d Y = redemptionTransform.Rotation * Vector3d.AxisY;

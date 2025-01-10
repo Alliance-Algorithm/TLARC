@@ -13,9 +13,8 @@ using TlarcKernel.IO.ProcessCommunicateInterfaces;
 
 namespace AutoExchange.ExchangeStationDetector;
 
-class YoloDetector : Component
+class YoloRedemptionDetector : Component
 {
-
 
     public ReadOnlyUnmanagedSubscription<Points> pointCloudSub = new("/real_sense/frame/pc");
     public ReadOnlyUnmanagedSubscription<Mat> depthSub = new("/real_sense/depth");
@@ -24,6 +23,8 @@ class YoloDetector : Component
     string modelPath = "onnxModel/r2.onnx";
     OnnxYoloHelper predictor;
     KeypointHelper keypointHelper;
+
+    public (Vector3d position, Quaterniond rotation) Translate;
     override public void Start()
     {
 
@@ -123,8 +124,8 @@ class YoloDetector : Component
                 point3dPairs.Add((tmpVec, _3d));
         }
 
-        var (translation, quaternion) = ICPSolver.ICP(point3dPairs);
-        DrawCameraCoordinateSystem(translation, quaternion, image);
+        Translate = ICPSolver.ICP(point3dPairs);
+        DrawCameraCoordinateSystem(Translate.position, Translate.rotation, image);
 
         approxPub.LoadInstance(ref image);
     }

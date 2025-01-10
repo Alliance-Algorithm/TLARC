@@ -5,30 +5,31 @@ using RapidlyArmPlanner.ColliderDetector;
 using RapidlyArmPlanner.PathFinder.RRT_BHAStar;
 using RapidlyArmPlanner.TrajectoryFit;
 namespace AutoExchange;
-class Scara2025AutoExchangeOre
+class ArmPlanner
 {
-    readonly IForwardDynamic forwardDynamic;
-    readonly IInverseDynamicSolver inverseDynamicSolver;
-    readonly Scara2025BepuDetector colliderDetector;
-    readonly PathToPathLoose searcher;
+
+    required public IForwardDynamic forwardDynamic { get; init; }
+    required public IInverseDynamicSolver inverseDynamicSolver { get; init; }
+    required public IColliderDetector colliderDetector { get; init; }
+    required public PathToPathLoose searcher { get; init; }
 
     const double step = 2;
-    double[] _beginThetas = new double[6] { -1.7589654251491529, 0.7, -2.0042416738476305, -1.570796248551242, 1.570796217569299, 0 };
 
-    public Scara2025AutoExchangeOre()
+
+    public ArmPlanner()
     {
-        forwardDynamic = new Scara2025ForwardDynamic();
-        inverseDynamicSolver = new Scara2025InverseDynamic(0.3, 0.3, 0.05, (-Math.PI, Math.PI), (-Math.PI, Math.PI), (-120 * Math.PI / 180, 120 * Math.PI / 180));
-        colliderDetector = new Scara2025BepuDetector();
-        searcher = new(
-            new RRT_BHAStar(
-                [Math.PI, 0.8, Math.PI, Math.PI, Math.PI, Math.PI],
-                [-Math.PI, 0, -Math.PI, -Math.PI, -Math.PI, -Math.PI])
-            {
-                forwardDynamic = forwardDynamic,
-                obstacleDetector = colliderDetector
-            }
-        );
+        // forwardDynamic = new Scara2025ForwardDynamic();
+        // inverseDynamicSolver = new Scara2025InverseDynamic(0.3, 0.3, 0.05, (-Math.PI, Math.PI), (-Math.PI, Math.PI), (-120 * Math.PI / 180, 120 * Math.PI / 180));
+        // colliderDetector = new Scara2025BepuDetector();
+        // searcher = new(
+        //     new RRT_BHAStar(
+        //         [Math.PI, 0.8, Math.PI, Math.PI, Math.PI, Math.PI],
+        //         [-Math.PI, 0, -Math.PI, -Math.PI, -Math.PI, -Math.PI])
+        //     {
+        //         forwardDynamic = forwardDynamic,
+        //         obstacleDetector = colliderDetector
+        //     }
+        // );
 
     }
 
@@ -55,7 +56,7 @@ class Scara2025AutoExchangeOre
         return Combine(tmp, tmp2, doubles);
     }
 
-    public List<BSplineTrajectoryWithMinimalSnap> PlanTrajectory((Vector3d position, Quaterniond rotation) target)
+    public bool PlanTrajectory(double[] beginThetas, (Vector3d position, Quaterniond rotation) target, out List<BSplineTrajectoryWithMinimalSnap> trajectory)
     {
         var rotation2 = target.rotation;
         var position2 = target.position;
@@ -70,12 +71,6 @@ class Scara2025AutoExchangeOre
                 new() { },
                 new() { },
          }         };
-        // tmp[0][0].AddLast((_beginThetas[0], 0));
-        // tmp[0][1].AddLast((_beginThetas[1], 0));
-        // tmp[0][2].AddLast((_beginThetas[2], 0));
-        // tmp[0][3].AddLast((_beginThetas[3], 0));
-        // tmp[0][4].AddLast((_beginThetas[4], 0));
-        // tmp[0][5].AddLast((_beginThetas[5], 0));
 
         inverseDynamicSolver.Solve((position1, rotation1), out var inners);
         inverseDynamicSolver.Solve(target, out var thetas);
@@ -119,7 +114,7 @@ class Scara2025AutoExchangeOre
         double[] thetaMid = tail.Select(x => x.First.Value.value).ToArray();
 
         colliderDetector.Update(forwardDynamic.GetPose(thetas[0]), target);
-        var path = searcher.Search(_beginThetas, thetaMid);
+        var path = searcher.Search(beginThetas, thetaMid);
 
         for (int i = 0; i < path.Count; i++)
         {
@@ -134,6 +129,7 @@ class Scara2025AutoExchangeOre
             tmpSplineTo.Add(new BSplineTrajectoryWithMinimalSnap(path[i]));
         BSplineTrajectoryWithMinimalSnap.ReAllocTimeline(tmpSplineTo);
 
-        return tmpSplineTo;
+        trajectory = tmpSplineTo;
+        return path.All(x => x.Count > 0);
     }
 }
