@@ -1,7 +1,6 @@
 using AutoExchange.RedemptionDetector;
 using RapidlyArmPlanner.ArmSolver.ForwardDynamic;
 using RapidlyArmPlanner.PathFinder.RRT_BHAStar;
-using TlarcKernel.IO.ROS2Msgs.Std;
 
 namespace Engineer.Arm;
 
@@ -14,10 +13,10 @@ class SixAxis : Component
     public DateTime constructTime = DateTime.MinValue;
     double[] joints;
     List<RapidlyArmPlanner.TrajectoryFit.BSplineTrajectoryWithMinimalSnap> trajectory;
-    Bool beginSub;
-    bool begin = false;
-    FloatMultiArray floatMultiArray;
+    IO.ROS2Msgs.Std.Bool beginSub;
+    IO.ROS2Msgs.Std.FloatMultiArray floatMultiArray;
     IO.ROS2Msgs.Geometry.PoseStampd pose3D;
+    bool begin = false;
     public override void Start()
     {
         var forwardDynamic = new SixAxis2025ForwardDynamic(pole: _pole);

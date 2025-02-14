@@ -23,7 +23,7 @@ class KeyPointHelper
         {
             int classId = detection.Key - 1;
             List<Point> keypoints = detection.Value.keypoints;
-            if (classId < lLightBars.Length && classId >= 0)
+            if (classId <= lLightBars.Length && classId > 0)
             {
                 lLightBars[classId].point2D = keypoints.ToArray();
                 for (int i = 0; i < keypoints.Count; i++)
