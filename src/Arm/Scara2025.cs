@@ -1,3 +1,4 @@
+using AutoExchange.RedemptionDetector;
 using RapidlyArmPlanner.ArmSolver.ForwardDynamic;
 using RapidlyArmPlanner.ArmSolver.InverseDynamic;
 using RapidlyArmPlanner.ColliderDetector;
@@ -7,8 +8,8 @@ namespace Engineer.Arm;
 
 class Scara2025 : Component
 {
-    AutoExchange.ArmPlanner planner;
-
+    RapidlyArmPlanner.ArmPlanner planner;
+    [ComponentReferenceFiled] IRedemptionDetector redemptionDetector;
     public override void Start()
     {
 

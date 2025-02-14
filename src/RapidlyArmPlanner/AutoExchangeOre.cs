@@ -2,9 +2,8 @@
 using RapidlyArmPlanner.ArmSolver.ForwardDynamic;
 using RapidlyArmPlanner.ArmSolver.InverseDynamic;
 using RapidlyArmPlanner.ColliderDetector;
-using RapidlyArmPlanner.PathFinder.RRT_BHAStar;
 using RapidlyArmPlanner.TrajectoryFit;
-namespace AutoExchange;
+namespace RapidlyArmPlanner;
 class ArmPlanner
 {
 
@@ -15,23 +14,6 @@ class ArmPlanner
 
     const double step = 2;
 
-
-    public ArmPlanner()
-    {
-        // forwardDynamic = new Scara2025ForwardDynamic();
-        // inverseDynamicSolver = new Scara2025InverseDynamic(0.3, 0.3, 0.05, (-Math.PI, Math.PI), (-Math.PI, Math.PI), (-120 * Math.PI / 180, 120 * Math.PI / 180));
-        // colliderDetector = new Scara2025BepuDetector();
-        // searcher = new(
-        //     new RRT_BHAStar(
-        //         [Math.PI, 0.8, Math.PI, Math.PI, Math.PI, Math.PI],
-        //         [-Math.PI, 0, -Math.PI, -Math.PI, -Math.PI, -Math.PI])
-        //     {
-        //         forwardDynamic = forwardDynamic,
-        //         obstacleDetector = colliderDetector
-        //     }
-        // );
-
-    }
 
     List<List<LinkedList<(double value, double loose)>>> Combine(List<List<LinkedList<(double value, double loose)>>> a, List<double[]> b, List<List<double[]>> doubles)
     {

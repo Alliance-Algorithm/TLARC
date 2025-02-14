@@ -8,7 +8,7 @@ using Accord.Statistics;
 using Emgu.CV;
 using Emgu.CV.Structure;
 
-namespace AutoExchange.ExchangeStationDetector;
+namespace AutoExchange.RedemptionDetector.Utils;
 
 static class ICPSolver
 {

@@ -8,7 +8,7 @@ using Emgu.CV.Structure;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 
-namespace AutoExchange.ExchangeStationDetector;
+namespace AutoExchange.RedemptionDetector.Utils;
 
 public class OnnxYoloHelper
 {

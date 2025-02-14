@@ -1,19 +1,15 @@
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using AutoExchange.ExchangeStationDetector.Yolo;
-using Compunet.YoloSharp;
+using AutoExchange.RedemptionDetector.Utils;
 using Emgu.CV;
 using Emgu.CV.Structure;
 using Intel.RealSense;
-using Microsoft.ML.OnnxRuntime;
-using Microsoft.ML.OnnxRuntime.Tensors;
-using Microsoft.Toolkit.HighPerformance;
 using TlarcKernel.IO.ProcessCommunicateInterfaces;
 
-namespace AutoExchange.ExchangeStationDetector;
+namespace AutoExchange.RedemptionDetector;
 
-class YoloRedemptionDetector : Component
+class YoloRedemptionDetector : Component, IRedemptionDetector
 {
 
     public ReadOnlyUnmanagedSubscription<Points> pointCloudSub = new("/real_sense/frame/pc");
@@ -22,7 +18,7 @@ class YoloRedemptionDetector : Component
     public ReadOnlyUnmanagedInterfacePublisher<Mat> approxPub = new("/image/approx");
     string modelPath = "onnxModel/redemption.onnx";
     OnnxYoloHelper predictor;
-    KeypointHelper keypointHelper;
+    KeyPointHelper keypointHelper;
 
     (Vector3d position, Quaterniond rotation) translate;
     public (Vector3d position, Quaterniond rotation) redemptionInCamera;
@@ -83,7 +79,7 @@ class YoloRedemptionDetector : Component
 
     ];
 
-        keypointHelper = new KeypointHelper(lightBars);
+        keypointHelper = new KeyPointHelper(lightBars);
 
     }
     public override void Update()
@@ -105,7 +101,7 @@ class YoloRedemptionDetector : Component
 
         var output = predictor.ProcessImage(redChannel);
 
-        var pointPairs = keypointHelper.UpdateKeypoints(output);
+        var pointPairs = keypointHelper.UpdateKeyPoints(output);
         keypointHelper.DrawDetections(image, output);
         // predictor.DrawDetections(image, output);
 
@@ -126,14 +122,14 @@ class YoloRedemptionDetector : Component
         }
 
         translate = ICPSolver.ICP(point3dPairs);
-        redemptionInCamera = (-(translate.rotation.ToRotationMatrix().Transpose() *translate.position) / 1000, translate.rotation.ToRotationMatrix().Transpose().ToQuaternion());
+        redemptionInCamera = (-(translate.rotation.ToRotationMatrix().Transpose() * translate.position) / 1000, translate.rotation.ToRotationMatrix().Transpose().ToQuaternion());
         DrawCameraCoordinateSystem(redemptionInCamera.position, redemptionInCamera.rotation, image);
 
         approxPub.LoadInstance(ref image);
     }
     [StructLayout(LayoutKind.Sequential)] public struct Vertex { public float X; public float Y; public float Z; }
 
-    public static void DrawCameraCoordinateSystem(Vector3d translation, Quaterniond quaternion, Mat image)
+    static void DrawCameraCoordinateSystem(Vector3d translation, Quaterniond quaternion, Mat image)
     {
         // 计算旋转矩阵
         var rotationMatrix = quaternion.ToRotationMatrix();
@@ -161,7 +157,7 @@ class YoloRedemptionDetector : Component
         CvInvoke.Line(image, origin, zAxis, new MCvScalar(255, 0, 0), 2);  // Z轴蓝色
     }
 
-    private static Point ProjectPoint(Vector3d point)
+    static Point ProjectPoint(Vector3d point)
     {
         // 提取相机内参
         double fx = 642.5304;
@@ -176,4 +172,5 @@ class YoloRedemptionDetector : Component
         return new Point((int)x, (int)y);
     }
 
+    public (Vector3d position, Quaterniond rotation) GetRedemptionInCamera() => redemptionInCamera;
 }

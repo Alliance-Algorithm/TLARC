@@ -5,18 +5,18 @@ using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 
-namespace AutoExchange.ExchangeStationDetector.Yolo;
-public class KeypointHelper
+namespace AutoExchange.RedemptionDetector.Utils;
+class KeyPointHelper
 {
     private LLightBar[] lLightBars;
 
-    public KeypointHelper(LLightBar[] lightBars)
+    public KeyPointHelper(LLightBar[] lightBars)
     {
         lLightBars = lightBars;
     }
 
 
-    public List<(Point pointInFrame, MCvPoint3D32f point3dInWorld)> UpdateKeypoints(Dictionary<int, (Rectangle box, List<Point> keypoints, float confidence, float keypointConfidenceSum)> detections)
+    public List<(Point pointInFrame, MCvPoint3D32f point3dInWorld)> UpdateKeyPoints(Dictionary<int, (Rectangle box, List<Point> keypoints, float confidence, float keypointConfidenceSum)> detections)
     {
         var updatedPoints = new List<(Point, MCvPoint3D32f)>();
         foreach (var detection in detections)
