@@ -8,7 +8,7 @@ using TlarcKernel;
 using TlarcKernel.IO;
 using TlarcKernel.IO.ProcessCommunicateInterfaces;
 
-namespace HikCamera;
+namespace VideoCapture;
 
 class VideoTest : Component
 {

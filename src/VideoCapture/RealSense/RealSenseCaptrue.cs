@@ -2,7 +2,7 @@ using Emgu.CV;
 using Intel.RealSense;
 using TlarcKernel.IO.ProcessCommunicateInterfaces;
 
-namespace RealSenseForTlarc;
+namespace VideoCapture.RealSense;
 
 class RealSenseCapture : Component
 {
