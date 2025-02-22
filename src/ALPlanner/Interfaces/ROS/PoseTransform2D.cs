@@ -5,9 +5,8 @@ namespace ALPlanner.Interfaces.ROS;
 class PoseTransform2D : Transform
 {
     IO.ROS2Msgs.Geometry.PoseStampd pose;
-
-    public float Angle => _angle;
-    float _angle = 0;
+    Vector3d offset = Vector3d.Zero;
+    public float AngleR;
 
     string topicName = "/sentry/transform/publish";
     public override void Start()
@@ -17,7 +16,8 @@ class PoseTransform2D : Transform
         {
             Position.x = x.pos.X;
             Position.y = x.pos.Y;
-            _angle = x.Theta;
+            Position += offset;
+            AngleR = x.Theta;
         });
     }
 

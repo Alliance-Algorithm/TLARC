@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using ALPlanner.Interfaces.ROS;
 using TlarcKernel.IO.ProcessCommunicateInterfaces;
 
 namespace TrajectoryTracer;
@@ -9,7 +10,7 @@ class Tracer : Component
     public Vector3d velocity;
     [ComponentReferenceFiled]
     IPositionVelocityController controller;
-    Transform sentry;
+    PoseTransform2D sentry;
     public override void Start()
     {
         pose2D = new(IOManager);
@@ -18,6 +19,7 @@ class Tracer : Component
     public override void Update()
     {
         velocity = controller.ControlVolume(sentry.Position);
+        velocity = Quaterniond.AxisAngleR(Vector3d.AxisZ, -sentry.AngleR) * velocity;
         pose2D.Publish((new((float)velocity.x, (float)velocity.y), 0));
     }
 }

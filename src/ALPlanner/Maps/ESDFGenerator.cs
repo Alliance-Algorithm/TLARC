@@ -13,6 +13,7 @@ public class ESDFGenerator : Component, IESDF
     public float maxDistance = 1;
     public bool debug = false;
 
+    Vector3d offset = Vector3d.Zero;
     public int SizeX => _staticMap.SizeX;
     public int SizeY => _staticMap.SizeY;
     public float Resolution => _staticMap.Resolution;
@@ -55,7 +56,7 @@ public class ESDFGenerator : Component, IESDF
         var json = File.ReadAllText(TlarcSystem.RootPath + mapPath);
         _staticMap = JsonConvert.DeserializeObject<ESDFMapData>(json);
         _dynamicMapReceiver = new(IOManager);
-        _dynamicMapReceiver.Subscript(dynamicMapTopicName, data => { _dynamicMap = data.Map; _position = data.Position; _angle = data.angle; });
+        _dynamicMapReceiver.Subscript(dynamicMapTopicName, data => { _dynamicMap = data.Map; _position = data.Position + offset; _angle = data.angle; });
         _map = new sbyte[_staticMap.Map.GetLength(0), _staticMap.Map.GetLength(1)];
         _obstacles = new int[_staticMap.Obstacles.GetLength(0), _staticMap.Obstacles.GetLength(1), _staticMap.Obstacles.GetLength(2)];
         _dynamicMap = new sbyte[0, 0];

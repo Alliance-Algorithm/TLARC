@@ -9,7 +9,7 @@ namespace Engineer.Arm;
 class Scara2025 : Component
 {
     RapidlyArmPlanner.ArmPlanner planner;
-    [ComponentReferenceFiled] IRedemptionDetector redemptionDetector;
+    // [ComponentReferenceFiled] IRedemptionDetector redemptionDetector;
     public override void Start()
     {
 

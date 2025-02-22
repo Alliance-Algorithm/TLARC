@@ -3,6 +3,7 @@
     ALPlanner.Interfaces.ROS->PoseTransform2D->1:
       Args:
         topicName: "\"/transform/sentry/publish\""
+        offset: "{x:7.5,y:0,z:0}"
     ALPlanner.Interfaces.ROS->PoseTransform2D->2:
       Args:
         topicName: "\"/transform/target/publish\""
@@ -11,6 +12,8 @@
         sentry: 1
       Args:
         debug: true
+        mapPath: "\"maps/CCStaticMap.json\""
+        offset: "{x:7.5,y:0,z:0}"
     ALPlanner->ALPlanner:
     ALPlanner.Collider->GridMapCollider:
       Relies:
