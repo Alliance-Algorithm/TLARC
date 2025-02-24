@@ -13,8 +13,10 @@ class VelocityMPC : Component, IPositionVelocityController
     public double rho = 10;
     public double[] U;
     public double[] uOut;
-    public const double uMax = 5;
+    public const double uMax = 1 * 0.1;
     public const double uMin = -uMax;
+    public const double vMax = 1;
+    public const double vMin = -vMax;
 
     LinearConstraintCollection constraintCollection;
     public Vector3d ControlVolume(Vector3d Position)
@@ -91,20 +93,51 @@ class VelocityMPC : Component, IPositionVelocityController
 
         constraintCollection = new();
 
-        for (int i = 0; i < car.ControlVolumeSize * P; i++)
+        var ConstantA1 = new double[car.ControlVolumeSize * P];
+        var ConstantA2 = new double[car.ControlVolumeSize * P];
+        for (int i = 0; i < car.ControlVolumeSize * P; i += 2)
         {
-            var ConstantA = new double[car.ControlVolumeSize * P];
-            ConstantA[i] = 1;
+            ConstantA1[i] = 1;
+            ConstantA1[i + 1] = 1;
             constraintCollection.Add(new(car.ControlVolumeSize * P)
             {
-                CombinedAs = ConstantA,
-                Value = uMin - U[i % 2],
+                CombinedAs = ConstantA1,
+                Value = vMin - U[0],
                 ShouldBe = ConstraintType.GreaterThanOrEqualTo
             });
             constraintCollection.Add(new(car.ControlVolumeSize * P)
             {
-                CombinedAs = ConstantA,
-                Value = uMax - U[i % 2],
+                CombinedAs = ConstantA1,
+                Value = vMax - U[0],
+                ShouldBe = ConstraintType.LesserThanOrEqualTo
+            });
+            constraintCollection.Add(new(car.ControlVolumeSize * P)
+            {
+                CombinedAs = ConstantA2,
+                Value = vMin - U[1],
+                ShouldBe = ConstraintType.GreaterThanOrEqualTo
+            });
+            constraintCollection.Add(new(car.ControlVolumeSize * P)
+            {
+                CombinedAs = ConstantA2,
+                Value = vMax - U[1],
+                ShouldBe = ConstraintType.LesserThanOrEqualTo
+            });
+        }
+        for (int i = 0; i < car.ControlVolumeSize * P; i++)
+        {
+            var ConstantB = new double[car.ControlVolumeSize * P];
+            ConstantB[i] = 1;
+            constraintCollection.Add(new(car.ControlVolumeSize * P)
+            {
+                CombinedAs = ConstantB,
+                Value = uMin,
+                ShouldBe = ConstraintType.GreaterThanOrEqualTo
+            });
+            constraintCollection.Add(new(car.ControlVolumeSize * P)
+            {
+                CombinedAs = ConstantB,
+                Value = uMax,
                 ShouldBe = ConstraintType.LesserThanOrEqualTo
             });
         }
