@@ -13,7 +13,7 @@ class ALPlannerKOrderTrajectoryDecorator : Component, ITrajectory<Vector3d>
     IO.ROS2Msgs.Nav.Path debugPath;
     public override void Start()
     {
-#if TLRAC_DEBUG
+#if DEBUG
         debugPath = new(IOManager);
         debugPath.RegistryPublisher("debug/mpc/trajectory");
 #endif
@@ -22,7 +22,7 @@ class ALPlannerKOrderTrajectoryDecorator : Component, ITrajectory<Vector3d>
     {
         var trajectory = Trajectory(2, 20);
 
-#if TLRAC_DEBUG
+#if DEBUG
         debugPath.Publish(trajectory);
 #endif
     }
