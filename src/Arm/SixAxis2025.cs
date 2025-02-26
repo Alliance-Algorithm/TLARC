@@ -6,7 +6,7 @@ namespace Engineer.Arm;
 
 class SixAxis : Component
 {
-    (Vector3d position, Quaterniond rotation) cameraInBase = (new(0.04915, -0.03573, 0.09735), Quaterniond.AxisAngleD(Quaterniond.AxisAngleD(Vector3d.AxisY, 45) * Vector3d.AxisZ, -90) * Quaterniond.AxisAngleD(Vector3d.AxisY, 45));
+    (Vector3d position, Quaterniond rotation) cameraInBase = (new(0.04915, -0.1057, 0.09735), Quaterniond.AxisAngleD(Quaterniond.AxisAngleD(Vector3d.AxisY, 45) * Vector3d.AxisZ, -90) * Quaterniond.AxisAngleD(Vector3d.AxisY, 45));
     readonly double[] _pole = [0.05985, 0.41, 0.08307, 0.33969, 0.0571];
     RapidlyArmPlanner.ArmPlanner planner;
     [ComponentReferenceFiled] IRedemptionDetector redemptionDetector;

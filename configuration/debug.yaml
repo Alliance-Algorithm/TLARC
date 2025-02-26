@@ -1,17 +1,17 @@
 -   Fps: 10
     Components:
-        RealSenseForTlarc->RealSenseCapture:
+        VideoCapture.RealSense->RealSenseCapture:
 
 -   Fps: 1
     Components:
-        AutoExchange.ExchangeStationDetector->YoloRedemptionDetector:
+        AutoExchange.RedemptionDetector->YoloRedemptionDetector:
             Args:
                 IsBlue: false
                 rawImage: "{name:\"/real_sense/rgb\"}"
         
 -   Fps: 1 
     Components:
-        HikCamera->VideoTest:
+        VideoCapture->VideoTest:
             Args: 
                 windowsName: "\"approx\""
                 cap: "{name:\"/image/approx\"}"
