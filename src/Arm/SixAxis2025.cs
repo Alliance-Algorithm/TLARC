@@ -33,6 +33,7 @@ class SixAxis : Component
         );
         beginSub = new(IOManager);
         beginSub.Subscript("/engineer/exchange", x => { begin = x; trajectory = []; });
+        beginSub.RegistryPublisher("/engineer/find_path");
         floatMultiArray = new(IOManager);
         floatMultiArray.RegistryPublisher("/engineer/joint/control");
         floatMultiArray.Subscript("/engineer/joint/measure", x => { for (int i = 0; i < 6; i++) joints[i] = x[i]; });
@@ -45,8 +46,6 @@ class SixAxis : Component
     public override void Update()
     {
         var isSuccess = trajectory is not null && trajectory.Count != 0;
-        if (!begin)
-            return;
         if (!isSuccess)
         {
             var (position, rotation) = redemptionDetector.GetRedemptionInCamera();
@@ -54,6 +53,12 @@ class SixAxis : Component
             isSuccess = planner.PlanTrajectory(joints, (Quaterniond.AxisAngleR(Vector3d.AxisZ, joints[0]) * (cameraInBase.position + cameraInBase.rotation * position), Quaterniond.AxisAngleR(Vector3d.AxisZ, joints[0]) * cameraInBase.rotation * rotation), out var tmpTrajectory);
             trajectory = tmpTrajectory;
             constructTime = DateTime.Now;
+        }
+        beginSub.Publish(isSuccess);
+        if (!begin)
+        {
+            trajectory.Clear();
+            return;
         }
         if (!isSuccess)
         {
