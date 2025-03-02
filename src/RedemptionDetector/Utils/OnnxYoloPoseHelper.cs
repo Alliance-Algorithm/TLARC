@@ -14,11 +14,13 @@ public class OnnxYoloHelper
 {
     private readonly InferenceSession _session;
     private readonly float _confidenceThreshold;
-
-    public OnnxYoloHelper(string modelPath, float confidenceThreshold = 0.5f)
+    private readonly bool _isBlue;
+    private readonly double thransholdInOne = 0.5;
+    public OnnxYoloHelper(string modelPath,bool isBlue = false, float confidenceThreshold = 0.9f)
     {
         _session = new InferenceSession(modelPath);
         _confidenceThreshold = confidenceThreshold;
+        _isBlue = isBlue;
     }
 
     public Dictionary<int, (Rectangle box, List<Point> keypoints, float confidence, float keypointConfidenceSum)> ProcessImage(Mat image)
@@ -59,9 +61,9 @@ public class OnnxYoloHelper
         {
             for (int x = 0; x < targetWidth; x++)
             {
-                input[0 * stride + y * targetWidth + x] = img.Data[y, x, 0] / 255.0f; // B通道
-                input[1 * stride + y * targetWidth + x] = img.Data[y, x, 1] / 255.0f; // G通道
-                input[2 * stride + y * targetWidth + x] = img.Data[y, x, 2] / 255.0f; // R通道
+                input[0 * stride + y * targetWidth + x] = img.Data[y, x, 1] / 255.0f > thransholdInOne ? 1 : 0; // B通道
+                input[1 * stride + y * targetWidth + x] = img.Data[y, x, 1] / 255.0f > thransholdInOne ? 1 : 0; // G通道
+                input[2 * stride + y * targetWidth + x] = img.Data[y, x, 1] / 255.0f > thransholdInOne ? 1 : 0; // R通道
             }
         }
 

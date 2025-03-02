@@ -34,7 +34,7 @@ class RealSenseCapture : Component
         sensor[0].Options[Option.Exposure].Value = 3000f;
 
         sensor[1].Options[Option.EnableAutoExposure].Value = 0;
-        sensor[1].Options[Option.Exposure].Value = 10f;
+        sensor[1].Options[Option.Exposure].Value =10f;
         sensor[1].Options[Option.Gain].Value = sensor[1].Options[Option.Gain].Min;
     }
     public override void Update()

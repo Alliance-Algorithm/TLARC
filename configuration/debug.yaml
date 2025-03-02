@@ -8,6 +8,7 @@
             Args:
                 IsBlue: false
                 rawImage: "{name:\"/real_sense/rgb\"}"
+                modelPath: "\"onnxModel/best.onnx\""
         
 -   Fps: 1 
     Components:

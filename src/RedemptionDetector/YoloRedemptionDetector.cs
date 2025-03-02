@@ -17,6 +17,7 @@ class YoloRedemptionDetector : Component, IRedemptionDetector
     public ReadOnlyUnmanagedSubscription<Mat> rawImage = new("/image/raw");
     public ReadOnlyUnmanagedInterfacePublisher<Mat> approxPub = new("/image/approx");
     string modelPath = "onnxModel/redemption.onnx";
+    bool IsBlue = false;
     OnnxYoloHelper predictor;
     KeyPointHelper keypointHelper;
 
@@ -25,16 +26,16 @@ class YoloRedemptionDetector : Component, IRedemptionDetector
     override public void Start()
     {
 
-        predictor = new(TlarcSystem.RootPath + modelPath);
+        predictor = new(TlarcSystem.RootPath + modelPath,IsBlue);
 
         LLightBar[] lightBars = [
         new(){center = new(),point3D= [
             new(0,-126.5f,126.5f),
-            new(0,-108.5f,126.5f),
-            new(0,-108.5f,137.5f),
-            new(0,-126.5f,108.5f),
+            new(0,-87.5f,126.5f),
+            new(0,-87.5f,137.5f),
             new(0,-137.5f,137.5f),
-            new(0,-137.5f,108.5f),
+            new(0,-137.5f,87.5f),
+            new(0,-126.5f,87.5f),
         ]},
         new(){center = new(),point3D= [
             new(0,126.5f,126.5f),
@@ -62,19 +63,19 @@ class YoloRedemptionDetector : Component, IRedemptionDetector
         ]},
         new(){center = new(),point3D= [
             new(59.642136f,-144f,0),
-            new(145.5f,-144f,-85.857864f),
             new(145.5f,-144f,-100f),
-            new(45.5f, -144,0f),
-            new(145.5f,-144f,100f),
+            new(145.5f,-144f,-85.857864f),
+            new(45.5f, -144f,0f),
             new(145.5f,-144f,85.857864f),
+            new(145.5f,-144f,100f),
         ]},
         new(){center = new(),point3D= [
             new(59.642136f,144f,0),
-            new(145.5f,144f,85.857864f),
             new(145.5f,144f,100f),
+            new(145.5f,144f,85.857864f),
             new(45.5f, 144,0f),
-            new(145.5f,144f,-100f),
             new(145.5f,144f,-85.857864f),
+            new(145.5f,144f,-100f),
         ]}
 
     ];
@@ -112,7 +113,7 @@ class YoloRedemptionDetector : Component, IRedemptionDetector
         foreach ((var _2d, var _3d) in pointPairs)
         {
             int index = _2d.Y * image.Width + _2d.X;
-            if (index >= vertexCount)
+            if (index >= vertexCount || index < 0)
                 continue;
             IntPtr ptr = IntPtr.Add(vertexData, index * Marshal.SizeOf(typeof(Vertex)));
             var tmp = Marshal.PtrToStructure<Vertex>(ptr);
