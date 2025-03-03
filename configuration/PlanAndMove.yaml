@@ -21,7 +21,7 @@
       Relies:
         sentry: 1
     ALPlanner.Interfaces->TransformPositionDeciderDecorator:
-      Relies:7
+      Relies:
         target: 2
     ALPlanner.PathPlanner->PathPlanner:
     ALPlanner.PathPlanner.PathSearcher->HybridAStarWithDistance:

@@ -22,18 +22,18 @@ class OmniCar : Component, ICarModel
         Vector3d[] vector3Ds = trajectory.Trajectory(controlCycleTime * window, window);
         double[] doubles = new double[vector3Ds.Length * 2];
 
-        if((vector3Ds[0] - sentry.Position).Length < 0.4)
-        for (int i = 0, k = vector3Ds.Length; i < k; i++)
-        {
-            doubles[2 * i] = sentry.Position.x;
-            doubles[2 * i + 1] = sentry.Position.y;
-        }
+        if (vector3Ds[^1] == vector3Ds[0] && (vector3Ds[^1] - sentry.Position).Length < 0.4)
+            for (int i = 0, k = vector3Ds.Length; i < k; i++)
+            {
+                doubles[2 * i] = sentry.Position.x;
+                doubles[2 * i + 1] = sentry.Position.y;
+            }
         else
-        for (int i = 0, k = vector3Ds.Length; i < k; i++)
-        {
-            doubles[2 * i] = vector3Ds[i].x;
-            doubles[2 * i + 1] = vector3Ds[i].y;
-        }
+            for (int i = 0, k = vector3Ds.Length; i < k; i++)
+            {
+                doubles[2 * i] = vector3Ds[i].x;
+                doubles[2 * i + 1] = vector3Ds[i].y;
+            }
         return doubles;
     }
 
