@@ -19,7 +19,7 @@ class TrajectoryOptimizer : Component
     public void CalcTrajectory(Vector3d[] path)
     {
         constructTime = DateTime.Now;
-        kOrderCurve.Construction(path, new(sentry.Velocity, Vector3d.Zero), new(Vector3d.Zero, Vector3d.Zero));
+        kOrderCurve.Construction(path, new(Vector3d.Zero, Vector3d.Zero), new(Vector3d.Zero, Vector3d.Zero));
     }
 
     public void Construction(Vector3d[] positionList, Vector3dTuple2 HeadTailVelocity, Vector3dTuple2 HeadTailAcceleration)

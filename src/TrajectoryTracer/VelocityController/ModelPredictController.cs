@@ -13,9 +13,9 @@ class VelocityMPC : Component, IPositionVelocityController
     public double rho = 10;
     public double[] U;
     public double[] uOut;
-    public const double uMax = 0.05;
+    public const double uMax = 0.2;
     public const double uMin = -uMax;
-    public const double vMax = 2;
+    public const double vMax = 8;
     public const double vMin = -vMax;
 
     LinearConstraintCollection constraintCollection;

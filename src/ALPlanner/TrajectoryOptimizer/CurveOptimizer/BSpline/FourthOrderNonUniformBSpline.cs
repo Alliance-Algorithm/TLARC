@@ -32,8 +32,8 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
 
     public double MaxTime => timeline[^5];
     private double _looseSize = 0.15;
-    private double _vLimit = 2;
-    private double _aLimit = 0.5;
+    private double _vLimit = 8;
+    private double _aLimit = 2;
     private double _ratioLimit = 1.01;
     private double _timeInterval = 0.05f;
     const int order = 4;
