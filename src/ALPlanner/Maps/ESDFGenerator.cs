@@ -12,6 +12,7 @@ public class ESDFGenerator : Component, IESDF
     public string dynamicMapTopicName = "/map/local_map";
     public float maxDistance = 1;
     public bool debug = false;
+    PoseTransform2D sentry;
 
     Vector3d offset = Vector3d.Zero;
     public int SizeX => _staticMap.SizeX;
@@ -20,7 +21,7 @@ public class ESDFGenerator : Component, IESDF
 
     public Vector3i Index => throw new NotImplementedException();
 
-    public Vector3d OriginInWorld => throw new NotImplementedException();
+    public Vector3d OriginInWorld => offset;
     private Vector3d _position;
     private double _angle;
 
@@ -56,7 +57,7 @@ public class ESDFGenerator : Component, IESDF
         var json = File.ReadAllText(TlarcSystem.RootPath + mapPath);
         _staticMap = JsonConvert.DeserializeObject<ESDFMapData>(json);
         _dynamicMapReceiver = new(IOManager);
-        _dynamicMapReceiver.Subscript(dynamicMapTopicName, data => { _dynamicMap = data.Map; _position = data.Position + offset; _angle = data.angle; });
+        _dynamicMapReceiver.Subscript(dynamicMapTopicName, data => { _dynamicMap = data.Map; _position = data.Position; _angle = data.angle; });
         _map = new sbyte[_staticMap.Map.GetLength(0), _staticMap.Map.GetLength(1)];
         _obstacles = new int[_staticMap.Obstacles.GetLength(0), _staticMap.Obstacles.GetLength(1), _staticMap.Obstacles.GetLength(2)];
         _dynamicMap = new sbyte[0, 0];
@@ -71,7 +72,7 @@ public class ESDFGenerator : Component, IESDF
 
     public override void Update()
     {
-        var tmp = Vector3dToXY(_position);
+        var tmp = Vector3dToXY(sentry.Position + Quaterniond.AxisAngleR(Vector3d.AxisZ, sentry.AngleR + Math.PI) * _position);
         int offsetX = tmp.x, offsetY = tmp.y;
         Buffer.BlockCopy(_staticMap.Map, 0, _map, 0, _map.Length * sizeof(sbyte));
         Buffer.BlockCopy(_staticMap.Obstacles, 0, _obstacles, 0, _obstacles.Length * sizeof(int));
@@ -79,7 +80,7 @@ public class ESDFGenerator : Component, IESDF
 
         Queue<(int x, int y)> openList = new Queue<(int x, int y)>();
 
-        var sentry_forward = Math.SinCos(_angle);
+        var sentry_forward = Math.SinCos(sentry.AngleR + Math.PI);
         for (int i = 0, k = _dynamicMap.GetLength(0); i < k; i++)
             for (int j = 0; j < k; j++)
             {

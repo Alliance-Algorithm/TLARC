@@ -25,7 +25,7 @@ class ALPlanner : Component
     private Vector3d lastTarget;
     public override void Start()
     {
-#if DEBUG
+#if TLARC_DEBUG
         debugPath1 = new(IOManager);
         debugPath1.RegistryPublisher("debug/path");
         debugPath2 = new(IOManager);
@@ -68,7 +68,7 @@ class ALPlanner : Component
         trajectory = trajectoryOptimizer.TrajectoryPoints(0, trajectoryOptimizer.MaxTime, trajectoryOptimizer.MaxTime / 50).ToArray();
         lastTarget = target.TargetPosition;
 
-#if DEBUG
+#if TLARC_DEBUG
         debugPath1.Publish(path);
         debugPath2.Publish(trajectory);
 #endif
