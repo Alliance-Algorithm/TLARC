@@ -8,10 +8,11 @@ namespace Maps;
 public class ESDFGenerator : Component, IESDF
 {
 
-    public string mapPath = "maps/StaticESDFMap.json";
+    public string mapPath = "";
     public string dynamicMapTopicName = "/map/local_map";
     public float maxDistance = 1;
     public bool debug = false;
+    public int max_queue_length = 5;
     PoseTransform2D sentry;
 
     Vector3d offset = Vector3d.Zero;
@@ -22,8 +23,7 @@ public class ESDFGenerator : Component, IESDF
     public Vector3i Index => throw new NotImplementedException();
 
     public Vector3d OriginInWorld => offset;
-    private Vector3d _position;
-    private double _angle;
+    private Vector3d _sentry_position;
 
     public Vector3i Size { get; set; }
 
@@ -31,7 +31,7 @@ public class ESDFGenerator : Component, IESDF
 
     private ESDFMapData _staticMap;
     private sbyte[,] _map;
-    private sbyte[,] _dynamicMap;
+    Queue<DynamicMapData> _dynamicMaps;
     private int[,,] _obstacles;
     private bool[,] _colored;
 
@@ -54,13 +54,36 @@ public class ESDFGenerator : Component, IESDF
 
     public override void Start()
     {
-        var json = File.ReadAllText(TlarcSystem.RootPath + mapPath);
-        _staticMap = JsonConvert.DeserializeObject<ESDFMapData>(json);
+        if (mapPath == "")
+        {
+            _staticMap = new() { _resolution = 0.2f, _size_x = 70, _size_y = 70, _staticObs = new int[70, 70, 0], _staticMap = new sbyte[70, 70] };
+        }
+        else
+        {
+            var json = File.ReadAllText(TlarcSystem.RootPath + mapPath);
+            _staticMap = JsonConvert.DeserializeObject<ESDFMapData>(json);
+        }
         _dynamicMapReceiver = new(IOManager);
-        _dynamicMapReceiver.Subscript(dynamicMapTopicName, data => { _dynamicMap = data.Map; _position = data.Position; _angle = data.angle; });
+        _dynamicMapReceiver.Subscript(dynamicMapTopicName, data =>
+        {
+            DynamicMapData dy_data = new();
+            var _position = data.Position;
+            var _angle = data.angle;
+
+            var tmp = Vector3dToXY(_sentry_position + Quaterniond.AxisAngleR(Vector3d.AxisZ, sentry.AngleR + Math.PI) * _position);
+
+            dy_data._map = data.Map;
+            dy_data.offsetX = tmp.x;
+            dy_data.offsetY = tmp.y;
+            dy_data.forward = Math.SinCos(sentry.AngleR + Math.PI);
+
+            _dynamicMaps.Enqueue(dy_data);
+            if (_dynamicMaps.Count > max_queue_length)
+                _dynamicMaps.Dequeue();
+        });
         _map = new sbyte[_staticMap.Map.GetLength(0), _staticMap.Map.GetLength(1)];
         _obstacles = new int[_staticMap.Obstacles.GetLength(0), _staticMap.Obstacles.GetLength(1), _staticMap.Obstacles.GetLength(2)];
-        _dynamicMap = new sbyte[0, 0];
+        _dynamicMaps = new();
 
         Size = new(SizeX, SizeY, 1);
         if (debug)
@@ -72,34 +95,33 @@ public class ESDFGenerator : Component, IESDF
 
     public override void Update()
     {
-        var tmp = Vector3dToXY(sentry.Position + Quaterniond.AxisAngleR(Vector3d.AxisZ, sentry.AngleR + Math.PI) * _position);
-        int offsetX = tmp.x, offsetY = tmp.y;
+        _sentry_position = sentry.Position;
         Buffer.BlockCopy(_staticMap.Map, 0, _map, 0, _map.Length * sizeof(sbyte));
         Buffer.BlockCopy(_staticMap.Obstacles, 0, _obstacles, 0, _obstacles.Length * sizeof(int));
         _colored = new bool[SizeX, SizeY];
 
         Queue<(int x, int y)> openList = new Queue<(int x, int y)>();
-
-        var sentry_forward = Math.SinCos(sentry.AngleR + Math.PI);
-        for (int i = 0, k = _dynamicMap.GetLength(0); i < k; i++)
-            for (int j = 0; j < k; j++)
-            {
-                var k_2 = k / 2;
-                var x = (int)Math.Round((i) * sentry_forward.Cos - (j) * sentry_forward.Sin + offsetX);
-                var y = (int)Math.Round((j) * sentry_forward.Cos + (i) * sentry_forward.Sin + offsetY);
-                if (x < 0 || x >= SizeX)
-                    continue;
-                if (y < 0 || y >= SizeY)
-                    continue;
-                if (_dynamicMap[i, j] == 0 && _staticMap.Map[x, y] != 0)
-                    continue;
-                _map[x, y] = 0;
-                _obstacles[x, y, 0] = x;
-                _obstacles[x, y, 1] = y;
-                _colored[x, y] = true;
-                openList.Enqueue(new(x, y));
-            }
-
+        foreach (var _dynamicMap in _dynamicMaps)
+        {
+            for (int i = 0, k = _dynamicMap._map.GetLength(0); i < k; i++)
+                for (int j = 0; j < k; j++)
+                {
+                    var k_2 = k / 2;
+                    var x = (int)Math.Round((i) * _dynamicMap.forward.Cos - (j) * _dynamicMap.forward.Sin + _dynamicMap.offsetX);
+                    var y = (int)Math.Round((j) * _dynamicMap.forward.Cos + (i) * _dynamicMap.forward.Sin + _dynamicMap.offsetY);
+                    if (x < 0 || x >= SizeX)
+                        continue;
+                    if (y < 0 || y >= SizeY)
+                        continue;
+                    if (_dynamicMap._map[i, j] == 0 && _staticMap.Map[x, y] != 0)
+                        continue;
+                    _map[x, y] = 0;
+                    _obstacles[x, y, 0] = x;
+                    _obstacles[x, y, 1] = y;
+                    _colored[x, y] = true;
+                    openList.Enqueue(new(x, y));
+                }
+        }
         while (openList.Count > 0)
         {
             var c = openList.Dequeue();

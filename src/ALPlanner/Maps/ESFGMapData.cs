@@ -13,3 +13,14 @@ internal class ESDFMapData
     public sbyte[,] _staticMap;
     public int[,,] _staticObs;
 }
+
+internal class DynamicMapData
+{
+    public sbyte[,] _map;
+    public int offsetX;
+    public int offsetY;
+    public (double Sin, double Cos) forward;
+}
+
+
+

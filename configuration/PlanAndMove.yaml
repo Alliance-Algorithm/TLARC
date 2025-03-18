@@ -3,7 +3,7 @@
     ALPlanner.Interfaces.ROS->PoseTransform2D->1:
       Args:
         topicName: "\"/rmcs_location/pose\""
-        offset: "{x:7.5,y:0,z:0}"
+        # offset: "{x:7.5,y:0,z:0}"
     ALPlanner.Interfaces.ROS->PoseTransform2D->2:
       Args:
         topicName: "\"/transform/target/publish\""
@@ -12,9 +12,9 @@
         sentry: 1
       Args:
         debug: true
-        mapPath: "\"maps/CCStaticMap.json\""
+        mapPath: "\"maps/Blank.json\""
         dynamicMapTopicName: "\"/rmcs_map/map/grid\""
-        offset: "{x:7.5,y:0,z:0}"
+        # offset: "{x:7.5,y:0,z:0}"
         maxDistance: 0.3
     ALPlanner->ALPlanner:
     ALPlanner.Collider->GridMapCollider:
