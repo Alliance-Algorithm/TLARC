@@ -16,24 +16,14 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
 
     [ComponentReferenceFiled]
     IOptimizer controlPointOptimizer;
-    public FourthOrderNonUniformBSpline()
-    {
+    public FourthOrderNonUniformBSpline(){
 
-    }
-
-    public FourthOrderNonUniformBSpline(double looseSize = 0.15, double vLimit = 6, double aLimit = 12, double ratioLimit = 1.01, double timeInterval = 0.05f)
-    {
-        _looseSize = looseSize;
-        _vLimit = vLimit;
-        _aLimit = aLimit;
-        _ratioLimit = ratioLimit;
-        _timeInterval = timeInterval;
     }
 
     public double MaxTime => timeline[^5];
     private double _looseSize = 0.15;
-    private double _vLimit = 8;
-    private double _aLimit = 2;
+    private double _vLimit = 6.5;
+    private double _aLimit = 0.8;
     private double _ratioLimit = 1.01;
     private double _timeInterval = 0.05f;
     const int order = 4;

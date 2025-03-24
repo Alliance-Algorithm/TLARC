@@ -13,8 +13,8 @@ class GridMapCollider : Component, ICollider
     public override void Start() { }
     public override void Update()
     {
-        if ((Position - sentry.Position).LengthSquared > 2 || map.CheckAccessibility(Position, sentry.Position))
-            if (map.CheckAccessibility(map.PositionInWorldToIndex(sentry.Position)))
+        if ((Position - sentry.Position).LengthSquared > 1 || map.CheckAccessibility(Position, sentry.Position))
+            if (map.CheckAccessibility(map.PositionInWorldToIndex(sentry.Position))  )
                 Position = sentry.Position;
     }
 }

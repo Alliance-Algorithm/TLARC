@@ -161,8 +161,11 @@ public class ESDFGenerator : Component, IESDF
                 }
         }
         if (debug)
+        {
+            var tmp = Vector3dToXY(_sentry_position );
+           _map[tmp.x,tmp.y] = 30;
             _esdfPublisher.Publish((_map, Resolution, (uint)SizeX, (uint)SizeY));
-    }
+    }}
 
     public Vector3d Gradient(Vector3d position)
     {

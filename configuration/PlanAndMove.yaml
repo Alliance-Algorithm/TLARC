@@ -15,7 +15,8 @@
         mapPath: "\"maps/Blank.json\""
         dynamicMapTopicName: "\"/rmcs_map/map/grid\""
         # offset: "{x:7.5,y:0,z:0}"
-        maxDistance: 0.3
+        maxDistance: 1.0
+        max_queue_length: 2
     ALPlanner->ALPlanner:
     ALPlanner.Collider->GridMapCollider:
       Relies:
