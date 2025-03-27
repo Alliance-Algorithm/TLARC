@@ -57,8 +57,8 @@ class HybridAStarWithDistance : Component, IPathSearcher
             foreach (var child in children)
             {
                 var childIndex = gridMap.PositionInWorldToIndex(child.PositionInWorld);
-                if (!gridMap.CheckAccessibility(childIndex, 0) ||
-                !gridMap.CheckAccessibility(current.PositionInWorld, child.PositionInWorld))
+                if (!gridMap.CheckAccessibility(childIndex, 0) || (current != begin &&
+                !gridMap.CheckAccessibility(current.PositionInWorld, child.PositionInWorld)))
                     continue;
                 if (_closeMap.Indexer(childIndex))
                     continue;

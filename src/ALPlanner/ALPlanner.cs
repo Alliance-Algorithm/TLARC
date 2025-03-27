@@ -20,6 +20,8 @@ class ALPlanner : Component
 
     IO.ROS2Msgs.Nav.Path debugPath1;
     IO.ROS2Msgs.Nav.Path debugPath2;
+    IO.ROS2Msgs.Std.Bool reload;
+    bool reload_ = false;
     Vector3d[] path = [];
     Vector3d[] trajectory = [];
     private Vector3d lastTarget;
@@ -29,7 +31,9 @@ class ALPlanner : Component
         debugPath1 = new(IOManager);
         debugPath1.RegistryPublisher("debug/path");
         debugPath2 = new(IOManager);
+        reload = new(IOManager);
         debugPath2.RegistryPublisher("debug/trajectory");
+        reload.Subscript("/alplanner/reload", x => reload_ = true);
 #endif
     }
     public override void Update()
@@ -46,6 +50,10 @@ class ALPlanner : Component
         }
         foreach (var point in trajectory)
         {
+            if ((trajectory[^1] - point).LengthSquared < 1)
+                break;
+            if ((trajectory[0] - point).LengthSquared < 0.2)
+                continue;
             if (check == false || !gridMap.CheckAccessibility(
              gridMap.PositionInWorldToIndex(point), 0))
             {
@@ -55,8 +63,8 @@ class ALPlanner : Component
         }
         var t = trajectoryOptimizer.constructTimeToNowInSeconds;
         var traj = trajectoryOptimizer.TrajectoryPoints(t - 0.1f, t, 0.1f);
-        check &= (sentry.Position - traj.First()).LengthSquared < 1 || gridMap.CheckAccessibility(sentry.Position, traj.First(), 0);
-
+        check &= reload_ && (sentry.Position - traj.First()).LengthSquared < 1 && gridMap.CheckAccessibility(sentry.Position, traj.First(), 0);
+        reload_ = false;
         if (check && target.TargetPosition == lastTarget)
             return;
 
