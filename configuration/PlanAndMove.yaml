@@ -16,7 +16,7 @@
         dynamicMapTopicName: "\"/rmcs_map/map/grid\""
         # offset: "{x:7.5,y:0,z:0}"
         maxDistance: 1.0
-        max_queue_length: 2
+        max_queue_length: 1
     ALPlanner->ALPlanner:
     ALPlanner.Collider->GridMapCollider:
       Relies:

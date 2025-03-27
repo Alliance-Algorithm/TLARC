@@ -63,9 +63,9 @@ class ALPlanner : Component
         }
         var t = trajectoryOptimizer.constructTimeToNowInSeconds;
         var traj = trajectoryOptimizer.TrajectoryPoints(t - 0.1f, t, 0.1f);
-        check &= reload_ && (sentry.Position - traj.First()).LengthSquared < 1 && gridMap.CheckAccessibility(sentry.Position, traj.First(), 0);
+        check &= reload_ && (sentry.Position - traj.First()).LengthSquared < 1 || gridMap.CheckAccessibility(sentry.Position, traj.First(), 0);
         reload_ = false;
-        if (check && target.TargetPosition == lastTarget)
+        if (check && (target.TargetPosition - lastTarget).Length < 0.1)
             return;
 
         path = pathPlanner.Search(sentry.Position, target.TargetPosition);
