@@ -21,6 +21,11 @@ class TrajectoryOptimizer : Component
         constructTime = DateTime.Now;
         kOrderCurve.Construction(path, new(Vector3d.Zero, Vector3d.Zero), new(Vector3d.Zero, Vector3d.Zero));
     }
+    public void OptimizeTrajectory()
+    {
+        kOrderCurve.OptimizeTrajectory();
+
+    }
 
     public void Construction(Vector3d[] positionList, Vector3dTuple2 HeadTailVelocity, Vector3dTuple2 HeadTailAcceleration)
     {
@@ -33,6 +38,8 @@ class TrajectoryOptimizer : Component
     public override void Update()
     {
     }
+
+    public bool Check() => kOrderCurve.Check();
 
 
 }

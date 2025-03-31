@@ -39,26 +39,21 @@ class ALPlanner : Component
     public override void Update()
     {
         bool check = true;
-        foreach (var point in path)
+        if (trajectoryOptimizer.Check())
         {
-            if (!gridMap.CheckAccessibility(
-             gridMap.PositionInWorldToIndex(point), 0))
+            trajectoryOptimizer?.OptimizeTrajectory();
+            foreach (var point in trajectoryOptimizer.TrajectoryPoints(0, trajectoryOptimizer.MaxTime > 3 ? 3 : trajectoryOptimizer.MaxTime, 0.1))
             {
-                check = false;
-                break;
-            }
-        }
-        foreach (var point in trajectory)
-        {
-            if ((trajectory[^1] - point).LengthSquared < 1)
-                break;
-            if ((trajectory[0] - point).LengthSquared < 0.2)
-                continue;
-            if (check == false || !gridMap.CheckAccessibility(
-             gridMap.PositionInWorldToIndex(point), 0))
-            {
-                check = false;
-                break;
+                if ((trajectory[^1] - point).LengthSquared < 1)
+                    break;
+                if ((trajectory[0] - point).LengthSquared < 0.2)
+                    continue;
+                if (check == false || !gridMap.CheckAccessibility(
+                 gridMap.PositionInWorldToIndex(point), 0))
+                {
+                    check = false;
+                    break;
+                }
             }
         }
         var t = trajectoryOptimizer.constructTimeToNowInSeconds;

@@ -16,7 +16,8 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
 
     [ComponentReferenceFiled]
     IOptimizer controlPointOptimizer;
-    public FourthOrderNonUniformBSpline(){
+    public FourthOrderNonUniformBSpline()
+    {
 
     }
 
@@ -75,6 +76,7 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
         M4Data[2, 3] = 0;
         return M4Data;
     }
+    public void OptimizeTrajectory() { if (controlPointsX.Length != 0) controlPointOptimizer.Optimize(this); }
     public LinearConstraintCollection CreateConstraints(double[,] a, double[] b)
     {
         int length = a.GetLength(1);
@@ -339,5 +341,5 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
             timeline[i] -= tTmp;
     }
 
-
+    public bool Check() => controlPointsX.Count() != 0;
 }
