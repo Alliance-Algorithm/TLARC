@@ -10,8 +10,8 @@ class DecisionMaker : Component
     string lockPermitTopicName = "/sentry/lock_permit";
     string gimbalAngleTopicName = "/sentry/control/angle";
     string targetTopicName = "/sentry/target";
-
-    ADS_FSM FSM;
+    sbyte tempLockPermit = 0;
+    RMUL2025DecisionMaker model;
 
     IO.ROS2Msgs.Std.Bool firePermitPublisher;
     IO.ROS2Msgs.Std.Int8 lockPermitPublisher;
@@ -30,13 +30,14 @@ class DecisionMaker : Component
     }
     public override void Update()
     {
-        TargetPosition = FSM.TargetPosition;
-        firePermitPublisher.Publish(FSM.FirePermit);
-        sbyte tempLockPermit = 0;
-        for (int i = 0; i < FSM.LockPermit.Length; i++)
-            tempLockPermit |= (sbyte)(FSM.LockPermit[i] ? 1 << i : 0);
-        lockPermitPublisher.Publish(tempLockPermit);
-        gimbalAnglePublisher.Publish((new((float)FSM.GimbalAngle.x, (float)FSM.GimbalAngle.y), 0));
-        targetPublisher.Publish((new((float)FSM.TargetPosition.x, (float)FSM.TargetPosition.y), 0));
+        // TargetPosition = FSM.TargetPosition;
+        // firePermitPublisher.Publish(FSM.FirePermit);
+        // sbyte tempLockPermit = 0;
+        // for (int i = 0; i < FSM.LockPermit.Length; i++)
+        //     tempLockPermit |= (sbyte)(FSM.LockPermit[i] ? 1 << i : 0);
+        // lockPermitPublisher.Publish(tempLockPermit);
+        // gimbalAnglePublisher.Publish((new((float)FSM.GimbalAngle.x, (float)FSM.GimbalAngle.y), 0));
+        // targetPublisher.Publish((new((float)FSM.TargetPosition.x, (float)FSM.TargetPosition.y),
+        // 0));
     }
 }
