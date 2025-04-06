@@ -5,7 +5,7 @@ abstract class StateMachineNodeBase
 {
     internal delegate StateMachineNodeBase ChangeTo();
     internal abstract void Action();
-    internal List<ChangeTo> checks;
+    internal List<ChangeTo> checks = [];
     internal StateMachineNodeBase Check()
     {
         foreach (var i in checks)
@@ -35,7 +35,7 @@ class StateMachineNode(Action action) : StateMachineNodeBase
 
 class StateMachine
 {
-    private List<(CheckFunction check, StateMachineNodeBase target)> _any;
+    private List<(CheckFunction check, StateMachineNodeBase target)> _any = [];
     public delegate bool CheckFunction();
     public void BeginTo(StateMachineNodeBase to)
     => Current = to;

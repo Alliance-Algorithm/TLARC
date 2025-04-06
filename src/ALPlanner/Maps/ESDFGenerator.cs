@@ -33,7 +33,7 @@ public class ESDFGenerator : Component, IESDF
     private sbyte[,] _map;
     Queue<DynamicMapData> _dynamicMaps;
     private int[,,] _obstacles;
-    private bool[,] _colored;
+    private sbyte[,] _colored;
 
     private IO.ROS2Msgs.Nav.OccupancyGrid _dynamicMapReceiver;
     private IO.ROS2Msgs.Nav.OccupancyGrid _esdfPublisher;
@@ -98,7 +98,7 @@ public class ESDFGenerator : Component, IESDF
         _sentry_position = sentry.Position;
         Buffer.BlockCopy(_staticMap.Map, 0, _map, 0, _map.Length * sizeof(sbyte));
         Buffer.BlockCopy(_staticMap.Obstacles, 0, _obstacles, 0, _obstacles.Length * sizeof(int));
-        _colored = new bool[SizeX, SizeY];
+        _colored = new sbyte[SizeX, SizeY];
 
         Queue<(int x, int y)> openList = new Queue<(int x, int y)>();
         foreach (var _dynamicMap in _dynamicMaps)
@@ -113,13 +113,21 @@ public class ESDFGenerator : Component, IESDF
                         continue;
                     if (y < 0 || y >= SizeY)
                         continue;
-                    if (_dynamicMap._map[i, j] == 0 && _staticMap.Map[x, y] != 0)
+                    if (_dynamicMap._map[i, j] == -1 && _staticMap.Map[x, y] <= 0)
                         continue;
-                    _map[x, y] = 0;
-                    _obstacles[x, y, 0] = x;
-                    _obstacles[x, y, 1] = y;
-                    _colored[x, y] = true;
-                    openList.Enqueue(new(x, y));
+                    if (_dynamicMap._map[i, j] == 0)
+                        continue;
+
+                    _colored[x, y] += (sbyte)(_map[x, y] / 2);
+                    _colored[x, y] = (sbyte)((_colored[x, y] + (sbyte)(100 / max_queue_length)) < _colored[x, y] ? _colored[x, y] : (_colored[x, y] + (sbyte)(100 / max_queue_length)));
+                    if (_colored[x, y] >= 100)
+                    {
+                        _map[x, y] = 0;
+                        _obstacles[x, y, 0] = x;
+                        _obstacles[x, y, 1] = y;
+                        _colored[x, y] = 100;
+                        openList.Enqueue(new(x, y));
+                    }
                 }
         }
         while (openList.Count > 0)
@@ -152,20 +160,19 @@ public class ESDFGenerator : Component, IESDF
 
                     }
                     // for enqueue
-                    if (_colored[ci, cj])
+                    if (_colored[ci, cj] == 100)
                         continue;
                     if (_obstacles[ci, cj, 0] == ci && _obstacles[ci, cj, 0] == cj)
                         continue;
-                    _colored[ci, cj] = true;
+                    _colored[ci, cj] = 100;
                     openList.Enqueue((ci, cj));
                 }
         }
         if (debug)
         {
-            var tmp = Vector3dToXY(_sentry_position );
-           _map[tmp.x,tmp.y] = 30;
             _esdfPublisher.Publish((_map, Resolution, (uint)SizeX, (uint)SizeY));
-    }}
+        }
+    }
 
     public Vector3d Gradient(Vector3d position)
     {

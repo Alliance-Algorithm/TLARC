@@ -3,7 +3,7 @@ namespace ALPlanner.PathPlanner.Nodes;
 class Omni2DConsecNode : INode
 {
     const double IterationStep = 0.3f;
-    const int Headings = 18;
+    const int Headings = 8;
 
     double _g = 0;
     double _h = 0;

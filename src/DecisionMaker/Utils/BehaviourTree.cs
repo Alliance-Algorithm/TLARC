@@ -13,7 +13,7 @@ abstract class BehaviourTree : IAction
 {
     public abstract BehaviourTreeType Type { get; }
     public abstract ActionState Action();
-    protected List<BehaviourTree> Children { get; private set; }
+    protected List<BehaviourTree> Children { get; private set; } = [];
     protected BehaviourTree Parent { get; private set; }
 }
 abstract class BehaviourTreeControl : BehaviourTree

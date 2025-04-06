@@ -1,29 +1,19 @@
 - Fps: 10
   Components:
-    ALPlanner.Interfaces.ROS->PoseTransform2D->1:
-      Args:
-        topicName: "\"/rmcs_location/pose\""
-        offset: "{x:-7.5,y:0,z:0}"
-    ALPlanner.Interfaces.ROS->PoseTransform2D->2:
-      Args:
-        topicName: "\"/transform/target/publish\""
     Maps->ESDFGenerator:
       Relies:
         sentry: 1
       Args:
         debug: true
-        mapPath: "\"maps/Blank.json\""
+        mapPath: "\"maps/RMUC2025.json\""
         dynamicMapTopicName: "\"/rmcs_map/map/grid\""
         # offset: "{x:7.5,y:0,z:0}"
         maxDistance: 1.0
-        max_queue_length: 3
+        max_queue_length: 2
     ALPlanner->ALPlanner:
     ALPlanner.Collider->GridMapCollider:
       Relies:
         sentry: 1
-    ALPlanner.Interfaces->TransformPositionDeciderDecorator:
-      Relies:
-        target: 2
     ALPlanner.PathPlanner->PathPlanner:
     ALPlanner.PathPlanner.PathSearcher->HybridAStarWithDistance:
     ALPlanner.PathPlanner.Sampler->EquidistantSampler:
@@ -33,8 +23,20 @@
     ALPlanner.TrajectoryOptimizer.Curves.BSpline->FourthOrderNonUniformBSpline:
     ALPlanner.TrajectoryOptimizer.Optimizer->ControlPointOptimizer:
 
+    DecisionMaker->RMUL2025DecisionMaker->2:
+    DecisionMaker.Predictor->EngineerAgent:
+    DecisionMaker.Predictor->EngineerTargetPreDictor:
+    DecisionMaker.Predictor->HeroAgent:
+    DecisionMaker.Predictor->HeroTargetPreDictor:
+    DecisionMaker.Information->EnemyUnitInfo:
+    DecisionMaker.Information->DecisionMakingInfo:
+    
 - Fps: 20
   Components:
+    ALPlanner.Interfaces.ROS->PoseTransform2D->1:
+      Args:
+        topicName: "\"/rmcs_location/pose\""
+        offset: "{x:-7.5,y:0,z:0}"
     TrajectoryTracer->Tracer:
       Relies:
         sentry: 1

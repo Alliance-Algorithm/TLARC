@@ -41,8 +41,8 @@ class ALPlanner : Component
         bool check = true;
         if (trajectoryOptimizer.Check())
         {
-            trajectoryOptimizer?.OptimizeTrajectory();
-            foreach (var point in trajectoryOptimizer.TrajectoryPoints(0, trajectoryOptimizer.MaxTime > 3 ? 3 : trajectoryOptimizer.MaxTime, 0.1))
+            trajectory = trajectoryOptimizer.TrajectoryPoints(0, trajectoryOptimizer.MaxTime, trajectoryOptimizer.MaxTime / 50).ToArray();
+            foreach (var point in trajectory)
             {
                 if ((trajectory[^1] - point).LengthSquared < 1)
                     break;

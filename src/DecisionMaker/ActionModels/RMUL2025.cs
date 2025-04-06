@@ -34,6 +34,7 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
         #region Black Board
         Vector3d bb_patrol_target = patrolPoints[0];
         DateTime bb_arrive_time = DateTime.Now;
+        bool bb_arrived = false;
         DateTime bb_hero_tracing_time = DateTime.Now;
         #endregion
 
@@ -46,15 +47,20 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
             if ((sentry.Position - bb_patrol_target).Length > 0.5)
             {
                 TargetPosition = bb_patrol_target;
+                return ActionState.Running;
             }
-            if ((sentry.Position - bb_patrol_target).Length < 0.5 && (DateTime.Now - bb_arrive_time).TotalSeconds > 15)
+            if ((sentry.Position - bb_patrol_target).Length < 0.5 && !bb_arrived)
+            {
                 bb_arrive_time = DateTime.Now;
+                bb_arrived = true;
+            }
             return ActionState.Success;
         });
         var notSearching = new BehaviourTreeCondition(() => (DateTime.Now - bb_arrive_time).TotalSeconds > 10);
         var changePosition = new BehaviourTreeAction(() =>
         {
             bb_patrol_target = patrolPoints[Random.Shared.Next(0, 3)];
+            bb_arrived = false;
             return ActionState.Success;
         });
         var gotoPatrol = new BehaviourTreeSequence();
@@ -160,6 +166,11 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
         stateMachine.AnyTo(() => decisionMakingInfo.SentryHp < 150, supplySelf);
         stateMachine.BeginTo(coreCharge);
         #endregion
+    }
+
+    public override void Update()
+    {
+        stateMachine.Step();
     }
 
 }
