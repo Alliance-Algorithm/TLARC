@@ -26,7 +26,7 @@ class HybridAStar : Component, IPathSearcher
     }
 
 
-    public INode? Search(Vector3d origin, Vector3d target)
+    public INode? Search(Vector3d origin, Vector3d target, Vector3d? speed = null)
     {
         Array.Clear(_closeMap, 0, _closeMap.Length);
         _openList = new();

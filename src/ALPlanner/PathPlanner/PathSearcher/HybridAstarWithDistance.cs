@@ -6,13 +6,12 @@ using ALPlanner.PathPlanner.Nodes;
 
 namespace ALPlanner.PathPlanner.PathSearcher;
 
-using Node = Omni2DConsecNode;
+using Node = SpeedDirectNode;
 
 class HybridAStarWithDistance : Component, IPathSearcher
 {
     [ComponentReferenceFiled]
     IESDF gridMap;
-
     PriorityQueue<INode, float> _openList;
     bool[,,] _closeMap;
 
@@ -26,13 +25,13 @@ class HybridAStarWithDistance : Component, IPathSearcher
     }
 
 
-    public INode? Search(Vector3d origin, Vector3d target)
+    public INode? Search(Vector3d origin, Vector3d target, Vector3d? speed = null)
     {
         Array.Clear(_closeMap, 0, _closeMap.Length);
         _openList = new();
 
-        Node begin = new(origin);
-        Node end = new(target);
+        Node begin = new(origin, speed ?? new Vector3d(0, 0, 0));
+        Node end = new(target, new Vector3d(0, 0, 0));
 
         Node.Target = end;
 

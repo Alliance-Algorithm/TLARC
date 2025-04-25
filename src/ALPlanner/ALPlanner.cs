@@ -7,6 +7,7 @@ namespace ALPlanner;
 
 class ALPlanner : Component
 {
+
     [ComponentReferenceFiled]
     ICollider sentry;
 
@@ -63,7 +64,7 @@ class ALPlanner : Component
         if (check && (target.TargetPosition - lastTarget).Length < 0.1)
             return;
 
-        path = pathPlanner.Search(sentry.Position, target.TargetPosition);
+        path = pathPlanner.Search(sentry.Position, target.TargetPosition, sentry.Velocity.Length > 1e-2 ? sentry.Velocity : null);
         if (path.Length < 2)
             return;
         trajectoryOptimizer.CalcTrajectory(path);

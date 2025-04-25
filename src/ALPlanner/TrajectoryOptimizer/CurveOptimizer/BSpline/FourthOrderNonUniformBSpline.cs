@@ -22,7 +22,7 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
     }
 
     public double MaxTime => timeline[^5];
-    private double _looseSize = 0.15;
+    private double _looseSize = 0.1;
     private double _vLimit = 7.0;
     private double _aLimit = 1.5;
     private double _ratioLimit = 1.01;
@@ -166,11 +166,16 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
         var constraints3 = CreateConstraints(A, B[2]);
         double[,] H = new double[positionList.Length + 4 - 1, positionList.Length + 4 - 1];
 
-        for (int i = 0; i < positionList.Length + 3; i++)
+        for (int i = 0; i < positionList.Length; i++)
             for (int j = 0; j < order; j++)
                 for (int k = 0; k < order; k++)
                     if (i + j < positionList.Length + 3 && i + k < positionList.Length + 3)
                         H[i + j, i + k] += H4S[j, k];
+        for (int i = positionList.Length; i < positionList.Length + 3; i++)
+            for (int j = 0; j < order; j++)
+                for (int k = 0; k < order; k++)
+                    if (i + j < positionList.Length + 3 && i + k < positionList.Length + 3)
+                        H[i + j, i + k] += 1e-4;
 
         QuadraticObjectiveFunction func = new QuadraticObjectiveFunction(H, new double[positionList.Length + 4 - 1]);
         var solver = new GoldfarbIdnani(func, constraints1);

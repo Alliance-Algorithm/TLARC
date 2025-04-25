@@ -8,4 +8,8 @@ public interface ICollider
     {
         get;
     }
+    public Vector3d Velocity
+    {
+        get;
+    }
 }

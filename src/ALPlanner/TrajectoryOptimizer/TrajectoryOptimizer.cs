@@ -10,7 +10,6 @@ class TrajectoryOptimizer : Component
 {
     [ComponentReferenceFiled]
     IKOrderCurve kOrderCurve;
-    Transform sentry;
 
     public DateTime constructTime { get; private set; }
     public double constructTimeToNowInSeconds => (DateTime.Now - constructTime).Duration().TotalSeconds;

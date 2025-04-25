@@ -15,6 +15,6 @@ class PathPlanner : Component
 
 
 
-    public Vector3d[] Search(Vector3d origin, Vector3d target)
-    => sampler.Sample(pathSearcher.Search(origin, target));
+    public Vector3d[] Search(Vector3d origin, Vector3d target, Vector3d? speed = null)
+    => sampler.Sample(pathSearcher.Search(origin, target, speed));
 }
