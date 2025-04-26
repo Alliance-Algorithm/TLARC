@@ -11,24 +11,29 @@ class ALPlannerKOrderTrajectoryDecorator : Component, ITrajectory<Vector3d>
     IKOrderCurve kOrderCurve;
 
     IO.ROS2Msgs.Nav.Path debugPath;
+    Vector3d[] trajectory = [];
     public override void Start()
     {
-#if TLRAC_DEBUG
+#if DEBUG
         debugPath = new(IOManager);
         debugPath.RegistryPublisher("debug/mpc/trajectory");
 #endif
     }
     public override void Update()
     {
-        var trajectory = Trajectory(2, 20);
-
-#if TLRAC_DEBUG
+#if DEBUG
         debugPath.Publish(trajectory);
 #endif
     }
     public Vector3d[] Trajectory(double howLong, int count)
     {
         var time = (DateTime.Now - kOrderCurve.ConstructTime).TotalSeconds;
-        return kOrderCurve.TrajectoryPoints(time, time + howLong, howLong / count).ToArray();
+        trajectory = kOrderCurve.TrajectoryPoints(time, time + howLong, howLong / count).ToArray();
+        return trajectory;
+    }
+    public Vector3d[] Velocities(double howLong, int count)
+    {
+        var time = (DateTime.Now - kOrderCurve.ConstructTime).TotalSeconds;
+        return kOrderCurve.VelocitiesPoints(time, time + howLong, howLong / count).ToArray();
     }
 }

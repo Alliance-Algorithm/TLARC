@@ -30,13 +30,13 @@ static class ESDFBuilder
                         continue;
                     if (y < 0 || y >= sizeY)
                         continue;
-                    if (_dynamicMap._map[i, j] == -1 && staticMap.Map[x, y] <= 0)
+                    if (_dynamicMap._map[i, j] != 0 && staticMap.Map[x, y] <= 0)
                         continue;
                     if (_dynamicMap._map[i, j] == 0)
                         continue;
 
-                    _colored[x, y] += (sbyte)(_map[x, y] / 2);
-                    _colored[x, y] = (sbyte)((_colored[x, y] + (sbyte)(100 / max_queue_length)) < _colored[x, y] ? _colored[x, y] : (_colored[x, y] + (sbyte)(100 / max_queue_length)));
+                    _colored[x, y] = (sbyte)((sbyte)(_colored[x, y] + (sbyte)(_map[x, y] / 4)) < _colored[x, y] ? sbyte.MaxValue : (_colored[x, y] + (sbyte)(_map[x, y] / 4)));
+                    _colored[x, y] = (sbyte)((sbyte)(_colored[x, y] + (sbyte)(100 / max_queue_length + 1)) < _colored[x, y] ? sbyte.MaxValue : (_colored[x, y] + (sbyte)(100 / max_queue_length + 1)));
                     if (_colored[x, y] >= 100)
                     {
                         _map[x, y] = 0;

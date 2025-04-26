@@ -22,9 +22,9 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
     }
 
     public double MaxTime => timeline[^5];
-    private double _looseSize = 0.1;
+    private double _looseSize = 0.07;
     private double _vLimit = 7.0;
-    private double _aLimit = 1.5;
+    private double _aLimit = 1.2;
     private double _ratioLimit = 1.01;
     private double _timeInterval = 0.05f;
     const int order = 4;
@@ -216,15 +216,44 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
         var y = new double[] { 1, u, u * u, u * u * u }.Dot(M4S).Dot(controlPointsY.Get(k - 2, k + 2));
         var z = new double[] { 1, u, u * u, u * u * u }.Dot(M4S).Dot(controlPointsZ.Get(k - 2, k + 2));
         return new(x, y, z);
+    }
+    public Vector3d Velocity(double timeInSecond)
+    {
+        int k = 2;
+        if (timeline.Length < 5) return new();
+        timeInSecond = Math.Max(0, Math.Min(timeInSecond, timeline[^5]));
+        while (timeline[k + 1] < timeInSecond)
+            k++;
 
+        if (k + 3 >= timeline.Length)
+        {
+            k = k - 1;
+        }
 
+        var u = (timeInSecond - timeline[k]) / (timeline[k + 1] - timeline[k]);
+        if (lastTimeIndex != k)
+        {
+            M4(k);
+            lastTimeIndex = k;
+        }
+        var x = new double[] { 0, 1, 2 * u, 3 * u * u }.Dot(M4S).Dot(controlPointsX.Get(k - 2, k + 2));
+        var y = new double[] { 0, 1, 2 * u, 3 * u * u }.Dot(M4S).Dot(controlPointsY.Get(k - 2, k + 2));
+        var z = new double[] { 0, 1, 2 * u, 3 * u * u }.Dot(M4S).Dot(controlPointsZ.Get(k - 2, k + 2));
+        return new(x, y, z);
     }
 
     public IEnumerable<Vector3d> TrajectoryPoints(double fromWhen, double toWhen, double step)
     {
         List<Vector3d> data = [];
-        for (var b = fromWhen + step; b <= toWhen + 1e-7; b += step)
+        for (var b = fromWhen + step; b <= toWhen + 1e-3; b += step)
             data.Add(Value(b));
+        return data;
+    }
+    public IEnumerable<Vector3d> VelocitiesPoints(double fromWhen, double toWhen, double step)
+    {
+        List<Vector3d> data = [];
+        for (var b = fromWhen + step; b <= toWhen + 1e-3; b += step)
+            data.Add(Velocity(b));
         return data;
     }
 
@@ -284,7 +313,7 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
             var tail = i + 2;
 
             for (var j = head; j <= tail; j++)
-                timeline[j] = tInt * (j - head) + timeline[j];
+                timeline[j] = tInt * (j - head + 1) + timeline[j];
 
             for (var j = tail + 1; j < timeline.Length; j++)
                 timeline[j] = tInt * 4 + timeline[j];
@@ -336,7 +365,7 @@ class FourthOrderNonUniformBSpline : Component, IKOrderBSpline
             var tail = i + 2;
 
             for (var j = head; j <= tail; j++)
-                timeline[j] = tInt * (j - head) + timeline[j];
+                timeline[j] = tInt * (j - head + 1) + timeline[j];
 
             for (var j = tail + 1; j < timeline.Length; j++)
                 timeline[j] = tInt * 4 + timeline[j];

@@ -37,8 +37,12 @@ class ALPlanner : Component
         reload.Subscript("/alplanner/reload", x => reload_ = true);
 #endif
     }
+    Dictionary<string, float> timers = [];
+
     public override void Update()
     {
+        TlarcSystem.SetLogTimers("ALPlanner", timers);
+        BenchMarkBegin();
         bool check = true;
         if (trajectoryOptimizer.Check())
         {
@@ -57,24 +61,29 @@ class ALPlanner : Component
                 }
             }
         }
+        BenchMarkFilled("trajectoryOptimizer.Check()", BenchMarkStep(), ref timers);
         var t = trajectoryOptimizer.constructTimeToNowInSeconds;
         var traj = trajectoryOptimizer.TrajectoryPoints(t - 0.1f, t, 0.1f);
         check &= reload_ && (sentry.Position - traj.First()).LengthSquared < 1 || gridMap.CheckAccessibility(sentry.Position, traj.First(), 0);
         reload_ = false;
         if (check && (target.TargetPosition - lastTarget).Length < 0.1)
             return;
-
+        BenchMarkBegin();
         path = pathPlanner.Search(sentry.Position, target.TargetPosition, sentry.Velocity.Length > 1e-2 ? sentry.Velocity : null);
         if (path.Length < 2)
             return;
+        BenchMarkFilled("pathPlanner.Search()", BenchMarkStep(), ref timers);
         trajectoryOptimizer.CalcTrajectory(path);
+        BenchMarkFilled("trajectoryOptimizer.CalcTrajectory()", BenchMarkStep(), ref timers);
 
+        BenchMarkBegin();
         trajectory = trajectoryOptimizer.TrajectoryPoints(0, trajectoryOptimizer.MaxTime, trajectoryOptimizer.MaxTime / 50).ToArray();
         lastTarget = target.TargetPosition;
-
 #if TLARC_DEBUG
         debugPath1.Publish(path);
         debugPath2.Publish(trajectory);
+        BenchMarkFilled("trajectory pub", BenchMarkStep(), ref timers);
 #endif
+        BenchMarkEnd();
     }
 }

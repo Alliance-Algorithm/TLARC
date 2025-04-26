@@ -93,37 +93,39 @@ class VelocityMPC : Component, IPositionVelocityController
 
         constraintCollection = new();
 
-        // var ConstantA1 = new double[car.ControlVolumeSize * P];
-        // var ConstantA2 = new double[car.ControlVolumeSize * P];
-        // for (int i = 0; i < car.ControlVolumeSize * P; i += 2)
-        // {
-        //     ConstantA1[i] = 1;
-        //     ConstantA2[i + 1] = 1;
-        //     constraintCollection.Add(new(car.ControlVolumeSize * P)
-        //     {
-        //         CombinedAs = ConstantA1,
-        //         Value = vMin - U[0],
-        //         ShouldBe = ConstraintType.GreaterThanOrEqualTo
-        //     });
-        //     constraintCollection.Add(new(car.ControlVolumeSize * P)
-        //     {
-        //         CombinedAs = ConstantA1,
-        //         Value = vMax - U[0],
-        //         ShouldBe = ConstraintType.LesserThanOrEqualTo
-        //     });
-        //     constraintCollection.Add(new(car.ControlVolumeSize * P)
-        //     {
-        //         CombinedAs = ConstantA2,
-        //         Value = vMin - U[1],
-        //         ShouldBe = ConstraintType.GreaterThanOrEqualTo
-        //     });
-        //     constraintCollection.Add(new(car.ControlVolumeSize * P)
-        //     {
-        //         CombinedAs = ConstantA2,
-        //         Value = vMax - U[1],
-        //         ShouldBe = ConstraintType.LesserThanOrEqualTo
-        //     });
-        // }
+        var ConstantA1 = new double[car.ControlVolumeSize * P];
+        var ConstantA2 = new double[car.ControlVolumeSize * P];
+        for (int i = 0; i < car.ControlVolumeSize * P; i += 2)
+        {
+            ConstantA1[i] = 1;
+            ConstantA2[i + 1] = 1;
+            var c1 = ConstantA1.Copy();
+            var c2 = ConstantA1.Copy();
+            constraintCollection.Add(new(car.ControlVolumeSize * P)
+            {
+                CombinedAs = c1,
+                Value = vMin - U[0],
+                ShouldBe = ConstraintType.GreaterThanOrEqualTo
+            });
+            constraintCollection.Add(new(car.ControlVolumeSize * P)
+            {
+                CombinedAs = c1,
+                Value = vMax - U[0],
+                ShouldBe = ConstraintType.LesserThanOrEqualTo
+            });
+            constraintCollection.Add(new(car.ControlVolumeSize * P)
+            {
+                CombinedAs = c2,
+                Value = vMin - U[1],
+                ShouldBe = ConstraintType.GreaterThanOrEqualTo
+            });
+            constraintCollection.Add(new(car.ControlVolumeSize * P)
+            {
+                CombinedAs = c2,
+                Value = vMax - U[1],
+                ShouldBe = ConstraintType.LesserThanOrEqualTo
+            });
+        }
         for (int i = 0; i < car.ControlVolumeSize * P; i++)
         {
             var ConstantB = new double[car.ControlVolumeSize * P];
@@ -131,13 +133,13 @@ class VelocityMPC : Component, IPositionVelocityController
             constraintCollection.Add(new(car.ControlVolumeSize * P)
             {
                 CombinedAs = ConstantB,
-                Value = uMin,
+                Value = uMin * car.ControlCycleTime,
                 ShouldBe = ConstraintType.GreaterThanOrEqualTo
             });
             constraintCollection.Add(new(car.ControlVolumeSize * P)
             {
                 CombinedAs = ConstantB,
-                Value = uMax,
+                Value = uMax * car.ControlCycleTime,
                 ShouldBe = ConstraintType.LesserThanOrEqualTo
             });
         }

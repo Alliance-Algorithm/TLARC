@@ -2,13 +2,13 @@ namespace ALPlanner.PathPlanner.Nodes;
 
 class SpeedDirectNode : INode
 {
-    const double IterationStep = 0.15f;
+    const double IterationStep = 0.2f;
     const int Headings = 8;
 
     double _g = 0;
     double _h = 0;
 
-    double AngleRad = Math.PI / 2;
+    double AngleRad = Math.PI / 3;
 
 
     public static INode? Target { get; set; }
@@ -38,7 +38,6 @@ class SpeedDirectNode : INode
             {
                 if (SpeedInWorld.LengthSquared == 0)
                 {
-                    var speedAngle = Math.Atan2(SpeedInWorld.y, SpeedInWorld.x);
                     var sinCos = Math.SinCos(i * Math.Tau / Headings);
                     children.Add(new SpeedDirectNode(PositionInWorld + IterationStep * new Vector3d(sinCos.Cos, sinCos.Sin, 0), this));
                 }
