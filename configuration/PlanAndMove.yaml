@@ -39,6 +39,8 @@
       Relies:
         sentry: 1
     TrajectoryTracer.Controller->VelocityMPC:
+      Relies:
+        sentry: 1
     TrajectoryTracer.CarModels->OmniCar:
       Relies:
         sentry: 1

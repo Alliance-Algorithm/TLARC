@@ -6,6 +6,7 @@ class VelocityMPC : Component, IPositionVelocityController
 {
     [ComponentReferenceFiled]
     ICarModel car;
+    Transform sentry;
     private int ControlPredictLength = 40;
     public int P => ControlPredictLength;
     public double Q = 20;
@@ -75,6 +76,8 @@ class VelocityMPC : Component, IPositionVelocityController
         }
 
         var psi = Vector.Zeros(x.Length + car.SizeU);
+        U[0] = sentry.Velocity.x;
+        U[1] = sentry.Velocity.y;
         for (int i = 0; i < x.Length; i++)
             psi[i] = x[i];
         for (int i = 0; i < car.ControlVolumeSize; i++)
