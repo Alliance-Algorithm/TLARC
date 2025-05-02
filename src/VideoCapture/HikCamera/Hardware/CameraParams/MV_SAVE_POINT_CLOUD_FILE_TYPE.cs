@@ -12,10 +12,13 @@ namespace MvsSharp
   {
     /// <summary>未定义数据格式</summary>
     MV_POINT_CLOUD_FILE_UNDEFINED,
+
     /// <summary>PLY数据格式</summary>
     MV_POINT_CLOUD_FILE_PLY,
+
     /// <summary>CSV数据格式</summary>
     MV_POINT_CLOUD_FILE_CSV,
+
     /// <summary>OBJ数据格式</summary>
     MV_POINT_CLOUD_FILE_OBJ,
   }

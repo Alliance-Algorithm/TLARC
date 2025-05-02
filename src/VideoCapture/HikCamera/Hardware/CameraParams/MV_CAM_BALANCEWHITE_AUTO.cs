@@ -12,8 +12,10 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>关闭自动白平衡</summary>
     MV_BALANCEWHITE_AUTO_OFF,
+
     /// <summary>连续自动白平衡</summary>
     MV_BALANCEWHITE_AUTO_CONTINUOUS,
+
     /// <summary>一次自动白平衡</summary>
     MV_BALANCEWHITE_AUTO_ONCE,
   }

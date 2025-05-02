@@ -14,14 +14,19 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>圆心信息</summary>
     public MVCC_POINTF stCenterPoint;
+
     /// <summary>宽向半径，根据图像的相对位置[0, 1.0]</summary>
     public float fR1;
+
     /// <summary>高向半径，根据图像的相对位置[0, 1.0]</summary>
     public float fR2;
+
     /// <summary>辅助线颜色信息</summary>
     public MVCC_COLORF stColor;
+
     /// <summary>辅助线宽度</summary>
     public uint nLineWidth;
+
     /// <summary>预留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
     public uint[] nReserved;

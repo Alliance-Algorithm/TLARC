@@ -14,12 +14,16 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>线条辅助线的起始点坐标</summary>
     public MVCC_POINTF stStartPoint;
+
     /// <summary>线条辅助线的终点坐标</summary>
     public MVCC_POINTF stEndPoint;
+
     /// <summary>辅助线颜色信息</summary>
     public MVCC_COLORF stColor;
+
     /// <summary>辅助线宽度</summary>
     public uint nLineWidth;
+
     /// <summary>预留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
     public uint[] nReserved;

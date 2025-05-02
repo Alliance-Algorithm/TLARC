@@ -14,22 +14,31 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>[IN]     输入数据缓存</summary>
     public IntPtr pSrcBuf;
+
     /// <summary>[IN]     输入数据大小</summary>
     public uint nSrcLen;
+
     /// <summary>[OUT]    图像宽</summary>
     public uint nWidth;
+
     /// <summary>[OUT]    图像高</summary>
     public uint nHeight;
+
     /// <summary>[OUT]    输出数据缓存</summary>
     public IntPtr pDstBuf;
+
     /// <summary>[IN]     提供的输出缓冲区大小</summary>
     public uint nDstBufSize;
+
     /// <summary>[OUT]    输出数据大小</summary>
     public uint nDstBufLen;
+
     /// <summary>[OUT]     输出的像素格式</summary>
     public MvGvspPixelType enDstPixelType;
+
     /// <summary>[OUT]    水印信息</summary>
     public MV_CC_FRAME_SPEC_INFO stFrameSpecInfo;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
     public uint[] nRes;

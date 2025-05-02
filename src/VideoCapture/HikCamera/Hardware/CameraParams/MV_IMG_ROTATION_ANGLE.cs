@@ -12,8 +12,10 @@ namespace MvsSharp
   {
     /// <summary>旋转90度</summary>
     MV_IMAGE_ROTATE_90 = 1,
+
     /// <summary>旋转180度</summary>
     MV_IMAGE_ROTATE_180 = 2,
+
     /// <summary>旋转270度</summary>
     MV_IMAGE_ROTATE_270 = 3,
   }

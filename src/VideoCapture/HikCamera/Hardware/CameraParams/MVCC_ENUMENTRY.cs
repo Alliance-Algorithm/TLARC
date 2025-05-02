@@ -14,9 +14,11 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>指定值</summary>
     public uint nValue;
+
     /// <summary></summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chSymbolic;
+
     /// <summary>预留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
     public uint[] nReserved;

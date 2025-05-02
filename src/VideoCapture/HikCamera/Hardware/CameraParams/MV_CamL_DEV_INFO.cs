@@ -15,21 +15,27 @@ namespace MvsSharp.CameraParams
     /// <summary>端口号ID</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chPortID;
+
     /// <summary>模型名</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chModelName;
+
     /// <summary>家族名</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chFamilyName;
+
     /// <summary>设备版本信息</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chDeviceVersion;
+
     /// <summary>制造商名字</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chManufacturerName;
+
     /// <summary>序列号</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chSerialNumber;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 38)]
     public uint[] nReserved;

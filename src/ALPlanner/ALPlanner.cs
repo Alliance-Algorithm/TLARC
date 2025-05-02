@@ -1,89 +1,62 @@
-using ALPlanner.Interfaces;
 using ALPlanner.Collider;
-using TlarcKernel;
+using ALPlanner.Interfaces;
+using ALPlanner.TrajectoryOptimizer;
 using Maps;
+using TlarcKernel;
 
 namespace ALPlanner;
 
 class ALPlanner : Component
 {
+  [ComponentReferenceFiled]
+  ICollider sentry;
 
-    [ComponentReferenceFiled]
-    ICollider sentry;
+  [ComponentReferenceFiled]
+  IPositionDecider target;
 
-    [ComponentReferenceFiled]
-    IPositionDecider target;
+  [ComponentReferenceFiled]
+  IGridMap gridMap;
+  SafeCorridor safeCorridor;
+  PathPlanner.PathPlanner pathPlanner;
+  TrajectoryOptimizer.TrajectoryOptimizer trajectoryOptimizer;
 
-    [ComponentReferenceFiled]
-    IGridMap gridMap;
-    PathPlanner.PathPlanner pathPlanner;
-    TrajectoryOptimizer.TrajectoryOptimizer trajectoryOptimizer;
+  IO.ROS2Msgs.Nav.Path debugPath1;
+  IO.ROS2Msgs.Nav.Path debugPath2;
+  IO.ROS2Msgs.Std.Bool reload;
+  IO.ROS2Msgs.Std.Bool followMode;
+  bool reload_ = false;
+  Vector3d[] trajectory = [];
+  private Vector3d lastTarget;
+  private Vector3d plannerTarget;
 
-    IO.ROS2Msgs.Nav.Path debugPath1;
-    IO.ROS2Msgs.Nav.Path debugPath2;
-    IO.ROS2Msgs.Std.Bool reload;
-    bool reload_ = false;
-    Vector3d[] path = [];
-    Vector3d[] trajectory = [];
-    private Vector3d lastTarget;
-    public override void Start()
+
+  public override void Start()
+  {
+    debugPath1 = new(IOManager);
+    debugPath2 = new(IOManager);
+    reload = new(IOManager);
+    followMode = new(IOManager);
+    debugPath1.RegistryPublisher("debug/path");
+    debugPath2.RegistryPublisher("debug/trajectory");
+    reload.Subscript("/alplanner/reload", x => reload_ = true);
+    followMode.RegistryPublisher("/alplanner/chassis_follow_velocity");
+  }
+
+  Dictionary<string, float> timers = [];
+
+  public override void Update()
+  {
+
+    var checkTargetChange = new BehaviourTreeCondition(() => reload_ || lastTarget != target.TargetPosition);
+    var rePlan = new BehaviourTreeAction(() =>
     {
-#if TLARC_DEBUG
-        debugPath1 = new(IOManager);
-        debugPath1.RegistryPublisher("debug/path");
-        debugPath2 = new(IOManager);
-        reload = new(IOManager);
-        debugPath2.RegistryPublisher("debug/trajectory");
-        reload.Subscript("/alplanner/reload", x => reload_ = true);
-#endif
-    }
-    Dictionary<string, float> timers = [];
-
-    public override void Update()
-    {
-        TlarcSystem.SetLogTimers("ALPlanner", timers);
-        BenchMarkBegin();
-        bool check = true;
-        if (trajectoryOptimizer.Check())
-        {
-            trajectory = trajectoryOptimizer.TrajectoryPoints(0, trajectoryOptimizer.MaxTime, trajectoryOptimizer.MaxTime / 50).ToArray();
-            foreach (var point in trajectory)
-            {
-                if ((trajectory[^1] - point).LengthSquared < 1)
-                    break;
-                if ((trajectory[0] - point).LengthSquared < 0.2)
-                    continue;
-                if (check == false || !gridMap.CheckAccessibility(
-                 gridMap.PositionInWorldToIndex(point), 0))
-                {
-                    check = false;
-                    break;
-                }
-            }
-        }
-        BenchMarkFilled("trajectoryOptimizer.Check()", BenchMarkStep(), ref timers);
-        var t = trajectoryOptimizer.constructTimeToNowInSeconds;
-        var traj = trajectoryOptimizer.TrajectoryPoints(t - 0.1f, t, 0.1f);
-        check &= reload_ && (sentry.Position - traj.First()).LengthSquared < 1 || gridMap.CheckAccessibility(sentry.Position, traj.First(), 0);
-        reload_ = false;
-        if (check && (target.TargetPosition - lastTarget).Length < 0.1)
-            return;
-        BenchMarkBegin();
-        path = pathPlanner.Search(sentry.Position, target.TargetPosition, sentry.Velocity.Length > 1e-2 ? sentry.Velocity : null);
-        if (path.Length < 2)
-            return;
-        BenchMarkFilled("pathPlanner.Search()", BenchMarkStep(), ref timers);
-        trajectoryOptimizer.CalcTrajectory(path);
-        BenchMarkFilled("trajectoryOptimizer.CalcTrajectory()", BenchMarkStep(), ref timers);
-
-        BenchMarkBegin();
-        trajectory = trajectoryOptimizer.TrajectoryPoints(0, trajectoryOptimizer.MaxTime, trajectoryOptimizer.MaxTime / 50).ToArray();
-        lastTarget = target.TargetPosition;
-#if TLARC_DEBUG
-        debugPath1.Publish(path);
-        debugPath2.Publish(trajectory);
-        BenchMarkFilled("trajectory pub", BenchMarkStep(), ref timers);
-#endif
-        BenchMarkEnd();
-    }
+      var collections = pathPlanner.Search(sentry.Position, target.TargetPosition, sentry.Velocity);
+      trajectoryOptimizer.CalcTrajectory(collections);
+      trajectory = [.. trajectoryOptimizer.TrajectoryPoints(0, trajectoryOptimizer.MaxTime, 50)];
+      return DecisionMaker.ActionState.Success;
+    });
+    var checkPassTunnel = new BehaviourTreeCondition(() => safeCorridor.Any(x => Math.Min(Math.Pow(x.MaxX - x.MinX, 2), Math.Pow(x.MaxY - x.MinY, 2)) < 0.4f));
+    var setFollower = new BehaviourTreeAction(() => { followMode.Publish(true); return DecisionMaker.ActionState.Success; });
+    var setFree = new BehaviourTreeAction(() => { followMode.Publish(false); return DecisionMaker.ActionState.Success; });
+  }
 }

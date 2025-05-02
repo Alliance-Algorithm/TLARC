@@ -14,6 +14,7 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>节点个数</summary>
     public uint nNodeNum;
+
     /// <summary>节点列表</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
     public MV_XML_NODE_FEATURE[] stNodes;

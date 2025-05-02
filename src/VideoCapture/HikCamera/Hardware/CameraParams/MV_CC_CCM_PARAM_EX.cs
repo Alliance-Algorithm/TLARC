@@ -14,11 +14,14 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>[IN]     是否启用CCM</summary>
     public bool bCCMEnable;
+
     /// <summary>[IN]     量化3x3矩阵</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 9)]
     public int[] nCCMat;
+
     /// <summary>[IN]     量化系数（2的整数幂）</summary>
     public uint nCCMScale;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
     public uint[] nRes;

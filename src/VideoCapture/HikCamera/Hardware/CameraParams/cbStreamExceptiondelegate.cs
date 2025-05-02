@@ -14,5 +14,6 @@ namespace MvsSharp
   /// <param name="pUser">用户自定义变量</param>
   public delegate void cbStreamExceptiondelegate(
     MV_CC_STREAM_EXCEPTION_TYPE enExceptionType,
-    IntPtr pUser);
+    IntPtr pUser
+  );
 }

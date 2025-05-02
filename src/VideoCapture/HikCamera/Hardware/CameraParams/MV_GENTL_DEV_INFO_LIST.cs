@@ -14,6 +14,7 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>在线设备数量</summary>
     public uint nDeviceNum;
+
     /// <summary>支持最多256个设备</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
     public IntPtr[] pDeviceInfo;

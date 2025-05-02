@@ -14,16 +14,22 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>[0.0 , 1.0]</summary>
     public float fTop;
+
     /// <summary>[0.0 , 1.0]</summary>
     public float fBottom;
+
     /// <summary>[0.0 , 1.0]</summary>
     public float fLeft;
+
     /// <summary>[0.0 , 1.0]</summary>
     public float fRight;
+
     /// <summary>辅助线颜色</summary>
     public MVCC_COLORF stColor;
+
     /// <summary>辅助线宽度</summary>
     public uint nLineWidth;
+
     /// <summary>预留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
     public uint[] nReserved;

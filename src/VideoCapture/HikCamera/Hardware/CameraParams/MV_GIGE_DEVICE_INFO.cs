@@ -14,34 +14,46 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>IP配置选项</summary>
     public uint nIpCfgOption;
+
     /// <summary>IP configuration:bit31-static bit30-dhcp bit29-lla</summary>
     public uint nIpCfgCurrent;
+
     /// <summary>curtent ip</summary>
     public uint nCurrentIp;
+
     /// <summary>curtent subnet mask</summary>
     public uint nCurrentSubNetMask;
+
     /// <summary>current gateway</summary>
     public uint nDefultGateWay;
+
     /// <summary>制造商名</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
     public string chManufacturerName;
+
     /// <summary>模型名</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
     public string chModelName;
+
     /// <summary>设备版本信息</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
     public string chDeviceVersion;
+
     /// <summary>制造商特殊信息</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 48)]
     public string chManufacturerSpecificInfo;
+
     /// <summary>序列号</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 16)]
     public string chSerialNumber;
+
     /// <summary>用户自定义名</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
     public byte[] chUserDefinedName;
+
     /// <summary>网口IP地址</summary>
     public uint nNetExport;
+
     /// <summary>预留</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
     public uint[] nReserved;

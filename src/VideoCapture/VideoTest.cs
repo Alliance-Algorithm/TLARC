@@ -1,4 +1,3 @@
-
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Emgu.CV;
@@ -12,20 +11,17 @@ namespace VideoCapture;
 
 class VideoTest : Component
 {
-    ReadOnlyUnmanagedSubscription<Mat> cap = new("hello");
-    string windowsName = "";
-    public override void Start()
-    {
-    }
+  ReadOnlyUnmanagedSubscription<Mat> cap = new("hello");
+  string windowsName = "";
 
-    public override void Update()
-    {
+  public override void Start() { }
 
-        using var matPtr = cap.Rent;
-        if (matPtr == null)
-            return;
-        CvInvoke.Imshow(windowsName, matPtr.Instance.Value);
-        CvInvoke.WaitKey(1); // Wait for a key press to close the window}
-    }
-
+  public override void Update()
+  {
+    using var matPtr = cap.Rent;
+    if (matPtr == null)
+      return;
+    CvInvoke.Imshow(windowsName, matPtr.Instance.Value);
+    CvInvoke.WaitKey(1); // Wait for a key press to close the window}
+  }
 }

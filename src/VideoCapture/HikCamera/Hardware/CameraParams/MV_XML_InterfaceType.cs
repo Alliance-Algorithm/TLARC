@@ -12,26 +12,37 @@ namespace MvsSharp
   {
     /// <summary>IValue接口类型</summary>
     IFT_IValue,
+
     /// <summary>IBase接口类型</summary>
     IFT_IBase,
+
     /// <summary>IInteger接口类型</summary>
     IFT_IInteger,
+
     /// <summary>IBoolean接口类型</summary>
     IFT_IBoolean,
+
     /// <summary>ICommand接口类型</summary>
     IFT_ICommand,
+
     /// <summary>IFloat接口类型</summary>
     IFT_IFloat,
+
     /// <summary>IString接口类型</summary>
     IFT_IString,
+
     /// <summary>IRegister接口类型</summary>
     IFT_IRegister,
+
     /// <summary>ICategory接口类型</summary>
     IFT_ICategory,
+
     /// <summary>IEnumeration接口类型</summary>
     IFT_IEnumeration,
+
     /// <summary>IEnumEntry接口类型</summary>
     IFT_IEnumEntry,
+
     /// <summary>IPort接口类型</summary>
     IFT_IPort,
   }

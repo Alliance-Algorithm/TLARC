@@ -12,6 +12,7 @@ namespace MvsSharp
   {
     /// <summary>驱动模式(默认)</summary>
     MV_NET_TRANS_DRIVER = 1,
+
     /// <summary>Socket模式</summary>
     MV_NET_TRANS_SOCKET = 2,
   }

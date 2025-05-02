@@ -12,16 +12,22 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>LINE0</summary>
     MV_TRIGGER_SOURCE_LINE0 = 0,
+
     /// <summary>LINE1</summary>
     MV_TRIGGER_SOURCE_LINE1 = 1,
+
     /// <summary>LINE2</summary>
     MV_TRIGGER_SOURCE_LINE2 = 2,
+
     /// <summary>LINE3</summary>
     MV_TRIGGER_SOURCE_LINE3 = 3,
+
     /// <summary>COUNTER0</summary>
     MV_TRIGGER_SOURCE_COUNTER0 = 4,
+
     /// <summary>SOFTWARE</summary>
     MV_TRIGGER_SOURCE_SOFTWARE = 7,
+
     /// <summary>FrequencyConverter</summary>
     MV_TRIGGER_SOURCE_FrequencyConverter = 8,
   }

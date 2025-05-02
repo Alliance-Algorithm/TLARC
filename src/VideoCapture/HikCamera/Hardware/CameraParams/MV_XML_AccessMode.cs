@@ -12,16 +12,22 @@ namespace MvsSharp
   {
     /// <summary>未实现</summary>
     AM_NI,
+
     /// <summary>不可获取</summary>
     AM_NA,
+
     /// <summary>只写</summary>
     AM_WO,
+
     /// <summary>只读</summary>
     AM_RO,
+
     /// <summary>可读可写</summary>
     AM_RW,
+
     /// <summary>未定义</summary>
     AM_Undefined,
+
     /// <summary>内部用于AccessMode循环检测</summary>
     AM_CycleDetect,
   }

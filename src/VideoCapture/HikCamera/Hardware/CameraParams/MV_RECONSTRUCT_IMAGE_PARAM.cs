@@ -14,21 +14,29 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>源图像宽</summary>
     public uint nWidth;
+
     /// <summary>源图像高</summary>
     public uint nHeight;
+
     /// <summary>像素格式</summary>
     public MvGvspPixelType enPixelType;
+
     /// <summary>输入数据缓存</summary>
     public IntPtr pSrcData;
+
     /// <summary>输入数据长度</summary>
     public uint nSrcDataLen;
+
     /// <summary>曝光个数(1-8]</summary>
     public uint nExposureNum;
+
     /// <summary>图像重构方式</summary>
     public MV_IMAGE_RECONSTRUCTION_METHOD enReconstructMethod;
+
     /// <summary>输出数据缓存信息</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
     public MV_OUTPUT_IMAGE_INFO[] stDstBufList;
+
     /// <summary>预留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
     public uint[] nReserved;

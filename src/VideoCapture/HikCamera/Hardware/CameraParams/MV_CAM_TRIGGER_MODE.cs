@@ -12,6 +12,7 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>关闭</summary>
     MV_TRIGGER_MODE_OFF,
+
     /// <summary>打开</summary>
     MV_TRIGGER_MODE_ON,
   }

@@ -14,46 +14,63 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>控制输入端点</summary>
     public byte CrtlInEndPoint;
+
     /// <summary>控制输出端点</summary>
     public byte CrtlOutEndPoint;
+
     /// <summary>流端点</summary>
     public byte StreamEndPoint;
+
     /// <summary>事件端点</summary>
     public byte EventEndPoint;
+
     /// <summary>供应商ID号</summary>
     public ushort idVendor;
+
     /// <summary>产品ID号</summary>
     public ushort idProduct;
+
     /// <summary>设备序列号</summary>
     public uint nDeviceNumber;
+
     /// <summary>设备GUID号</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chDeviceGUID;
+
     /// <summary>供应商名字</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chVendorName;
+
     /// <summary>型号名字</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chModelName;
+
     /// <summary>家族名字</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chFamilyName;
+
     /// <summary>设备版本号</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chDeviceVersion;
+
     /// <summary>制造商名字</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chManufacturerName;
+
     /// <summary>序列号</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chSerialNumber;
+
     /// <summary>用户自定义名字</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
     public byte[] chUserDefinedName;
+
     /// <summary>支持的USB协议</summary>
     public uint nbcdUSB;
+
     /// <summary>设备地址</summary>
     public uint nDeviceAddress;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2)]
     public uint[] nReserved;

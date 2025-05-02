@@ -14,18 +14,25 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>版本</summary>
     public uint nVersion;
+
     /// <summary>噪声特性类型</summary>
     public MV_CC_BAYER_NOISE_FEATURE_TYPE enNoiseFeatureType;
+
     /// <summary>图像格式</summary>
     public MvGvspPixelType enPixelType;
+
     /// <summary>平均噪声水平</summary>
     public int nNoiseLevel;
+
     /// <summary>曲线点数</summary>
     public uint nCurvePointNum;
+
     /// <summary>噪声曲线</summary>
     public IntPtr nNoiseCurve;
+
     /// <summary>亮度曲线</summary>
     public IntPtr nLumCurve;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
     public uint[] nRes;

@@ -12,10 +12,13 @@ namespace MvsSharp
   {
     /// <summary>按序列号排序</summary>
     SORTMETHOD_SERIALNUMBER,
+
     /// <summary>按用户自定义名字排序</summary>
     SORTMETHOD_USERID,
+
     /// <summary>按当前IP地址排序（升序）</summary>
     SORTMETHOD_CURRENTIP_ASC,
+
     /// <summary>按当前IP地址排序（降序）</summary>
     SORTMETHOD_CURRENTIP_DESC,
   }

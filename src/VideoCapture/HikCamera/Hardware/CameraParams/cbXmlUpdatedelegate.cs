@@ -18,5 +18,6 @@ namespace MvsSharp
     MV_XML_InterfaceType enType,
     IntPtr pstFeature,
     ref MV_XML_NODES_LIST pstNodesList,
-    IntPtr pUser);
+    IntPtr pUser
+  );
 }

@@ -4,5 +4,5 @@ namespace TlarcKernel.TrajectoryOptimizer.Optimizer;
 
 interface IOptimizer
 {
-    public void Optimize(IKOrderBSpline kOrderBSpline);
+  public void Optimize(IKOrderBSpline kOrderBSpline);
 }

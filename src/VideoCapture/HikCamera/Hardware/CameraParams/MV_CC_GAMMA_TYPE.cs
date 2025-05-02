@@ -12,8 +12,10 @@ namespace MvsSharp
   {
     /// <summary>不启用</summary>
     MV_CC_GAMMA_TYPE_NONE,
+
     /// <summary>GAMMA值</summary>
     MV_CC_GAMMA_TYPE_VALUE,
+
     /// <summary>
     /// GAMMA曲线，8位需要的长度：256*sizeof(unsigned char)
     /// 10位需要的长度：1024*sizeof(unsigned short)
@@ -21,8 +23,10 @@ namespace MvsSharp
     /// 16位需要的长度：65536*sizeof(unsigned short)
     /// </summary>
     MV_CC_GAMMA_TYPE_USER_CURVE,
+
     /// <summary>线性RGB转非线性RGB</summary>
     MV_CC_GAMMA_TYPE_LRGB2SRGB,
+
     /// <summary>非线性RGB转线性RGB</summary>
     MV_CC_GAMMA_TYPE_SRGB2LRGB,
   }

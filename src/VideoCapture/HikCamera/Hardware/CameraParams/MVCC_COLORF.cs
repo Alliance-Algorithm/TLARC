@@ -14,12 +14,16 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>[0.0 , 1.0]</summary>
     public float fR;
+
     /// <summary>[0.0 , 1.0]</summary>
     public float fG;
+
     /// <summary>[0.0 , 1.0]</summary>
     public float fB;
+
     /// <summary>[0.0 , 1.0]</summary>
     public float fAlpha;
+
     /// <summary>预留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
     public uint[] nReserved;

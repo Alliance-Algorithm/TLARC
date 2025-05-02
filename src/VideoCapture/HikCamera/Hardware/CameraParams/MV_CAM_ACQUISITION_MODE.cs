@@ -12,8 +12,10 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>单帧模式</summary>
     MV_ACQ_MODE_SINGLE,
+
     /// <summary>多帧模式</summary>
     MV_ACQ_MODE_MUTLI,
+
     /// <summary>持续采集模式</summary>
     MV_ACQ_MODE_CONTINUOUS,
   }

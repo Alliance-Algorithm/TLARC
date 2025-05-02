@@ -14,16 +14,22 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>显示窗口的句柄</summary>
     public IntPtr hWnd;
+
     /// <summary>显示的帧数据</summary>
     public IntPtr pData;
+
     /// <summary>显示的帧数据大小</summary>
     public uint nDataLen;
+
     /// <summary>图像宽</summary>
     public ushort nWidth;
+
     /// <summary>图像高</summary>
     public ushort nHeight;
+
     /// <summary>像素格式</summary>
     public MvGvspPixelType enPixelType;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
     public uint[] nReserved;

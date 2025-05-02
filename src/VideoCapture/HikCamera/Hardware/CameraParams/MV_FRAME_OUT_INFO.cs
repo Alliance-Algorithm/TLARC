@@ -14,24 +14,34 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>图像宽</summary>
     public ushort nWidth;
+
     /// <summary>图像高</summary>
     public ushort nHeight;
+
     /// <summary>像素格式</summary>
     public MvGvspPixelType enPixelType;
+
     /// <summary>帧号</summary>
     public uint nFrameNum;
+
     /// <summary>时间戳高32位</summary>
     public uint nDevTimeStampHigh;
+
     /// <summary>时间戳低32位</summary>
     public uint nDevTimeStampLow;
+
     /// <summary>保留，8字节对齐</summary>
     public uint nReserved0;
+
     /// <summary>主机生成的时间戳</summary>
     public long nHostTimeStamp;
+
     /// <summary>帧数据大小</summary>
     public uint nFrameLen;
+
     /// <summary>丢包数量</summary>
     public uint nLostPacket;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2)]
     public uint[] nReserved;

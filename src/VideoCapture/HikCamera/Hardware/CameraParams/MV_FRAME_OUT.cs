@@ -15,8 +15,10 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>帧数据地址</summary>
     public IntPtr pBufAddr;
+
     /// <summary>帧信息</summary>
     public MV_FRAME_OUT_INFO_EX stFrameInfo;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
     public uint[] nReserved;

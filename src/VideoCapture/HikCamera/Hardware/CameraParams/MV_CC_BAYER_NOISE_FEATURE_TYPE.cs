@@ -12,10 +12,13 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>无效</summary>
     MV_CC_BAYER_NOISE_FEATURE_TYPE_INVALID = 0,
+
     /// <summary>噪声曲线</summary>
     MV_CC_BAYER_NOISE_FEATURE_TYPE_PROFILE = 1,
+
     /// <summary>默认值</summary>
     MV_CC_BAYER_NOISE_FEATURE_TYPE_DEFAULT = 2,
+
     /// <summary>噪声水平</summary>
     MV_CC_BAYER_NOISE_FEATURE_TYPE_LEVEL = 2,
   }

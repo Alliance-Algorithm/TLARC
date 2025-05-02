@@ -12,8 +12,10 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>关闭</summary>
     MV_GAIN_MODE_OFF,
+
     /// <summary>一次</summary>
     MV_GAIN_MODE_ONCE,
+
     /// <summary>连续</summary>
     MV_GAIN_MODE_CONTINUOUS,
   }

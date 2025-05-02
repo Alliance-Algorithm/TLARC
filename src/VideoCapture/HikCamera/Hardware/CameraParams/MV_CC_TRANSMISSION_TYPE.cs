@@ -14,10 +14,13 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>传输模式</summary>
     public MV_GIGE_TRANSMISSION_TYPE enTransmissionType;
+
     /// <summary>目标IP，组播模式下有意义</summary>
     public uint nDestIp;
+
     /// <summary>目标Port，组播模式下有意义</summary>
     public ushort nDestPort;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
     public uint[] nReserved;

@@ -1,0 +1,16 @@
+- Fps: 10
+  Components:
+    ALPlanner.Interfaces.ROS->PoseTransform2D->1:
+      Args:
+        topicName: "\"/rmcs_location/pose\""
+        offset: "{x:-7.5,y:0,z:0}"
+    Maps->ESDFGenerator:
+      Relies:
+        sentry: 1
+      Args:
+        debug: true
+        mapPath: "\"\""
+        dynamicMapTopicName: "\"/rmcs_map/map/grid\""
+        # offset: "{x:7.5,y:0,z:0}"
+        maxDistance: 1.0
+        max_queue_length: 3

@@ -12,8 +12,10 @@ namespace MvsSharp
   {
     /// <summary>LLA</summary>
     MV_IP_CFG_LLA = 67108864, // 0x04000000
+
     /// <summary>Static</summary>
     MV_IP_CFG_STATIC = 83886080, // 0x05000000
+
     /// <summary>DHCP</summary>
     MV_IP_CFG_DHCP = 100663296, // 0x06000000
   }

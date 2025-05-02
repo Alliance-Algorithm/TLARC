@@ -14,12 +14,16 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>[IN]     Gamma类型</summary>
     public MV_CC_GAMMA_TYPE enGammaType;
+
     /// <summary>[IN]     Gamma值</summary>
     public float fGammaValue;
+
     /// <summary>[IN]     Gamma曲线缓存</summary>
     public IntPtr pGammaCurveBuf;
+
     /// <summary>[IN]     Gamma曲线长度</summary>
     public uint nGammaCurveBufLen;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
     public uint[] nRes;

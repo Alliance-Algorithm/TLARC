@@ -15,24 +15,32 @@ namespace MvsSharp.CameraParams
     /// <summary>节点名</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string strName;
+
     /// <summary>显示名称</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string strDisplayName;
+
     /// <summary>节点描述</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
     public string strDescription;
+
     /// <summary>提示</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
     public string strToolTip;
+
     /// <summary>是否可见</summary>
     public MV_XML_Visibility enVisivility;
+
     /// <summary>访问模式</summary>
     public MV_XML_AccessMode enAccessMode;
+
     /// <summary>是否锁定。0-否；1-是</summary>
     public int bIsLocked;
+
     /// <summary>当前值</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string strValue;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
     public uint[] nReserved;

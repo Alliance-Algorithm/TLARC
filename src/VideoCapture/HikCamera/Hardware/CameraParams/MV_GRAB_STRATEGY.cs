@@ -12,12 +12,15 @@ namespace MvsSharp
   {
     /// <summary>从旧到新一帧一帧的获取图像（默认为该策略）</summary>
     MV_GrabStrategy_OneByOne,
+
     /// <summary>获取列表中最新的一帧图像（同时清除列表中的其余图像）</summary>
     MV_GrabStrategy_LatestImagesOnly,
+
     /// <summary>
     /// 获取列表中最新的图像，个数由OutputQueueSize决定，范围为1-ImageNodeNum，设置成1等同于LatestImagesOnly，设置成ImageNodeNum等同于OneByOne
     /// </summary>
     MV_GrabStrategy_LatestImages,
+
     /// <summary>等待下一帧图像</summary>
     MV_GrabStrategy_UpcomingImage,
   }

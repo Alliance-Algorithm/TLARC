@@ -13,18 +13,33 @@ namespace MvsSharp.CameraParams
   [StructLayout(LayoutKind.Sequential, Pack = 8)]
   public struct MV_CC_PIXEL_CONVERT_PARAM
   {
-    public ushort nWidth;                                 ///< [IN]  \~chinese 图像宽                 \~english Width
-    public ushort nHeight;                                ///< [IN]  \~chinese 图像高                 \~english Height
+    public ushort nWidth;
 
-    public long enSrcPixelType;                         ///< [IN]  \~chinese 源像素格式             \~english Source pixel format
-    public IntPtr pSrcData;                               ///< [IN]  \~chinese 输入数据缓存           \~english Input data buffer
-    public uint nSrcDataLen;                            ///< [IN]  \~chinese 输入数据长度           \~english Input data length
+    ///< [IN]  \~chinese 图像宽                 \~english Width
+    public ushort nHeight;
 
-    public long enDstPixelType;                         ///< [IN]  \~chinese 目标像素格式           \~english Destination pixel format
-    public IntPtr pDstBuffer;                             ///< [OUT] \~chinese 输出数据缓存           \~english Output data buffer
-    public uint nDstLen;                                ///< [OUT] \~chinese 输出数据长度           \~english Output data length
-    public uint nDstBufferSize;                         ///< [IN]  \~chinese 提供的输出缓冲区大小   \~english Provided output buffer size
+    ///< [IN]  \~chinese 图像高                 \~english Height
+    public long enSrcPixelType;
 
+    ///< [IN]  \~chinese 源像素格式             \~english Source pixel format
+    public IntPtr pSrcData;
+
+    ///< [IN]  \~chinese 输入数据缓存           \~english Input data buffer
+    public uint nSrcDataLen;
+
+    ///< [IN]  \~chinese 输入数据长度           \~english Input data length
+    public long enDstPixelType;
+
+    ///< [IN]  \~chinese 目标像素格式           \~english Destination pixel format
+    public IntPtr pDstBuffer;
+
+    ///< [OUT] \~chinese 输出数据缓存           \~english Output data buffer
+    public uint nDstLen;
+
+    ///< [OUT] \~chinese 输出数据长度           \~english Output data length
+    public uint nDstBufferSize;
+
+    ///< [IN]  \~chinese 提供的输出缓冲区大小   \~english Provided output buffer size
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20)]
     public uint[] nRes;

@@ -14,33 +14,47 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>宽度值</summary>
     public ushort nWidthValue;
+
     /// <summary>宽度最小值</summary>
     public ushort nWidthMin;
+
     /// <summary>宽度最大值</summary>
     public uint nWidthMax;
+
     /// <summary>Width Inc</summary>
     public uint nWidthInc;
+
     /// <summary>高度值</summary>
     public uint nHeightValue;
+
     /// <summary>高度最小值</summary>
     public uint nHeightMin;
+
     /// <summary>高度最大值</summary>
     public uint nHeightMax;
+
     /// <summary>Height Inc</summary>
     public uint nHeightInc;
+
     /// <summary>帧率</summary>
     public float fFrameRateValue;
+
     /// <summary>最小帧率</summary>
     public float fFrameRateMin;
+
     /// <summary>最大帧率</summary>
     public float fFrameRateMax;
+
     /// <summary>当前的像素格式</summary>
     public uint enPixelType;
+
     /// <summary>支持的像素格式种类</summary>
     public uint nSupportedPixelFmtNum;
+
     /// <summary>像素列表</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
     public uint[] enPixelList;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
     public uint[] nReserved;

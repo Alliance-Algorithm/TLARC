@@ -14,22 +14,31 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>[IN]     图像宽</summary>
     public uint nWidth;
+
     /// <summary>[IN]     图像高</summary>
     public uint nHeight;
+
     /// <summary>[IN]     输入数据的像素格式</summary>
     public MvGvspPixelType enPixelType;
+
     /// <summary>[IN]     输入数据缓存</summary>
     public IntPtr pData;
+
     /// <summary>[IN]     输入数据大小</summary>
     public uint nDataLen;
+
     /// <summary>[IN]     输入图片格式</summary>
     public MV_SAVE_IAMGE_TYPE enImageType;
+
     /// <summary>[IN]     输入文件路径</summary>
     public string pImagePath;
+
     /// <summary>[IN]     编码质量, (0-100]</summary>
     public uint nQuality;
+
     /// <summary>[IN]     Bayer的插值方法 0-快速 1-均衡 2-最优（如果传入其它值则默认为最优）</summary>
     public uint iMethodValue;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
     public uint[] nRes;

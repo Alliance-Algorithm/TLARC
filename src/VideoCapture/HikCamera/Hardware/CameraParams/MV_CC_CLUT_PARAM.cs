@@ -14,16 +14,21 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>[IN]     是否启用CLUT</summary>
     public bool bCLUTEnable;
+
     /// <summary>[IN]     量化系数(2的整数幂)</summary>
     public uint nCLUTScale;
+
     /// <summary>[IN]     CLUT大小，建议值17</summary>
     public uint nCLUTSize;
+
     /// <summary>[OUT]    量化CLUT</summary>
     public IntPtr pCLUTBuf;
+
     /// <summary>
     /// [IN]     量化CLUT缓存大小（nCLUTSize*nCLUTSize*nCLUTSize*sizeof(int)*3）
     /// </summary>
     public uint nCLUTBufLen;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
     public uint[] nRes;

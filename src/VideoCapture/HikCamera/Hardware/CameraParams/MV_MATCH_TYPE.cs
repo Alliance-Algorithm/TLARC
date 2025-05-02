@@ -12,6 +12,7 @@ namespace MvsSharp
   {
     /// <summary>网络流量和丢包信息</summary>
     MV_MATCH_TYPE_NET_DETECT = 1,
+
     /// <summary>host接收到来自U3V设备的字节总数</summary>
     MV_MATCH_TYPE_USB_DETECT = 2,
   }

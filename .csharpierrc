@@ -1,0 +1,6 @@
+{
+    "printWidth": 100,
+    "tabWidth": 2,
+    "indentSize": 2,
+    "preprocessorSymbolSets": [ "", "DEBUG", "DEBUG,CODE_STYLE" ]
+}

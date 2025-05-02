@@ -2,12 +2,12 @@ namespace DecisionMaker;
 
 enum ActionState
 {
-    Success,
-    Failure,
-    Running
+  Success,
+  Failure,
+  Running,
 }
 
 interface IAction
 {
-    ActionState Action();
+  ActionState Action();
 }

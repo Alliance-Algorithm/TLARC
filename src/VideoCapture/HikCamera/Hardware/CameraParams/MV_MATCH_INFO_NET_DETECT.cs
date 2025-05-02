@@ -8,20 +8,25 @@
 namespace MvsSharp.CameraParams
 {
   /// <summary>
-  /// 
+  ///
   /// </summary>
   public struct MV_MATCH_INFO_NET_DETECT
   {
     /// <summary>已接收数据大小  [统计StartGrabbing和StopGrabbing之间的数据量]</summary>
     public long nReviceDataSize;
+
     /// <summary>丢失的包数量</summary>
     public long nLostPacketCount;
+
     /// <summary>丢帧数量</summary>
     public uint nLostFrameCount;
+
     /// <summary>帧数</summary>
     public uint nNetRecvFrameCount;
+
     /// <summary>请求重发包数</summary>
     public long nRequestResendPacketCount;
+
     /// <summary>重发包数</summary>
     public long nResendPacketCount;
   }

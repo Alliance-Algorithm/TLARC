@@ -16,5 +16,6 @@ namespace MvsSharp
   public delegate void cbOutputExdelegate(
     IntPtr pData,
     ref MV_FRAME_OUT_INFO_EX pFrameInfo,
-    IntPtr pUser);
+    IntPtr pUser
+  );
 }

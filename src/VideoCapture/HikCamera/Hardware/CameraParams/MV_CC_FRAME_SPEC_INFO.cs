@@ -14,38 +14,55 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>[OUT]     秒数</summary>
     public uint nSecondCount;
+
     /// <summary>[OUT]     周期数</summary>
     public uint nCycleCount;
+
     /// <summary>[OUT]     周期偏移量</summary>
     public uint nCycleOffset;
+
     /// <summary>[OUT]     增益</summary>
     public float fGain;
+
     /// <summary>[OUT]     曝光时间</summary>
     public float fExposureTime;
+
     /// <summary>[OUT]     平均亮度</summary>
     public uint nAverageBrightness;
+
     /// <summary>[OUT]     红色</summary>
     public uint nRed;
+
     /// <summary>[OUT]     绿色</summary>
     public uint nGreen;
+
     /// <summary>[OUT]     蓝色</summary>
     public uint nBlue;
+
     /// <summary>[OUT]     总帧数</summary>
     public uint nFrameCounter;
+
     /// <summary>[OUT]     触发计数</summary>
     public uint nTriggerIndex;
+
     /// <summary>[OUT]     输入</summary>
     public uint nInput;
+
     /// <summary>[OUT]     输出</summary>
     public uint nOutput;
+
     /// <summary>[OUT]     水平偏移量</summary>
     public ushort nOffsetX;
+
     /// <summary>[OUT]     垂直偏移量</summary>
     public ushort nOffsetY;
+
     /// <summary>[OUT]     水印宽</summary>
     public ushort nFrameWidth;
+
     /// <summary>[OUT]     水印高</summary>
     public ushort nFrameHeight;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
     public uint[] nRes;

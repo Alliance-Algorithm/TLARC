@@ -12,12 +12,16 @@ namespace MvsSharp
   {
     /// <summary>未定义类型</summary>
     MV_IMAGE_UNDEFINED,
+
     /// <summary>Bmp图像格式</summary>
     MV_IMAGE_BMP,
+
     /// <summary>Jpeg图像格式</summary>
     MV_IMAGE_JPEG,
+
     /// <summary>Png图像格式</summary>
     MV_IMAGE_PNG,
+
     /// <summary>Tif图像格式</summary>
     MV_IMAGE_TIF,
   }

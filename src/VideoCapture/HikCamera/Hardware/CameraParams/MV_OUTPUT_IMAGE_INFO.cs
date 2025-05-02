@@ -14,16 +14,22 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>源图像宽</summary>
     public uint nWidth;
+
     /// <summary>源图像高</summary>
     public uint nHeight;
+
     /// <summary>像素格式</summary>
     public MvGvspPixelType enPixelType;
+
     /// <summary>输出数据缓存</summary>
     public IntPtr pBuf;
+
     /// <summary>输出数据长度</summary>
     public uint nBufLen;
+
     /// <summary>提供的输出缓冲区大小</summary>
     public uint nBufSize;
+
     /// <summary>预留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
     public uint[] nReserved;

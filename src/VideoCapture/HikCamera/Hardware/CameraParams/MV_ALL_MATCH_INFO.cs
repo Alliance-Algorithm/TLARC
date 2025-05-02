@@ -12,8 +12,10 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>需要输出的信息类型，e.g. MV_MATCH_TYPE_NET_DETECT</summary>
     public uint nType;
+
     /// <summary>输出的信息缓存，由调用者分配</summary>
     public IntPtr pInfo;
+
     /// <summary>信息缓存的大小</summary>
     public uint nInfoSize;
   }

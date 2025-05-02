@@ -14,8 +14,10 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>用户文件名</summary>
     public string pUserFileName;
+
     /// <summary>设备文件名</summary>
     public string pDevFileName;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
     public uint[] nReserved;

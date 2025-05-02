@@ -14,12 +14,16 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>当前值</summary>
     public uint nCurValue;
+
     /// <summary>最大值</summary>
     public uint nMax;
+
     /// <summary>最小值</summary>
     public uint nMin;
+
     /// <summary>Inc</summary>
     public uint nInc;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
     public uint[] nReserved;

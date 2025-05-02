@@ -12,6 +12,7 @@ namespace MvsSharp
   {
     /// <summary>垂直方向翻转</summary>
     MV_FLIP_VERTICAL = 1,
+
     /// <summary>水平方向翻转</summary>
     MV_FLIP_HORIZONTAL = 2,
   }

@@ -12,12 +12,16 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>已接收数据大小  [统计StartGrabbing和StopGrabbing之间的数据量]</summary>
     public long nReviceDataSize;
+
     /// <summary>丢帧数量</summary>
     public int nThrowFrameCount;
+
     /// <summary>接收帧数</summary>
     public uint nNetRecvFrameCount;
+
     /// <summary>请求重发包数</summary>
     public long nRequestResendPacketCount;
+
     /// <summary>重发包数</summary>
     public long nResendPacketCount;
   }

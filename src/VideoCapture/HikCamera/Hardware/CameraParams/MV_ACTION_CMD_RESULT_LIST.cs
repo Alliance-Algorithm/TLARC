@@ -12,6 +12,7 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>返回值个数</summary>
     public uint nNumResults;
+
     /// <summary>返回的结果</summary>
     public IntPtr pResults;
   }

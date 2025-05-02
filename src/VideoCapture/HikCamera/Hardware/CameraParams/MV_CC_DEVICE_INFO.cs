@@ -15,17 +15,23 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>主版本号</summary>
     public ushort nMajorVer;
+
     /// <summary>次版本号</summary>
     public ushort nMinorVer;
+
     /// <summary>MAC高地址</summary>
     public uint nMacAddrHigh;
+
     /// <summary>MAC低地址</summary>
     public uint nMacAddrLow;
+
     /// <summary>设备传输层协议类型，e.g. MV_GIGE_DEVICE</summary>
     public uint nTLayerType;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
     public uint[] nReserved;
+
     /// <summary>设备类型</summary>
     public MV_CC_DEVICE_INFO.SPECIAL_INFO SpecialInfo;
 
@@ -52,10 +58,12 @@ namespace MvsSharp.CameraParams
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 216)]
       [FieldOffset(0)]
       public byte[] stGigEInfo;
+
       /// <summary>Camera Link</summary>
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 536)]
       [FieldOffset(0)]
       public byte[] stCamLInfo;
+
       /// <summary>Usb</summary>
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 540)]
       [FieldOffset(0)]

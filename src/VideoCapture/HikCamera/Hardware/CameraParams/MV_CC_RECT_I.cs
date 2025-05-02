@@ -12,10 +12,13 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>[IN]     矩形左上角X轴坐标</summary>
     public uint nX;
+
     /// <summary>[IN]     矩形左上角Y轴坐标</summary>
     public uint nY;
+
     /// <summary>[IN]     矩形宽度</summary>
     public uint nWidth;
+
     /// <summary>[IN]     矩形高度</summary>
     public uint nHeight;
   }

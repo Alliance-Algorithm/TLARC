@@ -12,6 +12,7 @@ namespace MvsSharp
   {
     /// <summary>未定义格式</summary>
     MV_FORMAT_TYPE_UNDEFINED,
+
     /// <summary>AVI格式</summary>
     MV_FORMAT_TYPE_AVI,
   }

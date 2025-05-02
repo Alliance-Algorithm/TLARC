@@ -14,26 +14,37 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>[IN]     图像宽度</summary>
     public uint nWidth;
+
     /// <summary>[IN]     图像高度</summary>
     public uint nHeight;
+
     /// <summary>[IN]     输入的像素格式</summary>
     public MvGvspPixelType enPixelType;
+
     /// <summary>[IN]     输入图像缓存</summary>
     public IntPtr pSrcBuf;
+
     /// <summary>[IN]     输入图像缓存长度</summary>
     public uint nSrcBufLen;
+
     /// <summary>[IN]     图像ROI</summary>
     public IntPtr pstROIRect;
+
     /// <summary>[IN]     ROI个数</summary>
     public uint nROINum;
+
     /// <summary>[IN]     噪声阈值[0-4095]</summary>
     public uint nNoiseThreshold;
+
     /// <summary>[OUT]    输出噪声特性</summary>
     public IntPtr pNoiseProfile;
+
     /// <summary>[IN]     提供的输出缓冲区大小</summary>
     public uint nNoiseProfileSize;
+
     /// <summary>[OUT]    输出噪声特性长度</summary>
     public uint nNoiseProfileLen;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
     public uint[] nRes;

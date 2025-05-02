@@ -17,32 +17,42 @@ namespace MvsSharp.CameraParams
     /// <summary>采集卡ID</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chInterfaceID;
+
     /// <summary>设备ID</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chDeviceID;
+
     /// <summary>供应商名字</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chVendorName;
+
     /// <summary>模型名</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chModelName;
+
     /// <summary>传输类型</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chTLType;
+
     /// <summary>显示名</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chDisplayName;
+
     /// <summary>用户自定义名</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
     public byte[] chUserDefinedName;
+
     /// <summary>序列号</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chSerialNumber;
+
     /// <summary>设备版本信息</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chDeviceVersion;
+
     /// <summary>cti文件序号</summary>
     public uint nCtiIndex;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
     public uint[] nReserved;

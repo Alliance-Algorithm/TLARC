@@ -12,6 +12,7 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>USER</summary>
     MV_GAMMA_SELECTOR_USER = 1,
+
     /// <summary>SRGB</summary>
     MV_GAMMA_SELECTOR_SRGB = 2,
   }

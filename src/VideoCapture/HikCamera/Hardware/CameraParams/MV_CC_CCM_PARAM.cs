@@ -14,9 +14,11 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>[IN]     是否启用CCM</summary>
     public bool bCCMEnable;
+
     /// <summary>[IN]     CCM矩阵(-8192~8192)</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 9)]
     public int[] nCCMat;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
     public uint[] nRes;

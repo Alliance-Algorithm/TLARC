@@ -7,33 +7,41 @@ namespace TrajectoryTracer.CarModels;
 
 class OmniCar : Component, ICarModel
 {
-    [ComponentReferenceFiled]
-    Transform sentry;
-    [ComponentReferenceFiled]
-    ITrajectory<Vector3d> trajectory;
-    private const float controlCycleTime = 0.1f;
-    public double ControlCycleTime => controlCycleTime;
-    public int ControlVolumeSize => 2;
+  [ComponentReferenceFiled]
+  Transform sentry;
 
-    public double[] ObservableVolume => [sentry.Position.x, sentry.Position.y];
+  [ComponentReferenceFiled]
+  ITrajectory<Vector3d> trajectory;
+  private const float controlCycleTime = 0.1f;
+  public double ControlCycleTime => controlCycleTime;
+  public int ControlVolumeSize => 2;
 
-    public double[] ReferenceObservationVolume(int window)
+  public double[] ObservableVolume => [sentry.Position.x, sentry.Position.y];
+
+  public double[] ReferenceObservationVolume(int window)
+  {
+    Vector3d[] vector3Ds = trajectory.Trajectory(controlCycleTime * window, window);
+    double[] doubles = new double[vector3Ds.Length * 2];
+
+    for (int i = 0, k = vector3Ds.Length; i < k; i++)
     {
-        Vector3d[] vector3Ds = trajectory.Trajectory(controlCycleTime * window, window);
-        double[] doubles = new double[vector3Ds.Length * 2];
-
-        for (int i = 0, k = vector3Ds.Length; i < k; i++)
-        {
-            doubles[2 * i] = vector3Ds[i].x;
-            doubles[2 * i + 1] = vector3Ds[i].y;
-        }
-        return doubles;
+      doubles[2 * i] = vector3Ds[i].x;
+      doubles[2 * i + 1] = vector3Ds[i].y;
     }
+    return doubles;
+  }
 
-    private static readonly double[,] _matrixA = new double[,] { { 1, 0 }, { 0, 1 } };
-    private static readonly double[,] _matrixB = new double[,] { { controlCycleTime, 0 }, { 0, controlCycleTime } };
+  private static readonly double[,] _matrixA = new double[,]
+  {
+    { 1, 0 },
+    { 0, 1 },
+  };
+  private static readonly double[,] _matrixB = new double[,]
+  {
+    { controlCycleTime, 0 },
+    { 0, controlCycleTime },
+  };
 
-    public double[,] MatrixA => _matrixA;
-    public double[,] MatrixB => _matrixB;
-
+  public double[,] MatrixA => _matrixA;
+  public double[,] MatrixB => _matrixB;
 }

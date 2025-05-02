@@ -16,6 +16,7 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>ch:在线设备数量 | en:Online Interface Number</summary>
     public uint nInterfaceNum;
+
     /// <summary>ch:支持最多256个设备 | en:Support up to 256 Interfaces</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
     public IntPtr[] pIFInfo;

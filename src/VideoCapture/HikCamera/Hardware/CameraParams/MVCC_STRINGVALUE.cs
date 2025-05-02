@@ -15,8 +15,10 @@ namespace MvsSharp.CameraParams
     /// <summary>当前值</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
     public string chCurValue;
+
     /// <summary>节点值的最大长度</summary>
     public long nMaxLength;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2)]
     public uint[] nReserved;

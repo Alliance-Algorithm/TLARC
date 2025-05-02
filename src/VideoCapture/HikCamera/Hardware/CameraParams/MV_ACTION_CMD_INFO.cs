@@ -14,18 +14,25 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>设备密钥</summary>
     public uint nDeviceKey;
+
     /// <summary>组键</summary>
     public uint nGroupKey;
+
     /// <summary>组掩码</summary>
     public uint nGroupMask;
+
     /// <summary>只有设置成1时Action Time才有效，非1时无效</summary>
     public uint bActionTimeEnable;
+
     /// <summary>预定的时间，和主频有关</summary>
     public long nActionTime;
+
     /// <summary>广播包地址</summary>
     public string pBroadcastAddress;
+
     /// <summary>等待ACK的超时时间，如果为0表示不需要ACK</summary>
     public uint nTimeOut;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
     public uint[] nReserved;

@@ -14,8 +14,10 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>[IN]     图像数据指针</summary>
     public IntPtr pData;
+
     /// <summary>[IN]     图像大小</summary>
     public uint nDataLen;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
     public uint[] nRes;

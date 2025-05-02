@@ -15,8 +15,10 @@ namespace MvsSharp.CameraParams
     /// <summary>IP address of the device</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 16)]
     public string strDeviceAddress;
+
     /// <summary>status code returned by the device</summary>
     public int nStatus;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
     public uint[] nReserved;

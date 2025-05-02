@@ -17,14 +17,18 @@ namespace MvsSharp.CameraParams
     /// <summary>GenTL接口ID</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chInterfaceID;
+
     /// <summary>传输层类型</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chTLType;
+
     /// <summary>设备显示名称</summary>
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
     public string chDisplayName;
+
     /// <summary>GenTL的cti文件索引</summary>
     public uint nCtiIndex;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
     public uint[] nReserved;

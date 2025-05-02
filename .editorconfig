@@ -1,4 +1,5 @@
-[*.{cs,vb}]
+
+[*.cs]
 
 # IDE0040: 添加可访问性修饰符
 dotnet_style_require_accessibility_modifiers = never
@@ -26,3 +27,10 @@ dotnet_style_predefined_type_for_locals_parameters_members = true
 
 # IDE0051: Remove unused private members
 dotnet_diagnostic.IDE0051.severity = none
+
+# CS8602: 解引用可能出现空引用。
+dotnet_diagnostic.CS8602.severity = none
+
+indent_size = 2             # 缩进空格数（默认4）
+tab_width = 2               # Tab等效空格数
+align_multiline_constructs = true  # 对齐多行结构（如参数列表）

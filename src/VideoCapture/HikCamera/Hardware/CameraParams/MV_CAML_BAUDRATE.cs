@@ -12,22 +12,31 @@ namespace MvsSharp
   {
     /// <summary>未知波特率</summary>
     MV_CAML_BAUDRATE_UNKNOW = 0,
+
     /// <summary>9600</summary>
     MV_CAML_BAUDRATE_9600 = 1,
+
     /// <summary>19200</summary>
     MV_CAML_BAUDRATE_19200 = 2,
+
     /// <summary>38400</summary>
     MV_CAML_BAUDRATE_38400 = 4,
+
     /// <summary>57600</summary>
     MV_CAML_BAUDRATE_57600 = 8,
+
     /// <summary>115200</summary>
     MV_CAML_BAUDRATE_115200 = 16, // 0x00000010
+
     /// <summary>230400</summary>
     MV_CAML_BAUDRATE_230400 = 32, // 0x00000020
+
     /// <summary>460800</summary>
     MV_CAML_BAUDRATE_460800 = 64, // 0x00000040
+
     /// <summary>921600</summary>
     MV_CAML_BAUDRATE_921600 = 128, // 0x00000080
+
     /// <summary>自动选择波特率</summary>
     MV_CAML_BAUDRATE_AUTOMAX = 1073741824, // 0x40000000
   }

@@ -14,10 +14,13 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>Chunk数据</summary>
     public IntPtr pChunkData;
+
     /// <summary>ChunkID</summary>
     public uint nChunkID;
+
     /// <summary>Chunk大小</summary>
     public uint nChunkLen;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
     public uint[] nReserved;

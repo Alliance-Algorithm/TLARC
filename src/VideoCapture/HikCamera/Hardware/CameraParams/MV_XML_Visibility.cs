@@ -12,12 +12,16 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>Always visible</summary>
     V_Beginner = 0,
+
     /// <summary>Visible for experts or Gurus</summary>
     V_Expert = 1,
+
     /// <summary>Visible for Gurus</summary>
     V_Guru = 2,
+
     /// <summary>Not Visible</summary>
     V_Invisible = 3,
+
     /// <summary>Object is not yet initialized</summary>
     V_Undefined = 99, // 0x00000063
   }

@@ -14,10 +14,13 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>已接收数据大小    [统计OpenDevicce和CloseDevice之间的数据量]</summary>
     public long nReviceDataSize;
+
     /// <summary>已收到的帧数</summary>
     public uint nRevicedFrameCount;
+
     /// <summary>错误帧数</summary>
     public uint nErrorFrameCount;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2)]
     public uint[] nReserved;

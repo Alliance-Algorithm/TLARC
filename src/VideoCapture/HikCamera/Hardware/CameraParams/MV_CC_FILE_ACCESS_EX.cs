@@ -14,12 +14,16 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>用户文件数据缓存空间</summary>
     public IntPtr pUserFileBuf;
+
     /// <summary>用户数据缓存大小</summary>
     public uint nFileBufSize;
+
     /// <summary>文件实际缓存大小</summary>
     public uint nFileBufLen;
+
     /// <summary>设备文件名</summary>
     public string pDevFileName;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
     public uint[] nReserved;

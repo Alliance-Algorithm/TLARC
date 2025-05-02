@@ -14,8 +14,10 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>已完成的长度</summary>
     public long nCompleted;
+
     /// <summary>总长度</summary>
     public long nTotal;
+
     /// <summary>保留字节</summary>
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
     public uint[] nReserved;

@@ -12,6 +12,7 @@ namespace MvsSharp.CameraParams
   {
     /// <summary>Timed</summary>
     MV_EXPOSURE_MODE_TIMED,
+
     /// <summary>TriggerWidth</summary>
     MV_EXPOSURE_MODE_TRIGGER_WIDTH,
   }
