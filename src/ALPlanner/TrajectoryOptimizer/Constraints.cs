@@ -1,13 +1,14 @@
 using Accord.Math.Optimization;
 
 namespace ALPlanner.TrajectoryOptimizer;
-public class Constraint(int index, double? lowerBound = null, double? upperBound = null)
+public class Constraint(int index, double[,] rotation, double? lowerBound = null, double? upperBound = null)
 {
     private int _interIndex = index;
     public Constraint? next = null;
 
     readonly public double? LowerBound = lowerBound;
     readonly public double? UpperBound = upperBound;
+    readonly public double[,] Rotation = rotation;
 
     // exp: while(Constraint is not null) i += Iterator; Constraint = next;
     public int IteratorIncrementToNext => next is null ? 0 : next._interIndex - _interIndex;
@@ -18,6 +19,8 @@ public class ConstraintCollection
     public Constraint? XBegin;
     public Constraint? YBegin;
     public Constraint? ZBegin;
+
+    public int Length;
 
     public double TimeStep;
 }

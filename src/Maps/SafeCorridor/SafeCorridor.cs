@@ -1,5 +1,6 @@
 using System.Collections;
 using ALPlanner.TrajectoryOptimizer;
+using Emgu.CV.Dpm;
 
 namespace Maps;
 
@@ -33,8 +34,13 @@ class SafeCorridor : Component, IMap, IEnumerable<Rectangle>
     Constraint? constantY = null;
     for (int i = 0; i < data.Count; i++)
     {
-      Constraint c1 = new(i, data[i].MinX, data[i].MaxX);
-      Constraint c2 = new(i, data[i].MinY, data[i].MaxY);
+      double[] min = [data[i].MinX, data[i].MinY];
+      double[] max = [data[i].MaxX, data[i].MaxY];
+      min = data[i].Rotation.Dot(min);
+      max = data[i].Rotation.Dot(max);
+
+      Constraint c1 = new(i, data[i].Rotation, min[0], max[0]);
+      Constraint c2 = new(i, data[i].Rotation, min[1], max[1]);
 
       if (constantX is null)
         constraintCollection.XBegin = c1;
@@ -45,6 +51,7 @@ class SafeCorridor : Component, IMap, IEnumerable<Rectangle>
 
       constantX = c1;
     }
+    constraintCollection.Length = data.Count;
     return constraintCollection;
   }
 

@@ -2,7 +2,7 @@ using System.Collections;
 using Accord.IO;
 
 namespace Maps;
-readonly struct Rectangle(double x, double y, double xLength, double yLength)
+readonly struct Rectangle(double x, double y, double xLength, double yLength, double[,] rotation)
 {
   private readonly double x = x;
   private readonly double y = y;
@@ -15,6 +15,7 @@ readonly struct Rectangle(double x, double y, double xLength, double yLength)
   public readonly double MaxY => y + YLength / 2;
   public readonly double MaxX => x + XLength / 2;
 
+  public readonly double[,] Rotation = rotation;
 }
 
 class SafeCorridorData : IEnumerable<Rectangle>
@@ -22,7 +23,7 @@ class SafeCorridorData : IEnumerable<Rectangle>
   public void PushIn(in Rectangle rectangle) => rectangles.Add(rectangle);
   List<Rectangle> rectangles;
 
-  public double Count => rectangles.Count;
+  public int Count => rectangles.Count;
   public Rectangle this[int index] => rectangles[index];
 
   public IEnumerator<Rectangle> GetEnumerator()
