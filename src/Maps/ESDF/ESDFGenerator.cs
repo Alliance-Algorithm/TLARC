@@ -75,12 +75,12 @@ public class ESDFGenerator : Component, IESDF
         _staticMap = new sbyte[281, 161],
       };
       for (int x = 0; x < SizeX; x++)
-      for (int y = 0; y < SizeY; y++)
-      {
-        _staticMap._staticMap[x, y] = 100;
-        _staticMap._staticObs[x, y, 0] = -1;
-        _staticMap._staticObs[x, y, 1] = -1;
-      }
+        for (int y = 0; y < SizeY; y++)
+        {
+          _staticMap._staticMap[x, y] = 100;
+          _staticMap._staticObs[x, y, 0] = -1;
+          _staticMap._staticObs[x, y, 1] = -1;
+        }
     }
     _dynamicMapReceiver = new(IOManager);
     _dynamicMapReceiver.Subscript(
@@ -137,7 +137,7 @@ public class ESDFGenerator : Component, IESDF
     );
     if (debug)
     {
-      _esdfPublisher.Publish((_map, Resolution, (uint)SizeX, (uint)SizeY));
+      // _esdfPublisher.Publish((_map, Resolution, (uint)SizeX, (uint)SizeY));
     }
   }
 

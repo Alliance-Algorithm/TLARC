@@ -1,0 +1,13 @@
+- Fps: 10
+  Components:
+    Maps->OccupancyMapGenerator:
+      Args:
+        Debug: true
+        MapPath: "\"./hello.tlm\""
+    ALPlanner.Interfaces.ROS->PoseTransform2D:
+      Args:
+        topicName: "\"/rmcs_location/pose\""
+        offset: "{x:-7.5,y:0,z:0}"
+
+
+

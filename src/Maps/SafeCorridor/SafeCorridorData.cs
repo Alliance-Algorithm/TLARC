@@ -2,26 +2,33 @@ using System.Collections;
 using Accord.IO;
 
 namespace Maps;
-readonly struct Rectangle(double x, double y, double xLength, double yLength, double[,] rotation)
+readonly struct Rectangle(double minX, double minY, double maxX, double maxY, double[,] rotation)
 {
-  private readonly double x = x;
-  private readonly double y = y;
-  private readonly double XLength = xLength;
-  private readonly double YLength = yLength;
 
-  public readonly Vector2d Center => new(x, y);
-  public readonly double MinY => y - YLength / 2;
-  public readonly double MinX => x - XLength / 2;
-  public readonly double MaxY => y + YLength / 2;
-  public readonly double MaxX => x + XLength / 2;
+  public readonly double MinY => minY;
+  public readonly double MinX => minX;
+  public readonly double MaxY => maxY;
+  public readonly double MaxX => maxX;
 
   public readonly double[,] Rotation = rotation;
+
+  public bool Check(Vector3d position)
+  {
+    double[] xy1 = [position.x, position.y];
+    double[] minXY1 = [MinX, MinY];
+    double[] maxXY1 = [MaxX, MaxY];
+    var xy = Rotation.Dot(xy1);
+    var minXY = Rotation.Dot(minXY1);
+    var maxXY = Rotation.Dot(maxXY1);
+
+    return xy[0] >= minXY[0] && xy[1] >= minXY[1] && xy[0] <= maxXY[0] && xy[1] <= maxXY[1];
+  }
 }
 
 class SafeCorridorData : IEnumerable<Rectangle>
 {
   public void PushIn(in Rectangle rectangle) => rectangles.Add(rectangle);
-  List<Rectangle> rectangles;
+  List<Rectangle> rectangles = [];
 
   public int Count => rectangles.Count;
   public Rectangle this[int index] => rectangles[index];

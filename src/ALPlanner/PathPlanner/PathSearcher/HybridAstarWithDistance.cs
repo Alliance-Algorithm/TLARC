@@ -5,12 +5,12 @@ using TlarcKernel.Extensions.Array;
 
 namespace ALPlanner.PathPlanner.PathSearcher;
 
-using Node = SpeedDirectNode;
+using Node = Omni2DConsecNode;
 
 class HybridAStarWithDistance : Component, IPathSearcher
 {
   [ComponentReferenceFiled]
-  IESDF gridMap;
+  IGridMap gridMap;
   PriorityQueue<INode, float> _openList;
   bool[,,] _closeMap;
 
@@ -28,8 +28,8 @@ class HybridAStarWithDistance : Component, IPathSearcher
     Array.Clear(_closeMap, 0, _closeMap.Length);
     _openList = new();
 
-    Node begin = new(origin, speed ?? new Vector3d(0, 0, 0));
-    Node end = new(target, new Vector3d(0, 0, 0));
+    Node begin = new(origin);
+    Node end = new(target);
 
     Node.Target = end;
 
@@ -64,7 +64,7 @@ class HybridAStarWithDistance : Component, IPathSearcher
           continue;
         if (_closeMap.Indexer(childIndex))
           continue;
-        _openList.Enqueue(child, child.TotalCost + (float)(100 - gridMap[childIndex]) * 0.1f);
+        _openList.Enqueue(child, child.TotalCost);
       }
     }
     return end;

@@ -1,4 +1,5 @@
 using System.Buffers;
+using Accord.IO;
 
 namespace Maps;
 
@@ -8,15 +9,34 @@ class OccupancyMapData(int sizeX, int sizeY, float resolution) : IGridMap, IDisp
   const float lo_free = -6f;
   const sbyte lo_max = 90;
   const sbyte lo_min = 10;
+  public OccupancyMapData Copy()
+  {
+    OccupancyMapData tmp = new(SizeX, SizeY, Resolution)
+    {
+      data = data.Clone()
+    };
+    return tmp;
+  }
+
+  public struct Description
+  {
+    public int SizeX { get; set; }
+    public int SizeY { get; set; }
+    public float Resolution { get; set; }
+  }
 
   readonly public int SizeX = sizeX;
   readonly public int SizeY = sizeY;
   readonly public float Resolution = resolution;
 
-  TlarcArray<sbyte> data = new(sizeX, sizeY);
+  TlarcArray<sbyte> data = new(50, sizeX, sizeY);
+  public sbyte[] ToArray => data.ToArray;
 
-  sbyte this[int x, int y] => data[x, y];
-
+  public sbyte this[int x, int y]
+  {
+    get => data[x, y];
+    set => data[x, y] = value;
+  }
   Vector3i IGridMap.Index => throw new NotImplementedException();
 
   Vector3d IGridMap.OriginInWorld => Vector3d.Zero;
@@ -30,15 +50,14 @@ class OccupancyMapData(int sizeX, int sizeY, float resolution) : IGridMap, IDisp
 
     for (int i = 0; i < length; i++)
     {
-      var pos = InternalPositionInWorldToIndex(to - i * dir);
-
-      if (data[pos.x, pos.y] < 50)
+      if (!CheckAccessibility(to - i * dir, 0))
         return false;
     }
     return true;
   }
 
-  public bool CheckAccessibility(Vector3i index, float value) => data[index.x, index.y] > 50;
+  public bool CheckAccessibility(Vector3i index, float value) =>
+   index.x > 0 && index.x < SizeX && index.y > 0 && index.y < SizeY && data[index.x, index.y] > 76;
   public bool CheckAccessibility(Vector3d index, float value) => CheckAccessibility(InternalPositionInWorldToIndex(index), value);
 
   Vector3d IGridMap.IndexToPositionInWorld(Vector3i position) =>

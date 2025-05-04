@@ -1,33 +1,35 @@
+using Accord;
 using Accord.Math.Optimization;
-using ALPlanner.TrajectoryOptimizer;
 using TlarcKernel.TrajectoryOptimizer.Curves;
 
-namespace Maps;
+namespace ALPlanner.TrajectoryOptimizer.Curves;
 
 class SafetyBSpline : Component, IKOrderBSpline
 {
 
     Transform sentry;
 
+    private double _vLimit = 7.0;
+    private double _aLimit = 7.0;
+    private double _ratioLimit = 1.01;
     public double[] controlPointsX = [];
     public double[] controlPointsY = [];
-    public double[] controlPointsZ = [];
-    public double[] timeline = [];
+    public double[] timeline = [0];
 
 
-    public double[][] ControlPoint => throw new NotImplementedException();
+    public double[][] ControlPoint => [controlPointsX, controlPointsY];
 
-    public double MaxTime => throw new NotImplementedException();
+    public double MaxTime => timeline[^1];
 
-    public DateTime ConstructTime => throw new NotImplementedException();
+    public DateTime ConstructTime { get; private set; }
 
 
     public bool Check() => controlPointsX.Length != 0;
     double[,] tmpM = new double[4, 4] {
-        {1  /6.0    ,4  /6.0    ,1  /6.0    ,0},
-        {-3 /6.0    ,0          ,3  /6.0    ,0},
-        {3  /6.0    ,-6 /6.0    ,3  /6.0    ,0},
-        {-1 /6.0    ,3  /6.0    ,-3 /6.0    ,1},
+        {1  /6.0    ,4  /6.0    ,1  /6.0    ,0      },
+        {-3 /6.0    ,0          ,3  /6.0    ,0      },
+        {3  /6.0    ,-6 /6.0    ,3  /6.0    ,0      },
+        {-1 /6.0    ,3  /6.0    ,-3 /6.0    ,1  /6.0},
     };
     double[,] tmpPosM = new double[2, 8] {
         {1  /6.0    ,4  /6.0    ,1  /6.0    ,0      ,0          ,0          ,0          ,0},
@@ -64,14 +66,16 @@ class SafetyBSpline : Component, IKOrderBSpline
     public override void Start()
     {
         H4S = new double[4, 4];
-        var k = new double[1, 4] { { 0, 0, 0, 6 } }.Dot(tmpM);
+        var k = new double[1, 4] { { 0, 0, 20, 6 } }.Dot(tmpM);
         H4S = H4S.Add(k.TransposeAndDot(k));
-
     }
     public void Construction(ConstraintCollection positionList)
     {
-        var time = positionList.TimeStep;
 
+        if (positionList.Length == 0)
+            return;
+        var time = positionList.TimeStep;
+        ConstructTime = DateTime.Now;
         LinearConstraintCollection linearConstraint = [];
 
         var controlPointsLength = positionList.Length + 3;
@@ -80,34 +84,41 @@ class SafetyBSpline : Component, IKOrderBSpline
         for (int i = 0; i < positionList.Length; i++)
         {
             double[,] A = tmpX.Rotation.Dot(tmpPosM);  //Ax = B
-            foreach (var c in ConstraintHelper.BuildConstraint(A.GetRow(0), tmpX, variablesAtIndices:
+            foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, A.GetRow(0), tmpX, variablesAtIndices:
             [i                      , i + 1                         , i + 2                        , i + 3                      ,
             i + controlPointsLength , i + controlPointsLength + 1   , i + controlPointsLength + 2  , i + controlPointsLength + 3]))
                 linearConstraint.Add(c);
-            foreach (var c in ConstraintHelper.BuildConstraint(A.GetRow(1), tmpY, variablesAtIndices:
+            foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, A.GetRow(1), tmpY, variablesAtIndices:
             [i                      , i + 1                         , i + 2                        , i + 3                      ,
             i + controlPointsLength , i + controlPointsLength + 1   , i + controlPointsLength + 2  , i + controlPointsLength + 3]))
                 linearConstraint.Add(c);
 
-            foreach (var c in ConstraintHelper.BuildConstraint([1], tmpX, variablesAtIndices: [i]))
-                linearConstraint.Add(c);
-            foreach (var c in ConstraintHelper.BuildConstraint([1], tmpY, variablesAtIndices: [i + controlPointsLength]))
-                linearConstraint.Add(c);
+            if (tmpX.UpperBound - tmpX.LowerBound > 0.5)
+                foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, tmpX.Rotation.GetRow(0), tmpX, variablesAtIndices: [i + 2, i + controlPointsLength + 2]))
+                    linearConstraint.Add(c);
+            if (tmpY.UpperBound - tmpY.LowerBound > 0.5)
+                foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, tmpX.Rotation.GetRow(1), tmpY, variablesAtIndices: [i + 2, i + controlPointsLength + 2]))
+                    linearConstraint.Add(c);
+            tmpX = tmpX.next;
+            tmpY = tmpY.next;
         }
-        linearConstraint.Add(new()
-        {
-            CombinedAs = tmpVelM.Divide(time),
-            ShouldBe = ConstraintType.EqualTo,
-            VariablesAtIndices = [0, 1, 2, 3],
-            Value = sentry.Velocity.x
-        });
-        linearConstraint.Add(new()
-        {
-            CombinedAs = tmpVelM.Divide(time),
-            ShouldBe = ConstraintType.EqualTo,
-            VariablesAtIndices = [0 + controlPointsLength, 1 + controlPointsLength, 2 + controlPointsLength, 3 + controlPointsLength],
-            Value = sentry.Velocity.y
-        });
+
+        linearConstraint.Add(ConstraintHelper.CreateLinearConstraint
+            (
+                controlPointsLength * 2,
+                tmpVelM.Divide(time),
+                ConstraintType.EqualTo,
+                [0, 1, 2, 3],
+                sentry.Velocity.x
+            ));
+        linearConstraint.Add(ConstraintHelper.CreateLinearConstraint
+        (
+            controlPointsLength * 2,
+            tmpVelM.Divide(time),
+            ConstraintType.EqualTo,
+            [0 + controlPointsLength, 1 + controlPointsLength, 2 + controlPointsLength, 3 + controlPointsLength],
+            sentry.Velocity.y
+        ));
         double[,] H = new double[controlPointsLength * 2, controlPointsLength * 2];
 
         for (int i = 0; i < positionList.Length; i++)
@@ -117,22 +128,31 @@ class SafetyBSpline : Component, IKOrderBSpline
                         H[i + j, i + k] += H4S[j, k];
         for (int i = positionList.Length; i < positionList.Length + 3; i++)
             for (int j = 0; j < 4; j++)
-                for (int k = 0; k < 4; k++)
-                    if (i + j < positionList.Length + 3 && i + k < positionList.Length + 3)
-                        H[i + j, i + k] += 1e-4;
+                if (i + j < positionList.Length + 3)
+                    H[i + j, i + j] += 1e-4;
         for (int i = controlPointsLength; i < controlPointsLength + positionList.Length; i++)
             for (int j = 0; j < 4; j++)
                 for (int k = 0; k < 4; k++)
-                    if (i + j < positionList.Length + 3 && i + k < positionList.Length + 3)
+                    if (i + j < controlPointsLength + positionList.Length + 3 && i + k < controlPointsLength + positionList.Length + 3)
                         H[i + j, i + k] += H4S[j, k];
         for (int i = controlPointsLength + positionList.Length; i < controlPointsLength + positionList.Length + 3; i++)
             for (int j = 0; j < 4; j++)
-                for (int k = 0; k < 4; k++)
-                    if (i + j < positionList.Length + 3 && i + k < positionList.Length + 3)
-                        H[i + j, i + k] += 1e-4;
+                if (i + j < controlPointsLength + positionList.Length + 3)
+                    H[i + j, i + j] += 1e-4;
 
+        QuadraticObjectiveFunction func = new QuadraticObjectiveFunction(H, new double[controlPointsLength * 2]);
+        var solver = new GoldfarbIdnani(func, linearConstraint);
+        solver.Minimize();
+        controlPointsX = solver.Solution[..controlPointsLength];
+        controlPointsY = solver.Solution[controlPointsLength..];
 
-
+        timeline = new double[controlPointsLength + 3];
+        timeline[0] = -2 * time;
+        timeline[1] = -1 * time;
+        for (int i = 0; i < controlPointsLength; i++)
+            timeline[i + 3] = timeline[i + 2] + time;
+        if (solver.Status == GoldfarbIdnaniStatus.Success)
+            ReallocTimeline();
     }
 
     public void OptimizeTrajectory()
@@ -162,14 +182,26 @@ class SafetyBSpline : Component, IKOrderBSpline
         }
         var x = new double[] { 1, u, u * u, u * u * u }.Dot(tmpM).Dot(controlPointsX.Get(k - 2, k + 2));
         var y = new double[] { 1, u, u * u, u * u * u }.Dot(tmpM).Dot(controlPointsY.Get(k - 2, k + 2));
-        var z = new double[] { 1, u, u * u, u * u * u }.Dot(tmpM).Dot(controlPointsZ.Get(k - 2, k + 2));
-        return new(x, y, z);
+        return new(x, y, 0);
     }
     public IEnumerable<Vector3d> TrajectoryPoints(double fromWhen, double toWhen, double step)
     {
         List<Vector3d> data = [];
         for (var b = fromWhen + step; b <= toWhen + 1e-3; b += step)
             data.Add(Value(b));
+        return data;
+    }
+    public IEnumerable<Vector3d> AcceleratePoints(double fromWhen, double toWhen, double step)
+    {
+        List<Vector3d> data = [];
+        List<Vector3d> tmpData = [];
+        for (var b = fromWhen + step; b <= toWhen + 1e-3; b += step)
+            data.Add(Value(b));
+        for (int i = 1; i < data.Count; i++)
+            tmpData.Add((data[i] - data[i - 1]) / step);
+        data = [];
+        for (int i = 1; i < tmpData.Count; i++)
+            data.Add((tmpData[i] - tmpData[i - 1]) / step);
         return data;
     }
     public Vector3d Velocity(double timeInSecond)
@@ -194,14 +226,103 @@ class SafetyBSpline : Component, IKOrderBSpline
         var delta = timeline[k + 1] - timeline[k];
         var x = new double[] { 0, 1, 2 * u, 3 * u * u }.Dot(tmpM).Dot(controlPointsX.Get(k - 2, k + 2)) / delta;
         var y = new double[] { 0, 1, 2 * u, 3 * u * u }.Dot(tmpM).Dot(controlPointsY.Get(k - 2, k + 2)) / delta;
-        var z = new double[] { 0, 1, 2 * u, 3 * u * u }.Dot(tmpM).Dot(controlPointsZ.Get(k - 2, k + 2)) / delta;
-        return new(x, y, z);
+        return new(x, y, 0);
     }
     public IEnumerable<Vector3d> VelocitiesPoints(double fromWhen, double toWhen, double step)
     {
         List<Vector3d> data = [];
+        List<Vector3d> tmpData = [];
         for (var b = fromWhen + step; b <= toWhen + 1e-3; b += step)
-            data.Add(Velocity(b));
-        return data;
+            data.Add(Value(b));
+        for (int i = 1; i < data.Count; i++)
+            tmpData.Add((data[i] - data[i - 1]) / step);
+        return tmpData;
     }
+    private void ReallocTimeline()
+    {
+        while (true)
+        {
+            double vMax = 0;
+            int index = -1;
+
+            for (int k = 2; k < controlPointsX.Length - 2; k++)
+            {
+                var delta = timeline[k + 1] - timeline[k];
+                M(timeline[k - 2], timeline[k - 1], timeline[k], timeline[k + 1], timeline[k + 2], timeline[k + 3]);
+                var x = new double[] { 0, 1, 0, 0 }.Dot(tmpM).Dot(controlPointsX.Get(k - 2, k + 2)) / delta;
+                var y = new double[] { 0, 1, 0, 0 }.Dot(tmpM).Dot(controlPointsY.Get(k - 2, k + 2)) / delta;
+                var v = Math.Sqrt(x * x + y * y);
+                if (vMax < v)
+                {
+                    index = k;
+                    vMax = v;
+                }
+            }
+            if (vMax < _vLimit)
+                break;
+
+            var i = index;
+
+            var ratio = Math.Min(_ratioLimit, vMax / _vLimit) + 1e-4;
+            var tOld = timeline[i + 2] - timeline[i - 2];
+            var tNew = ratio * tOld;
+            var tInt = (tNew - tOld) / 4;
+
+
+            var head = i - 1;
+            var tail = i + 2;
+
+            for (var j = head; j <= tail; j++)
+                timeline[j] = tInt * (j - head + 1) + timeline[j];
+
+            for (var j = tail + 1; j < timeline.Length; j++)
+                timeline[j] = tInt * 4 + timeline[j];
+
+        }
+
+        while (true)
+        {
+
+            double aMax = 0;
+            int index = -1;
+
+            for (int k = 2; k < controlPointsX.Length - 2; k++)
+            {
+
+                var delta = timeline[k + 1] - timeline[k];
+                M(timeline[k - 2], timeline[k - 1], timeline[k], timeline[k + 1], timeline[k + 2], timeline[k + 3]);
+                var x = new double[] { 0, 0, 2, 0 }.Dot(tmpM).Dot(controlPointsX.Get(k - 2, k + 2)) / delta / delta;
+                var y = new double[] { 0, 0, 2, 0 }.Dot(tmpM).Dot(controlPointsY.Get(k - 2, k + 2)) / delta / delta;
+                var a = Math.Sqrt(x * x + y * y);
+                if (aMax < a)
+                {
+                    index = k;
+                    aMax = a;
+                }
+            }
+            if (aMax < _aLimit)
+                break;
+
+            var i = index;
+
+            var ratio = Math.Min(_ratioLimit, aMax / _aLimit) + 1e-4;
+            var tOld = timeline[i + 2] - timeline[i - 2];
+            var tNew = ratio * tOld;
+            var tInt = (tNew - tOld) / 4;
+
+            var head = i - 1;
+            var tail = i + 2;
+
+            for (var j = head; j <= tail; j++)
+                timeline[j] = tInt * (j - head + 1) + timeline[j];
+
+            for (var j = tail + 1; j < timeline.Length; j++)
+                timeline[j] = tInt * 4 + timeline[j];
+        }
+        var tTmp = timeline[2];
+        for (int i = 0; i < timeline.Length; i++)
+            timeline[i] -= tTmp;
+    }
+
+
 }

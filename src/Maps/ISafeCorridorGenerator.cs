@@ -2,5 +2,6 @@ namespace Maps;
 
 interface ISafeCorridorGenerator
 {
-    public SafeCorridorData Generate(Vector3d[] pointList);
+    const double maxLength = 2;
+    public SafeCorridorData Generate(Vector3d[] pointList, double maxLength = maxLength);
 }

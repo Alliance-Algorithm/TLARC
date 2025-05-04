@@ -12,7 +12,9 @@ class EquidistantSampler : Component, ISampler
     Stack<Vector3d> path = new();
     float totalVal = 1;
     var tmp = endNode;
-    while (tmp.Parent != null)
+    if (tmp is null)
+      return [];
+    while (tmp.Parent is not null)
     {
       totalVal += _samplingRate;
       if (totalVal < 1)
