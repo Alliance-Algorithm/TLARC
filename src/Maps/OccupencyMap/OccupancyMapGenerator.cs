@@ -57,10 +57,7 @@ class OccupancyMapGenerator : Component, IGridMap, ISafeCorridorGenerator
         var _position = data.Position;
         var _angle = data.angle;
 
-        var tmp = PositionInWorldToIndex(
-          _sentry_status.position
-            + Quaterniond.AxisAngleR(Vector3d.AxisZ, _sentry_status.AngleR ) * _position
-        );
+        var tmp = PositionInWorldToIndex(_sentry_status.position + _position);
 
         dy_data._map = data.Map;
         dy_data.offsetX = tmp.x;
@@ -90,10 +87,8 @@ class OccupancyMapGenerator : Component, IGridMap, ISafeCorridorGenerator
       for (int i = 0, k = _dynamicMap._map.GetLength(0); i < k; i++)
         for (int j = 0; j < k; j++)
         {
-          var x = (int)
-            Math.Round(i * _dynamicMap.forward.Cos - j * _dynamicMap.forward.Sin + _dynamicMap.offsetX);
-          var y = (int)
-            Math.Round(j * _dynamicMap.forward.Cos + i * _dynamicMap.forward.Sin + _dynamicMap.offsetY);
+          var x = (int)(i+_dynamicMap.offsetX);
+          var y = (int)(j + _dynamicMap.offsetY);
         if(_data_init[x,y] != 0)
           _data.Update(x, y, _dynamicMap._map[i, j]);
         }
