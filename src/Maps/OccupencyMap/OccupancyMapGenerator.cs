@@ -7,6 +7,7 @@ namespace Maps;
 class OccupancyMapGenerator : Component, IGridMap, ISafeCorridorGenerator
 {
   OccupancyMapData _data;
+  OccupancyMapData _data_init;
 
   public Vector3i Index => ((IGridMap)_data).Index;
   public Vector3d OriginInWorld => ((IGridMap)_data).OriginInWorld;
@@ -35,7 +36,7 @@ class OccupancyMapGenerator : Component, IGridMap, ISafeCorridorGenerator
   ReadOnlyUnmanagedInterfacePublisher<OccupancyMapData> _mapPublisher = new("/occupancy/map");
   public int Mode = 0;
   public bool Debug = false;
-  public string DynamicMapTopicName = "/map/local_map";
+  public string DynamicMapTopicName = "rmcs_map/map/grid";
   public string SaveMapPath = "./last.zip.tlm";
   public string MapPath = "";
   private IO.ROS2Msgs.Nav.OccupancyGrid _dynamicMapReceiver;
@@ -58,18 +59,19 @@ class OccupancyMapGenerator : Component, IGridMap, ISafeCorridorGenerator
 
         var tmp = PositionInWorldToIndex(
           _sentry_status.position
-            + Quaterniond.AxisAngleR(Vector3d.AxisZ, _sentry_status.AngleR + Math.PI) * _position
+            + Quaterniond.AxisAngleR(Vector3d.AxisZ, _sentry_status.AngleR ) * _position
         );
 
         dy_data._map = data.Map;
         dy_data.offsetX = tmp.x;
         dy_data.offsetY = tmp.y;
-        dy_data.forward = Math.SinCos(_sentry_status.AngleR + Math.PI);
+        dy_data.forward = Math.SinCos(_sentry_status.AngleR );
 
         _dynamicMap = dy_data;
       }
     );
     _data = OccupancyGridMapHelper.Init(MapPath);
+    _data_init = OccupancyGridMapHelper.Init(MapPath);
     if (Debug)
     {
       _rosMapPublisher = new(IOManager);
@@ -92,7 +94,7 @@ class OccupancyMapGenerator : Component, IGridMap, ISafeCorridorGenerator
             Math.Round(i * _dynamicMap.forward.Cos - j * _dynamicMap.forward.Sin + _dynamicMap.offsetX);
           var y = (int)
             Math.Round(j * _dynamicMap.forward.Cos + i * _dynamicMap.forward.Sin + _dynamicMap.offsetY);
-
+        if(_data_init[x,y] != 0)
           _data.Update(x, y, _dynamicMap._map[i, j]);
         }
     }

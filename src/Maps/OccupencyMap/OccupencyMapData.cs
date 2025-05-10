@@ -34,8 +34,8 @@ class OccupancyMapData(int sizeX, int sizeY, float resolution) : IGridMap, IDisp
 
   public sbyte this[int x, int y]
   {
-    get => data[x, y];
-    set => data[x, y] = value;
+    get =>  x > 0 && x < SizeX && y > 0 && y < SizeY ? data[x, y] : (sbyte)0;
+    set {if( x > 0 && x < SizeX && y > 0 && y < SizeY) data[x, y] = value;}
   }
   Vector3i IGridMap.Index => throw new NotImplementedException();
 
@@ -83,14 +83,14 @@ class OccupancyMapData(int sizeX, int sizeY, float resolution) : IGridMap, IDisp
     if (value > 0)
       data[x, y] = (sbyte)
         Math.Clamp(
-          Math.Round(data[x, y] * (1 + (value * lo_occ / 100)), MidpointRounding.AwayFromZero),
+          Math.Round(data[x, y] - lo_occ, MidpointRounding.AwayFromZero),
           1,
           100
         );
     else
       data[x, y] = (sbyte)
         Math.Clamp(
-          Math.Round(data[x, y] * (1 + (value * lo_free / 100)), MidpointRounding.ToZero),
+          Math.Round(data[x, y] - lo_free, MidpointRounding.ToZero),
           1,
           100
         );
