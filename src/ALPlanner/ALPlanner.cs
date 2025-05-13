@@ -39,9 +39,9 @@ class ALPlanner : Component
     // Behaviour
     var checkTargetChange = new BehaviourTreeCondition(() => reload_ || lastTarget != target.TargetPosition);
     var checkCurrentPosition = new BehaviourTreeCondition(() =>
-      trajectory.Length != 0 ||
+      trajectory.Length == 0 ||
       trajectoryOptimizer.TrajectoryPoints(trajectoryOptimizer.constructTimeToNowInSeconds, trajectoryOptimizer.constructTimeToNowInSeconds + 0.1, 0.1)
-        .All(x => (sentry.Position - x).Length > 2)
+        .All(x => (sentry.Position - x).Length > 1)
       );
     var plan = new BehaviourTreeAction(() =>
     {

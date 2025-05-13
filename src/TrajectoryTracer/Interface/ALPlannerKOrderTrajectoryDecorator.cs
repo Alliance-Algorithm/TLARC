@@ -14,17 +14,17 @@ class ALPlannerKOrderTrajectoryDecorator : Component, ITrajectory<Vector3d>
 
   public override void Start()
   {
-#if DEBUG
+// #if DEBUG
     debugPath = new(IOManager);
     debugPath.RegistryPublisher("debug/mpc/trajectory");
-#endif
+// #endif
   }
 
   public override void Update()
   {
-#if DEBUG
+// #if DEBUG
     debugPath.Publish(trajectory);
-#endif
+// #endif
   }
 
   public Vector3d[] Trajectory(double howLong, int count)

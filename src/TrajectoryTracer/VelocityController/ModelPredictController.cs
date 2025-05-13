@@ -15,19 +15,17 @@ class VelocityMPC : Component, IPositionVelocityController
   public double rho = 10;
   public double[] U;
   public double[] uOut;
-  public const double uMax = 2;
+  public const double uMax = 1.5;
   public const double uMin = -uMax;
-  public const double vMax = 7;
+  public const double vMax = 6;
   public const double vMin = -vMax;
 
   LinearConstraintCollection constraintCollection;
 
   public Vector3d ControlVolume(Vector3d Position)
   {
-    if (U == null)
-      U = Vector.Zeros(car.ControlVolumeSize);
-    if (uOut == null)
-      uOut = Vector.Zeros(car.ControlVolumeSize);
+    U ??= Vector.Zeros(car.ControlVolumeSize);
+    uOut ??= Vector.Zeros(car.ControlVolumeSize);
     var x = car.X;
     var A = car.A;
     var B = car.B;

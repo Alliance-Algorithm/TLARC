@@ -9,8 +9,8 @@ class SafetyBSpline : Component, IKOrderBSpline
 
     Transform sentry;
 
-    private double _vLimit = 5.0;
-    private double _aLimit = 1.5;
+    private double _vLimit = 6.0;
+    private double _aLimit = 0.8;
     private double _ratioLimit = 1.01;
     public double[] controlPointsX = [];
     public double[] controlPointsY = [];
@@ -21,7 +21,8 @@ class SafetyBSpline : Component, IKOrderBSpline
 
     public double MaxTime => timeline[^1];
 
-    public DateTime ConstructTime { get; private set; }
+    public DateTime _ConstructTime;
+    public DateTime ConstructTime => _ConstructTime;
 
 
     public bool Check() => controlPointsX.Length != 0;
@@ -75,7 +76,7 @@ class SafetyBSpline : Component, IKOrderBSpline
         if (positionList.Length == 0)
             return;
         var time = positionList.TimeStep;
-        ConstructTime = DateTime.Now;
+        _ConstructTime = DateTime.Now;
         LinearConstraintCollection linearConstraint = [];
 
         var controlPointsLength = positionList.Length + 3;
@@ -171,7 +172,7 @@ class SafetyBSpline : Component, IKOrderBSpline
 
         if (k + 3 >= timeline.Length)
         {
-            k = k - 1;
+            k--;
         }
 
         var u = (timeInSecond - timeline[k]) / (timeline[k + 1] - timeline[k]);
