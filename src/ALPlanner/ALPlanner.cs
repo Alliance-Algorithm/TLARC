@@ -38,11 +38,16 @@ class ALPlanner : Component
 
     // Behaviour
     var checkTargetChange = new BehaviourTreeCondition(() => reload_ || lastTarget != target.TargetPosition);
+    var checkCurrentPosition = new BehaviourTreeCondition(() =>
+      trajectory.Length != 0 ||
+      trajectoryOptimizer.TrajectoryPoints(trajectoryOptimizer.constructTimeToNowInSeconds, trajectoryOptimizer.constructTimeToNowInSeconds + 0.1, 0.1)
+        .All(x => (sentry.Position - x).Length > 2)
+      );
     var plan = new BehaviourTreeAction(() =>
     {
       var collections = pathPlanner.Search(sentry.Position, target.TargetPosition, sentry.Velocity);
       trajectoryOptimizer.CalcTrajectory(collections);
-      trajectory = trajectoryOptimizer.TrajectoryPoints(0, trajectoryOptimizer.MaxTime, 0.1).ToArray();
+      trajectory = [.. trajectoryOptimizer.TrajectoryPoints(0, trajectoryOptimizer.MaxTime, 0.1)];
       return DecisionMaker.ActionState.Success;
     });
     var checkPassTunnel = new BehaviourTreeCondition(() => safeCorridor.Any(x => Math.Min(Math.Pow(x.MaxX - x.MinX, 2), Math.Pow(x.MaxY - x.MinY, 2)) < 0.4f));
@@ -54,8 +59,12 @@ class ALPlanner : Component
     followModeControl.AddChildren([passTunnel, setFree]);
     var firstPlanControl = new BehaviourTreeSequence();
     firstPlanControl.AddChildren([checkTargetChange, plan]);
+    var followPlanControl = new BehaviourTreeSequence();
+    followPlanControl.AddChildren([checkCurrentPosition, plan]);
+    var planControl = new BehaviourTreeFallback();
+    planControl.AddChildren([firstPlanControl, followPlanControl]);
     var root = new BehaviourTreeParallel();
-    root.AddChildren([firstPlanControl, followModeControl]);
+    root.AddChildren([planControl, followModeControl]);
     _root = root;
   }
 
