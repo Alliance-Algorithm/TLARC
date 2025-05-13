@@ -9,8 +9,8 @@ class SafetyBSpline : Component, IKOrderBSpline
 
     Transform sentry;
 
-    private double _vLimit = 7.0;
-    private double _aLimit = 7.0;
+    private double _vLimit = 5.0;
+    private double _aLimit = 1.5;
     private double _ratioLimit = 1.01;
     public double[] controlPointsX = [];
     public double[] controlPointsY = [];

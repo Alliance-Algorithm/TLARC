@@ -3,21 +3,32 @@ using Accord.IO;
 
 namespace Maps;
 
-class OccupancyMapData(int sizeX, int sizeY, float resolution) : IGridMap, IDisposable
+class OccupancyMapData : IGridMap, IDisposable
 {
-  const float lo_occ = 5f;
-  const float lo_free = -6f;
+  const float lo_occ = 25f;
+  const float lo_free = -30f;
   const sbyte lo_max = 90;
   const sbyte lo_min = 10;
   public OccupancyMapData Copy()
   {
-    OccupancyMapData tmp = new(SizeX, SizeY, Resolution)
-    {
-      data = data.Clone()
-    };
+    OccupancyMapData tmp = new(SizeX, SizeY, Resolution, data.Clone());
     return tmp;
   }
+  public OccupancyMapData(int sizeX, int sizeY, float resolution)
+  {
+    SizeX = sizeX;
+    SizeY = sizeY;
+    Resolution = resolution;
+    data = new(50, sizeX, sizeY);
+  }
 
+  OccupancyMapData(int sizeX, int sizeY, float resolution, in TlarcArray<sbyte> arr)
+  {
+    SizeX = sizeX;
+    SizeY = sizeY;
+    Resolution = resolution;
+    data = arr;
+  }
   public struct Description
   {
     public int SizeX { get; set; }
@@ -25,17 +36,17 @@ class OccupancyMapData(int sizeX, int sizeY, float resolution) : IGridMap, IDisp
     public float Resolution { get; set; }
   }
 
-  readonly public int SizeX = sizeX;
-  readonly public int SizeY = sizeY;
-  readonly public float Resolution = resolution;
+  readonly public int SizeX;
+  readonly public int SizeY;
+  readonly public float Resolution;
 
-  TlarcArray<sbyte> data = new(50, sizeX, sizeY);
+  TlarcArray<sbyte> data;
   public sbyte[] ToArray => data.ToArray;
 
   public sbyte this[int x, int y]
   {
-    get =>  x > 0 && x < SizeX && y > 0 && y < SizeY ? data[x, y] : (sbyte)0;
-    set {if( x > 0 && x < SizeX && y > 0 && y < SizeY) data[x, y] = value;}
+    get => x > 0 && x < SizeX && y > 0 && y < SizeY ? data[x, y] : (sbyte)0;
+    set { if (x > 0 && x < SizeX && y > 0 && y < SizeY) data[x, y] = value; }
   }
   Vector3i IGridMap.Index => throw new NotImplementedException();
 

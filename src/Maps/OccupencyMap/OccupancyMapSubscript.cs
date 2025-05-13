@@ -12,10 +12,11 @@ class OccupancyMapSubscript : Component, IGridMap, ISafeCorridorGenerator
   public Vector3i Index => _data is null ? Vector3i.Zero : ((IGridMap)_data).Index;
   public Vector3d OriginInWorld => _data is null ? Vector3d.Zero : ((IGridMap)_data).OriginInWorld;
   public Vector3i Size => _data is null ? Vector3i.Zero : ((IGridMap)_data).Size;
+  public Vector3d offset;
 
   public bool CheckAccessibility(Vector3d from, Vector3d to, float value = 0)
   {
-    return _data is not null && ((IGridMap)_data).CheckAccessibility(from, to, value);
+    return _data is not null && ((IGridMap)_data).CheckAccessibility(from + offset, to + offset, value);
   }
 
   public bool CheckAccessibility(Vector3i index, float value = 0)
@@ -33,7 +34,7 @@ class OccupancyMapSubscript : Component, IGridMap, ISafeCorridorGenerator
 
   public Vector3i PositionInWorldToIndex(Vector3d position)
   {
-    return _data is null ? Vector3i.Zero : ((IGridMap)_data).PositionInWorldToIndex(position);
+    return _data is null ? Vector3i.Zero : ((IGridMap)_data).PositionInWorldToIndex(position + offset);
   }
 
   public int Mode = 0;

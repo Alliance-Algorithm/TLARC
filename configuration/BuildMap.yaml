@@ -3,7 +3,7 @@
     Maps->OccupancyMapGenerator:
       Args:
         Debug: true
-        MapPath: "\"./hello.tlm\""
+        MapPath: "\"./map.tlm\""
     ALPlanner.Interfaces.ROS->PoseTransform2D:
       Args:
         topicName: "\"/rmcs_location/pose\""

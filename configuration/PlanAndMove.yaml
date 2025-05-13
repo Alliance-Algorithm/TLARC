@@ -45,16 +45,16 @@
       Args:
         topicName: "\"/rmcs_slam/pose\""
         offset: "{x:-8.0,y:-7.25,z:0}"
-    # TrajectoryTracer->Tracer:
-    #   Relies:
-    #     sentry: 1
-    # TrajectoryTracer.Controller->VelocityMPC:
-    #   Relies:
-    #     sentry: 1
-    # TrajectoryTracer.CarModels->OmniCar:
-    #   Relies:
-    #     sentry: 1
-    # TrajectoryTracer.Trajectory->ALPlannerKOrderTrajectoryDecorator:
+    TrajectoryTracer->Tracer:
+      Relies:
+        sentry: 1
+    TrajectoryTracer.Controller->VelocityMPC:
+      Relies:
+        sentry: 1
+    TrajectoryTracer.CarModels->OmniCar:
+      Relies:
+        sentry: 1
+    TrajectoryTracer.Trajectory->ALPlannerKOrderTrajectoryDecorator:
 
 
 

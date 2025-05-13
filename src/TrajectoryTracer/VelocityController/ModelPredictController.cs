@@ -17,7 +17,7 @@ class VelocityMPC : Component, IPositionVelocityController
   public double[] uOut;
   public const double uMax = 2;
   public const double uMin = -uMax;
-  public const double vMax = 8;
+  public const double vMax = 7;
   public const double vMin = -vMax;
 
   LinearConstraintCollection constraintCollection;
@@ -34,18 +34,18 @@ class VelocityMPC : Component, IPositionVelocityController
 
     var A_ = new double[A.GetLength(0) + B.GetLength(0), 2 * B.GetLength(1)];
     for (int i = 0; i < A.GetLength(0); i++)
-    for (int j = 0; j < A.GetLength(1); j++)
-      A_[i, j] = A[i, j];
+      for (int j = 0; j < A.GetLength(1); j++)
+        A_[i, j] = A[i, j];
     for (int i = 0; i < B.GetLength(0); i++)
-    for (int j = 0; j < B.GetLength(1); j++)
-      A_[i, j + A.GetLength(1)] = B[i, j];
+      for (int j = 0; j < B.GetLength(1); j++)
+        A_[i, j + A.GetLength(1)] = B[i, j];
     for (int i = 0; i < B.GetLength(0); i++)
       A_[i + A.GetLength(0), i + A.GetLength(1)] = 1;
 
     var B_ = new double[B.GetLength(1) + B.GetLength(0), B.GetLength(1)];
     for (int i = 0; i < B.GetLength(0); i++)
-    for (int j = 0; j < B.GetLength(1); j++)
-      B_[i, j] = B[i, j];
+      for (int j = 0; j < B.GetLength(1); j++)
+        B_[i, j] = B[i, j];
     for (int i = 0; i < B.GetLength(1); i++)
       B_[i + B.GetLength(0), i] = 1;
 
@@ -62,23 +62,23 @@ class VelocityMPC : Component, IPositionVelocityController
     {
       tmpB = tmpB.Dot(B_);
       for (int j = 0; j < tmpA.GetLength(0); j++)
-      for (int k = 0; k < tmpA.GetLength(1); k++)
-        W[tmpA.GetLength(0) * i + j, k] = tmpA[j, k];
+        for (int k = 0; k < tmpA.GetLength(1); k++)
+          W[tmpA.GetLength(0) * i + j, k] = tmpA[j, k];
 
       for (int j = 0; j < tmpB.GetLength(0); j++)
-      for (int k = 0; k < tmpB.GetLength(1); k++)
-        Z[tmpB.GetLength(0) * i + j, k] = tmpB[j, k];
+        for (int k = 0; k < tmpB.GetLength(1); k++)
+          Z[tmpB.GetLength(0) * i + j, k] = tmpB[j, k];
       for (int j = 0; j < tmpB.GetLength(0); j++)
-      for (int k = 0; k < tmpB.GetLength(1) * (i - 1); k++)
-        Z[tmpB.GetLength(0) * i + j, k + tmpB.GetLength(1)] = Z[tmpB.GetLength(0) * (i - 1) + j, k];
+        for (int k = 0; k < tmpB.GetLength(1) * (i - 1); k++)
+          Z[tmpB.GetLength(0) * i + j, k + tmpB.GetLength(1)] = Z[tmpB.GetLength(0) * (i - 1) + j, k];
 
       tmpB = tmpA.Copy();
       tmpA = tmpA.Dot(A_);
     }
 
     var psi = Vector.Zeros(x.Length + car.SizeU);
-    U[0] = sentry.Velocity.x;
-    U[1] = sentry.Velocity.y;
+    // U[0] = sentry.Velocity.x;
+    // U[1] = sentry.Velocity.y;
     for (int i = 0; i < x.Length; i++)
       psi[i] = x[i];
     for (int i = 0; i < car.ControlVolumeSize; i++)
@@ -88,8 +88,8 @@ class VelocityMPC : Component, IPositionVelocityController
     var H = Matrix.Zeros(P * car.ControlVolumeSize + 1, P * car.ControlVolumeSize + 1);
     var H_help = Z.Transpose().Dot(Z).Multiply(Q).AddToDiagonal(R);
     for (int i = 0; i < P * car.ControlVolumeSize; i++)
-    for (int j = 0; j < P * car.ControlVolumeSize; j++)
-      H[i, j] = H_help[i, j];
+      for (int j = 0; j < P * car.ControlVolumeSize; j++)
+        H[i, j] = H_help[i, j];
 
     H[P * car.ControlVolumeSize, P * car.ControlVolumeSize] = rho;
     H = H.Multiply(2);

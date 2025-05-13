@@ -65,5 +65,6 @@ class ALPlanner : Component
   {
     _root.Action();
     debugPath.Publish(trajectory);
+    lastTarget = target.TargetPosition;
   }
 }
