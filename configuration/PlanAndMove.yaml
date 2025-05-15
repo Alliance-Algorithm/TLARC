@@ -15,21 +15,13 @@
 #       Args:
 #         MapPath: "\"./map.tlm\""
     Maps->SafeCorridor:
-    
-    ALPlanner.Interfaces.ROS->PoseTransform2D->2:
-      Args:
-        topicName: "\"/transform/target/publish\""
-
     ALPlanner->ALPlanner:
-        
     ALPlanner.Collider->GridMapCollider:
       Relies:
         sentry: 1
-
     ALPlanner.Interfaces->TransformPositionDeciderDecorator:
       Relies:
         target: 2
-
     ALPlanner.PathPlanner->PathPlanner:
       Relies:
         sentry: 1
@@ -46,6 +38,9 @@
 
 - Fps: 20
   Components:
+    ALPlanner.Interfaces.ROS->PoseTransform2D->2:
+      Args:
+        topicName: "\"/transform/target/publish\""
     ALPlanner.Interfaces.ROS->PoseTransform2D->1:
       Args:
         topicName: "\"/rmcs_location/pose\""

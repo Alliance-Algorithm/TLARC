@@ -13,12 +13,9 @@ class Tracer : Component
   public Vector3d velocity;
 
   [ComponentReferenceFiled]
-  IPositionDecider target;
-
-
-  [ComponentReferenceFiled]
   IPositionVelocityController controller;
   PoseTransform2D sentry;
+  ALPlanner.ALPlanner aLPlanner;
 
   public override void Start()
   {
@@ -31,7 +28,7 @@ class Tracer : Component
     velocity = controller.ControlVolume(sentry.Position);
     velocity = Quaterniond.AxisAngleR(Vector3d.AxisZ, -sentry.AngleR) * velocity;
 
-    if ((sentry.Position - target.TargetPosition).Length < 0.1)
+    if ((sentry.Position - aLPlanner.Target).Length < 0.1)
       pose2D.Publish(new());
     else
       pose2D.Publish((new Vector2((float)velocity.x, (float)velocity.y), 0));

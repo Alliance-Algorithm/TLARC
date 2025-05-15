@@ -1,6 +1,7 @@
 using ALPlanner.Collider;
 using ALPlanner.Interfaces;
 using ALPlanner.TrajectoryOptimizer;
+using Emgu.CV.Dnn;
 using Maps;
 using TlarcKernel;
 
@@ -25,6 +26,7 @@ class ALPlanner : Component
   bool reload_ = false;
   Vector3d[] trajectory = [];
   private Vector3d lastTarget;
+  public Vector3d Target;
 
   BehaviourTree _root;
 
@@ -77,5 +79,6 @@ class ALPlanner : Component
     _root.Action();
     debugPath.Publish(trajectory);
     lastTarget = target.TargetPosition;
+    Target = lastTarget;
   }
 }

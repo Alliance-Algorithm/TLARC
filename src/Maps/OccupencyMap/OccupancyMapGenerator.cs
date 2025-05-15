@@ -104,7 +104,7 @@ class OccupancyMapGenerator : Component, IGridMap, ISafeCorridorGenerator
 
   public bool CheckAccessibility(Vector3d index, float value = 0)
   {
-    return ((IMap)_data).CheckAccessibility(index + offset, value) || (value != 0 && !((IMap)_data_init).CheckAccessibility(index + offset, value)) ;
+    return ((IMap)_data).CheckAccessibility(index + offset, value) || (value != 0 && !((IMap)_data_init).CheckAccessibility(index + offset, value));
   }
 
   public SafeCorridorData Generate(Vector3d[] pointList, double maxLength = 2)
@@ -118,7 +118,7 @@ class OccupancyMapGenerator : Component, IGridMap, ISafeCorridorGenerator
       var XDir = (pointList[i] - pointList[i - 1]).xy.Normalized;
       var YDir = new Vector2d(-XDir.y, XDir.x);
       var angle = -Math.Atan2(XDir.y, XDir.x);
-      double LengthX = (pointList[i] - pointList[i - 1]).Length + _data.Resolution;
+      double LengthX = Math.Round((pointList[i] - pointList[i - 1]).Length / _data.Resolution, MidpointRounding.AwayFromZero) * _data.Resolution;
       double LengthY = _data.Resolution;
 
       double[,] rotation = Matrix.Identity(2);
@@ -249,7 +249,8 @@ class OccupancyMapGenerator : Component, IGridMap, ISafeCorridorGenerator
       }
       // if (LengthX - 0.4 >= 0.3)
       //   LengthX -= 0.4;
-      LengthY *= 0.8;
+      // LengthY *= 0.5;
+      // LengthX *= 0.8;
       var max = origin + XDir * LengthX / 2 + YDir * LengthY / 2;
       var min = origin - XDir * LengthX / 2 - YDir * LengthY / 2;
       rectangles.PushIn(new(min.x, min.y, max.x, max.y, rotation));
