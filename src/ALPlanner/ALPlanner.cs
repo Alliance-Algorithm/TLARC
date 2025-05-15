@@ -30,6 +30,7 @@ class ALPlanner : Component
 
   public override void Start()
   {
+    IO.ROS2Msgs.TF.TransformBoardcaster.Publish("world", "tlarc", new(8.0, 7.25, 0), Quaterniond.Identity);
     debugPath = new(IOManager);
     reload = new(IOManager);
     followMode = new(IOManager);
@@ -42,7 +43,7 @@ class ALPlanner : Component
     var checkCurrentPosition = new BehaviourTreeCondition(() =>
       trajectory.Length == 0 ||
       trajectoryOptimizer.TrajectoryPoints(trajectoryOptimizer.constructTimeToNowInSeconds, trajectoryOptimizer.constructTimeToNowInSeconds + 0.1, 0.1)
-        .All(x => (sentry.Position - x).Length > 1) || trajectory.Any(x => !map.CheckAccessibility(x,1))
+        .All(x => (sentry.Position - x).Length > 1) || trajectory.Any(x => !map.CheckAccessibility(x, 1))
       );
     var plan = new BehaviourTreeAction(() =>
     {
