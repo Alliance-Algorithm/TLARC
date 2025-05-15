@@ -40,7 +40,7 @@ class HybridAStarWithDistance : Component, IPathSearcher
 
       if (current.GeometricallyEqualTo(end))
       {
-        end.Parent = current.Parent;
+        end.Parent = current;
         break;
       }
 

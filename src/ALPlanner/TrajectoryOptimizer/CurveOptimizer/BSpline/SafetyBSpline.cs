@@ -10,7 +10,7 @@ class SafetyBSpline : Component, IKOrderBSpline
     Transform sentry;
 
     private double _vLimit = 6.0;
-    private double _aLimit = 0.8;
+    private double _aLimit = 1.2;
     private double _ratioLimit = 1.01;
     public double[] controlPointsX = [];
     public double[] controlPointsY = [];
@@ -119,6 +119,22 @@ class SafetyBSpline : Component, IKOrderBSpline
             ConstraintType.EqualTo,
             [0 + controlPointsLength, 1 + controlPointsLength, 2 + controlPointsLength, 3 + controlPointsLength],
             sentry.Velocity.y
+        ));
+        linearConstraint.Add(ConstraintHelper.CreateLinearConstraint
+        (
+            controlPointsLength * 2,
+            tmpVelM.Divide(time),
+            ConstraintType.EqualTo,
+            [-4 + controlPointsLength * 2, -3 + controlPointsLength * 2, -2 + controlPointsLength * 2, -1 + controlPointsLength * 2],
+            0
+        ));
+        linearConstraint.Add(ConstraintHelper.CreateLinearConstraint
+        (
+            controlPointsLength * 2,
+            tmpVelM.Divide(time),
+            ConstraintType.EqualTo,
+            [-4 + controlPointsLength, -3 + controlPointsLength, -2 + controlPointsLength, -1 + controlPointsLength],
+            0
         ));
         double[,] H = new double[controlPointsLength * 2, controlPointsLength * 2];
 
@@ -246,7 +262,7 @@ class SafetyBSpline : Component, IKOrderBSpline
             double vMax = 0;
             int index = -1;
 
-            for (int k = 2; k < controlPointsX.Length - 2; k++)
+            for (int k = 2; k < controlPointsX.Length - 1; k++)
             {
                 var delta = timeline[k + 1] - timeline[k];
                 M(timeline[k - 2], timeline[k - 1], timeline[k], timeline[k + 1], timeline[k + 2], timeline[k + 3]);
@@ -287,7 +303,7 @@ class SafetyBSpline : Component, IKOrderBSpline
             double aMax = 0;
             int index = -1;
 
-            for (int k = 2; k < controlPointsX.Length - 2; k++)
+            for (int k = 2; k < controlPointsX.Length - 1; k++)
             {
 
                 var delta = timeline[k + 1] - timeline[k];

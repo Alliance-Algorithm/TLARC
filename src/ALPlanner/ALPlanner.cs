@@ -13,7 +13,8 @@ class ALPlanner : Component
 
   [ComponentReferenceFiled]
   IPositionDecider target;
-
+  [ComponentReferenceFiled]
+  IMap map;
   SafeCorridor safeCorridor;
   PathPlanner.PathPlanner pathPlanner;
   TrajectoryOptimizer.TrajectoryOptimizer trajectoryOptimizer;
@@ -41,7 +42,7 @@ class ALPlanner : Component
     var checkCurrentPosition = new BehaviourTreeCondition(() =>
       trajectory.Length == 0 ||
       trajectoryOptimizer.TrajectoryPoints(trajectoryOptimizer.constructTimeToNowInSeconds, trajectoryOptimizer.constructTimeToNowInSeconds + 0.1, 0.1)
-        .All(x => (sentry.Position - x).Length > 1)
+        .All(x => (sentry.Position - x).Length > 1) || trajectory.Any(x => !map.CheckAccessibility(x,1))
       );
     var plan = new BehaviourTreeAction(() =>
     {

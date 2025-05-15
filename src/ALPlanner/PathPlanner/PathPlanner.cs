@@ -18,6 +18,7 @@ class PathPlanner : Component
 
   [ComponentReferenceFiled]
   private ISampler sampler;
+  Transform sentry;
 
   Dictionary<string, float> benchMark = [];
 
@@ -33,7 +34,7 @@ class PathPlanner : Component
   {
 
     BenchMarkBegin();
-    var points = sampler.Sample(NoTimePathSearcher.Search(origin, target, speed));
+    var points = sampler.Sample(NoTimePathSearcher.Search(origin + 0.5 * sentry.Velocity, target, speed));
     BenchMarkFilled("astar", BenchMarkStep(), ref benchMark);
     debugPath.Publish(points.Copy());
     safeCorridor.Generate(points, 5);

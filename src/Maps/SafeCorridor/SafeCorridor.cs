@@ -74,11 +74,6 @@ class SafeCorridor : Component, IMap, IEnumerable<Rectangle>
 
       Constraint c1 = new(i, data[i].Rotation, Math.Min(min[0], max[0]), Math.Max(min[0], max[0]));
       Constraint c2 = new(i, data[i].Rotation, Math.Min(min[1], max[1]), Math.Max(min[1], max[1]));
-      if (i == 0 || i == data.Count - 1)
-      {
-        c1 = new(i, Matrix.Identity(2), _pointLists[i == 0 ? i : i + 1].x, _pointLists[i == 0 ? i : i + 1].x);
-        c2 = new(i, Matrix.Identity(2), _pointLists[i == 0 ? i : i + 1].y, _pointLists[i == 0 ? i : i + 1].y);
-      }
 
       if (constantX is null)
         constraintCollection.XBegin = c1;

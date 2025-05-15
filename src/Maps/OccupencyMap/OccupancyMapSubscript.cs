@@ -29,7 +29,7 @@ class OccupancyMapSubscript : Component, IGridMap, ISafeCorridorGenerator
 
   public Vector3d IndexToPositionInWorld(Vector3i position)
   {
-    return _data is null ? Vector3d.Zero : ((IGridMap)_data).IndexToPositionInWorld(position);
+    return _data is null ? Vector3d.Zero : ((IGridMap)_data).IndexToPositionInWorld(position) - offset;
   }
 
   public Vector3i PositionInWorldToIndex(Vector3d position)
@@ -55,7 +55,7 @@ class OccupancyMapSubscript : Component, IGridMap, ISafeCorridorGenerator
     _data = a?.Instance?.Value.Copy();
   }
 
-  public bool CheckAccessibility(Vector3d index, float value = 0) => _data is null || ((IMap)_data).CheckAccessibility(index, value);
+  public bool CheckAccessibility(Vector3d index, float value = 0) => _data is null || ((IMap)_data).CheckAccessibility(index + offset, value);
 
 
   public SafeCorridorData Generate(Vector3d[] pointList, double maxLength = 2)
@@ -197,6 +197,9 @@ class OccupancyMapSubscript : Component, IGridMap, ISafeCorridorGenerator
 
         j = (j << 1) % 0x0f;
       }
+      // if (LengthX - 0.4 >= 0.3)
+      //   LengthX -= 0.4;
+      LengthY *= 0.8;
       var max = origin + XDir * LengthX / 2 + YDir * LengthY / 2;
       var min = origin - XDir * LengthX / 2 - YDir * LengthY / 2;
       rectangles.PushIn(new(min.x, min.y, max.x, max.y, rotation));

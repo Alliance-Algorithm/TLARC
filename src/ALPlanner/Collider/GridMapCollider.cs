@@ -15,14 +15,10 @@ class GridMapCollider : Component, ICollider
   public override void Update()
   {
     Velocity = new();
-    if (
-      (Position - sentry.Position).LengthSquared > 1
-      || map.CheckAccessibility(Position, sentry.Position)
-    )
-      if (map.CheckAccessibility(map.PositionInWorldToIndex(sentry.Position)))
-      {
-        Velocity = (sentry.Position - Position) / DeltaTimeInSecond;
-        Position = sentry.Position;
-      }
+    if (map.CheckAccessibility(sentry.Position))
+    {
+      Velocity = (sentry.Position - Position) / DeltaTimeInSecond;
+      Position = sentry.Position;
+    }
   }
 }

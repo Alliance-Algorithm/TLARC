@@ -1,16 +1,19 @@
 - Fps: 10
   Components:
     Maps->OccupancyMapGenerator->3:
+      Relies:
+        sentry: 1
       Args:
         Debug: true
         MapPath: "\"./map.tlm\""
 
-- Fps: 3
-  Components:
+
+# - Fps: 
+#   Components:
   
-    Maps->OccupancyMapSubscript:
-      Args:
-        MapPath: "\"./map.tlm\""
+#     Maps->OccupancyMapSubscript:
+#       Args:
+#         MapPath: "\"./map.tlm\""
     Maps->SafeCorridor:
     
     ALPlanner.Interfaces.ROS->PoseTransform2D->2:
@@ -28,6 +31,8 @@
         target: 2
 
     ALPlanner.PathPlanner->PathPlanner:
+      Relies:
+        sentry: 1
     ALPlanner.PathPlanner.PathSearcher->HybridAStarWithDistance:
     ALPlanner.PathPlanner.Sampler->EquidistantSampler:
     ALPlanner.PathPlanner.PathSearcher->KinoDynamicAStar:
@@ -43,7 +48,7 @@
   Components:
     ALPlanner.Interfaces.ROS->PoseTransform2D->1:
       Args:
-        topicName: "\"/rmcs_slam/pose\""
+        topicName: "\"/rmcs_location/pose\""
         offset: "{x:-8.0,y:-7.25,z:0}"
     TrajectoryTracer->Tracer:
       Relies:

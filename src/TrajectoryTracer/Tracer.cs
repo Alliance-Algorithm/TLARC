@@ -23,7 +23,10 @@ class Tracer : Component
   public override void Update()
   {
     velocity = controller.ControlVolume(sentry.Position);
-    velocity = Quaterniond.AxisAngleR(Vector3d.AxisZ, -sentry.AngleR ) * velocity;
-    pose2D.Publish((new((float)velocity.x, (float)velocity.y), 0));
+    velocity = Quaterniond.AxisAngleR(Vector3d.AxisZ, -sentry.AngleR) * velocity;
+    if (velocity.Length > 0.05)
+      pose2D.Publish((new((float)velocity.x, (float)velocity.y), 0));
+    else
+      pose2D.Publish((new()));
   }
 }
