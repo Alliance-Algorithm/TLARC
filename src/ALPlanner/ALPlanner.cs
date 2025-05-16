@@ -43,15 +43,25 @@ class ALPlanner : Component
     // Behaviour
     var checkTargetChange = new BehaviourTreeCondition(() => reload_ || lastTarget != target.TargetPosition);
     var checkCurrentPosition = new BehaviourTreeCondition(() =>
-      trajectory.Length == 0 ||
-      trajectoryOptimizer.TrajectoryPoints(trajectoryOptimizer.constructTimeToNowInSeconds, trajectoryOptimizer.constructTimeToNowInSeconds + 0.1, 0.1)
-        .All(x => (sentry.Position - x).Length > 1) || trajectory.Any(x => !map.CheckAccessibility(x, 1))
+      trajectory.Length == 0
+      ||
+      trajectoryOptimizer.TrajectoryPoints(
+        trajectoryOptimizer.constructTimeToNowInSeconds,
+        trajectoryOptimizer.constructTimeToNowInSeconds + 0.1,
+        0.1)
+      .All(x => (sentry.Position - x).Length > 1)
+      ||
+      trajectoryOptimizer.TrajectoryPoints(
+        trajectoryOptimizer.constructTimeToNowInSeconds,
+        Math.Min(trajectoryOptimizer.constructTimeToNowInSeconds + 3, trajectoryOptimizer.MaxTime),
+        0.1)
+      .Any(x => !map.CheckAccessibility(x, 1))
       );
     var plan = new BehaviourTreeAction(() =>
     {
       var collections = pathPlanner.Search(sentry.Position, target.TargetPosition, sentry.Velocity);
       trajectoryOptimizer.CalcTrajectory(collections);
-      trajectory = [.. trajectoryOptimizer.TrajectoryPoints(0, trajectoryOptimizer.MaxTime, 0.1)];
+      trajectory = [.. trajectoryOptimizer.TrajectoryPoints(0, trajectoryOptimizer.MaxTime, trajectoryOptimizer.MaxTime / 30)];
       return DecisionMaker.ActionState.Success;
     });
     var checkPassTunnel = new BehaviourTreeCondition(() => safeCorridor.Any(x => Math.Min(Math.Pow(x.MaxX - x.MinX, 2), Math.Pow(x.MaxY - x.MinY, 2)) < 0.4f));

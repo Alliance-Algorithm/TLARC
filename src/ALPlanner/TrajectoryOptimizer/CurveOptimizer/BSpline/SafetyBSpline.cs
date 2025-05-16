@@ -94,12 +94,10 @@ class SafetyBSpline : Component, IKOrderBSpline
             i + controlPointsLength , i + controlPointsLength + 1   , i + controlPointsLength + 2  , i + controlPointsLength + 3]))
                 linearConstraint.Add(c);
 
-            if (tmpX.UpperBound - tmpX.LowerBound > 0.5)
-                foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, tmpX.Rotation.GetRow(0), tmpX, variablesAtIndices: [i + 2, i + controlPointsLength + 2]))
-                    linearConstraint.Add(c);
-            if (tmpY.UpperBound - tmpY.LowerBound > 0.5)
-                foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, tmpX.Rotation.GetRow(1), tmpY, variablesAtIndices: [i + 2, i + controlPointsLength + 2]))
-                    linearConstraint.Add(c);
+            foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, tmpX.Rotation.GetRow(0), tmpX, variablesAtIndices: [i + 2, i + controlPointsLength + 2]))
+                linearConstraint.Add(c);
+            foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, tmpX.Rotation.GetRow(1), tmpY, variablesAtIndices: [i + 2, i + controlPointsLength + 2]))
+                linearConstraint.Add(c);
             tmpX = tmpX.next;
             tmpY = tmpY.next;
         }
