@@ -72,7 +72,9 @@ class SafetyBSpline : Component, IKOrderBSpline
     }
     public void Construction(ConstraintCollection positionList)
     {
-
+        controlPointsX = [];
+        controlPointsY = [];
+        timeline = [0];
         if (positionList.Length == 0)
             return;
         var time = positionList.TimeStep;
