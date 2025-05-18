@@ -89,6 +89,6 @@ static class OccupancyGridMapHelper
   private static OccupancyMapData Internal_Init(string tlm_path) => Load(tlm_path);
   private static OccupancyMapData Internal_Init()
   {
-    return new OccupancyMapData(301, 201, 0.1f);
+    return new OccupancyMapData(1001, 1001, 0.02f);
   }
 }

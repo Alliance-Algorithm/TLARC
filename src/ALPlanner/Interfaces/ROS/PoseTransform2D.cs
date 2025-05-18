@@ -13,6 +13,7 @@ class PoseTransform2D : Transform
 
   public override void Start()
   {
+    Position = offset;
     pose = new(IOManager);
     pose.Subscript(
       topicName,

@@ -32,7 +32,6 @@ class ALPlanner : Component
 
   public override void Start()
   {
-    IO.ROS2Msgs.TF.TransformBoardcaster.Publish("world", "tlarc", new(8.0, 7.25, 0), Quaterniond.Identity);
     debugPath = new(IOManager);
     reload = new(IOManager);
     followMode = new(IOManager);

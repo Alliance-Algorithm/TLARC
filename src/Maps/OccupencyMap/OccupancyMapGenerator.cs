@@ -81,6 +81,7 @@ class OccupancyMapGenerator : Component, IGridMap, ISafeCorridorGenerator
 
     _safeMap = new(IOManager);
     _safeMap.Subscript("/alplanner/save_map", _ => OccupancyGridMapHelper.Save(_data, SaveMapPath));
+    IO.ROS2Msgs.TF.TransformBoardcaster.Publish("world", "tlarc", -sentry.Position, Quaterniond.Identity);
   }
 
   public override void Update()

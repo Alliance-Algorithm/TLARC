@@ -5,7 +5,7 @@
         sentry: 1
       Args:
         Debug: true
-        MapPath: "\"./map.tlm\""
+        # MapPath: "\"./map.tlm\""
 
 
 # - Fps: 
@@ -44,7 +44,7 @@
     ALPlanner.Interfaces.ROS->PoseTransform2D->1:
       Args:
         topicName: "\"/rmcs_location/pose\""
-        offset: "{x:-8.0,y:-7.25,z:0}"
+        offset: "{x:-7.45,y:1.64,z:0}"
     TrajectoryTracer->Tracer:
       Relies:
         sentry: 1

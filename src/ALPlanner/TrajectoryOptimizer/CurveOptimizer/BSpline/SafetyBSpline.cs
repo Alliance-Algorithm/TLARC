@@ -202,6 +202,8 @@ class SafetyBSpline : Component, IKOrderBSpline
     public IEnumerable<Vector3d> TrajectoryPoints(double fromWhen, double toWhen, double step)
     {
         List<Vector3d> data = [];
+        if(toWhen <= fromWhen || step < 0.01)
+        return data;
         for (var b = fromWhen + step; b <= toWhen + 1e-3; b += step)
             data.Add(Value(b));
         return data;
