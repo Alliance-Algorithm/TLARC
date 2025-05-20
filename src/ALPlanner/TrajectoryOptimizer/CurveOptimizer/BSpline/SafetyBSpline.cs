@@ -9,8 +9,9 @@ class SafetyBSpline : Component, IKOrderBSpline
 
     Transform sentry;
 
+    public Vector3d SentryPos;
     private double _vLimit = 6.0;
-    private double _aLimit = 1.2;
+    private double _aLimit = 1.5;
     private double _ratioLimit = 1.01;
     public double[] controlPointsX = [];
     public double[] controlPointsY = [];
@@ -70,11 +71,18 @@ class SafetyBSpline : Component, IKOrderBSpline
         var k = new double[1, 4] { { 0, 0, 20, 6 } }.Dot(tmpM);
         H4S = H4S.Add(k.TransposeAndDot(k));
     }
-    public void Construction(ConstraintCollection positionList)
+    public override void Update()
+    {
+        SentryPos = sentry.Position;
+    }
+    private void Reset()
     {
         controlPointsX = [];
         controlPointsY = [];
         timeline = [0];
+    }
+    public void Construction(ConstraintCollection positionList)
+    {
         if (positionList.Length == 0)
             return;
         var time = positionList.TimeStep;
@@ -95,23 +103,25 @@ class SafetyBSpline : Component, IKOrderBSpline
             [i                      , i + 1                         , i + 2                        , i + 3                      ,
             i + controlPointsLength , i + controlPointsLength + 1   , i + controlPointsLength + 2  , i + controlPointsLength + 3]))
                 linearConstraint.Add(c);
-
-            foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, tmpX.Rotation.GetRow(0), tmpX, variablesAtIndices: [i + 2, i + controlPointsLength + 2]))
-                linearConstraint.Add(c);
-            foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, tmpX.Rotation.GetRow(1), tmpY, variablesAtIndices: [i + 2, i + controlPointsLength + 2]))
-                linearConstraint.Add(c);
+            if (tmpY.UpperBound - tmpY.LowerBound < 0.2)
+            {
+                foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, tmpX.Rotation.GetRow(0), tmpX, variablesAtIndices: [i + 2, i + controlPointsLength + 2]))
+                    linearConstraint.Add(c);
+                foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, tmpX.Rotation.GetRow(1), tmpY, variablesAtIndices: [i + 2, i + controlPointsLength + 2]))
+                    linearConstraint.Add(c);
+            }
             tmpX = tmpX.next;
             tmpY = tmpY.next;
         }
 
         linearConstraint.Add(ConstraintHelper.CreateLinearConstraint
-            (
-                controlPointsLength * 2,
-                tmpVelM.Divide(time),
-                ConstraintType.EqualTo,
-                [0, 1, 2, 3],
-                sentry.Velocity.x
-            ));
+                (
+                    controlPointsLength * 2,
+                    tmpVelM.Divide(time),
+                    ConstraintType.EqualTo,
+                    [0, 1, 2, 3],
+                    sentry.Velocity.x
+                ));
         linearConstraint.Add(ConstraintHelper.CreateLinearConstraint
         (
             controlPointsLength * 2,
@@ -169,7 +179,13 @@ class SafetyBSpline : Component, IKOrderBSpline
         for (int i = 0; i < controlPointsLength; i++)
             timeline[i + 3] = timeline[i + 2] + time;
         if (solver.Status == GoldfarbIdnaniStatus.Success)
+        {
             ReallocTimeline();
+        }
+        else
+        {
+            Reset();
+        }
     }
 
     public void OptimizeTrajectory()
@@ -181,7 +197,7 @@ class SafetyBSpline : Component, IKOrderBSpline
     public Vector3d Value(double timeInSecond)
     {
         int k = 2;
-        if (timeline.Length < 5) return new();
+        if (timeline.Length < 5) return SentryPos;
         timeInSecond = Math.Max(0, Math.Min(timeInSecond, timeline[^5]));
         while (timeline[k + 1] < timeInSecond)
             k++;
@@ -204,8 +220,8 @@ class SafetyBSpline : Component, IKOrderBSpline
     public IEnumerable<Vector3d> TrajectoryPoints(double fromWhen, double toWhen, double step)
     {
         List<Vector3d> data = [];
-        if(toWhen <= fromWhen || step < 0.01)
-        return data;
+        if (toWhen <= fromWhen || step < 0.01)
+            return data;
         for (var b = fromWhen + step; b <= toWhen + 1e-3; b += step)
             data.Add(Value(b));
         return data;

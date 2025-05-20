@@ -81,7 +81,7 @@ class OccupancyMapGenerator : Component, IGridMap, ISafeCorridorGenerator
 
     _safeMap = new(IOManager);
     _safeMap.Subscript("/alplanner/save_map", _ => OccupancyGridMapHelper.Save(_data, SaveMapPath));
-    IO.ROS2Msgs.TF.TransformBoardcaster.Publish("world", "tlarc", -sentry.Position, Quaterniond.Identity);
+    IO.ROS2Msgs.TF.TransformBoardcaster.Publish("world_link", "tlarc", new(7.45, -3.7, 0), Quaterniond.Identity);
   }
 
   public override void Update()
@@ -98,9 +98,10 @@ class OccupancyMapGenerator : Component, IGridMap, ISafeCorridorGenerator
             _data.Update(x, y, _dynamicMap._map[i, j]);
         }
     }
+    _dynamicMap = null;
     _rosMapPublisher.Publish((_data.ToArray, _data.Resolution, (uint)_data.SizeX, (uint)_data.SizeY));
-    // var cp = _data.Copy();
-    // _mapPublisher.LoadInstance(ref cp);
+    var cp = _data.Copy();
+    _mapPublisher.LoadInstance(ref cp);
   }
 
   public bool CheckAccessibility(Vector3d index, float value = 0)

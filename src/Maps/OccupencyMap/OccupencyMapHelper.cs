@@ -68,6 +68,7 @@ static class OccupancyGridMapHelper
         using Stream entryStream = entry.Open();
         using FileStream imageStream = File.OpenWrite("/tmp/tmp.png");
         entryStream.CopyTo(imageStream);
+        imageStream.Close();
 
         var tmat = CvInvoke.Imread("/tmp/tmp.png", Emgu.CV.CvEnum.ImreadModes.Grayscale);
         tmat.ConvertTo(mat, Emgu.CV.CvEnum.DepthType.Cv8S);

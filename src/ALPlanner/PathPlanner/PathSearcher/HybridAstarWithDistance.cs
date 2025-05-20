@@ -45,7 +45,8 @@ class HybridAStarWithDistance : Component, IPathSearcher
       }
 
       var index = gridMap.PositionInWorldToIndex(current.PositionInWorld);
-
+      if (!gridMap.CheckAccessibility(index))
+        continue;
       if (_closeMap.Indexer(index))
         continue;
       _closeMap.Indexer(index, true);

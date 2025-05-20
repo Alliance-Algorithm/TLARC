@@ -5,7 +5,7 @@ namespace Maps;
 
 class OccupancyMapData : IGridMap, IDisposable
 {
-  const float lo_occ = 30f;
+  const float lo_occ = 20f;
   const float lo_free = -7f;
   const sbyte lo_max = 90;
   const sbyte lo_min = 10;

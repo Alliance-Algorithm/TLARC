@@ -60,15 +60,17 @@ class OccupancyMapSubscript : Component, IGridMap, ISafeCorridorGenerator
 
   public SafeCorridorData Generate(Vector3d[] pointList, double maxLength = 2)
   {
+    const double iterator = 0.3d;
     SafeCorridorData rectangles = new();
-    if (_data is null) return rectangles;
+    if (_data is null || pointList.Length < 2) return rectangles;
+    rectangles.PushIn(new(pointList[0].x, pointList[0].y, pointList[0].x, pointList[0].y, Matrix.Identity(2)));
     for (int i = 1; i < pointList.Length; i++)
     {
       var origin = ((pointList[i] + pointList[i - 1]) / 2).xy;
       var XDir = (pointList[i] - pointList[i - 1]).xy.Normalized;
       var YDir = new Vector2d(-XDir.y, XDir.x);
       var angle = -Math.Atan2(XDir.y, XDir.x);
-      double LengthX = (pointList[i] - pointList[i - 1]).Length + _data.Resolution;
+      double LengthX = Math.Round((pointList[i] - pointList[i - 1]).Length / _data.Resolution, MidpointRounding.AwayFromZero) * _data.Resolution;
       double LengthY = _data.Resolution;
 
       double[,] rotation = Matrix.Identity(2);
@@ -92,8 +94,8 @@ class OccupancyMapSubscript : Component, IGridMap, ISafeCorridorGenerator
                 break;
               }
               bool check = true;
-              var tmp = LengthY + _data.Resolution;
-              for (double k = 0; k < LengthX; k += _data.Resolution)
+              var tmp = LengthY + iterator;
+              for (double k = 0; k < LengthX; k += iterator)
               {
                 var pos = origin + (k - LengthX / 2) * XDir + tmp / 2 * YDir;
                 if (!CheckAccessibility(new Vector3d(pos.x, pos.y, 0)))
@@ -106,7 +108,7 @@ class OccupancyMapSubscript : Component, IGridMap, ISafeCorridorGenerator
                 flag &= ~j;
               else
               {
-                origin += _data.Resolution / 2 * YDir;
+                origin += iterator / 2 * YDir;
                 LengthY = tmp;
               }
               break;
@@ -119,8 +121,8 @@ class OccupancyMapSubscript : Component, IGridMap, ISafeCorridorGenerator
                 break;
               }
               bool check = true;
-              var tmp = LengthX + _data.Resolution;
-              for (double k = 0; k < LengthY; k += _data.Resolution)
+              var tmp = LengthX + iterator;
+              for (double k = 0; k < LengthY; k += iterator)
               {
                 var pos = origin + (k - LengthY / 2) * YDir + tmp / 2 * XDir;
                 if (!CheckAccessibility(new Vector3d(pos.x, pos.y, 0)))
@@ -133,7 +135,7 @@ class OccupancyMapSubscript : Component, IGridMap, ISafeCorridorGenerator
                 flag &= ~j;
               else
               {
-                origin += _data.Resolution / 2 * XDir;
+                origin += iterator / 2 * XDir;
                 LengthX = tmp;
               }
               break;
@@ -146,8 +148,8 @@ class OccupancyMapSubscript : Component, IGridMap, ISafeCorridorGenerator
                 break;
               }
               bool check = true;
-              var tmp = LengthY + _data.Resolution;
-              for (double k = 0; k < LengthX; k += _data.Resolution)
+              var tmp = LengthY + iterator;
+              for (double k = 0; k < LengthX; k += iterator)
               {
                 var pos = origin + (k - LengthX / 2) * XDir - tmp / 2 * YDir;
                 if (!CheckAccessibility(new Vector3d(pos.x, pos.y, 0)))
@@ -160,7 +162,7 @@ class OccupancyMapSubscript : Component, IGridMap, ISafeCorridorGenerator
                 flag &= ~j;
               else
               {
-                origin -= _data.Resolution / 2 * YDir;
+                origin -= iterator / 2 * YDir;
                 LengthY = tmp;
               }
               break;
@@ -173,8 +175,8 @@ class OccupancyMapSubscript : Component, IGridMap, ISafeCorridorGenerator
                 break;
               }
               bool check = true;
-              var tmp = LengthX + _data.Resolution;
-              for (double k = 0; k < LengthY; k += _data.Resolution)
+              var tmp = LengthX + iterator;
+              for (double k = 0; k < LengthY; k += iterator)
               {
                 var pos = origin + (k - LengthY / 2) * YDir - tmp / 2 * XDir;
                 if (!CheckAccessibility(new Vector3d(pos.x, pos.y, 0)))
@@ -187,7 +189,7 @@ class OccupancyMapSubscript : Component, IGridMap, ISafeCorridorGenerator
                 flag &= ~j;
               else
               {
-                origin -= _data.Resolution / 2 * XDir;
+                origin -= iterator / 2 * XDir;
                 LengthX = tmp;
               }
               break;
@@ -199,11 +201,13 @@ class OccupancyMapSubscript : Component, IGridMap, ISafeCorridorGenerator
       }
       // if (LengthX - 0.4 >= 0.3)
       //   LengthX -= 0.4;
-      LengthY *= 0.8;
+      // LengthY *= 0.5;
+      // LengthX *= 0.8;
       var max = origin + XDir * LengthX / 2 + YDir * LengthY / 2;
       var min = origin - XDir * LengthX / 2 - YDir * LengthY / 2;
       rectangles.PushIn(new(min.x, min.y, max.x, max.y, rotation));
     }
+    rectangles.PushIn(new(pointList[^1].x, pointList[^1].y, pointList[^1].x, pointList[^1].y, Matrix.Identity(2)));
     return rectangles;
   }
 }

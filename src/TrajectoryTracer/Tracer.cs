@@ -20,7 +20,7 @@ class Tracer : Component
   public override void Start()
   {
     pose2D = new(IOManager);
-    pose2D.RegistryPublisher("/sentry/transform/velocity");
+    pose2D.RegistryPublisher("/tlarc/control/velocity");
   }
 
   public override void Update()
