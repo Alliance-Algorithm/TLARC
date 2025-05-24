@@ -2,18 +2,14 @@ namespace DecisionMaker.Information;
 
 public class DecisionMakingInfo : Component
 {
-  string friendOutPostHpTopicName = "/referee/friend/outpost";
-  string sentryHpTopicName = "/referee/sentry/hp";
-  string enemyBaseHpTopicName = "/referee/enemy_base/hp";
-  string sentryBulletCountTopicName = "/referee/sentry/bullet_count";
-
-  // string supportBulletCountTopicName = "/referee/sentry/support_bullet_count";
-  string RFIDTopicName = "/referee/rfid";
-  string gameStartTopicName = "/referee/game/start";
+  string hpTopicName = "/referee/robots/hp";
+  string bulletCountTopicName = "/referee/shooter/bullet_allowance";
+  string gameStageTopicName = "/referee/game/stage";
+  string colorTopicName = "/referee/id/color";
+  string powerLimitTopicName = "/referee/chassis/power_limit";
 
   public float SentryHp { get; private set; } = SentryHPLimit;
   public float EnemyBaseHp { get; private set; } = BaseHpLimit;
-  public int BulletCount { get; private set; } = 400;
   public int BulletSupplyCount { get; private set; } = 0;
   public float DefenseBuff { get; private set; } = 0.6f;
   public float FriendOutPostHp { get; private set; } = OutpostHPLimit;
@@ -27,69 +23,46 @@ public class DecisionMakingInfo : Component
   private long _tick = DateTime.Now.Ticks;
   private DateTime _gameStartTime = DateTime.Now;
 
-  IO.ROS2Msgs.Std.Int32 friendOutPostHp;
-  IO.ROS2Msgs.Std.Int32 sentryHp;
-  IO.ROS2Msgs.Std.Int32 enemyBaseHp;
-  IO.ROS2Msgs.Std.Int32 sentryBulletCount;
+  public ushort[] Hp = [];
+  public ushort BulletCount = 400;
+  public GameStage GameStage;
+  public RobotColor RobotColor;
+  public double PowerLimit;
 
-  // IO.ROS2Msgs.Std.Int32 supportBulletCount;
-  IO.ROS2Msgs.Std.Int32 RFID;
-  IO.ROS2Msgs.Std.Bool gameStart;
+  IO.ROS2Msgs.Std.UInt16MultiArray hpConn;
+  IO.ROS2Msgs.Std.UInt16 bulletCountConn;
+  IO.ROS2Msgs.Std.UInt8 gameStageConn;
+  IO.ROS2Msgs.Std.UInt8 colorConn;
+  IO.ROS2Msgs.Std.Float64 powerLimitConn;
+
 
   public override void Start()
   {
-    friendOutPostHp = new(IOManager);
-    sentryHp = new(IOManager);
-    sentryBulletCount = new(IOManager);
-    // supportBulletCount = new();
-    RFID = new(IOManager);
-    gameStart = new(IOManager);
-    enemyBaseHp = new(IOManager);
+    hpConn = new(IOManager);
+    bulletCountConn = new(IOManager);
+    gameStageConn = new(IOManager);
+    colorConn = new(IOManager);
+    powerLimitConn = new(IOManager);
 
-    friendOutPostHp.Subscript(
-      friendOutPostHpTopicName,
-      (int msg) =>
-      {
-        FriendOutPostHp = msg;
-      }
+    hpConn.Subscript(
+      hpTopicName,
+      msg => Hp = msg
     );
-    sentryHp.Subscript(
-      sentryHpTopicName,
-      (int msg) =>
-      {
-        SentryHp = msg;
-      }
+    bulletCountConn.Subscript(
+      bulletCountTopicName,
+      msg => BulletCount = msg
     );
-    enemyBaseHp.Subscript(
-      enemyBaseHpTopicName,
-      msg =>
-      {
-        EnemyBaseHp = msg;
-      }
+    gameStageConn.Subscript(
+      gameStageTopicName,
+     msg => GameStage = (GameStage)msg
     );
-    sentryBulletCount.Subscript(
-      sentryBulletCountTopicName,
-      (int msg) =>
-      {
-        BulletCount = msg;
-      }
+    colorConn.Subscript(
+      colorTopicName,
+      msg => RobotColor = (RobotColor)msg
     );
-    // supportBulletCount.Subscript(supportBulletCountTopicName, msg => { SupplyRFID = (msg &= (1 << 13) != 0); });
-    RFID.Subscript(
-      RFIDTopicName,
-      msg =>
-      {
-        SupplyRFID = (msg &= (1 << 13)) != 0;
-        PatrolRFID = (msg &= (1 << 14)) != 0;
-      }
-    );
-    gameStart.Subscript(
-      gameStartTopicName,
-      _ =>
-      {
-        _gameStartTime = DateTime.Now;
-        BulletSupplyCount = 0;
-      }
+    powerLimitConn.Subscript(
+      powerLimitTopicName,
+      msg => PowerLimit = msg
     );
 
     _tick = DateTime.Now.Ticks;
@@ -109,7 +82,4 @@ public class DecisionMakingInfo : Component
     if (SupplyRFID)
       BulletSupplyCount = 0;
   }
-
-  // Compatible with old versions
-  public (float Hp, bool Invincibly, bool UVA) Output => (SentryHp, FriendOutPostHp > 500, false);
 }

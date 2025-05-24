@@ -1,10 +1,6 @@
 using ALPlanner.Interfaces;
 using DecisionMaker.Information;
-using DecisionMaker.Predictor;
 using DecisionMaker.StateMachine;
-using Emgu.CV.ML.MlEnum;
-using Rosidl.Messages.Builtin;
-using Rosidl.Messages.Std;
 
 namespace DecisionMaker;
 
@@ -12,8 +8,7 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
 {
   Transform sentry;
 
-  HeroAgent heroAgent;
-  EngineerAgent engineerAgent;
+  EnemyUnitInfo enemyUnitInfo;
   DecisionMakingInfo decisionMakingInfo;
   StateMachine.StateMachine stateMachine = new();
   readonly Vector3d SupplyPosition = new(-12.5, -5, 0);
@@ -42,7 +37,7 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
 
     #region Core Charge Behaviour Tree
     #region     Goto Target
-    var notFindEngineer = new BehaviourTreeCondition(() => !engineerAgent.Found);
+    var notFindEngineer = new BehaviourTreeCondition(() => !enemyUnitInfo.Found[EnemyUnitInfo.Engineer]);
     var gotoPosition = new BehaviourTreeAction(() =>
     {
       if ((sentry.Position - bb_patrol_target).Length > 0.5)
@@ -71,13 +66,13 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
     #endregion
     //
     #region     Search and Trace Target
-    var findEngineer = new BehaviourTreeCondition(() => engineerAgent.Found);
+    var findEngineer = new BehaviourTreeCondition(() => enemyUnitInfo.Found[EnemyUnitInfo.Engineer]);
     var tracingEngineer = new BehaviourTreeAction(() =>
     {
-      if (engineerAgent.Locked && (sentry.Position.xy - engineerAgent.Position).Length < 1)
+      if (enemyUnitInfo.Locked == EnemyUnitInfo.Engineer && (sentry.Position.xy - enemyUnitInfo.Position[EnemyUnitInfo.Engineer]).Length < 1)
         TargetPosition = sentry.Position;
       else
-        TargetPosition = new(engineerAgent.Position.x, engineerAgent.Position.y, 0);
+        TargetPosition = new(enemyUnitInfo.Position[EnemyUnitInfo.Engineer].x, enemyUnitInfo.Position[EnemyUnitInfo.Engineer].y, 0);
       return ActionState.Success;
     });
     var searchAndTraceTarget = new BehaviourTreeSequence();
@@ -89,7 +84,7 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
     #endregion
     #region  Clash Surge Behaviour Tree
     var notFindHero = new BehaviourTreeCondition(() =>
-      !heroAgent.Found && (DateTime.Now - bb_hero_tracing_time).TotalSeconds >= 10
+      !enemyUnitInfo.Found[EnemyUnitInfo.Hero] && (DateTime.Now - bb_hero_tracing_time).TotalSeconds >= 10
     );
     var setPosition = new BehaviourTreeAction(() =>
     {
@@ -100,9 +95,9 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
     gotoFortress.AddChildren([notFindHero, setPosition, gotoPosition]);
 
     var findHero = new BehaviourTreeCondition(() =>
-      heroAgent.Found || (DateTime.Now - bb_hero_tracing_time).TotalSeconds < 10
+      enemyUnitInfo.Found[EnemyUnitInfo.Hero] || (DateTime.Now - bb_hero_tracing_time).TotalSeconds < 10
     );
-    var lockHero = new BehaviourTreeCondition(() => heroAgent.Locked);
+    var lockHero = new BehaviourTreeCondition(() => enemyUnitInfo.Locked == EnemyUnitInfo.Hero);
     var setHeroFindTime = new BehaviourTreeAction(() =>
     {
       if ((DateTime.Now - bb_hero_tracing_time).TotalSeconds > 10)
@@ -111,15 +106,15 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
     });
     var tracingHero = new BehaviourTreeAction(() =>
     {
-      if (heroAgent.Position.x < 0)
+      if (enemyUnitInfo.Position[EnemyUnitInfo.Hero].x < 0)
       {
         bb_hero_tracing_time = DateTime.Now;
         return ActionState.Failure;
       }
-      if (heroAgent.Locked && (sentry.Position.xy - heroAgent.Position).Length < 1)
+      if (enemyUnitInfo.Locked == EnemyUnitInfo.Hero && (sentry.Position.xy - enemyUnitInfo.Position[EnemyUnitInfo.Hero]).Length < 1)
         TargetPosition = sentry.Position;
       else
-        TargetPosition = new(heroAgent.Position.x, heroAgent.Position.y, 0);
+        TargetPosition = new(enemyUnitInfo.Position[EnemyUnitInfo.Hero].x, enemyUnitInfo.Position[EnemyUnitInfo.Hero].y, 0);
       return ActionState.Success;
     });
     var inFortress = new BehaviourTreeCondition(() =>
@@ -216,7 +211,6 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
     stateMachine.BeginTo(coreCharge);
     #endregion
   }
-
   public override void Update()
   {
     stateMachine.Step();

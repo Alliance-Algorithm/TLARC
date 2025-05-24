@@ -2,14 +2,20 @@ namespace DecisionMaker.Information;
 
 class EnemyUnitInfo : Component
 {
-  string positionTopicName = "/unit_info/enemy/position";
-  string hpTopicName = "/unit_info/enemy/hp";
+  public const int Hero = 0;
+  public const int Engineer = 1;
+  public const int InfantryIII = 2;
+  public const int InfantryIV = 3;
+  public const int InfantryV = 4;
+  public const int Sentry = 5;
+  public const int Outpost = 6;
+  public const int Base = 7;
   DecisionMakingInfo info;
   public bool[] Found { get; private set; } = new bool[7];
   public Vector2d[] Position { get; private set; } = new Vector2d[7];
   public int Locked { get; private set; } = -1;
-  public float[] Hp { get; private set; } = [100, 100, 100, 100, 100, 100, 100];
-  public float[] _lastHp = [100, 100, 100, 100, 100, 100, 100];
+  public float[] Hp { get; private set; } = [100, 100, 100, 100, 100, 100, 100, 100];
+  public float[] _lastHp = [100, 100, 100, 100, 100, 100, 100, 100];
   public float[] EquivalentHp { get; private set; } = new float[7];
   public bool AirSupport { get; private set; } = false;
   private long _airSupportTimeTick = DateTime.Now.Ticks;
@@ -30,36 +36,6 @@ class EnemyUnitInfo : Component
 
   private IO.ROS2Msgs.Std.FloatMultiArray _positionReceiver;
   private IO.ROS2Msgs.Std.FloatMultiArray _hpReceiver;
-
-  public override void Start()
-  {
-    _positionReceiver = new(IOManager);
-    _positionReceiver.Subscript(
-      positionTopicName,
-      msg =>
-      {
-        for (int i = 0; i < 7; i++)
-        {
-          if (msg[i] != -114514)
-          {
-            Found[i] = true;
-            Position[i] = new(msg[i], msg[i + 7]);
-          }
-          else
-            Found[i] = false;
-        }
-      }
-    );
-    _hpReceiver = new(IOManager);
-    _hpReceiver.Subscript(
-      hpTopicName,
-      msg =>
-      {
-        if (msg != null)
-          Hp = msg;
-      }
-    );
-  }
 
   private static bool CheckPosition(Vector2d position)
   {
