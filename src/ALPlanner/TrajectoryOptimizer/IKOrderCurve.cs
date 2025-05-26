@@ -10,6 +10,7 @@ interface IKOrderCurve
   public IEnumerable<Vector3d> VelocitiesPoints(double fromWhen, double toWhen, double step);
 
   public void Construction(ConstraintCollection positionList);
+  public void Construction(Vector3d point);
   public void OptimizeTrajectory();
   public bool Check();
 }

@@ -1,50 +1,55 @@
-- Fps: 10
+- Fps: 20
   Components:
-    Maps->ESDFGenerator:
+    Maps->OccupancyMapGenerator->3:
       Relies:
         sentry: 1
       Args:
-        debug: true
-        mapPath: "\"maps/RMUC2025.json\""
-        dynamicMapTopicName: "\"/rmcs_map/map/grid\""
-        # offset: "{x:7.5,y:0,z:0}"
-        maxDistance: 1.0
-        max_queue_length: 2
+        Debug: true
+        MapPath: "\"./luoma.tlm\""
+
+- Fps: 10
+  Components:
+    Maps->OccupancyMapSubscript->4:
+      Args:
+        MapPath: "\"./luoma.tlm\""
+    Maps->SafeCorridor:
     ALPlanner->ALPlanner:
+      Relies:
+        sentry: 1
     ALPlanner.Collider->GridMapCollider:
       Relies:
         sentry: 1
     ALPlanner.PathPlanner->PathPlanner:
+      Relies:
+        sentry: 1
     ALPlanner.PathPlanner.PathSearcher->HybridAStarWithDistance:
+    ALPlanner.PathPlanner.PathSearcher->DeTrouble:
     ALPlanner.PathPlanner.Sampler->EquidistantSampler:
+    ALPlanner.PathPlanner.PathSearcher->KinoDynamicAStar:
     ALPlanner.TrajectoryOptimizer->TrajectoryOptimizer:
       Relies:
         sentry: 1
-    ALPlanner.TrajectoryOptimizer.Curves.BSpline->FourthOrderNonUniformBSpline:
-    ALPlanner.TrajectoryOptimizer.Optimizer->ControlPointOptimizer:
+    ALPlanner.TrajectoryOptimizer.Curves->SafetyBSpline:
+      Relies:
+        sentry: 1
 
-    DecisionMaker->RMUL2025DecisionMaker->2:
-    DecisionMaker.Predictor->EngineerAgent:
-    DecisionMaker.Predictor->EngineerTargetPreDictor:
-    DecisionMaker.Predictor->HeroAgent:
-    DecisionMaker.Predictor->HeroTargetPreDictor:
-    DecisionMaker.Information->EnemyUnitInfo:
+    DecisionMaker->RMUL2025DecisionMaker:
     DecisionMaker.Information->DecisionMakingInfo:
-    
+    DecisionMaker.Information->EnemyUnitInfo:
+  
 - Fps: 20
   Components:
     ALPlanner.Interfaces.ROS->PoseTransform2D->1:
       Args:
         topicName: "\"/rmcs_location/pose\""
-        offset: "{x:-7.5,y:0,z:0}"
+        offset: "{x:-10.72,y:-0.5,z:0}"
     TrajectoryTracer->Tracer:
       Relies:
         sentry: 1
     TrajectoryTracer.Controller->VelocityMPC:
+      Relies:
+        sentry: 1
     TrajectoryTracer.CarModels->OmniCar:
       Relies:
         sentry: 1
     TrajectoryTracer.Trajectory->ALPlannerKOrderTrajectoryDecorator:
-
-
-

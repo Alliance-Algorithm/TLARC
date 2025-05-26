@@ -1,7 +1,10 @@
+using Maps;
+
 namespace DecisionMaker.Information;
 
 class EnemyUnitInfo : Component
 {
+
   public const int Hero = 0;
   public const int Engineer = 1;
   public const int InfantryIII = 2;
@@ -11,14 +14,33 @@ class EnemyUnitInfo : Component
   public const int Outpost = 6;
   public const int Base = 7;
   DecisionMakingInfo info;
-  public bool[] Found { get; private set; } = new bool[7];
-  public Vector2d[] Position { get; private set; } = new Vector2d[7];
+
+  [ComponentReferenceFiled]
+  IMap map;
+
+  string carFoundTopicName = "/rmcs/auto_aim/car_found";
+  IO.ROS2Msgs.Std.UInt8 carFoundConn;
+
+  string carPositionTopicName = "/rmcs/auto_aim/car_position";
+  IO.ROS2Msgs.Nav.Path carPositionConn;
+  string lockTopicName = "/rmcs/auto_aim/car_lock";
+  IO.ROS2Msgs.Std.UInt8 carLockConn;
+
+  public class FoundHelper(byte data)
+  {
+    byte data_ = data;
+    public bool this[int i]
+    {
+      get => ((data_ >> i) & 1) == 0;
+      set => data_ = (byte)(value ? (data_ | (byte)(1 << i)) : (data_ & (byte)(~1 << i)));
+    }
+  }
+  public FoundHelper Found { get; private set; } = new(0b11111111);
+  public Vector3d[] Position { get; private set; } = new Vector3d[7];
   public int Locked { get; private set; } = -1;
-  public float[] Hp { get; private set; } = [100, 100, 100, 100, 100, 100, 100, 100];
-  public float[] _lastHp = [100, 100, 100, 100, 100, 100, 100, 100];
+  public ushort[] Hp { get; private set; } = [100, 100, 100, 100, 100, 100, 100, 100];
+  public ushort[] _lastHp = [100, 100, 100, 100, 100, 100, 100, 100];
   public float[] EquivalentHp { get; private set; } = new float[7];
-  public bool AirSupport { get; private set; } = false;
-  private long _airSupportTimeTick = DateTime.Now.Ticks;
   private long[] _responseTime =
   [
     DateTime.Now.Ticks,
@@ -30,47 +52,25 @@ class EnemyUnitInfo : Component
     DateTime.Now.Ticks,
   ];
 
-  private float _lastSentryHp = 400;
 
   private float _sentryHp => info.SentryHp;
 
-  private IO.ROS2Msgs.Std.FloatMultiArray _positionReceiver;
-  private IO.ROS2Msgs.Std.FloatMultiArray _hpReceiver;
-
-  private static bool CheckPosition(Vector2d position)
+  public override void Start()
   {
-    if (position.y > 0)
-      return position.x * 1.5f - position.y + 7.5f < 0;
-    else
-      return position.x * 1.5f + position.y + 7.5f < 0;
+    carFoundConn = new(IOManager);
+    carFoundConn.Subscript(carFoundTopicName, msg => Found = new(msg));
+    carPositionConn = new(IOManager);
+    carPositionConn.Subscript(carPositionTopicName, msg =>
+    {
+      for (int i = 0; i < 5; i++)
+        Position[i] = new(msg[i].X, msg[i].Y, msg[i].Z);
+    });
+    carLockConn = new(IOManager);
+    carLockConn.Subscript(lockTopicName, msg => Locked = msg);
   }
-
   public override void Update()
   {
-    do
-    {
-      if ((DateTime.Now.Ticks - _airSupportTimeTick) / 1e7f > 30)
-        AirSupport = false;
-      if (_sentryHp == _lastSentryHp)
-        break;
-      if (AirSupport == true)
-        break;
-      int i = 0;
-      for (i = 0; i < 7; i++)
-      {
-        if (!Found[i])
-          continue;
-        if (!CheckPosition(Position[i]))
-          continue;
-        break;
-      }
-      if (i == 7)
-      {
-        AirSupport = true;
-        _airSupportTimeTick = DateTime.Now.Ticks;
-      }
-    } while (false);
-
+    Hp = info.EnemiesHp;
     do
     {
       for (int i = 0; i < 7; i++)
@@ -84,12 +84,10 @@ class EnemyUnitInfo : Component
 
         if (EquivalentHp[i] > 1e5)
           EquivalentHp[i] = float.PositiveInfinity;
+        if (!map.CheckAccessibility(Position[i], 1))
+          EquivalentHp[i] = float.PositiveInfinity;
       }
-      if (Position[1].y > 10.5 && Position[1].y > 2.5)
-        EquivalentHp[1] = float.PositiveInfinity;
     } while (false);
-
-    _lastSentryHp = _sentryHp;
-    Hp.CopyTo(_lastHp, 0);
+    _lastHp = Hp.Copy();
   }
 }

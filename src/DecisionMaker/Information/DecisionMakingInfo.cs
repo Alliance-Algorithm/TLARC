@@ -7,25 +7,25 @@ public class DecisionMakingInfo : Component
   string gameStageTopicName = "/referee/game/stage";
   string colorTopicName = "/referee/id/color";
   string powerLimitTopicName = "/referee/chassis/power_limit";
+  string testModeTopicName = "/rmcs/test_mode";
 
   public float SentryHp { get; private set; } = SentryHPLimit;
+  private float _lastSentryHp = SentryHPLimit;
   public float EnemyBaseHp { get; private set; } = BaseHpLimit;
   public int BulletSupplyCount { get; private set; } = 0;
-  public float DefenseBuff { get; private set; } = 0.6f;
-  public float FriendOutPostHp { get; private set; } = OutpostHPLimit;
-  public float BaseArmorOpeningCountdown { get; private set; } = 40;
   public bool SupplyRFID { get; private set; } = false;
   public DateTime GameStartTime => _gameStartTime;
-  public bool PatrolRFID { get; private set; } = true;
   public const float SentryHPLimit = 400;
   public const float BaseHpLimit = 1500;
   public const float OutpostHPLimit = 1500;
   private long _tick = DateTime.Now.Ticks;
   private DateTime _gameStartTime = DateTime.Now;
+  public ushort[] EnemiesHp = [100,100,100,100,100,100,100,100];
 
+  public bool TestMode = false;
   public ushort[] Hp = [];
   public ushort BulletCount = 400;
-  public GameStage GameStage;
+  public GameStage GameStage = GameStage.STARTED;
   public RobotColor RobotColor;
   public double PowerLimit;
 
@@ -34,6 +34,7 @@ public class DecisionMakingInfo : Component
   IO.ROS2Msgs.Std.UInt8 gameStageConn;
   IO.ROS2Msgs.Std.UInt8 colorConn;
   IO.ROS2Msgs.Std.Float64 powerLimitConn;
+  IO.ROS2Msgs.Std.Bool testModeConn;
 
 
   public override void Start()
@@ -43,7 +44,7 @@ public class DecisionMakingInfo : Component
     gameStageConn = new(IOManager);
     colorConn = new(IOManager);
     powerLimitConn = new(IOManager);
-
+    testModeConn = new(IOManager);
     hpConn.Subscript(
       hpTopicName,
       msg => Hp = msg
@@ -64,22 +65,26 @@ public class DecisionMakingInfo : Component
       powerLimitTopicName,
       msg => PowerLimit = msg
     );
+    testModeConn.Subscript(
+      testModeTopicName,
+      msg => TestMode = msg
+    );
 
     _tick = DateTime.Now.Ticks;
   }
 
   public override void Update()
   {
-    if (FriendOutPostHp > 0 || PatrolRFID)
-      BaseArmorOpeningCountdown = 40;
-    else if (!PatrolRFID)
-    {
-      BaseArmorOpeningCountdown -= (DateTime.Now.Ticks - _tick) / 1e7f;
-    }
     _tick = DateTime.Now.Ticks;
     if ((DateTime.Now.Ticks - _tick) / 1e7f >= 60)
       BulletSupplyCount += 100;
     if (SupplyRFID)
       BulletSupplyCount = 0;
+    if (Hp.Length == 16)
+    {
+      SentryHp = Hp[RobotColor == RobotColor.BLUE ? 5 : 13];
+      EnemyBaseHp = Hp[RobotColor == RobotColor.BLUE ? 14 : 6];
+      EnemiesHp = Hp[RobotColor == RobotColor.BLUE ? 8..16 : 0..8];
+    }
   }
 }

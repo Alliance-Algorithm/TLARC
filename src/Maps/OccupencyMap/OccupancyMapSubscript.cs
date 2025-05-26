@@ -7,6 +7,7 @@ namespace Maps;
 class OccupancyMapSubscript : Component, IGridMap, ISafeCorridorGenerator
 {
   OccupancyMapData? _data = null;
+  OccupancyMapData _data_init;
   ReadOnlyUnmanagedSubscription<OccupancyMapData> _mapSubscript = new("/occupancy/map");
 
   public Vector3i Index => _data is null ? Vector3i.Zero : ((IGridMap)_data).Index;
@@ -45,6 +46,7 @@ class OccupancyMapSubscript : Component, IGridMap, ISafeCorridorGenerator
   public override void Start()
   {
     _data = OccupancyGridMapHelper.Init(MapPath);
+    _data_init = OccupancyGridMapHelper.Init(MapPath);
   }
 
   public override void Update()
@@ -55,7 +57,8 @@ class OccupancyMapSubscript : Component, IGridMap, ISafeCorridorGenerator
     _data = a?.Instance?.Value.Copy();
   }
 
-  public bool CheckAccessibility(Vector3d index, float value = 0) => _data is null || ((IMap)_data).CheckAccessibility(index + offset, value);
+  public bool CheckAccessibility(Vector3d index, float value = 0) =>
+  value == 0 ? _data is null || ((IMap)_data).CheckAccessibility(index + offset, value) : ((IMap)_data_init).CheckAccessibility(index + offset, value);
 
 
   public SafeCorridorData Generate(Vector3d[] pointList, double maxLength = 2)

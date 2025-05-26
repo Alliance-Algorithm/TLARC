@@ -55,7 +55,7 @@ static class OccupancyGridMapHelper
   {
     OccupancyMapData data;
     OccupancyMapData.Description description = new();
-    Mat mat = new();
+    using Mat mat = new();
     using FileStream zipStream = new(path, FileMode.Open);
     using ZipArchive archive = new(zipStream, ZipArchiveMode.Read);
     foreach (ZipArchiveEntry entry in archive.Entries)

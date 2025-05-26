@@ -91,20 +91,27 @@ class OccupancyMapData : IGridMap, IDisposable
   internal void Update(int x, int y, sbyte value)
   {
     value -= 50;
-    if (value > 0)
+    if (value > 25)
       data[x, y] = (sbyte)
         Math.Clamp(
           Math.Round(data[x, y] - lo_occ, MidpointRounding.AwayFromZero),
           1,
           100
         );
-    else
+    else if (value < -25)
       data[x, y] = (sbyte)
         Math.Clamp(
           Math.Round(data[x, y] - lo_free, MidpointRounding.ToZero),
           1,
           100
         );
+    else
+      data[x, y] = (sbyte)
+        Math.Clamp(
+          Math.Round(data[x, y] - lo_free * 0.05, MidpointRounding.ToZero),
+          1,
+          100
+        ); 
   }
 
   public void Dispose() => data.Dispose();

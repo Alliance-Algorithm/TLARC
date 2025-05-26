@@ -10,8 +10,8 @@ class SafetyBSpline : Component, IKOrderBSpline
     Transform sentry;
 
     public Vector3d SentryPos;
-    private double _vLimit = 6.0;
-    private double _aLimit = 1.5;
+    private double _vLimit = 2.0;
+    private double _aLimit = 2.0;
     private double _ratioLimit = 1.01;
     public double[] controlPointsX = [];
     public double[] controlPointsY = [];
@@ -359,5 +359,10 @@ class SafetyBSpline : Component, IKOrderBSpline
             timeline[i] -= tTmp;
     }
 
-
+    public void Construction(Vector3d point)
+    {
+        controlPointsX = [point.x, point.x, point.x, point.x];
+        controlPointsY = [point.y, point.y, point.y, point.y];
+        timeline = [-2, -1, 0, 1, 2, 3, 4];
+    }
 }

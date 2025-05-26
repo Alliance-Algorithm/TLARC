@@ -5,14 +5,14 @@
         sentry: 1
       Args:
         Debug: true
-        MapPath: "\"./alliance.tlm\""
+        MapPath: "\"./luoma.tlm\""
 
 
 - Fps: 10
   Components:
     Maps->OccupancyMapSubscript->4:
       Args:
-        MapPath: "\"./alliance.tlm\""
+        MapPath: "\"./luoma.tlm\""
     Maps->SafeCorridor:
     ALPlanner->ALPlanner:
     ALPlanner.Collider->GridMapCollider:
@@ -35,6 +35,7 @@
         sentry: 1
     
 
+
 - Fps: 20
   Components:
     ALPlanner.Interfaces.ROS->PoseTransform2D->2:
@@ -43,7 +44,7 @@
     ALPlanner.Interfaces.ROS->PoseTransform2D->1:
       Args:
         topicName: "\"/rmcs_location/pose\""
-        offset: "{x:-7.45,y:3.7,z:0}"
+        offset: "{x:-10.72,y:-0.5,z:0}"
     TrajectoryTracer->Tracer:
       Relies:
         sentry: 1

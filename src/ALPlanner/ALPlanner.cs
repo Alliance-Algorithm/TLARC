@@ -1,16 +1,18 @@
 using ALPlanner.Collider;
 using ALPlanner.Interfaces;
-using ALPlanner.TrajectoryOptimizer;
-using Emgu.CV.Dnn;
+using ALPlanner.PathPlanner.PathSearcher;
+using DecisionMaker;
+using DecisionMaker.Information;
 using Maps;
-using TlarcKernel;
+using TrajectoryTracer;
 
 namespace ALPlanner;
 
 class ALPlanner : Component
 {
   [ComponentReferenceFiled]
-  ICollider sentry;
+  ICollider sentryWithCollider;
+  Transform sentry;
 
   [ComponentReferenceFiled]
   IPositionDecider target;
@@ -18,7 +20,9 @@ class ALPlanner : Component
   IMap map;
   SafeCorridor safeCorridor;
   PathPlanner.PathPlanner pathPlanner;
+  DeTrouble deTrouble;
   TrajectoryOptimizer.TrajectoryOptimizer trajectoryOptimizer;
+  DecisionMakingInfo info;
 
   IO.ROS2Msgs.Nav.Path debugPath;
   IO.ROS2Msgs.Std.Bool reload;
@@ -27,7 +31,8 @@ class ALPlanner : Component
   Vector3d[] trajectory = [];
   private Vector3d lastTarget;
   public Vector3d Target;
-
+  DateTime escapeTime = DateTime.Now;
+  DateTime stopTime = DateTime.Now;
   BehaviourTree _root;
 
   public override void Start()
@@ -48,21 +53,39 @@ class ALPlanner : Component
         trajectoryOptimizer.constructTimeToNowInSeconds,
         trajectoryOptimizer.constructTimeToNowInSeconds + 0.1,
         0.1)
-      .All(x => (sentry.Position - x).Length > 1)
+      .All(x => (sentryWithCollider.Position - x).Length > 1)
       ||
       trajectoryOptimizer.TrajectoryPoints(
         trajectoryOptimizer.constructTimeToNowInSeconds,
         Math.Min(trajectoryOptimizer.constructTimeToNowInSeconds + 3, trajectoryOptimizer.MaxTime),
         0.1)
-      .Any(x => !map.CheckAccessibility(x, 1))
+      .Any(x => !map.CheckAccessibility(x))
       );
     var plan = new BehaviourTreeAction(() =>
     {
-      var collections = pathPlanner.Search(sentry.Position, target.TargetPosition, sentry.Velocity);
+      var collections = pathPlanner.Search(sentryWithCollider.Position, target.TargetPosition, sentryWithCollider.Velocity);
       trajectoryOptimizer.CalcTrajectory(collections);
       trajectory = [.. trajectoryOptimizer.TrajectoryPoints(0, trajectoryOptimizer.MaxTime, trajectoryOptimizer.MaxTime / 30)];
+      reload_ = false;
       return DecisionMaker.ActionState.Success;
     });
+    var stop = new BehaviourTreeAction(() =>
+    {
+      var target = deTrouble.Search(sentryWithCollider.Position, sentryWithCollider.Position);
+      trajectoryOptimizer.CalcTrajectory(target.PositionInWorld);
+      reload_ = true;
+      stopTime = DateTime.Now + TimeSpan.FromSeconds(1);
+      return DecisionMaker.ActionState.Success;
+    });
+    var escape = new BehaviourTreeAction(() =>
+    {
+      var target = deTrouble.Search(sentryWithCollider.Position, sentryWithCollider.Position);
+      trajectoryOptimizer.CalcTrajectory(target.PositionInWorld);
+      reload_ = true;
+      escapeTime = DateTime.Now + TimeSpan.FromSeconds(1);
+      return DecisionMaker.ActionState.Success;
+    });
+    var checkInCollision = new BehaviourTreeCondition(() => !map.CheckAccessibility(sentry.Position));
     var checkPassTunnel = new BehaviourTreeCondition(() => safeCorridor.Any(x => Math.Min(Math.Pow(x.MaxX - x.MinX, 2), Math.Pow(x.MaxY - x.MinY, 2)) < 0.4f));
     var setFollower = new BehaviourTreeAction(() => { followMode.Publish(true); return DecisionMaker.ActionState.Success; });
     var setFree = new BehaviourTreeAction(() => { followMode.Publish(false); return DecisionMaker.ActionState.Success; });
@@ -73,9 +96,11 @@ class ALPlanner : Component
     var firstPlanControl = new BehaviourTreeSequence();
     firstPlanControl.AddChildren([checkTargetChange, plan]);
     var followPlanControl = new BehaviourTreeSequence();
-    followPlanControl.AddChildren([checkCurrentPosition, plan]);
+    followPlanControl.AddChildren([checkCurrentPosition, stop]);
+    var extricationMode = new BehaviourTreeSequence();
+    extricationMode.AddChildren([checkInCollision, escape]);
     var planControl = new BehaviourTreeFallback();
-    planControl.AddChildren([firstPlanControl, followPlanControl]);
+    planControl.AddChildren([firstPlanControl, followPlanControl, extricationMode]);
     var root = new BehaviourTreeParallel();
     root.AddChildren([planControl, followModeControl]);
     _root = root;
@@ -85,7 +110,21 @@ class ALPlanner : Component
 
   public override void Update()
   {
-    _root.Action();
+    // TlarcSystem.LogInfo($"target : {target.TargetPosition.x},{target.TargetPosition.y}");
+    // TlarcSystem.LogInfo($"sentry: {sentry.Position.x},{sentry.Position.y}");
+
+    if (!info.TestMode && info.GameStage != GameStage.STARTED)
+    {
+      trajectoryOptimizer.CalcTrajectory(sentry.Position);
+      reload_ = true;
+    }
+    else if ((escapeTime - DateTime.Now).TotalSeconds <= 0&&(stopTime - DateTime.Now).TotalSeconds > 0){
+      trajectoryOptimizer.CalcTrajectory(sentry.Position);
+      reload_ = true;
+      }
+    else if ((escapeTime - DateTime.Now).TotalSeconds <= 0)
+      _root.Action();
+
     debugPath.Publish(trajectory);
     lastTarget = target.TargetPosition;
     Target = lastTarget;

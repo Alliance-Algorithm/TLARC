@@ -11,6 +11,12 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
   EnemyUnitInfo enemyUnitInfo;
   DecisionMakingInfo decisionMakingInfo;
   StateMachine.StateMachine stateMachine = new();
+  BehaviourTreeSequence testModeGotoPatrol;
+
+  IO.ROS2Msgs.Geometry.PoseStampd pose;
+
+
+
   readonly Vector3d SupplyPosition = new(-12.5, -5, 0);
   readonly Vector3d EnemyBasePosition = new(12.5, -1.5, 0);
   readonly Vector3d FortressPosition = new(-7.5, 0, 0);
@@ -25,27 +31,35 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
   public Vector3d TargetPosition { get; private set; }
   public FirePermission FirePermission { get; private set; }
 
+  #region Black Board
+  Vector3d bb_patrol_target;
+  DateTime bb_arrive_time = DateTime.Now;
+  bool bb_arrived = false;
+  DateTime bb_hero_tracing_time = DateTime.Now;
+  #endregion
   public sealed override void Start()
   {
-    #region Black Board
-    Vector3d bb_patrol_target = patrolPoints[0];
-    DateTime bb_arrive_time = DateTime.Now;
-    bool bb_arrived = false;
-    DateTime bb_hero_tracing_time = DateTime.Now;
-    #endregion
+    pose = new(IOManager);
+    pose.RegistryPublisher("/debug/target_position");
 
+    #region Black Board
+    bb_patrol_target = patrolPoints[0];
+    bb_arrive_time = DateTime.Now;
+    bb_arrived = false;
+    bb_hero_tracing_time = DateTime.Now;
+    #endregion
 
     #region Core Charge Behaviour Tree
     #region     Goto Target
     var notFindEngineer = new BehaviourTreeCondition(() => !enemyUnitInfo.Found[EnemyUnitInfo.Engineer]);
     var gotoPosition = new BehaviourTreeAction(() =>
     {
-      if ((sentry.Position - bb_patrol_target).Length > 0.5)
+      if ((sentry.Position - bb_patrol_target).Length > 1.0 && (DateTime.Now - bb_arrive_time).TotalSeconds > 15 && !bb_arrived)
       {
         TargetPosition = bb_patrol_target;
         return ActionState.Running;
       }
-      if ((sentry.Position - bb_patrol_target).Length < 0.5 && !bb_arrived)
+      if ((sentry.Position - bb_patrol_target).Length < 1.0 && !bb_arrived)
       {
         bb_arrive_time = DateTime.Now;
         bb_arrived = true;
@@ -53,7 +67,7 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
       return ActionState.Success;
     });
     var notSearching = new BehaviourTreeCondition(() =>
-      (DateTime.Now - bb_arrive_time).TotalSeconds > 10
+      (DateTime.Now - bb_arrive_time).TotalSeconds > 5
     );
     var changePosition = new BehaviourTreeAction(() =>
     {
@@ -63,13 +77,15 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
     });
     var gotoPatrol = new BehaviourTreeSequence();
     gotoPatrol.AddChildren([notFindEngineer, gotoPosition, notSearching, changePosition]);
+    testModeGotoPatrol = new BehaviourTreeSequence();
+    testModeGotoPatrol.AddChildren([gotoPosition, notSearching, changePosition]);
     #endregion
     //
     #region     Search and Trace Target
     var findEngineer = new BehaviourTreeCondition(() => enemyUnitInfo.Found[EnemyUnitInfo.Engineer]);
     var tracingEngineer = new BehaviourTreeAction(() =>
     {
-      if (enemyUnitInfo.Locked == EnemyUnitInfo.Engineer && (sentry.Position.xy - enemyUnitInfo.Position[EnemyUnitInfo.Engineer]).Length < 1)
+      if (enemyUnitInfo.Locked == EnemyUnitInfo.Engineer && (sentry.Position - enemyUnitInfo.Position[EnemyUnitInfo.Engineer]).Length < 1)
         TargetPosition = sentry.Position;
       else
         TargetPosition = new(enemyUnitInfo.Position[EnemyUnitInfo.Engineer].x, enemyUnitInfo.Position[EnemyUnitInfo.Engineer].y, 0);
@@ -111,7 +127,7 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
         bb_hero_tracing_time = DateTime.Now;
         return ActionState.Failure;
       }
-      if (enemyUnitInfo.Locked == EnemyUnitInfo.Hero && (sentry.Position.xy - enemyUnitInfo.Position[EnemyUnitInfo.Hero]).Length < 1)
+      if (enemyUnitInfo.Locked == EnemyUnitInfo.Hero && (sentry.Position - enemyUnitInfo.Position[EnemyUnitInfo.Hero]).Length < 1)
         TargetPosition = sentry.Position;
       else
         TargetPosition = new(enemyUnitInfo.Position[EnemyUnitInfo.Hero].x, enemyUnitInfo.Position[EnemyUnitInfo.Hero].y, 0);
@@ -120,10 +136,8 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
     var inFortress = new BehaviourTreeCondition(() =>
       (sentry.Position - FortressPosition).Length < 0.5
     );
-    var lockInFortress = new BehaviourTreeSequence();
-    lockInFortress.AddChildren([lockHero, inFortress]);
     var lockingHero = new BehaviourTreeFallback();
-    lockingHero.AddChildren([lockInFortress, tracingHero]);
+    lockingHero.AddChildren([tracingHero]);
     var searchHero = new BehaviourTreeSequence();
     searchHero.AddChildren([findHero, setHeroFindTime, lockingHero]);
     var clashSurgeBT = new BehaviourTreeFallback();
@@ -213,6 +227,11 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
   }
   public override void Update()
   {
-    stateMachine.Step();
+
+    if (decisionMakingInfo.TestMode)
+      testModeGotoPatrol.Action();
+    else
+      stateMachine.Step();
+    pose.Publish((new System.Numerics.Vector2((float)bb_patrol_target.x, (float)bb_patrol_target.y), 0));
   }
 }

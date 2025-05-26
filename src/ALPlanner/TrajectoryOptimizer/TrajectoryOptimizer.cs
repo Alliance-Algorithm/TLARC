@@ -16,6 +16,11 @@ class TrajectoryOptimizer : Component
     constructTime = DateTime.Now;
     kOrderCurve.Construction(constraints);
   }
+  public void CalcTrajectory(Vector3d point)
+  {
+    constructTime = DateTime.Now;
+    kOrderCurve.Construction(point);
+  }
 
   public void OptimizeTrajectory()
   {

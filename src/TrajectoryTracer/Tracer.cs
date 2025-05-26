@@ -9,6 +9,7 @@ namespace TrajectoryTracer;
 class Tracer : Component
 {
   IO.ROS2Msgs.Geometry.Pose2D pose2D;
+  
 
   public Vector3d velocity;
 
