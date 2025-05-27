@@ -63,7 +63,8 @@ class ALPlanner : Component
       );
     var plan = new BehaviourTreeAction(() =>
     {
-      var collections = pathPlanner.Search(sentryWithCollider.Position, target.TargetPosition, sentryWithCollider.Velocity);
+      var collections = pathPlanner.Search(sentryWithCollider.Position,
+       deTrouble.Search(target.TargetPosition, target.TargetPosition).PositionInWorld, sentryWithCollider.Velocity);
       trajectoryOptimizer.CalcTrajectory(collections);
       trajectory = [.. trajectoryOptimizer.TrajectoryPoints(0, trajectoryOptimizer.MaxTime, trajectoryOptimizer.MaxTime / 30)];
       reload_ = false;
@@ -118,10 +119,11 @@ class ALPlanner : Component
       trajectoryOptimizer.CalcTrajectory(sentry.Position);
       reload_ = true;
     }
-    else if ((escapeTime - DateTime.Now).TotalSeconds <= 0&&(stopTime - DateTime.Now).TotalSeconds > 0){
+    else if ((escapeTime - DateTime.Now).TotalSeconds <= 0 && (stopTime - DateTime.Now).TotalSeconds > 0)
+    {
       trajectoryOptimizer.CalcTrajectory(sentry.Position);
       reload_ = true;
-      }
+    }
     else if ((escapeTime - DateTime.Now).TotalSeconds <= 0)
       _root.Action();
 

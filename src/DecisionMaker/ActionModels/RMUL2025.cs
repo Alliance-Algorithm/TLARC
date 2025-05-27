@@ -19,7 +19,6 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
 
   readonly Vector3d SupplyPosition = new(-12.5, -5, 0);
   readonly Vector3d EnemyBasePosition = new(12.5, -1.5, 0);
-  readonly Vector3d FortressPosition = new(-7.5, 0, 0);
   readonly Vector3d[] patrolPoints =
   [
     new(-2, 2.7, 0),
@@ -85,7 +84,7 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
     var findEngineer = new BehaviourTreeCondition(() => enemyUnitInfo.Found[EnemyUnitInfo.Engineer]);
     var tracingEngineer = new BehaviourTreeAction(() =>
     {
-      if (enemyUnitInfo.Locked == EnemyUnitInfo.Engineer && (sentry.Position - enemyUnitInfo.Position[EnemyUnitInfo.Engineer]).Length < 1)
+      if (enemyUnitInfo.Locked == EnemyUnitInfo.Engineer && (sentry.Position - enemyUnitInfo.Position[EnemyUnitInfo.Engineer]).Length < 2)
         TargetPosition = sentry.Position;
       else
         TargetPosition = new(enemyUnitInfo.Position[EnemyUnitInfo.Engineer].x, enemyUnitInfo.Position[EnemyUnitInfo.Engineer].y, 0);
@@ -102,13 +101,6 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
     var notFindHero = new BehaviourTreeCondition(() =>
       !enemyUnitInfo.Found[EnemyUnitInfo.Hero] && (DateTime.Now - bb_hero_tracing_time).TotalSeconds >= 10
     );
-    var setPosition = new BehaviourTreeAction(() =>
-    {
-      bb_patrol_target = FortressPosition;
-      return ActionState.Success;
-    });
-    var gotoFortress = new BehaviourTreeSequence();
-    gotoFortress.AddChildren([notFindHero, setPosition, gotoPosition]);
 
     var findHero = new BehaviourTreeCondition(() =>
       enemyUnitInfo.Found[EnemyUnitInfo.Hero] || (DateTime.Now - bb_hero_tracing_time).TotalSeconds < 10
@@ -133,15 +125,12 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
         TargetPosition = new(enemyUnitInfo.Position[EnemyUnitInfo.Hero].x, enemyUnitInfo.Position[EnemyUnitInfo.Hero].y, 0);
       return ActionState.Success;
     });
-    var inFortress = new BehaviourTreeCondition(() =>
-      (sentry.Position - FortressPosition).Length < 0.5
-    );
     var lockingHero = new BehaviourTreeFallback();
     lockingHero.AddChildren([tracingHero]);
     var searchHero = new BehaviourTreeSequence();
     searchHero.AddChildren([findHero, setHeroFindTime, lockingHero]);
     var clashSurgeBT = new BehaviourTreeFallback();
-    clashSurgeBT.AddChildren([lockingHero, gotoFortress]);
+    clashSurgeBT.AddChildren([lockingHero]);
     #endregion
     #region  Total State Machine
     var coreCharge = new StateMachineNode(() =>

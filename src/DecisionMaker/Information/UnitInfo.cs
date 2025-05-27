@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using ALPlanner.Interfaces.ROS;
 using Maps;
 
 namespace DecisionMaker.Information;
@@ -14,17 +16,21 @@ class EnemyUnitInfo : Component
   public const int Outpost = 6;
   public const int Base = 7;
   DecisionMakingInfo info;
-
+  PoseTransform2D sentry;
   [ComponentReferenceFiled]
   IMap map;
 
   string carFoundTopicName = "/rmcs/auto_aim/car_found";
   IO.ROS2Msgs.Std.UInt8 carFoundConn;
 
-  string carPositionTopicName = "/rmcs/auto_aim/car_position";
+  string carPositionTopicName = "/rmcs/auto_aim/car_positions";
   IO.ROS2Msgs.Nav.Path carPositionConn;
+  string debugCarPositionDebugTopicName = "/tlarc/car_positions";
+  IO.ROS2Msgs.Nav.Path debugCarPositionConn;
   string lockTopicName = "/rmcs/auto_aim/car_lock";
   IO.ROS2Msgs.Std.UInt8 carLockConn;
+  string whitelistTopicName = "/tlarc/control/auto_aim/whitelist";
+  IO.ROS2Msgs.Std.UInt8 autoAimWhitelistConn;
 
   public class FoundHelper(byte data)
   {
@@ -52,7 +58,7 @@ class EnemyUnitInfo : Component
     DateTime.Now.Ticks,
   ];
 
-
+  private Whitelist whitelist;
   private float _sentryHp => info.SentryHp;
 
   public override void Start()
@@ -63,13 +69,21 @@ class EnemyUnitInfo : Component
     carPositionConn.Subscript(carPositionTopicName, msg =>
     {
       for (int i = 0; i < 5; i++)
+      {
         Position[i] = new(msg[i].X, msg[i].Y, msg[i].Z);
+        Position[i] = sentry.Position + Quaterniond.AxisAngleR(Vector3d.AxisZ, sentry.AngleR) * Position[i];
+      }
     });
     carLockConn = new(IOManager);
     carLockConn.Subscript(lockTopicName, msg => Locked = msg);
+    debugCarPositionConn = new(IOManager);
+    debugCarPositionConn.RegistryPublisher(debugCarPositionDebugTopicName);
+    autoAimWhitelistConn = new(IOManager);
+    autoAimWhitelistConn.RegistryPublisher(whitelistTopicName);
   }
   public override void Update()
   {
+    whitelist = 0;
     Hp = info.EnemiesHp;
     do
     {
@@ -84,10 +98,15 @@ class EnemyUnitInfo : Component
 
         if (EquivalentHp[i] > 1e5)
           EquivalentHp[i] = float.PositiveInfinity;
-        if (!map.CheckAccessibility(Position[i], 1))
-          EquivalentHp[i] = float.PositiveInfinity;
+        // if (!map.CheckAccessibility(Position[i], 1))
+        //   EquivalentHp[i] = float.PositiveInfinity;
+        if (EquivalentHp[i] > 5000)
+          whitelist |= (Whitelist)(1 << i);
+        // TlarcSystem.LogInfo($"{EquivalentHp[i]}");
       }
     } while (false);
+    debugCarPositionConn.Publish(Position);
+    autoAimWhitelistConn.Publish((byte)whitelist);
     _lastHp = Hp.Copy();
   }
 }
