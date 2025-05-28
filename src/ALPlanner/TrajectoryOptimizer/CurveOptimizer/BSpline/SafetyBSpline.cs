@@ -1,5 +1,6 @@
 using Accord;
 using Accord.Math.Optimization;
+using DecisionMaker.Information;
 using TlarcKernel.TrajectoryOptimizer.Curves;
 
 namespace ALPlanner.TrajectoryOptimizer.Curves;
@@ -8,7 +9,7 @@ class SafetyBSpline : Component, IKOrderBSpline
 {
 
     Transform sentry;
-
+    DecisionMakingInfo info;
     public Vector3d SentryPos;
     private double _vLimit = 2.0;
     private double _aLimit = 2.0;
@@ -74,6 +75,9 @@ class SafetyBSpline : Component, IKOrderBSpline
     public override void Update()
     {
         SentryPos = sentry.Position;
+        _aLimit = Math.Sqrt((info.PowerLimit - 10) / 22.0);
+        _vLimit = _aLimit;
+        // TlarcSystem.LogInfo($"{_aLimit}");
     }
     private void Reset()
     {
@@ -275,6 +279,8 @@ class SafetyBSpline : Component, IKOrderBSpline
     }
     private void ReallocTimeline()
     {
+        if (timeline.Length == 3)
+            return;
         while (true)
         {
             double vMax = 0;

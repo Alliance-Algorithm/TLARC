@@ -20,7 +20,7 @@ public class DecisionMakingInfo : Component
   public const float OutpostHPLimit = 1500;
   private long _tick = DateTime.Now.Ticks;
   private DateTime _gameStartTime = DateTime.Now;
-  public ushort[] EnemiesHp = [100,100,100,100,100,100,100,100];
+  public ushort[] EnemiesHp = [100, 100, 100, 100, 100, 100, 100, 100];
 
   public bool TestMode = false;
   public ushort[] Hp = [];
@@ -86,5 +86,7 @@ public class DecisionMakingInfo : Component
       EnemyBaseHp = Hp[RobotColor == RobotColor.BLUE ? 14 : 6];
       EnemiesHp = Hp[RobotColor == RobotColor.BLUE ? 8..16 : 0..8];
     }
+    if (GameStage != GameStage.STARTED)
+      _gameStartTime = DateTime.Now;
   }
 }

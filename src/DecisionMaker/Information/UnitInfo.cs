@@ -30,6 +30,8 @@ class EnemyUnitInfo : Component
   string lockTopicName = "/rmcs/auto_aim/car_lock";
   IO.ROS2Msgs.Std.UInt8 carLockConn;
   string whitelistTopicName = "/tlarc/control/auto_aim/whitelist";
+  IO.ROS2Msgs.Std.FloatMultiArray equalityHpPub;
+  string equalityHpTopicName = "/tlarc/equality_hp";
   IO.ROS2Msgs.Std.UInt8 autoAimWhitelistConn;
 
   public class FoundHelper(byte data)
@@ -80,6 +82,8 @@ class EnemyUnitInfo : Component
     debugCarPositionConn.RegistryPublisher(debugCarPositionDebugTopicName);
     autoAimWhitelistConn = new(IOManager);
     autoAimWhitelistConn.RegistryPublisher(whitelistTopicName);
+    equalityHpPub = new(IOManager);
+    equalityHpPub.RegistryPublisher(equalityHpTopicName);
   }
   public override void Update()
   {
@@ -105,6 +109,7 @@ class EnemyUnitInfo : Component
         // TlarcSystem.LogInfo($"{EquivalentHp[i]}");
       }
     } while (false);
+    equalityHpPub.Publish(EquivalentHp);
     debugCarPositionConn.Publish(Position);
     autoAimWhitelistConn.Publish((byte)whitelist);
     _lastHp = Hp.Copy();

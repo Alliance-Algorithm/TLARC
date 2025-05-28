@@ -17,14 +17,17 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
 
 
 
-  readonly Vector3d SupplyPosition = new(-12.5, -5, 0);
-  readonly Vector3d EnemyBasePosition = new(12.5, -1.5, 0);
+  readonly Vector3d[] SupplyPosition = [new(-12.5, 0.08, 0), new(13.1, 9.24, 0)];
+  readonly Vector3d[] EnemyBasePosition = [new(13.9, 2.23, 0), new(-12.8, 6.77, 0)];
   readonly Vector3d[] patrolPoints =
   [
-    new(-2, 2.7, 0),
-    new(2, -2.7, 0),
-    new(10, 2, 0),
-    new(5, -6, 0),
+    new(0.016, 7.795, 0),
+    new(2.0, 2.0, 0),
+    new(6.23, 10.7, 0),
+
+    new(0.016, 7.795, 0),
+    new(2.0, 2.0, 0),
+    new(-5.6, -1.8, 0),
   ];
 
   public Vector3d TargetPosition { get; private set; }
@@ -70,7 +73,12 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
     );
     var changePosition = new BehaviourTreeAction(() =>
     {
-      bb_patrol_target = patrolPoints[Random.Shared.Next(0, 3)];
+      var k =
+        patrolPoints[Random.Shared.Next(0, 2) + (decisionMakingInfo.RobotColor == RobotColor.RED ? 0 : 3)];
+      while (k == bb_patrol_target)
+        k = patrolPoints[Random.Shared.Next(0, 2) + (decisionMakingInfo.RobotColor == RobotColor.RED ? 0 : 3)];
+      bb_patrol_target = k;
+
       bb_arrived = false;
       return ActionState.Success;
     });
@@ -143,11 +151,11 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
     });
     var supplySelf = new StateMachineNode(() =>
     {
-      TargetPosition = SupplyPosition;
+      TargetPosition = decisionMakingInfo.RobotColor == RobotColor.RED ? SupplyPosition[0] : SupplyPosition[1];
     });
     var headStrike = new StateMachineNode(() =>
     {
-      TargetPosition = EnemyBasePosition;
+      TargetPosition = decisionMakingInfo.RobotColor == RobotColor.RED ? EnemyBasePosition[0] : EnemyBasePosition[1];
       FirePermission = FirePermission.Base;
     });
 
@@ -210,7 +218,7 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
       supplySelf
     );
 
-    stateMachine.AnyTo(() => decisionMakingInfo.SentryHp < 150, supplySelf);
+    stateMachine.AnyTo(() => decisionMakingInfo.SentryHp < 200, supplySelf);
     stateMachine.BeginTo(coreCharge);
     #endregion
   }
