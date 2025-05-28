@@ -63,10 +63,13 @@ class ALPlanner : Component
       );
     var plan = new BehaviourTreeAction(() =>
     {
+      // BenchMarkBegin();
       var collections = pathPlanner.Search(sentryWithCollider.Position,
        deTrouble.Search(target.TargetPosition, target.TargetPosition).PositionInWorld, sentryWithCollider.Velocity);
+      // Console.WriteLine($"1:{BenchMarkStep()}");
       trajectoryOptimizer.CalcTrajectory(collections);
-      trajectory = [.. trajectoryOptimizer.TrajectoryPoints(0, trajectoryOptimizer.MaxTime, trajectoryOptimizer.MaxTime / 30)];
+      // Console.WriteLine($"2:{BenchMarkStep()}");
+      trajectory = [.. trajectoryOptimizer.TrajectoryPoints(0, trajectoryOptimizer.MaxTime, trajectoryOptimizer.MaxTime / 100)];
       reload_ = false;
       return DecisionMaker.ActionState.Success;
     });
@@ -97,9 +100,9 @@ class ALPlanner : Component
     var firstPlanControl = new BehaviourTreeSequence();
     firstPlanControl.AddChildren([checkTargetChange, plan]);
     var followPlanControl = new BehaviourTreeSequence();
-    followPlanControl.AddChildren([checkCurrentPosition, stop]);
+    followPlanControl.AddChildren([checkCurrentPosition, plan]);
     var extricationMode = new BehaviourTreeSequence();
-    extricationMode.AddChildren([checkInCollision, escape]);
+    extricationMode.AddChildren([checkInCollision, plan]);
     var planControl = new BehaviourTreeFallback();
     planControl.AddChildren([firstPlanControl, followPlanControl, extricationMode]);
     var root = new BehaviourTreeParallel();

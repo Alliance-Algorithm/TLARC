@@ -40,7 +40,7 @@
 - Fps: 20
   Components:
     ALPlanner.Interfaces.ROS->PoseTransform2D->1:
-      Args:
+      Args: 
         topicName: "\"/rmcs_location/pose\""
         offset: "{x:-10.12,y:4.81,z:0}"
     TrajectoryTracer->Tracer:

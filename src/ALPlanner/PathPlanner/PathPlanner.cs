@@ -33,21 +33,23 @@ class PathPlanner : Component
   public TrajectoryOptimizer.ConstraintCollection Search(Vector3d origin, Vector3d target, Vector3d? speed = null)
   {
 
-    BenchMarkBegin();
+    // BenchMarkBegin();
     var points = sampler.Sample(NoTimePathSearcher.Search(origin + 0.5 * sentry.Velocity, target, speed));
-    BenchMarkFilled("astar", BenchMarkStep(), ref benchMark);
+    // BenchMarkFilled("astar", BenchMarkStep(), ref benchMark);
+    // Console.WriteLine($"1: {BenchMarkStep()}");
     debugPath.Publish(points.Copy());
     safeCorridor.Generate(points, 5);
-    BenchMarkFilled("astar safeCorridor", BenchMarkStep(), ref benchMark);
+    // BenchMarkFilled("astar safeCorridor", BenchMarkStep(), ref benchMark);
+    // Console.WriteLine($"2: {BenchMarkStep()}");
     // points = sampler.Sample(TimeConstraintsPathSearcher.Search(origin, target, safeCorridor, speed));
     // BenchMarkFilled("kino ", BenchMarkStep(), ref benchMark);
     // debugPath1.Publish(points.Copy());
     // BenchMarkFilled("kino safeCorridor", BenchMarkStep(), ref benchMark);
     // safeCorridor.Generate(points, TimeStep);
     var collection = safeCorridor.GenerateConstraintCollection();
-    BenchMarkFilled("Constraint generate", BenchMarkStep(), ref benchMark);
+    // BenchMarkFilled("Constraint generate", BenchMarkStep(), ref benchMark);
     collection.TimeStep = TimeStep;
-    TlarcSystem.SetLogTimers("Path Planner", benchMark);
+    // TlarcSystem.SetLogTimers("Path Planner", benchMark);
     return collection;
   }
 

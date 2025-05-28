@@ -5,7 +5,7 @@ namespace ALPlanner.PathPlanner.Sampler;
 
 class EquidistantSampler : Component, ISampler
 {
-  private float _samplingRate = 0.5f;
+  private float _samplingRate = 0.1f;
 
   public Vector3d[] Sample(INode? endNode)
   {
@@ -17,10 +17,10 @@ class EquidistantSampler : Component, ISampler
     while (tmp.Parent is not null)
     {
       totalVal += _samplingRate;
+      tmp = tmp.Parent;
       if (totalVal < 1)
         continue;
       path.Push(tmp.PositionInWorld);
-      tmp = tmp.Parent;
       totalVal = 0;
     }
     path.Push(tmp.PositionInWorld);

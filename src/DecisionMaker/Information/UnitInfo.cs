@@ -36,7 +36,7 @@ class EnemyUnitInfo : Component
 
   public class FoundHelper(byte data)
   {
-    byte data_ = data;
+    public byte data_ = data;
     public bool this[int i]
     {
       get => ((data_ >> i) & 1) == 0;
@@ -108,6 +108,9 @@ class EnemyUnitInfo : Component
           whitelist |= (Whitelist)(1 << i);
         // TlarcSystem.LogInfo($"{EquivalentHp[i]}");
       }
+      if(Found.data_ != 0b00000010)
+          whitelist |= (Whitelist)(1 << 1);
+
     } while (false);
     equalityHpPub.Publish(EquivalentHp);
     debugCarPositionConn.Publish(Position);

@@ -19,16 +19,16 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
 
 
 
-  readonly Vector3d[] SupplyPosition = [new(-12.0, 0.08, 0), new(13.1, 9.24, 0)];
+  readonly Vector3d[] SupplyPosition = [new(-11.5, 0.08, 0), new(12.3, 9.24, 0)];
   readonly Vector3d[] EnemyBasePosition = [new(13.9, 2.23, 0), new(-12.8, 6.77, 0)];
   readonly Vector3d[] patrolPoints =
   [
-    new(0.016, 7.795, 0),
+    new(2.1, 7.6, 0),
     new(2.0, 2.0, 0),
     new(6.23, 10.7, 0),
 
-    new(0.016, 7.795, 0),
-    new(2.0, 2.0, 0),
+    new(-0.042, 7.795, 0),
+    new(-0.77, 0.72, 0),
     new(-5.6, -1.8, 0),
   ];
 
@@ -61,17 +61,21 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
     var notFindEngineer = new BehaviourTreeCondition(() => !enemyUnitInfo.Found[EnemyUnitInfo.Engineer]);
     var gotoPosition = new BehaviourTreeAction(() =>
     {
-      if ((sentry.Position - bb_patrol_target).Length > 1.0 && (DateTime.Now - bb_arrive_time).TotalSeconds > 15 && !bb_arrived)
+      if (((sentry.Position - bb_patrol_target).Length > 1.0 && (DateTime.Now - bb_arrive_time).TotalSeconds < 15) && !bb_arrived)
       {
         TargetPosition = bb_patrol_target;
         return ActionState.Running;
       }
-      if ((sentry.Position - bb_patrol_target).Length < 1.0 && !bb_arrived)
+      if (((sentry.Position - bb_patrol_target).Length < 1.0 ||  (DateTime.Now - bb_arrive_time).TotalSeconds > 15 )  && !bb_arrived)
       {
         bb_arrive_time = DateTime.Now;
         bb_arrived = true;
+        
+        return ActionState.Success;
       }
-      return ActionState.Success;
+      if(bb_arrived)
+        return ActionState.Success;
+      return ActionState.Failure;
     });
     var notSearching = new BehaviourTreeCondition(() =>
       (DateTime.Now - bb_arrive_time).TotalSeconds > 5
@@ -85,6 +89,7 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
       bb_patrol_target = k;
 
       bb_arrived = false;
+      Console.WriteLine("Change");
       return ActionState.Success;
     });
     var gotoPatrol = new BehaviourTreeSequence();
@@ -141,9 +146,9 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
     var lockingHero = new BehaviourTreeFallback();
     lockingHero.AddChildren([tracingHero]);
     var searchHero = new BehaviourTreeSequence();
-    searchHero.AddChildren([findHero, setHeroFindTime, lockingHero]);
+    searchHero.AddChildren([gotoPatrol,findHero, setHeroFindTime, lockingHero]);
     var clashSurgeBT = new BehaviourTreeFallback();
-    clashSurgeBT.AddChildren([lockingHero]);
+    clashSurgeBT.AddChildren([searchHero]);
     #endregion
     #region  Total State Machine
     var coreCharge = new StateMachineNode(() =>
