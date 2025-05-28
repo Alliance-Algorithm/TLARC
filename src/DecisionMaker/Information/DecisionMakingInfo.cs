@@ -27,7 +27,7 @@ public class DecisionMakingInfo : Component
   public ushort BulletCount = 400;
   public GameStage GameStage = GameStage.STARTED;
   public RobotColor RobotColor;
-  public double PowerLimit;
+  public double PowerLimit = 40;
 
   IO.ROS2Msgs.Std.UInt16MultiArray hpConn;
   IO.ROS2Msgs.Std.UInt16 bulletCountConn;

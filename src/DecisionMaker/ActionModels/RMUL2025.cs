@@ -15,9 +15,11 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
 
   IO.ROS2Msgs.Geometry.PoseStampd pose;
 
+  IO.ROS2Msgs.Nav.Path points;
 
 
-  readonly Vector3d[] SupplyPosition = [new(-12.5, 0.08, 0), new(13.1, 9.24, 0)];
+
+  readonly Vector3d[] SupplyPosition = [new(-12.0, 0.08, 0), new(13.1, 9.24, 0)];
   readonly Vector3d[] EnemyBasePosition = [new(13.9, 2.23, 0), new(-12.8, 6.77, 0)];
   readonly Vector3d[] patrolPoints =
   [
@@ -43,6 +45,9 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
   {
     pose = new(IOManager);
     pose.RegistryPublisher("/debug/target_position");
+    points = new(IOManager);
+    points.RegistryPublisher("/debug/important_position");
+
 
     #region Black Board
     bb_patrol_target = patrolPoints[0];
@@ -230,5 +235,6 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
     else
       stateMachine.Step();
     pose.Publish((new System.Numerics.Vector2((float)bb_patrol_target.x, (float)bb_patrol_target.y), 0));
+    points.Publish([.. patrolPoints, .. EnemyBasePosition, .. SupplyPosition]);
   }
 }

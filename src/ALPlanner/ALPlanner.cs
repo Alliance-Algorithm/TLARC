@@ -75,7 +75,7 @@ class ALPlanner : Component
       var target = deTrouble.Search(sentryWithCollider.Position, sentryWithCollider.Position);
       trajectoryOptimizer.CalcTrajectory(target.PositionInWorld);
       reload_ = true;
-      stopTime = DateTime.Now + TimeSpan.FromSeconds(1);
+      stopTime = DateTime.Now + TimeSpan.FromSeconds(0.5);
       return DecisionMaker.ActionState.Success;
     });
     var escape = new BehaviourTreeAction(() =>
@@ -83,7 +83,7 @@ class ALPlanner : Component
       var target = deTrouble.Search(sentryWithCollider.Position, sentryWithCollider.Position);
       trajectoryOptimizer.CalcTrajectory(target.PositionInWorld);
       reload_ = true;
-      escapeTime = DateTime.Now + TimeSpan.FromSeconds(1);
+      escapeTime = DateTime.Now + TimeSpan.FromSeconds(0.5);
       return DecisionMaker.ActionState.Success;
     });
     var checkInCollision = new BehaviourTreeCondition(() => !map.CheckAccessibility(sentry.Position));
