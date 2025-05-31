@@ -23,7 +23,7 @@ public class DecisionMakingInfo : Component
   private DateTime _gameStartTime = DateTime.Now;
   public ushort[] EnemiesHp = [100, 100, 100, 100, 100, 100, 100, 100];
 
-  public bool chassisOutput = false;
+  public bool chassisOutput = true;
   public bool TestMode = false;
   public ushort[] Hp = [];
   public ushort BulletCount = 400;

@@ -105,7 +105,7 @@ class VelocityMPC : Component, IPositionVelocityController
       ConstantA1[i] = 1;
       ConstantA2[i + 1] = 1;
       var c1 = ConstantA1.Copy();
-      var c2 = ConstantA1.Copy();
+      var c2 = ConstantA2.Copy();
       constraintCollection.Add(
         new(car.ControlVolumeSize * P)
         {

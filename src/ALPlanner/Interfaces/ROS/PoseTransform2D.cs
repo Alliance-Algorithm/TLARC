@@ -27,6 +27,10 @@ class PoseTransform2D : Transform
         Position.y = x.pos.Y;
         Position += offset;
         AngleR = x.Theta;
+        if(Velocity.Length > 5){
+          Velocity = new();
+        }
+        // TlarcSystem.LogInfo($"{Velocity}");
       }
     );
   }
