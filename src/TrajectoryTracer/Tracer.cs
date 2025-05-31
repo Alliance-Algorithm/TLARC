@@ -9,7 +9,7 @@ namespace TrajectoryTracer;
 class Tracer : Component
 {
   IO.ROS2Msgs.Geometry.Pose2D pose2D;
-  
+
 
   public Vector3d velocity;
 
@@ -27,7 +27,7 @@ class Tracer : Component
   public override void Update()
   {
     velocity = controller.ControlVolume(sentry.Position);
-    // velocity = Quaterniond.AxisAngleR(Vector3d.AxisZ, -sentry.AngleR) * velocity;
+    velocity = Quaterniond.AxisAngleR(Vector3d.AxisZ, -sentry.AngleR) * velocity;
 
     if ((sentry.Position - aLPlanner.Target).Length < 0.1)
       pose2D.Publish(new());
