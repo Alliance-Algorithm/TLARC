@@ -117,17 +117,12 @@ class ALPlanner : Component
     // TlarcSystem.LogInfo($"target : {target.TargetPosition.x},{target.TargetPosition.y}");
     // TlarcSystem.LogInfo($"sentry: {sentry.Position.x},{sentry.Position.y}");
 
-    if (!info.TestMode && info.GameStage != GameStage.STARTED)
+    if(!info.chassisOutput)
     {
       trajectoryOptimizer.CalcTrajectory(sentry.Position);
       reload_ = true;
     }
-    else if ((escapeTime - DateTime.Now).TotalSeconds <= 0 && (stopTime - DateTime.Now).TotalSeconds > 0)
-    {
-      trajectoryOptimizer.CalcTrajectory(sentry.Position);
-      reload_ = true;
-    }
-    else if ((escapeTime - DateTime.Now).TotalSeconds <= 0)
+    else
       _root.Action();
 
     debugPath.Publish(trajectory);

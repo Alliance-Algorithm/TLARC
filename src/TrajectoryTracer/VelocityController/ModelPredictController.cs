@@ -75,8 +75,11 @@ class VelocityMPC : Component, IPositionVelocityController
     }
 
     var psi = Vector.Zeros(x.Length + car.SizeU);
-    // U[0] = sentry.Velocity.x;
-    // U[1] = sentry.Velocity.y;
+    if(Math.Sqrt(Math.Pow((U[0] - sentry.Velocity.x),2)+Math.Pow((U[1] - sentry.Velocity.y),2)) > 0.7)
+    {
+    U[0] = sentry.Velocity.x;
+    U[1] = sentry.Velocity.y;
+    }
     for (int i = 0; i < x.Length; i++)
       psi[i] = x[i];
     for (int i = 0; i < car.ControlVolumeSize; i++)

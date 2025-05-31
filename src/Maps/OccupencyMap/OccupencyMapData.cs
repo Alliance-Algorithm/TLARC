@@ -5,8 +5,8 @@ namespace Maps;
 
 class OccupancyMapData : IGridMap, IDisposable
 {
-  const float lo_occ = 20f;
-  const float lo_free = -7f;
+  const float lo_occ = 50f;
+  const float lo_free = -50f;
   const sbyte lo_max = 90;
   const sbyte lo_min = 10;
   public OccupancyMapData Copy()
@@ -90,28 +90,10 @@ class OccupancyMapData : IGridMap, IDisposable
 
   internal void Update(int x, int y, sbyte value)
   {
-    value -= 50;
-    if (value > 25)
-      data[x, y] = (sbyte)
-        Math.Clamp(
-          Math.Round(data[x, y] - lo_occ, MidpointRounding.AwayFromZero),
-          1,
-          100
-        );
-    else if (value < -25)
-      data[x, y] = (sbyte)
-        Math.Clamp(
-          Math.Round(data[x, y] - lo_free, MidpointRounding.ToZero),
-          1,
-          100
-        );
-    else
-      data[x, y] = (sbyte)
-        Math.Clamp(
-          Math.Round(data[x, y] - lo_free * 0.05, MidpointRounding.ToZero),
-          1,
-          100
-        ); 
+    if (value > 0)
+      data[x, y] = 0;
+    else 
+      data[x, y] = 100;
   }
 
   public void Dispose() => data.Dispose();

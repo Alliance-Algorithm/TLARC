@@ -89,12 +89,13 @@ class OccupancyMapGenerator : Component, IGridMap, ISafeCorridorGenerator
     _sentry_status = (sentry.Position, sentry.AngleR);
     if (_dynamicMap != null)
     {
+      _data = _data_init.Copy();
       for (int i = 0, k = _dynamicMap._map.GetLength(0); i < k; i++)
         for (int j = 0; j < k; j++)
         {
           var x = (int)(i * _dynamicMap.forward.Cos - j * _dynamicMap.forward.Sin + _dynamicMap.offsetX);
           var y = (int)(j * _dynamicMap.forward.Cos + i * _dynamicMap.forward.Sin + _dynamicMap.offsetY);
-          if (_data_init[x, y] != 0)
+          if (_data_init[x, y] != 0&&_dynamicMap._map[i,j] != -1 )
             _data.Update(x, y, _dynamicMap._map[i, j]);
         }
     }

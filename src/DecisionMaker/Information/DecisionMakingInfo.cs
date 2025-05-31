@@ -8,6 +8,7 @@ public class DecisionMakingInfo : Component
   string colorTopicName = "/referee/id/color";
   string powerLimitTopicName = "/referee/chassis/power_limit";
   string testModeTopicName = "/rmcs/test_mode";
+  string chassisOutputTopicName = "/referee/chassis/output_status";
 
   public float SentryHp { get; private set; } = SentryHPLimit;
   private float _lastSentryHp = SentryHPLimit;
@@ -22,6 +23,7 @@ public class DecisionMakingInfo : Component
   private DateTime _gameStartTime = DateTime.Now;
   public ushort[] EnemiesHp = [100, 100, 100, 100, 100, 100, 100, 100];
 
+  public bool chassisOutput = false;
   public bool TestMode = false;
   public ushort[] Hp = [];
   public ushort BulletCount = 400;
@@ -35,6 +37,7 @@ public class DecisionMakingInfo : Component
   IO.ROS2Msgs.Std.UInt8 colorConn;
   IO.ROS2Msgs.Std.Float64 powerLimitConn;
   IO.ROS2Msgs.Std.Bool testModeConn;
+  IO.ROS2Msgs.Std.Bool chassisOutputConn;
 
 
   public override void Start()
@@ -69,6 +72,8 @@ public class DecisionMakingInfo : Component
       testModeTopicName,
       msg => TestMode = msg
     );
+    chassisOutputConn = new(IOManager);
+    chassisOutputConn.Subscript(chassisOutputTopicName,msg=>chassisOutput = msg);
 
     _tick = DateTime.Now.Ticks;
   }
