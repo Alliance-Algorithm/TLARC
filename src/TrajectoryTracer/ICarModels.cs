@@ -16,4 +16,5 @@ interface ICarModel
 
   public double[,] A => MatrixA;
   public double[,] B => MatrixB;
+  public bool IsFirstTime { get; }
 }

@@ -6,4 +6,5 @@ interface ITrajectory<T>
 {
   public T[] Trajectory(double howLong, int count);
   public T[] Velocities(double howLong, int count);
+  public bool IsFirstTime { get; }
 }

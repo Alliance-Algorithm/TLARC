@@ -32,10 +32,13 @@ class HybridAStarWithDistance : Component, IPathSearcher
     Node end = new(target);
 
     Node.Target = end;
+    DateTime dateTime = DateTime.Now;
 
     _openList.Enqueue(begin, 0);
     while (_openList.Count > 0)
     {
+      if ((DateTime.Now - dateTime).Seconds > 0.5)
+        return begin;
       var current = _openList.Dequeue();
 
       if (current.GeometricallyEqualTo(end))
@@ -45,7 +48,8 @@ class HybridAStarWithDistance : Component, IPathSearcher
       }
 
       var index = gridMap.PositionInWorldToIndex(current.PositionInWorld);
-      if(!gridMap.CheckAccessibility(index)){
+      if (!gridMap.CheckAccessibility(index))
+      {
         continue;
       }
 

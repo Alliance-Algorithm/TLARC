@@ -50,7 +50,7 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
 
 
     #region Black Board
-    bb_patrol_target = patrolPoints[0];
+    bb_patrol_target = patrolPoints[decisionMakingInfo.RobotColor == RobotColor.RED ? 0 : 3];
     bb_arrive_time = DateTime.Now;
     bb_arrived = false;
     bb_hero_tracing_time = DateTime.Now;
@@ -66,14 +66,14 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
         TargetPosition = bb_patrol_target;
         return ActionState.Running;
       }
-      if (((sentry.Position - bb_patrol_target).Length < 1.0 ||  (DateTime.Now - bb_arrive_time).TotalSeconds > 15 )  && !bb_arrived)
+      if (((sentry.Position - bb_patrol_target).Length < 1.0 || (DateTime.Now - bb_arrive_time).TotalSeconds > 15) && !bb_arrived)
       {
         bb_arrive_time = DateTime.Now;
         bb_arrived = true;
-        
+
         return ActionState.Success;
       }
-      if(bb_arrived)
+      if (bb_arrived)
         return ActionState.Success;
       return ActionState.Failure;
     });
@@ -86,10 +86,10 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
         patrolPoints[Random.Shared.Next(0, 2) + (decisionMakingInfo.RobotColor == RobotColor.RED ? 0 : 3)];
       while (k == bb_patrol_target)
         k = patrolPoints[Random.Shared.Next(0, 2) + (decisionMakingInfo.RobotColor == RobotColor.RED ? 0 : 3)];
+      TlarcSystem.LogInfo($"Change form {bb_patrol_target} to {k}");
       bb_patrol_target = k;
 
       bb_arrived = false;
-      Console.WriteLine("Change");
       return ActionState.Success;
     });
     var gotoPatrol = new BehaviourTreeSequence();
@@ -146,7 +146,7 @@ class RMUL2025DecisionMaker : Component, IPositionDecider
     var lockingHero = new BehaviourTreeFallback();
     lockingHero.AddChildren([tracingHero]);
     var searchHero = new BehaviourTreeSequence();
-    searchHero.AddChildren([gotoPatrol,findHero, setHeroFindTime, lockingHero]);
+    searchHero.AddChildren([gotoPatrol, findHero, setHeroFindTime, lockingHero]);
     var clashSurgeBT = new BehaviourTreeFallback();
     clashSurgeBT.AddChildren([searchHero]);
     #endregion

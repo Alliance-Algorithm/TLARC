@@ -33,8 +33,8 @@
       Relies:
         sentry: 1
 
-    DecisionMaker->RMUL2025DecisionMaker:
-    # DecisionMaker->RMUL2025DecisionMakerTurtle:
+    # DecisionMaker->RMUL2025DecisionMaker:
+    DecisionMaker->RMUL2025DecisionMakerTurtle:
     
     DecisionMaker.Information->DecisionMakingInfo:
     DecisionMaker.Information->EnemyUnitInfo:

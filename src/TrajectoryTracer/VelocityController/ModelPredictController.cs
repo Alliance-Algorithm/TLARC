@@ -15,9 +15,9 @@ class VelocityMPC : Component, IPositionVelocityController
   public double rho = 10;
   public double[] U;
   public double[] uOut;
-  public const double uMax = 2.1;
+  public const double uMax = 2.3;
   public const double uMin = -uMax;
-  public const double vMax = 2.1;
+  public const double vMax = 3.0;
   public const double vMin = -vMax;
 
   LinearConstraintCollection constraintCollection;
@@ -26,6 +26,11 @@ class VelocityMPC : Component, IPositionVelocityController
   {
     U ??= Vector.Zeros(car.ControlVolumeSize);
     uOut ??= Vector.Zeros(car.ControlVolumeSize);
+    if (car.IsFirstTime)
+    {
+      U = [sentry.Velocity.x, sentry.Velocity.y];
+      // TlarcSystem.LogInfo($"First time update trajectory:{car.IsFirstTime}");
+    }
     var x = car.X;
     var A = car.A;
     var B = car.B;
@@ -75,11 +80,11 @@ class VelocityMPC : Component, IPositionVelocityController
     }
 
     var psi = Vector.Zeros(x.Length + car.SizeU);
-    if(Math.Sqrt(Math.Pow((U[0] - sentry.Velocity.x),2)+Math.Pow((U[1] - sentry.Velocity.y),2)) > 0.7)
-    {
-    U[0] = sentry.Velocity.x;
-    U[1] = sentry.Velocity.y;
-    }
+    // if(Math.Sqrt(Math.Pow((U[0] - sentry.Velocity.x),2)+Math.Pow((U[1] - sentry.Velocity.y),2)) > 0.7)
+    // {
+    // U[0] = sentry.Velocity.x;
+    // U[1] = sentry.Velocity.y;
+    // }
     for (int i = 0; i < x.Length; i++)
       psi[i] = x[i];
     for (int i = 0; i < car.ControlVolumeSize; i++)

@@ -8,23 +8,36 @@ class ALPlannerKOrderTrajectoryDecorator : Component, ITrajectory<Vector3d>
 {
   [ComponentReferenceFiled]
   IKOrderCurve kOrderCurve;
+  DateTime lastConstructionTime = DateTime.Now;
 
   IO.ROS2Msgs.Nav.Path debugPath;
   Vector3d[] trajectory = [];
 
+  public bool IsFirstTime
+  {
+    get
+    {
+      if (lastConstructionTime == kOrderCurve.ConstructTime)
+        return false;
+      lastConstructionTime = kOrderCurve.ConstructTime;
+      // TlarcSystem.LogInfo($"{lastConstructionTime}");
+      return true;
+    }
+  }
+
   public override void Start()
   {
-// #if DEBUG
+    // #if DEBUG
     debugPath = new(IOManager);
     debugPath.RegistryPublisher("debug/mpc/trajectory");
-// #endif
+    // #endif
   }
 
   public override void Update()
   {
-// #if DEBUG
+    // #if DEBUG
     debugPath.Publish(trajectory);
-// #endif
+    // #endif
   }
 
   public Vector3d[] Trajectory(double howLong, int count)

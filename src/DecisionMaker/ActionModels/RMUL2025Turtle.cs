@@ -50,7 +50,7 @@ class RMUL2025DecisionMakerTurtle : Component, IPositionDecider
 
 
     #region Black Board
-    bb_patrol_target = patrolPoints[0];
+    bb_patrol_target = patrolPoints[decisionMakingInfo.RobotColor == RobotColor.RED ? 0 : 3];
     bb_arrive_time = DateTime.Now;
     bb_arrived = false;
     bb_hero_tracing_time = DateTime.Now;
@@ -60,19 +60,19 @@ class RMUL2025DecisionMakerTurtle : Component, IPositionDecider
     #region     Goto Target
     var gotoPosition = new BehaviourTreeAction(() =>
     {
-      if (((sentry.Position - bb_patrol_target).Length > 1.0 && (DateTime.Now - bb_arrive_time).TotalSeconds < 15) && !bb_arrived)
+      if ((sentry.Position - bb_patrol_target).Length > 1.0 && (DateTime.Now - bb_arrive_time).TotalSeconds < 15 && !bb_arrived)
       {
         TargetPosition = bb_patrol_target;
         return ActionState.Running;
       }
-      if (((sentry.Position - bb_patrol_target).Length < 1.0 ||  (DateTime.Now - bb_arrive_time).TotalSeconds > 15 )  && !bb_arrived)
+      if (((sentry.Position - bb_patrol_target).Length < 1.0 || (DateTime.Now - bb_arrive_time).TotalSeconds > 15) && !bb_arrived)
       {
         bb_arrive_time = DateTime.Now;
         bb_arrived = true;
-        
+
         return ActionState.Success;
       }
-      if(bb_arrived)
+      if (bb_arrived)
         return ActionState.Success;
       return ActionState.Failure;
     });
@@ -83,29 +83,29 @@ class RMUL2025DecisionMakerTurtle : Component, IPositionDecider
     {
       var k =
         patrolPoints[Random.Shared.Next(0, 2) + (decisionMakingInfo.RobotColor == RobotColor.RED ? 0 : 3)];
-      while (k == bb_patrol_target)
-        k = patrolPoints[Random.Shared.Next(0, 2) + (decisionMakingInfo.RobotColor == RobotColor.RED ? 0 : 3)];
+      // while (k == bb_patrol_target)
+      //   k = patrolPoints[Random.Shared.Next(0, 2) + (decisionMakingInfo.RobotColor == RobotColor.RED ? 0 : 3)];
+      TlarcSystem.LogInfo($"Change form {bb_patrol_target} to {k}");
       bb_patrol_target = k;
 
       bb_arrived = false;
-      Console.WriteLine("Change");
       return ActionState.Success;
     });
     var gotoPatrol = new BehaviourTreeSequence();
-    gotoPatrol.AddChildren([ gotoPosition,notSearching, changePosition]);
+    gotoPatrol.AddChildren([gotoPosition, notSearching, changePosition]);
     testModeGotoPatrol = new BehaviourTreeSequence();
     testModeGotoPatrol.AddChildren([gotoPosition, notSearching, changePosition]);
     #endregion
     //
     #region     Search and Trace Target
-   
+
     #endregion
     //
     var coreChargeBT = new BehaviourTreeParallel();
     coreChargeBT.AddChildren([gotoPatrol]);
     #endregion
     #region  Clash Surge Behaviour Tree
-   
+
     var clashSurgeBT = new BehaviourTreeFallback();
     clashSurgeBT.AddChildren([gotoPatrol]);
     #endregion

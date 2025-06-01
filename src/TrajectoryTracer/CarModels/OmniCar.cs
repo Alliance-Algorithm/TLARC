@@ -44,4 +44,6 @@ class OmniCar : Component, ICarModel
 
   public double[,] MatrixA => _matrixA;
   public double[,] MatrixB => _matrixB;
+
+  public bool IsFirstTime => trajectory.IsFirstTime;
 }
