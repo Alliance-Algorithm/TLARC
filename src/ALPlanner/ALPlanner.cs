@@ -72,10 +72,10 @@ class ALPlanner : Component
       // TlarcSystem.LogInfo($"Plan Begin");
       var collections = pathPlanner.Search(sentryWithCollider.Position,
        deTrouble.Search(target.TargetPosition, target.TargetPosition).PositionInWorld, sentryWithCollider.Velocity);
-      TlarcSystem.LogInfo($"1: ");
+      // TlarcSystem.LogInfo($"1: ");
       trajectoryOptimizer.CalcTrajectory(collections);
       trajectory = [.. trajectoryOptimizer.TrajectoryPoints(0, trajectoryOptimizer.MaxTime, trajectoryOptimizer.MaxTime / 100)];
-      TlarcSystem.LogInfo($"2: ");
+      // TlarcSystem.LogInfo($"2: ");
       reload_ = false;
       inTrouble = 0;
       lastState = "plan";
@@ -87,8 +87,8 @@ class ALPlanner : Component
       var collection = new TrajectoryOptimizer.ConstraintCollection();
       collection.XBegin = new TrajectoryOptimizer.Constraint(0, Matrix.Identity(2), sentry.Position.x, sentry.Position.x);
       collection.YBegin = new TrajectoryOptimizer.Constraint(0, Matrix.Identity(2), sentry.Position.y, sentry.Position.y);
-      collection.XBegin.next = new TrajectoryOptimizer.Constraint(0, Matrix.Identity(2), target.PositionInWorld.x, target.PositionInWorld.x);
-      collection.YBegin.next = new TrajectoryOptimizer.Constraint(0, Matrix.Identity(2), target.PositionInWorld.y, target.PositionInWorld.y);
+      collection.XBegin.next = new TrajectoryOptimizer.Constraint(1, Matrix.Identity(2), target.PositionInWorld.x, target.PositionInWorld.x);
+      collection.YBegin.next = new TrajectoryOptimizer.Constraint(1, Matrix.Identity(2), target.PositionInWorld.y, target.PositionInWorld.y);
       trajectoryOptimizer.CalcTrajectory(collection);
       reload_ = true;
       stopTime = DateTime.Now + TimeSpan.FromSeconds(0.5);
@@ -100,6 +100,8 @@ class ALPlanner : Component
       TlarcSystem.LogInfo("In trouble");
       var target = deTrouble.Search(sentryWithCollider.Position, sentryWithCollider.Position);
       var collection = new TrajectoryOptimizer.ConstraintCollection();
+      collection.Length = 2;
+      collection.TimeStep = 0.5;
       collection.XBegin = new TrajectoryOptimizer.Constraint(0, Matrix.Identity(2), sentry.Position.x, sentry.Position.x);
       collection.YBegin = new TrajectoryOptimizer.Constraint(0, Matrix.Identity(2), sentry.Position.y, sentry.Position.y);
       collection.XBegin.next = new TrajectoryOptimizer.Constraint(0, Matrix.Identity(2), target.PositionInWorld.x, target.PositionInWorld.x);
@@ -124,21 +126,21 @@ class ALPlanner : Component
     var setFollower = new BehaviourTreeAction(() => { followMode.Publish(true); return DecisionMaker.ActionState.Success; });
     var setFree = new BehaviourTreeAction(() => { followMode.Publish(false); return DecisionMaker.ActionState.Success; });
     var passTunnel = new BehaviourTreeSequence();
-    var checkEscape = new BehaviourTreeCondition(() => escapeTime < DateTime.Now);
-    var checkNoEscaping = new BehaviourTreeCondition(() => escapeTime >= DateTime.Now);
+    var checkEscape = new BehaviourTreeCondition(() => escapeTime >= DateTime.Now);
+    var checkNoEscaping = new BehaviourTreeCondition(() => escapeTime < DateTime.Now);
     passTunnel.AddChildren([checkPassTunnel, setFollower]);
     var followModeControl = new BehaviourTreeFallback();
     followModeControl.AddChildren([passTunnel, setFree]);
     var firstPlanControl = new BehaviourTreeSequence();
-    firstPlanControl.AddChildren([checkEscape, checkTargetChange, plan]);
+    firstPlanControl.AddChildren([checkNoEscaping, checkTargetChange, plan]);
     var powerOn = new BehaviourTreeSequence();
     powerOn.AddChildren([checkChassis, plan]);
     var followPlanControl = new BehaviourTreeSequence();
-    followPlanControl.AddChildren([checkEscape, checkCurrentPosition, plan]);
+    followPlanControl.AddChildren([checkNoEscaping, checkCurrentPosition, plan]);
     var escapeControl = new BehaviourTreeSequence();
     escapeControl.AddChildren([checkInCollider, checkNoEscaping, updateInTrouble, escape]);
     var planControl = new BehaviourTreeFallback();
-    planControl.AddChildren([firstPlanControl, powerOn, followPlanControl, escapeControl]);
+    planControl.AddChildren([escapeControl,firstPlanControl, powerOn, followPlanControl]);
     var root = new BehaviourTreeParallel();
     root.AddChildren([planControl]);
     _root = root;
@@ -148,7 +150,7 @@ class ALPlanner : Component
 
   public override void Update()
   {
-    if (!info.chassisOutput)
+    if (!info.chassisOutput || info.GameStage == GameStage.COUNTDOWN || info.TestMode)
     {
       trajectoryOptimizer.CalcTrajectory(sentry.Position);
       reload_ = true;

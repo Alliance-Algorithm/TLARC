@@ -24,7 +24,7 @@ public class DecisionMakingInfo : Component
   public ushort[] EnemiesHp = [100, 100, 100, 100, 100, 100, 100, 100];
 
   public bool chassisOutput = true;
-  public bool TestMode = false;
+  public bool TestMode = true;
   public ushort[] Hp = [];
   public ushort BulletCount = 400;
   public GameStage GameStage = GameStage.STARTED;
