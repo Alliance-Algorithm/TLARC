@@ -28,7 +28,6 @@ class DeTrouble : Component, IPathSearcher
     {
         Array.Clear(_closeMap, 0, _closeMap.Length);
         _openList = new();
-
         Node begin = new(origin);
         Node.Target = begin;
 
@@ -53,7 +52,6 @@ class DeTrouble : Component, IPathSearcher
                     continue;
                 if (!gridMap.CheckAccessibility(childIndex))
                 {
-                    if (child.TotalCost < 2)
                         _openList.Enqueue(child, child.TotalCost);
                 }
                 else return child;

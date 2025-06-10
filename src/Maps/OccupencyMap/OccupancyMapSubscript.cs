@@ -73,8 +73,8 @@ class OccupancyMapSubscript : Component, IGridMap, ISafeCorridorGenerator
       var XDir = (pointList[i] - pointList[i - 1]).xy.Normalized;
       var YDir = new Vector2d(-XDir.y, XDir.x);
       var angle = -Math.Atan2(XDir.y, XDir.x);
-      double LengthX = Math.Round((pointList[i] - pointList[i - 1]).Length / _data.Resolution, MidpointRounding.AwayFromZero) * _data.Resolution;
-      double LengthY = _data.Resolution;
+      double LengthX = (pointList[i] - pointList[i - 1]).Length + _data.Resolution ;
+      double LengthY = _data.Resolution / 4;
 
       double[,] rotation = Matrix.Identity(2);
 

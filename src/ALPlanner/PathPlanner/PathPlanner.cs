@@ -1,3 +1,4 @@
+using ALPlanner.PathPlanner.Nodes;
 using ALPlanner.PathPlanner.PathSearcher;
 using ALPlanner.PathPlanner.Sampler;
 using Maps;
@@ -33,9 +34,11 @@ class PathPlanner : Component
   public TrajectoryOptimizer.ConstraintCollection Search(Vector3d origin, Vector3d target, Vector3d? speed = null)
   {
 
-    // BenchMarkBegin();
+    BenchMarkBegin();
     var points = sampler.Sample(NoTimePathSearcher.Search(origin + 0.5 * sentry.Velocity, target, speed));
-    // BenchMarkFilled("astar", BenchMarkStep(), ref benchMark);
+    // Console.WriteLine($"a:{Omni2DConsecNode.Headings} astar,{ BenchMarkStep()}");
+    // Omni2DConsecNode.Headings += 1;
+    BenchMarkEnd();
     // Console.WriteLine($"1: {BenchMarkStep()}");
     debugPath.Publish(points.Copy());
     safeCorridor.Generate(points, 5);

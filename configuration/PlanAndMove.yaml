@@ -5,14 +5,15 @@
         sentry: 1
       Args:
         Debug: true
-        MapPath: "\"./luoma.tlm\""
+        MapPath: "\"./suzhou.tlm\""
+    DecisionMaker.Information->DecisionMakingInfo:
 
 
 - Fps: 10
   Components:
     Maps->OccupancyMapSubscript->4:
       Args:
-        MapPath: "\"./luoma.tlm\""
+        MapPath: "\"./suzhou.tlm\""
     Maps->SafeCorridor:
     ALPlanner->ALPlanner:
     ALPlanner.Collider->GridMapCollider:
@@ -25,7 +26,8 @@
       Relies:
         sentry: 1
     ALPlanner.PathPlanner.PathSearcher->HybridAStarWithDistance:
-    ALPlanner.PathPlanner.Sampler->EquidistantSampler:
+    ALPlanner.PathPlanner.Sampler->ObstacleSampler:
+    ALPlanner.PathPlanner.PathSearcher->DeTrouble:
     ALPlanner.PathPlanner.PathSearcher->KinoDynamicAStar:
     ALPlanner.TrajectoryOptimizer->TrajectoryOptimizer:
       Relies:
@@ -44,7 +46,7 @@
     ALPlanner.Interfaces.ROS->PoseTransform2D->1:
       Args:
         topicName: "\"/rmcs_location/pose\""
-        offset: "{x:-10.72,y:-0.5,z:0}"
+        offset: "{x:-10.12,y:4.81,z:0}"
     TrajectoryTracer->Tracer:
       Relies:
         sentry: 1

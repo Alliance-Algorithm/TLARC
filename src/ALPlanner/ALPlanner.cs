@@ -69,13 +69,13 @@ class ALPlanner : Component
     var plan = new BehaviourTreeAction(() =>
     {
       BenchMarkBegin();
-      // TlarcSystem.LogInfo($"Plan Begin");
+      TlarcSystem.LogInfo($"Plan Begin");
       var collections = pathPlanner.Search(sentryWithCollider.Position,
        deTrouble.Search(target.TargetPosition, target.TargetPosition).PositionInWorld, sentryWithCollider.Velocity);
-      // TlarcSystem.LogInfo($"1: ");
+      TlarcSystem.LogInfo($"planner: {BenchMarkStep()}");
       trajectoryOptimizer.CalcTrajectory(collections);
       trajectory = [.. trajectoryOptimizer.TrajectoryPoints(0, trajectoryOptimizer.MaxTime, trajectoryOptimizer.MaxTime / 100)];
-      // TlarcSystem.LogInfo($"2: ");
+      TlarcSystem.LogInfo($"optimizer: collections: {collections.Length} : in {BenchMarkStep()} ms");
       reload_ = false;
       inTrouble = 0;
       lastState = "plan";
@@ -83,6 +83,7 @@ class ALPlanner : Component
     });
     var stop = new BehaviourTreeAction(() =>
     {
+      TlarcSystem.LogInfo("In trouble");
       var target = deTrouble.Search(sentryWithCollider.Position, sentryWithCollider.Position);
       var collection = new TrajectoryOptimizer.ConstraintCollection();
       collection.XBegin = new TrajectoryOptimizer.Constraint(0, Matrix.Identity(2), sentry.Position.x, sentry.Position.x);
@@ -104,8 +105,8 @@ class ALPlanner : Component
       collection.TimeStep = 0.5;
       collection.XBegin = new TrajectoryOptimizer.Constraint(0, Matrix.Identity(2), sentry.Position.x, sentry.Position.x);
       collection.YBegin = new TrajectoryOptimizer.Constraint(0, Matrix.Identity(2), sentry.Position.y, sentry.Position.y);
-      collection.XBegin.next = new TrajectoryOptimizer.Constraint(0, Matrix.Identity(2), target.PositionInWorld.x, target.PositionInWorld.x);
-      collection.YBegin.next = new TrajectoryOptimizer.Constraint(0, Matrix.Identity(2), target.PositionInWorld.y, target.PositionInWorld.y);
+      collection.XBegin.next = new TrajectoryOptimizer.Constraint(1, Matrix.Identity(2), target.PositionInWorld.x, target.PositionInWorld.x);
+      collection.YBegin.next = new TrajectoryOptimizer.Constraint(1, Matrix.Identity(2), target.PositionInWorld.y, target.PositionInWorld.y);
       trajectoryOptimizer.CalcTrajectory(collection);
       reload_ = true;
       escapeTime = DateTime.Now + TimeSpan.FromSeconds(1);
@@ -136,7 +137,7 @@ class ALPlanner : Component
     var powerOn = new BehaviourTreeSequence();
     powerOn.AddChildren([checkChassis, plan]);
     var followPlanControl = new BehaviourTreeSequence();
-    followPlanControl.AddChildren([checkNoEscaping, checkCurrentPosition, plan]);
+    followPlanControl.AddChildren([checkNoEscaping, checkCurrentPosition, updateInTrouble,stop]);
     var escapeControl = new BehaviourTreeSequence();
     escapeControl.AddChildren([checkInCollider, checkNoEscaping, updateInTrouble, escape]);
     var planControl = new BehaviourTreeFallback();
@@ -150,12 +151,13 @@ class ALPlanner : Component
 
   public override void Update()
   {
-    if (!info.chassisOutput || info.GameStage == GameStage.COUNTDOWN || info.TestMode)
+    if (!info.chassisOutput && (info.GameStage == GameStage.COUNTDOWN || !info.TestMode))
     {
       trajectoryOptimizer.CalcTrajectory(sentry.Position);
       reload_ = true;
       TlarcSystem.LogInfo("chassis power off");
     }
+    else if (stopTime > DateTime.Now || escapeTime > DateTime.Now) { }
     else
       _root.Action();
 
