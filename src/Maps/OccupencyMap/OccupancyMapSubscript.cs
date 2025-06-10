@@ -1,4 +1,5 @@
 using ALPlanner.Interfaces.ROS;
+using Emgu.CV;
 using Maps.Interfaces;
 using TlarcKernel.IO.ProcessCommunicateInterfaces;
 
@@ -73,15 +74,17 @@ class OccupancyMapSubscript : Component, IGridMap, ISafeCorridorGenerator
       var XDir = (pointList[i] - pointList[i - 1]).xy.Normalized;
       var YDir = new Vector2d(-XDir.y, XDir.x);
       var angle = -Math.Atan2(XDir.y, XDir.x);
-      double LengthX = (pointList[i] - pointList[i - 1]).Length + _data.Resolution ;
+      double LengthX = (pointList[i] - pointList[i - 1]).Length  ;
       double LengthY = _data.Resolution / 4;
 
       double[,] rotation = Matrix.Identity(2);
 
-      rotation[0, 0] = Math.Cos(angle);
-      rotation[1, 0] = Math.Sin(angle);
-      rotation[0, 1] = -Math.Sin(angle);
-      rotation[1, 1] = Math.Cos(angle);
+      var (sin, cos) = Math.SinCos(angle);
+      rotation[0, 0] = cos;
+      rotation[1, 0] = sin;
+      rotation[0, 1] = -sin;
+      rotation[1, 1] = cos;
+      
 
       int flag = 0x0f;
       int j = 1;
@@ -206,8 +209,8 @@ class OccupancyMapSubscript : Component, IGridMap, ISafeCorridorGenerator
       //   LengthX -= 0.4;
       // LengthY *= 0.5;
       // LengthX *= 0.8;
-      var max = origin + XDir * LengthX / 2 + YDir * LengthY / 2;
-      var min = origin - XDir * LengthX / 2 - YDir * LengthY / 2;
+      var max = origin + XDir * (LengthX / 2) + YDir * LengthY / 2;
+      var min = origin - XDir * (LengthX / 2 ) - YDir * LengthY / 2;
       rectangles.PushIn(new(min.x, min.y, max.x, max.y, rotation));
     }
     rectangles.PushIn(new(pointList[^1].x, pointList[^1].y, pointList[^1].x, pointList[^1].y, Matrix.Identity(2)));

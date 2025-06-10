@@ -75,8 +75,8 @@ class SafetyBSpline : Component, IKOrderBSpline
     public override void Update()
     {
         SentryPos = sentry.Position;
-        _aLimit = Math.Sqrt((info.PowerLimit - 10) / 22.0) * 0.5;
-        _vLimit = _aLimit * 2;
+        _aLimit = Math.Sqrt((info.PowerLimit - 10) / 22.0) * 0.4;
+        _vLimit = _aLimit * 6;
         // TlarcSystem.LogInfo($"{_aLimit}");
     }
     private void Reset()
@@ -92,29 +92,43 @@ class SafetyBSpline : Component, IKOrderBSpline
         var time = positionList.TimeStep;
         _ConstructTime = DateTime.Now;
         LinearConstraintCollection linearConstraint = [];
+        LinearConstraintCollection linearConstraintLoose = [];
 
         var controlPointsLength = positionList.Length + 3;
         var tmpX = positionList.XBegin;
         var tmpY = positionList.YBegin;
         for (int i = 0; i < positionList.Length; i++)
         {
-            if (i == 0 || i == positionList.Length - 1 ){
-            double[,] A = tmpX.Rotation.Dot(tmpPosM);  //Ax = B
-            foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, A.GetRow(0), tmpX, variablesAtIndices:
-            [i                      , i + 1                         , i + 2                        , i + 3                      ,
-            i + controlPointsLength , i + controlPointsLength + 1   , i + controlPointsLength + 2  , i + controlPointsLength + 3]))
-                linearConstraint.Add(c);
-            foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, A.GetRow(1), tmpY, variablesAtIndices:
-            [i                      , i + 1                         , i + 2                        , i + 3                      ,
-            i + controlPointsLength , i + controlPointsLength + 1   , i + controlPointsLength + 2  , i + controlPointsLength + 3]))
-                linearConstraint.Add(c);
+            if (i == 0 || i == positionList.Length - 1)
+            {
+                double[,] A = tmpX.Rotation.Dot(tmpPosM);  //Ax = B
+                foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, A.GetRow(0), tmpX, variablesAtIndices:
+                [i                      , i + 1                         , i + 2                        , i + 3                      ,
+                i + controlPointsLength , i + controlPointsLength + 1   , i + controlPointsLength + 2  , i + controlPointsLength + 3]))
+                {
+                    linearConstraint.Add(c);
+                    linearConstraintLoose.Add(c);
+                }
+                foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, A.GetRow(1), tmpY, variablesAtIndices:
+                [i                      , i + 1                         , i + 2                        , i + 3                      ,
+                i + controlPointsLength , i + controlPointsLength + 1   , i + controlPointsLength + 2  , i + controlPointsLength + 3]))
+                {
+                    linearConstraint.Add(c);
+                    linearConstraintLoose.Add(c);
+                }
             }
             if (i > 0 && i < positionList.Length - 1 )
             {
                 foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, tmpX.Rotation.GetRow(0), tmpX, variablesAtIndices: [i + 1, i + controlPointsLength + 1]))
+                {
                     linearConstraint.Add(c);
+                    linearConstraintLoose.Add(c);
+                }
                 foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, tmpX.Rotation.GetRow(1), tmpY, variablesAtIndices: [i + 1, i + controlPointsLength + 1]))
+                {
                     linearConstraint.Add(c);
+                    linearConstraintLoose.Add(c);
+                }
             }
             if (i > 0&& i < positionList.Length - 1 )
             {
@@ -197,9 +211,26 @@ class SafetyBSpline : Component, IKOrderBSpline
         }
         else
         {
-            TlarcSystem.LogWarning($"Failed to build safety B-spline:{solver.Status.ToString()}");
-            // TlarcSystem.LogWarning($"Active constraints is :{solver.ActiveConstraints[0]}");
-            Reset();
+            TlarcSystem.LogWarning($"Failed to build safety B-spline:{solver.Status.ToString()} try loose version");
+            var solver_loose = new GoldfarbIdnani(func, linearConstraintLoose);
+            solver_loose.Minimize();
+            controlPointsX = solver_loose.Solution[..controlPointsLength];
+            controlPointsY = solver_loose.Solution[controlPointsLength..];
+
+            timeline = new double[controlPointsLength + 3];
+            timeline[0] = -2 * time;
+            timeline[1] = -1 * time;
+            for (int i = 0; i < controlPointsLength; i++)
+                timeline[i + 3] = timeline[i + 2] + time;
+            if (solver_loose.Status == GoldfarbIdnaniStatus.Success)
+            {
+                ReallocTimeline();
+            }
+            else
+            {
+                TlarcSystem.LogWarning($"Finally failed to build safety B-spline:{solver.Status.ToString()}");
+                Reset();
+            }
         }
     }
 
@@ -310,8 +341,9 @@ class SafetyBSpline : Component, IKOrderBSpline
                     vMax = v;
                 }
             }
-            if (vMax < _vLimit)
-                break;
+            if (vMax < _vLimit){
+                TlarcSystem.LogInfo($"vMax={vMax},_vLimit={_vLimit}");
+                break;}
 
             var i = index;
 
@@ -352,8 +384,10 @@ class SafetyBSpline : Component, IKOrderBSpline
                     aMax = a;
                 }
             }
-            if (aMax < _aLimit)
+            if (aMax < _aLimit){
+                TlarcSystem.LogInfo($"aMax={aMax},_aLimit={_aLimit}");
                 break;
+            }
 
             var i = index;
 

@@ -7,7 +7,7 @@ namespace ALPlanner.PathPlanner;
 
 class PathPlanner : Component
 {
-  public const double TimeStep = 0.04;
+  public const double TimeStep = 0.2;
   [ComponentReferenceFiled]
   private IPathSearcher NoTimePathSearcher;
   [ComponentReferenceFiled]

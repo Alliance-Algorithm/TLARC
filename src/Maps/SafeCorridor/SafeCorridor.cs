@@ -10,7 +10,7 @@ class SafeCorridor : Component, IMap, IEnumerable<Rectangle>
 
   [ComponentReferenceFiled]
   ISafeCorridorGenerator generator;
-  // OccupancyMapData mapData = new(301, 201, 0.1f);
+  // OccupancyMapData mapData = new(1698, 1515, 0.02f);
   private IO.ROS2Msgs.Nav.OccupancyGrid _rosMapPublisher;
   public int Count => data.Count;
   public bool CheckAccessibility(Vector3d from, Vector3d to, float value = 0)
@@ -106,10 +106,10 @@ class SafeCorridor : Component, IMap, IEnumerable<Rectangle>
 
   public override void Update()
   {
-    // for (int i = 0; i < 301; i++)
-    //   for (int j = 0; j < 201; j++)
-    //     mapData[i, j] = (sbyte)(CheckAccessibility(new(i * 0.1 - 15, j * 0.1 - 10, 0)) ? 100 : 0);
+    // for (int i = 0; i < 1698; i++)
+    //   for (int j = 0; j < 1515; j++)
+    //     mapData[i, j] = (sbyte)(CheckAccessibility(new(i * 0.02 - 1698 * 0.01 , j * 0.02 - 1515* 0.01 , 0)) ? 100 : 0);
 
-    // _rosMapPublisher.Publish((mapData.ToArray, 0.1f, (uint)mapData.SizeX, (uint)mapData.SizeY));
+    // _rosMapPublisher.Publish((mapData.ToArray, 0.02f, (uint)mapData.SizeX, (uint)mapData.SizeY));
   }
 }

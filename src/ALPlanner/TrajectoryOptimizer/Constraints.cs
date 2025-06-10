@@ -27,7 +27,7 @@ public class ConstraintCollection
 
 public static class ConstraintHelper
 {
-    public static LinearConstraintCollection BuildConstraint(int numberOfVariables, double[] A, Constraint B, int[]? variablesAtIndices = null, double tolerance = 1E-12)
+    public static LinearConstraintCollection BuildConstraint(int numberOfVariables, double[] A, Constraint B, int[]? variablesAtIndices = null, double tolerance = 1E-5)
     => variablesAtIndices is null ? InternalBuildConstraint(numberOfVariables, A, B, tolerance) : InternalBuildConstraint(numberOfVariables, A, B, tolerance, variablesAtIndices);
 
 
