@@ -24,7 +24,7 @@ class Omni2DConsecNode : INode
   }
 
   public Vector3d PositionInWorld { get; private set; }
-
+  readonly double sqrt2 = Math.Sqrt(2);
   public IEnumerable<INode> Children
   {
     get
@@ -32,9 +32,13 @@ class Omni2DConsecNode : INode
       List<INode> children = new();
       for (int i = 0; i < Headings; i++)
       {
-        var (Sin, Cos) = Math.SinCos(i * Math.Tau / Headings);
+        var (Sin, Cos) = Math.SinCos(i * Math.Tau / Headings );
         children.Add(
           new Omni2DConsecNode(PositionInWorld + IterationStep * new Vector3d(Cos, Sin, 0), this)
+        );
+        (Sin, Cos) = Math.SinCos(i * Math.Tau / Headings + Math.PI / 4 );
+        children.Add(
+          new Omni2DConsecNode(PositionInWorld + IterationStep * new Vector3d(Cos, Sin, 0) * sqrt2, this)
         );
       }
       return children;

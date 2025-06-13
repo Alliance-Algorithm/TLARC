@@ -5,7 +5,7 @@ using TlarcKernel.TrajectoryOptimizer.Curves;
 
 namespace ALPlanner.TrajectoryOptimizer.Curves;
 
-class SafetyBSpline : Component, IKOrderBSpline
+class NotSoSafetyBSpline : Component, IKOrderBSpline
 {
 
     Transform sentry;
@@ -75,8 +75,8 @@ class SafetyBSpline : Component, IKOrderBSpline
     public override void Update()
     {
         SentryPos = sentry.Position;
-        _aLimit = Math.Sqrt((info.PowerLimit - 10) / 22.0) * 0.4;
-        _vLimit = _aLimit * 6;
+        _aLimit = Math.Sqrt((info.PowerLimit - 10) / 22.0) * 0.8;
+        _vLimit = _aLimit * 2;
         // TlarcSystem.LogInfo($"{_aLimit}");
     }
     private void Reset()
@@ -94,79 +94,52 @@ class SafetyBSpline : Component, IKOrderBSpline
         LinearConstraintCollection linearConstraint = [];
         LinearConstraintCollection linearConstraintLoose = [];
 
-        var controlPointsLength = Math.Clamp(positionList.Length - 3,0,int.MaxValue) * 2 + 5;
+        var controlPointsLength = positionList.Length + 4;
         var tmpX = positionList.XBegin;
         var tmpY = positionList.YBegin;
-        int i_ = 0;
-        double[,] A = tmpX.Rotation.Dot(tmpPosM);  //Ax = B
-        foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, A.GetRow(0), tmpX, variablesAtIndices:
-            [i_                      , i_ + 1                         , i_ + 2                        , i_ + 3                      ,
-            i_ + controlPointsLength , i_ + controlPointsLength + 1   , i_ + controlPointsLength + 2  , i_ + controlPointsLength + 3]))
+        for (int i = 0; i < positionList.Length; i++)
         {
-            linearConstraint.Add(c);
-            linearConstraintLoose.Add(c);
-        }
-        foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, A.GetRow(1), tmpY, variablesAtIndices:
-            [i_                      , i_ + 1                         , i_ + 2                        , i_ + 3                      ,
-            i_ + controlPointsLength , i_ + controlPointsLength + 1   , i_ + controlPointsLength + 2  , i_ + controlPointsLength + 3]))
-        {
-            linearConstraint.Add(c);
-            linearConstraintLoose.Add(c);
-        }
-        i_ += 2;
-        tmpX = tmpX.next;
-        tmpY = tmpY.next;
-        for (int k = 0; k < positionList.Length - 3; k++)
-        {
-            foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, tmpX.Rotation.GetRow(0), tmpX, variablesAtIndices:
-                [i_                                 ,i_ + controlPointsLength ,]))
-                linearConstraint.Add(c);
-            foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, tmpX.Rotation.GetRow(1), tmpY, variablesAtIndices:
-                [i_                                 ,i_ + controlPointsLength ,]))
-                linearConstraint.Add(c);
-            foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, tmpX.next.Rotation.GetRow(0), tmpX.next, variablesAtIndices:
-                [i_                                 ,i_ + controlPointsLength ,]))
-                linearConstraint.Add(c);
-            foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, tmpX.next.Rotation.GetRow(1), tmpY.next, variablesAtIndices:
-                [i_                                 ,i_ + controlPointsLength ,]))
-                linearConstraint.Add(c);
-            i_ += 1;
-            foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, tmpX.Rotation.GetRow(0), tmpX, variablesAtIndices:
-                [i_                                 ,i_ + controlPointsLength ,]))
-                linearConstraint.Add(c);
-            foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, tmpX.Rotation.GetRow(1), tmpY, variablesAtIndices:
-                [i_                                 ,i_ + controlPointsLength ,]))
-                linearConstraint.Add(c);
-            foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, tmpX.next.Rotation.GetRow(0), tmpX.next, variablesAtIndices:
-                [i_                                 ,i_ + controlPointsLength ,]))
-                linearConstraint.Add(c);
-            foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, tmpX.next.Rotation.GetRow(1), tmpY.next, variablesAtIndices:
-                [i_                                 ,i_ + controlPointsLength ,]))
-                linearConstraint.Add(c);
-            i_++;
+            if (i == 0 || i == positionList.Length - 1)
+            {
+                double[,] A = tmpX.Rotation.Dot(tmpPosM);  //Ax = B
+                if (i == positionList.Length - 1) i++;
+                foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, A.GetRow(0), tmpX, variablesAtIndices:
+                [i                      , i + 1                         , i + 2                        , i + 3                      ,
+                i + controlPointsLength , i + controlPointsLength + 1   , i + controlPointsLength + 2  , i + controlPointsLength + 3]))
+                {
+                    linearConstraint.Add(c);
+                    linearConstraintLoose.Add(c);
+                }
+                foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, A.GetRow(1), tmpY, variablesAtIndices:
+                [i                      , i + 1                         , i + 2                        , i + 3                      ,
+                i + controlPointsLength , i + controlPointsLength + 1   , i + controlPointsLength + 2  , i + controlPointsLength + 3]))
+                {
+                    linearConstraint.Add(c);
+                    linearConstraintLoose.Add(c);
+                }
+            }
+            if (i > 0 && i < positionList.Length - 1 )
+            {
+                foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, tmpX.Rotation.GetRow(0), tmpX, variablesAtIndices: [i + 1, i + controlPointsLength + 1]))
+                {
+                    linearConstraint.Add(c);
+                    linearConstraintLoose.Add(c);
+                }
+                foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, tmpX.Rotation.GetRow(1), tmpY, variablesAtIndices: [i + 1, i + controlPointsLength + 1]))
+                {
+                    linearConstraint.Add(c);
+                    linearConstraintLoose.Add(c);
+                }
+            }
+            if (i > 0&& i < positionList.Length - 1 )
+            {
+                foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, tmpX.Rotation.GetRow(0), tmpX, variablesAtIndices: [i + 2, i + controlPointsLength + 2]))
+                    linearConstraint.Add(c);
+                foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, tmpX.Rotation.GetRow(1), tmpY, variablesAtIndices: [i + 2, i + controlPointsLength + 2]))
+                    linearConstraint.Add(c);
+            }
             tmpX = tmpX.next;
             tmpY = tmpY.next;
-        }
-        if (tmpX.next is not null)
-        {
-            tmpX = tmpX.next;
-            tmpY = tmpY.next;
-        }
-        A = tmpX.Rotation.Dot(tmpPosM);  //Ax = B
-        i_ -= 1;
-        foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, A.GetRow(0), tmpX, variablesAtIndices:
-            [i_                      , i_ + 1                         , i_ + 2                        , i_ + 3                      ,
-            i_ + controlPointsLength , i_ + controlPointsLength + 1   , i_ + controlPointsLength + 2  , i_ + controlPointsLength + 3]))
-        {
-            linearConstraint.Add(c);
-            linearConstraintLoose.Add(c);
-        }
-        foreach (var c in ConstraintHelper.BuildConstraint(controlPointsLength * 2, A.GetRow(1), tmpY, variablesAtIndices:
-            [i_                      , i_ + 1                         , i_ + 2                        , i_ + 3                      ,
-            i_ + controlPointsLength , i_ + controlPointsLength + 1   , i_ + controlPointsLength + 2  , i_ + controlPointsLength + 3]))
-        {
-            linearConstraint.Add(c);
-            linearConstraintLoose.Add(c);
         }
 
         linearConstraint.Add(ConstraintHelper.CreateLinearConstraint
@@ -203,21 +176,21 @@ class SafetyBSpline : Component, IKOrderBSpline
         ));
         double[,] H = new double[controlPointsLength * 2, controlPointsLength * 2];
 
-        for (int i = 0; i < controlPointsLength; i++)
+        for (int i = 0; i < controlPointsLength - 3; i++)
             for (int j = 0; j < 4; j++)
                 for (int k = 0; k < 4; k++)
                     if (i + j < controlPointsLength && i + k < controlPointsLength)
                         H[i + j, i + k] += H4S[j, k];
         for (int i = controlPointsLength - 3 ; i < controlPointsLength; i++)
                     H[i , i ] += 1e-4;
-        for (int i = controlPointsLength; i < controlPointsLength * 2 ; i++)
+        for (int i = controlPointsLength; i < controlPointsLength * 2 - 3; i++)
             for (int j = 0; j < 4; j++)
                 for (int k = 0; k < 4; k++)
                     if (i + j < controlPointsLength * 2  && i + k < controlPointsLength * 2  )
                         H[i + j, i + k] += H4S[j, k];
         for (int i = controlPointsLength * 2 - 3; i < controlPointsLength * 2; i++)
                     H[i , i ] += 1e-4;
-
+                    
         QuadraticObjectiveFunction func = new QuadraticObjectiveFunction(H, new double[controlPointsLength * 2]);
         var solver = new GoldfarbIdnani(func, linearConstraint);
         solver.Minimize();
@@ -230,8 +203,9 @@ class SafetyBSpline : Component, IKOrderBSpline
         for (int i = 0; i < controlPointsLength; i++)
             timeline[i + 3] = timeline[i + 2] + time;
         if (solver.Status == GoldfarbIdnaniStatus.Success)
+        {
             ReallocTimeline();
-        
+        }
         else
         {
             TlarcSystem.LogWarning($"Failed to build safety B-spline:{solver.Status.ToString()} try loose version");
@@ -346,6 +320,7 @@ class SafetyBSpline : Component, IKOrderBSpline
     {
         if (timeline.Length == 3)
             return;
+            
         while (true)
         {
 
@@ -405,9 +380,11 @@ class SafetyBSpline : Component, IKOrderBSpline
                     vMax = v;
                 }
             }
-            if (vMax < _vLimit){
+            if (vMax < _vLimit)
+            {
                 TlarcSystem.LogInfo($"vMax={vMax},_vLimit={_vLimit}");
-                break;}
+                break;
+            }
 
             var i = index;
 
@@ -431,6 +408,7 @@ class SafetyBSpline : Component, IKOrderBSpline
         var tTmp = timeline[2];
         for (int i = 0; i < timeline.Length; i++)
             timeline[i] -= tTmp;
+        TlarcSystem.LogInfo($"Total Time：{MaxTime}s");
     }
 
     public void Construction(Vector3d point)

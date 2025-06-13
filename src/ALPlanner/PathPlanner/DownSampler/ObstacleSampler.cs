@@ -7,7 +7,7 @@ namespace ALPlanner.PathPlanner.Sampler;
 
 class ObstacleSampler : Component, ISampler
 {
-  private float _samplingRate = 0.1f;
+  private float _samplingRate = 0.2f;
 
   [ComponentReferenceFiled] IGridMap map;
 

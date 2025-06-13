@@ -7,7 +7,7 @@ namespace ALPlanner.PathPlanner;
 
 class PathPlanner : Component
 {
-  public const double TimeStep = 0.2;
+  public const double TimeStep = 0.05;
   [ComponentReferenceFiled]
   private IPathSearcher NoTimePathSearcher;
   [ComponentReferenceFiled]
@@ -42,13 +42,17 @@ class PathPlanner : Component
     // Console.WriteLine($"1: {BenchMarkStep()}");
     debugPath.Publish(points.Copy());
     safeCorridor.Generate(points, 5);
+    // List<Vector3d> centers = [];
+    // foreach (var rect in safeCorridor)
+    //   centers.Add(new((rect.MaxX + rect.MinX) / 2, (rect.MaxY + rect.MinY) / 2, 0));
+    // safeCorridor.Generate([.. centers], 5);
     // BenchMarkFilled("astar safeCorridor", BenchMarkStep(), ref benchMark);
-    // Console.WriteLine($"2: {BenchMarkStep()}");
-    // points = sampler.Sample(TimeConstraintsPathSearcher.Search(origin, target, safeCorridor, speed));
-    // BenchMarkFilled("kino ", BenchMarkStep(), ref benchMark);
-    // debugPath1.Publish(points.Copy());
-    // BenchMarkFilled("kino safeCorridor", BenchMarkStep(), ref benchMark);
-    // safeCorridor.Generate(points, TimeStep);
+      // Console.WriteLine($"2: {BenchMarkStep()}");
+      // points = sampler.Sample(TimeConstraintsPathSearcher.Search(origin, target, safeCorridor, speed));
+      // BenchMarkFilled("kino ", BenchMarkStep(), ref benchMark);
+      // debugPath1.Publish(points.Copy());
+      // BenchMarkFilled("kino safeCorridor", BenchMarkStep(), ref benchMark);
+      // safeCorridor.Generate(points, TimeStep);
     var collection = safeCorridor.GenerateConstraintCollection();
     // BenchMarkFilled("Constraint generate", BenchMarkStep(), ref benchMark);
     collection.TimeStep = TimeStep;

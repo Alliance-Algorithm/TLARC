@@ -32,7 +32,7 @@
     ALPlanner.TrajectoryOptimizer->TrajectoryOptimizer:
       Relies:
         sentry: 1
-    ALPlanner.TrajectoryOptimizer.Curves->SafetyBSpline:
+    ALPlanner.TrajectoryOptimizer.Curves->NotSoSafetyBSpline:
       Relies:
         sentry: 1
     
