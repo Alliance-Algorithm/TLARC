@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Kernel\Kernel.Core\Kernel.Core.csproj"/>
+        <ProjectReference Include="..\CostMap.Domain\CostMap.Domain.csproj"/>
+        <ProjectReference Include="..\CostMap.Infrastructure\CostMap.Infrastructure.csproj"/>
+        <ProjectReference Include="..\SafeCorridor.Domain\SafeCorridor.Domain.csproj"/>
+    </ItemGroup>
+
+</Project>

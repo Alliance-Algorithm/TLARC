@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <Nullable>enable</Nullable>
+        <IsRoslynComponent>true</IsRoslynComponent>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <DevelopmentDependency>true</DevelopmentDependency>
+        <EnableAnalyzersPublishing>true</EnableAnalyzersPublishing>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <EnableAnalyzerPublishingTracking>true</EnableAnalyzerPublishingTracking>
+        <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)Tlarc.ruleset</CodeAnalysisRuleSet>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Driver\TlarcROSBridge\TlarcROSBridge.csproj"/>
+        <ProjectReference Include="..\Kernel.DataInterfaces\Kernel.DataInterfaces.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="src\API\Graphics\"/>
+        <Folder Include="src\API\Log\"/>
+    </ItemGroup>
+</Project>
