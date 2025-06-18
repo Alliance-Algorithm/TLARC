@@ -1,4 +1,4 @@
-using g4;
+using System.Numerics;
 using Rcl;
 using Kernel.DataInterfaces.Navigation;
 using TlarcRosBridge.Infrastructure.Messages.Nav;
@@ -11,42 +11,46 @@ public static class Navigation
     {
         private class GridMap2DData : IGridMap2DData
         {
-            public required Vector2d Origin { get; init; }
-            public required Vector2i Size { get; init; }
+            public required string Identifier { get; init; }
+            public required Vector2 Origin { get; init; }
+            public required uint Height { get; init; }
+            public uint Width { get; init; }
             public required double RotationRad { get; init; }
-            public required Matrix2d RotationMatrix { get; init; }
-            public required double Resolution { get; init; }
+            public required Matrix3x2 RotationMatrix { get; init; }
+            public required float Resolution { get; init; }
             public required sbyte[] Data { get; init; }
         }
 
-        public static IGridMap2DData Convert(ref OccupancyGrid.Priv map)
+        public static IGridMap2DData ConvertToGridMap2DData(ref OccupancyGrid.Priv map)
         {
-            var rad = double.Asin(2 * (map.Info.Origin.Orientation.W * map.Info.Origin.Orientation.Y -
-                                       map.Info.Origin.Orientation.X * map.Info.Origin.Orientation.Z));
+            var rad = float.Asin((float)(2 * (map.Info.Origin.Orientation.W * map.Info.Origin.Orientation.Y -
+                                              map.Info.Origin.Orientation.X * map.Info.Origin.Orientation.Z)));
             return new GridMap2DData
             {
-                Origin = new Vector2d { x = map.Info.Origin.Position.X, y = map.Info.Origin.Position.Y },
-                Size = new Vector2i { x = (int)map.Info.Width, y = (int)map.Info.Height },
+                Identifier = map.Header.FrameId.ToString(),
+                Origin = new Vector2 { X = (float)map.Info.Origin.Position.X, Y = (float)map.Info.Origin.Position.Y },
+                Width = map.Info.Width,
+                Height = map.Info.Height,
                 RotationRad = rad,
-                RotationMatrix = new Matrix2d(rad),
+                RotationMatrix = Matrix3x2.CreateRotation(rad),
                 Resolution = map.Info.Resolution,
                 Data = map.Data.AsSpan().ToArray()
             };
         }
 
-        public static void Convert(IGridMap2DData mapIn, string frameId, IRclNode node, ref OccupancyGrid.Priv mapOut)
+        public static void WriteInto(IGridMap2DData mapIn, string frameId, IRclNode node, ref OccupancyGrid.Priv mapOut)
         {
-            var q = Quaterniond.AxisAngleR(Vector3d.AxisY, mapIn.RotationRad);
+            var q = Quaternion.CreateFromAxisAngle(Vector3.UnitY, (float)mapIn.RotationRad);
             mapOut.Data.CopyFrom(mapIn.Data);
-            mapOut.Info.Resolution = (float)mapIn.Resolution;
-            mapOut.Info.Origin.Position.X = mapIn.Origin.x;
-            mapOut.Info.Origin.Position.Y = mapIn.Origin.y;
-            mapOut.Info.Origin.Orientation.X = q.x;
-            mapOut.Info.Origin.Orientation.Y = q.y;
-            mapOut.Info.Origin.Orientation.Z = q.z;
-            mapOut.Info.Origin.Orientation.W = q.w;
-            mapOut.Info.Width = (uint)mapIn.Size.x;
-            mapOut.Info.Height = (uint)mapIn.Size.y;
+            mapOut.Info.Resolution = mapIn.Resolution;
+            mapOut.Info.Origin.Position.X = mapIn.Origin.X;
+            mapOut.Info.Origin.Position.Y = mapIn.Origin.Y;
+            mapOut.Info.Origin.Orientation.X = q.X;
+            mapOut.Info.Origin.Orientation.Y = q.Y;
+            mapOut.Info.Origin.Orientation.Z = q.Z;
+            mapOut.Info.Origin.Orientation.W = q.W;
+            mapOut.Info.Width = mapIn.Width;
+            mapOut.Info.Height = mapIn.Height;
             Std.FromData(frameId, node, ref mapOut.Header);
         }
     }

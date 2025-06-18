@@ -2,7 +2,7 @@
 
 namespace CostMap.Infrastructure.Algorithm;
 
-internal class Geometry
+internal static class Geometry
 {
     /// <summary>
     /// 使用 Bresenham 算法计算两点之间直线经过的所有栅格坐标
@@ -35,14 +35,14 @@ internal class Geometry
             if (e2 > -dy)
             {
                 err -= dy;
-                x   += sx;
+                x += sx;
             }
 
             if (e2 >= dx)
                 break;
 
             err += dx;
-            y   += sy;
+            y += sy;
         }
 
         return points;

@@ -1,13 +1,12 @@
-﻿using g4;
-using Rcl;
+﻿using Rcl;
 using TlarcRosBridge.Infrastructure.Messages.Geometry;
 
 namespace TlarcRosBridge.Infrastructure.Decorators;
 
 public static class Geometry
 {
-    public static void WriteData(Vector3d             dataInPos,
-                                 Quaterniond          dataInRotation,
+    public static void WriteData(Vector3              dataInPos,
+                                 Quaternion           dataInRotation,
                                  ReadOnlySpan<char>   frameId,
                                  IRclNode             node,
                                  ref PoseStamped.Priv dataOut)
@@ -16,13 +15,13 @@ public static class Geometry
         Geometry.WriteData(dataInRotation, frameId, node, ref dataOut);
     }
 
-    public static void WriteData(Vector3d dataInPos, Quaterniond dataInRotation, ref PoseStamped.Priv dataOut)
+    public static void WriteData(Vector3 dataInPos, Quaternion dataInRotation, ref PoseStamped.Priv dataOut)
     {
         Geometry.WriteData(dataInPos,      ref dataOut.Pose);
         Geometry.WriteData(dataInRotation, ref dataOut.Pose);
     }
 
-    public static void WriteData(Vector3d             dataIn,
+    public static void WriteData(Vector3              dataIn,
                                  ReadOnlySpan<char>   frameId,
                                  IRclNode             node,
                                  ref PoseStamped.Priv dataOut)
@@ -31,7 +30,7 @@ public static class Geometry
         Geometry.WriteData(dataIn, ref dataOut.Pose);
     }
 
-    public static void WriteData(Quaterniond          dataIn,
+    public static void WriteData(Quaternion           dataIn,
                                  ReadOnlySpan<char>   frameId,
                                  IRclNode             node,
                                  ref PoseStamped.Priv dataOut)
@@ -40,35 +39,35 @@ public static class Geometry
         Geometry.WriteData(dataIn, ref dataOut.Pose);
     }
 
-    public static void WriteData(Vector3d dataIn, ref PoseStamped.Priv dataOut)
+    public static void WriteData(Vector3 dataIn, ref PoseStamped.Priv dataOut)
     {
         Geometry.WriteData(dataIn, ref dataOut.Pose);
     }
 
-    public static void WriteData(Quaterniond dataIn, ref PoseStamped.Priv dataOut)
+    public static void WriteData(Quaternion dataIn, ref PoseStamped.Priv dataOut)
     {
         Geometry.WriteData(dataIn, ref dataOut.Pose);
     }
 
-    public static void WriteData(Vector3d dataInPos, Quaterniond dataInRotation, ref Pose.Priv dataOut)
+    public static void WriteData(Vector3 dataInPos, Quaternion dataInRotation, ref Pose.Priv dataOut)
     {
         Geometry.WriteData(dataInPos,      ref dataOut);
         Geometry.WriteData(dataInRotation, ref dataOut);
     }
 
 
-    public static void WriteData(Vector3d dataIn, ref Pose.Priv dataOut)
+    public static void WriteData(Vector3 dataIn, ref Pose.Priv dataOut)
     {
-        dataOut.Position.X = dataIn.x;
-        dataOut.Position.Y = dataIn.y;
-        dataOut.Position.Z = dataIn.z;
+        dataOut.Position.X = dataIn.X;
+        dataOut.Position.Y = dataIn.Y;
+        dataOut.Position.Z = dataIn.Z;
     }
 
-    public static void WriteData(Quaterniond dataIn, ref Pose.Priv dataOut)
+    public static void WriteData(Quaternion dataIn, ref Pose.Priv dataOut)
     {
-        dataOut.Orientation.W = dataIn.w;
-        dataOut.Orientation.X = dataIn.x;
-        dataOut.Orientation.Y = dataIn.y;
-        dataOut.Orientation.Z = dataIn.z;
+        dataOut.Orientation.W = dataIn.W;
+        dataOut.Orientation.X = dataIn.X;
+        dataOut.Orientation.Y = dataIn.Y;
+        dataOut.Orientation.Z = dataIn.Z;
     }
 }

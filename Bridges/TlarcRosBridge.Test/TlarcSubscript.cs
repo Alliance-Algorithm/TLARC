@@ -1,4 +1,7 @@
-﻿namespace TlarcRosBridge.Test;
+﻿using System.Net.Mime;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+
+namespace TlarcRosBridge.Test;
 
 using Kernel.Core.EventBus;
 using Kernel.Core.Messages;
@@ -30,7 +33,7 @@ public class TlarcSubscript
     public void Test1()
     {
         var total = 0;
-        var i = 0;
+        var i     = 0;
         Thread.Sleep(2);
         while (i < 20)
         {
@@ -43,5 +46,7 @@ public class TlarcSubscript
         Thread.Sleep(2);
 
         Assert.That(all, Is.EqualTo(total));
+
+        Environment.Exit(0);
     }
 }

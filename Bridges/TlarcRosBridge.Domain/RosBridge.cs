@@ -24,9 +24,9 @@ public class RosBridge
     {
     }
 
-    public void Subscript<TMessage, TTlarcData>(string rosTopicName,
-        string tlarcEventName,
-        Func<RosMessageBuffer, TTlarcData> dataFunc)
+    public void Subscript<TMessage, TTlarcData>(string                             rosTopicName,
+                                                string                             tlarcEventName,
+                                                Func<RosMessageBuffer, TTlarcData> dataFunc)
         where TMessage : IMessage where TTlarcData : ITlarcData
     {
         Task.Run(async () =>
@@ -42,9 +42,9 @@ public class RosBridge
         Thread.Sleep(1);
     }
 
-    public void Publish<TTlarcData, TMessage>(string tlarcEventName,
-        string rosTopicName,
-        RefAction<TTlarcData, IRclNode, RosMessageBuffer> dataFunc)
+    public void Publish<TTlarcData, TMessage>(string                                            tlarcEventName,
+                                              string                                            rosTopicName,
+                                              RefAction<TTlarcData, IRclNode, RosMessageBuffer> dataFunc)
         where TMessage : IMessage where TTlarcData : ITlarcData
     {
         var pub = Node.CreatePublisher<TMessage>(rosTopicName);

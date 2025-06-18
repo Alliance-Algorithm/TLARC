@@ -1,6 +1,8 @@
+using System.Numerics;
+using TlarcRosBridge.Infrastructure.Messages.Sensor;
+
 namespace TlarcRosBridge.Infrastructure.Decorators;
 
-public class Sensor
+public static class Sensor
 {
-    
 }
