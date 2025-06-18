@@ -1,5 +1,4 @@
-﻿using g4;
-using Kernel.Core.Messages;
+﻿using Kernel.Core.Messages;
 using Kernel.DataInterfaces;
 using Kernel.DataInterfaces.Navigation;
 

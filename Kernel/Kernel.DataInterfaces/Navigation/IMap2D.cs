@@ -1,4 +1,4 @@
-﻿using g4;
+﻿using System.Numerics;
 
 namespace Kernel.DataInterfaces.Navigation;
 
@@ -10,12 +10,12 @@ public interface IMap2D : ITlarcData
     /// <param name="from">起始位置</param>
     /// <param name="to">终点位置</param>
     /// <returns>如果有可以直线通过：true</returns>
-    public bool IsMoveAble(Vector2d from, Vector2d to);
+    public bool IsMoveAble(Vector2 from, Vector2 to);
 
     /// <summary>
     /// position是否有障碍物
     /// </summary>
     /// <param name="position">tlarc坐标系坐标</param>
     /// <returns>如果有障碍物：true</returns>
-    public bool IsMoveAble(Vector2d position);
+    public bool IsMoveAble(Vector2 position);
 }

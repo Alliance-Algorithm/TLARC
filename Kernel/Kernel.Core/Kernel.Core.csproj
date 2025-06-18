@@ -15,12 +15,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Driver\TlarcROSBridge\TlarcROSBridge.csproj"/>
         <ProjectReference Include="..\Kernel.DataInterfaces\Kernel.DataInterfaces.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="src\API\Graphics\"/>
-        <Folder Include="src\API\Log\"/>
     </ItemGroup>
 </Project>

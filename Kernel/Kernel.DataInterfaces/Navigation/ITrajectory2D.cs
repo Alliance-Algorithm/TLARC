@@ -1,8 +1,8 @@
-﻿using g4;
+﻿using System.Numerics;
 
 namespace Kernel.DataInterfaces.Navigation;
 
-public interface ITrajectory2D : ITlarcData
+public interface ITrajectory2D : ITransform, ITlarcData
 {
     /// <summary>
     ///  轨迹起始时间
@@ -19,7 +19,7 @@ public interface ITrajectory2D : ITlarcData
     /// </summary>
     /// <param name="time">实际时间</param>
     /// <returns></returns>
-    Vector2d GetPosition(DateTime time);
+    Vector2 GetPosition(DateTime time);
 
     /// <summary>
     /// 获取一段轨迹点序列
@@ -28,5 +28,5 @@ public interface ITrajectory2D : ITlarcData
     /// <param name="stepInSecond">每个点相隔几秒</param>
     /// <param name="count">需要几个点</param>
     /// <returns></returns>
-    IEnumerable<Vector2d> GetPositionArray(DateTime beginTime, double stepInSecond, int count);
+    IEnumerable<Vector2> GetPositionArray(DateTime beginTime, double stepInSecond, int count);
 }

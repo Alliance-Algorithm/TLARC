@@ -1,4 +1,4 @@
-﻿using g4;
+﻿using System.Numerics;
 
 namespace Kernel.DataInterfaces.Visualization;
 
@@ -7,9 +7,9 @@ public interface IShape
     /// <summary>
     /// 圆形中心点
     /// </summary>
-    Vector2d Center { get; }
+    Vector2 Center { get; }
     /// <summary>
     /// 圆形半径
     /// </summary>
-    Vector2d Radius { get; }
+    Vector2 Radius { get; }
 }

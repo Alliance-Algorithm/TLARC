@@ -1,6 +1,4 @@
-﻿using g4;
-
-namespace Kernel.DataInterfaces.Navigation;
+﻿namespace Kernel.DataInterfaces.Navigation;
 
 public interface IOccupancyGridMap2DData : IGridMap2DData
 {
