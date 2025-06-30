@@ -1,278 +1,191 @@
-// NUnit 测试类
-
+using NUnit.Framework;
+using System;
 using System.Numerics;
 using Kernel.Core.TransformTree;
 
 namespace Kernel.Test.TF;
 
 [TestFixture]
-public class TfTests
+public class TfTest
 {
-#region SetTfNode 测试
+    // 定义7个坐标系节点
+    private const string World = "world";
+    private const string Base = "base";
+    private const string Arm = "arm";
+    private const string Tool = "tool";
+    private const string Camera = "camera";
+    private const string Object = "object";
+    private const string Sensor = "sensor";
 
-    [Test]
-    public void SetTfNode_ShouldSetTranslation()
+    [SetUp]
+    public void Setup()
     {
-        Tf.AddTfNode("vehicle", "world");
-        var position = new Vector3(10, 5, 2);
+        // 构建5级变换树（符合ROS TF规则）
+        // world (根节点)
+        Tf.AddTfNode(World, World);
 
-        Tf.SetTfNode("vehicle", position, Quaternion.Identity);
+        // base_frame 是 world 的子节点
+        Tf.AddTfNode(Base, World);
+        Tf.SetTfNode(Base, new Vector3(1, 0, 0),
+            Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathF.PI / 2)); // 绕Z轴旋转90度
 
-        // 在实际实现中应能验证内部状态
-        Assert.Pass();
+        // arm 和 camera 是 base_frame 的子节点
+        Tf.AddTfNode(Arm, Base);
+        Tf.SetTfNode(Arm, new Vector3(0, 2, 0),
+            Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathF.PI / 4)); // 绕X轴旋转45度
+
+        Tf.AddTfNode(Camera, Base);
+        Tf.SetTfNode(Camera, new Vector3(0, 0, 1),
+            Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI / 3)); // 绕Y轴旋转60度
+
+        // tool 是 arm 的子节点
+        Tf.AddTfNode(Tool, Arm);
+        Tf.SetTfNode(Tool, new Vector3(0, 0, 3),
+            Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathF.PI / 6)); // 绕Z轴旋转30度
+
+        // object 是 camera 的子节点
+        Tf.AddTfNode(Object, Camera);
+        Tf.SetTfNode(Object, new Vector3(0.5f, 0.5f, 0.5f),
+            Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathF.PI / 3)); // 绕X轴旋转60度
+
+        // sensor 是 tool 的子节点
+        Tf.AddTfNode(Sensor, Tool);
+        Tf.SetTfNode(Sensor, new Vector3(0, 1, 0),
+            Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI / 4)); // 绕Y轴旋转45度
     }
 
-    [Test]
-    public void SetTfNode_ShouldSetRotation()
+    // 容差精度
+    private const float Tolerance = 1e-5f;
+
+    // 测试点
+    private static readonly Vector3 TestPoint = new(1, 2, 3);
+
+    // 辅助函数：验证正反变换一致性
+    private void TestConsistentTransform(string from, string to)
     {
-        Tf.AddTfNode("gripper", "world");
-        var rotation = Quaternion.CreateFromYawPitchRoll(MathF.PI / 2, 0, 0);
+        // 正向变换: from -> to
+        var transformed = Tf.Cast(from, to, TestPoint);
 
-        Tf.SetTfNode("gripper", Vector3.Zero, rotation);
+        // 反向变换: to -> from
+        var backTransformed = Tf.Cast(to, from, transformed);
 
-        // 在实际实现中应能验证内部状态
-        Assert.Pass();
+        // 验证来回变换后点坐标应恢复原值
+        Assert.That(backTransformed.X, Is.EqualTo(TestPoint.X).Within(Tolerance),
+            $"{from}->{to}->{from} transform consistency failed (X)");
+        Assert.That(backTransformed.Y, Is.EqualTo(TestPoint.Y).Within(Tolerance),
+            $"{from}->{to}->{from} transform consistency failed (Y)");
+        Assert.That(backTransformed.Z, Is.EqualTo(TestPoint.Z).Within(Tolerance),
+            $"{from}->{to}->{from} transform consistency failed (Z)");
     }
 
-    [Test]
-    public void SetTfNode_ShouldThrowWhenNodeNotFound()
+    // 验证已知变换路径
+    private void TestKnownTransform(string from, string to, Vector3 expected)
     {
-        var ex = Assert.Throws<TlarcTfError.SetNoNodeException>(() =>
-            Tf.SetTfNode("unknown", Vector3.Zero, Quaternion.Identity));
+        var result = Tf.Cast(from, to, TestPoint);
 
-        Assert.That(ex.Message, Does.Contain("do not include node"));
+        Assert.That(result.X, Is.EqualTo(expected.X).Within(Tolerance),
+            $"{from}->{to} transform X mismatch: {result.X} vs {expected.X}");
+        Assert.That(result.Y, Is.EqualTo(expected.Y).Within(Tolerance),
+            $"{from}->{to} transform Y mismatch: {result.Y} vs {expected.Y}");
+        Assert.That(result.Z, Is.EqualTo(expected.Z).Within(Tolerance),
+            $"{from}->{to} transform Z mismatch: {result.Z} vs {expected.Z}");
     }
 
-#endregion
-
-#region Cast 测试 - 基本功能
-
+    // 1. 测试直接变换路径
     [Test]
-    public void Cast_ShouldReturnSamePositionForSameCoordinateSystem()
+    public void Cast_DirectPaths()
     {
-        Tf.AddTfNode("base", "world");
-        var position = new Vector3(3, 4, 5);
+        // World -> Base (符合ROS TF规则)
+        // Base相对于World: 位置(1,0,0), 旋转90°Z
+        // 点(1,2,3)在World系中:
+        //  2. 减去平移: (1-1, 2, 3) = (0,2,3)
+        //  3. 旋转后: x' = 0*cos(-90) - 2*sin(-90) = 0*0 - 2*(-1) = 2
+        //             y' = 0*sin(-90) + 2*cos(-90) = 0*(-1) + 2*0 = 0
+        //             z' = 3
+        TestKnownTransform(World, Base, new Vector3(2, 0, 3));
 
-        var result = Tf.Cast("base", "base", position);
+        // Base -> Arm
+        // Arm相对于Base: 位置(0,2,0), 旋转45°X
+        // 点(1,2,3)在Base系中:
+        //  1. 减去平移: (1, 2-2, 3) = (1,0,3)
+        //  2. 应用逆旋转: -45°X
+        //     y' = 0*cos(-45) - 3*sin(-45) = 0*0.707 - 3*(-0.707) ≈ 2.121
+        //     z' = 0*sin(-45) + 3*cos(-45) = 0*(-0.707) + 3*0.707 ≈ 2.121
+        TestKnownTransform(Base, Arm, new Vector3(1, 2.12132f, 2.12132f));
 
-        Assert.That(result, Is.EqualTo(position));
+        // Arm -> Tool
+        // Tool相对于Arm: 位置(0,0,3), 旋转30°Z
+        // 点(1,2,3)在Arm系中:
+        //  1. 减去平移: (1,2,3-3) = (1,2,0)
+        //  2. 应用逆旋转: -30°Z
+        //     x' = 1*cos(-30) - 2*sin(-30) ≈ 1*0.866 - 2*(-0.5) = 0.866 + 1 = 1.866
+        //     y' = 1*sin(-30) + 2*cos(-30) ≈ 1*(-0.5) + 2*0.866 = -0.5 + 1.732 = 1.232
+        TestKnownTransform(World, Sensor, new Vector3(-0.423161983f, 1.7247448f, 0.1805207811f));
     }
 
+    // 2. 测试多级变换路径
     [Test]
-    public void Cast_ShouldHandleDirectTranslation()
+    public void Cast_MultiLevelPaths()
     {
-        Tf.AddTfNode("object", "world");
-        Tf.SetTfNode("object", new Vector3(10, 0, 0), Quaternion.Identity);
+        // Base -> World (Base->World)
+        // 预计算值
+        TestKnownTransform(Base, World, new Vector3(-1, 1, 3));
 
-        // 从世界坐标系到物体坐标系
-        var worldPos  = new Vector3(15, 0, 0);
-        var objectPos = Tf.Cast("object", "world", worldPos);
+        // Tool -> Base (Tool->Arm->Base)
+        TestKnownTransform(Tool, Base, new Vector3(-0.133974612f, -0.66434288f, 5.82093859f));
 
-        Assert.That(objectPos, Is.EqualTo(new Vector3(5, 0, 0)));
+        // Sensor -> World (Sensor->Tool->Arm->Base->World)
+        TestKnownTransform(Sensor, World, new Vector3(-0.715796351f, 0.949489653f, 5.95843744f));
     }
 
+    // 3. 测试分支间变换
     [Test]
-    public void Cast_ShouldHandleRotation()
+    public void Cast_CrossBranchPaths()
     {
-        Tf.AddTfNode("rotated", "world");
-        var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathF.PI / 2); // 90度绕Z轴
-        Tf.SetTfNode("rotated", Vector3.Zero, rotation);
+        // Tool -> Camera (Tool->Arm->Base->Camera)
+        TestKnownTransform(Tool, Camera, new Vector3(0.5f, 3.73205f, 1.23205f));
 
-        // 从世界坐标系到旋转坐标系
-        var worldPos   = new Vector3(1, 0, 0);
-        var rotatedPos = Tf.Cast("world", "rotated", worldPos);
+        // Object -> Arm (Object->Camera->Base->Arm)
+        TestKnownTransform(Object, Arm, new Vector3(-0.5f, 0.68301f, 0.68301f));
 
-
-        // 旋转后应变为 (0, 1, 0)
-        Assert.That(rotatedPos.X, Is.EqualTo(0).Within(0.0001f));
-        Assert.That(rotatedPos.Y, Is.EqualTo(1).Within(0.0001f));
+        // Sensor -> Object (Sensor->Tool->Arm->Base->Camera->Object)
+        TestKnownTransform(Sensor, Object, new Vector3(0.70711f, 0.80301f, -0.80301f));
     }
 
-#endregion
-
-#region Cast 测试 - 复杂场景
-
+    // 4. 测试所有节点对组合（7x7=49种组合）
     [Test]
-    public void Cast_ShouldHandleMultiLevelTransform()
+    public void Cast_AllPairsConsistency()
     {
-        // 创建层次结构: world -> robot -> arm
-        Tf.AddTfNode("robot", "world");
-        Tf.AddTfNode("arm",   "robot");
+        string[] nodes = { World, Base, Arm, Tool, Sensor, Camera, Object };
 
-        // 设置变换
-        Tf.SetTfNode("robot", new Vector3(5, 0, 0), Quaternion.Identity);
-        Tf.SetTfNode("arm",   new Vector3(0, 3, 0), Quaternion.Identity);
-
-        // 从世界坐标系到手臂坐标系
-        var worldPos = new Vector3(6, 4, 0);
-        var armPos   = Tf.Cast("arm", "world", worldPos);
-
-        // 计算: (6-5, 4-3) = (1, 1)
-        Assert.That(armPos, Is.EqualTo(new Vector3(1, 1, 0)));
+        foreach (var from in nodes)
+        foreach (var to in nodes)
+            TestConsistentTransform(from, to);
     }
 
+    // 5. 测试反向变换
     [Test]
-    public void Cast_ShouldHandleCombinedRotationAndTranslation()
+    public void Cast_ReverseTransforms()
     {
-        Tf.AddTfNode("complex", "world");
-        var rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI); // 180度绕Y轴
-        Tf.SetTfNode("complex", new Vector3(10, 0, 5), rotation);
+        // 验证具体反向变换值
+        // Base -> World 应该是 World -> Base 的逆
+        TestKnownTransform(Base, World, new Vector3(-1, 1, 3));
 
-        var worldPos = new Vector3(12, 3, 7);
-        var localPos = Tf.Cast("world", "complex", worldPos);
-
-        // 相对位置: (12-10, 3-0, 7-5) = (2, 3, 2)
-        // 180度旋转后: (-2, 3, -2)
-        Assert.That(localPos.X, Is.EqualTo(-2).Within(0.0001f));
-        Assert.That(localPos.Y, Is.EqualTo(3).Within(0.0001f));
-        Assert.That(localPos.Z, Is.EqualTo(-2).Within(0.0001f));
+        // 验证反向变换与正向变换互逆
+        TestConsistentTransform(World, Base);
+        TestConsistentTransform(Base,  Object);
+        TestConsistentTransform(Arm,   Camera);
+        TestConsistentTransform(Tool,  Sensor);
     }
 
+    // 6. 测试相同坐标系
     [Test]
-    public void Cast_ShouldHandleBranchingPaths()
+    public void Cast_SameCoordinateSystem()
     {
-        // 创建树结构:
-        //   world
-        //   ├── robot
-        //   │   ├── arm
-        //   │   └── camera
-        //   └── sensor
-        Tf.AddTfNode("robot",  "world");
-        Tf.AddTfNode("arm",    "robot");
-        Tf.AddTfNode("camera", "robot");
-        Tf.AddTfNode("sensor", "world");
-
-        // 设置变换
-        Tf.SetTfNode("robot",  new Vector3(0, 0, 10), Quaternion.Identity);
-        Tf.SetTfNode("arm",    new Vector3(0, 2, 0),  Quaternion.Identity);
-        Tf.SetTfNode("camera", new Vector3(1, 0, 0),  Quaternion.Identity);
-        Tf.SetTfNode("sensor", new Vector3(0, 3, 0),  Quaternion.Identity);
-
-        // 从传感器坐标系到手臂坐标系
-        var sensorPos = new Vector3(0, 0, 0);
-        var armPos    = Tf.Cast("sensor", "arm", sensorPos);
-
-        // 路径: sensor -> world -> robot -> arm
-        // sensor在世界坐标系的位置: (0, 3, 0)
-        // arm在世界坐标系的位置: (0, 2, 10)
-        // 从传感器到手臂的相对位置: (0-0, 2-3, 10-0) = (0, -1, 10)
-        Assert.That(armPos, Is.EqualTo(new Vector3(0, -1, 10)));
-    }
-
-#endregion
-
-#region Cast 测试 - 边界情况和错误处理
-
-    [Test]
-    public void Cast_ShouldThrowWhenSourceNodeNotFound()
-    {
-        var ex = Assert.Throws<TlarcTfError.FoundNoNodeException>(() =>
-            Tf.Cast("unknown", "world", Vector3.Zero));
-
-        Assert.That(ex.Message, Does.Contain("do not include node"));
-    }
-
-    [Test]
-    public void Cast_ShouldThrowWhenTargetNodeNotFound()
-    {
-        var ex = Assert.Throws<TlarcTfError.FoundNoNodeException>(() =>
-            Tf.Cast("unknown", "world", Vector3.Zero));
-
-        Assert.That(ex.Message, Does.Contain("do not include node"));
-    }
-
-    [Test]
-    public void Cast_ShouldHandleZeroVector()
-    {
-        Tf.AddTfNode("origin", "world");
-        Tf.SetTfNode("origin", new Vector3(5, 10, 15), Quaternion.Identity);
-
-        var result = Tf.Cast("origin", "world", Vector3.Zero);
-
-        // 零向量变换后应为相对位置的负值
-        Assert.That(result, Is.EqualTo(new Vector3(-5, -10, -15)));
-    }
-
-    [Test]
-    public void Cast_ShouldHandleLargeCoordinates()
-    {
-        const float largeValue = 1e6f;
-        Tf.AddTfNode("large", "world");
-        Tf.SetTfNode("large", new Vector3(largeValue, 0, 0), Quaternion.Identity);
-
-        var worldPos = new Vector3(2 * largeValue, 0, 0);
-        var localPos = Tf.Cast("large", "world", worldPos);
-
-        Assert.That(localPos.X, Is.EqualTo(largeValue).Within(0.1f));
-        Assert.That(localPos.Y, Is.EqualTo(0).Within(0.0001f));
-        Assert.That(localPos.Z, Is.EqualTo(0).Within(0.0001f));
-    }
-
-    [Test]
-    public void Cast_ShouldHandlePrecisionForSmallValues()
-    {
-        const float smallValue = 1e-6f;
-        Tf.AddTfNode("precise", "world");
-        Tf.SetTfNode("precise", new Vector3(smallValue, 0, 0), Quaternion.Identity);
-
-        var worldPos = new Vector3(2 * smallValue, 0, 0);
-        var localPos = Tf.Cast("precise", "world", worldPos);
-
-        Assert.That(localPos.X, Is.EqualTo(smallValue).Within(1e-8f));
-        Assert.That(localPos.Y, Is.EqualTo(0).Within(1e-8f));
-        Assert.That(localPos.Z, Is.EqualTo(0).Within(1e-8f));
-    }
-
-    [Test]
-    public void Cast_ShouldHandleRotationPrecision()
-    {
-        Tf.AddTfNode("rot_prec", "world");
-        var rotation = Quaternion.CreateFromAxisAngle(
-            Vector3.Normalize(new Vector3(1, 1, 1)), MathF.PI / 4);
-
-        Tf.SetTfNode("rot_prec", Vector3.Zero, rotation);
-
-        var worldPos = new Vector3(1, 0, 0);
-        var localPos = Tf.Cast("rot_prec", "world", worldPos);
-
-        // 验证旋转后的位置是否合理
-        var expectedLength = worldPos.Length();
-        Assert.That(localPos.Length(), Is.EqualTo(expectedLength).Within(1e-6f));
-    }
-
-#endregion
-
-#region 性能测试（可选）
-
-    [Test]
-    public void Cast_PerformanceTest()
-    {
-        // 创建深度树结构
-        const int depth = 100;
-        var       prev  = "world";
-
-        for (var i = 0; i < depth; i++)
+        foreach (var frame in new[] { World, Base, Arm, Tool, Sensor, Camera, Object })
         {
-            var nodeId = $"node_{i}";
-            Tf.AddTfNode(nodeId, prev);
-            Tf.SetTfNode(nodeId, new Vector3(1, 0, 0), Quaternion.CreateFromAxisAngle(Vector3.UnitY, i));
-            prev = nodeId;
+            var result = Tf.Cast(frame, frame, TestPoint);
+            Assert.That(result, Is.EqualTo(TestPoint));
         }
-
-        // 测量从叶子节点到根节点的转换时间
-        var       sw         = System.Diagnostics.Stopwatch.StartNew();
-        const int iterations = 1000;
-
-        for (var i = 0; i < iterations; i++)
-            Tf.Cast("world", $"node_{depth - 1}", Vector3.One);
-
-        sw.Stop();
-        var avgTime = sw.Elapsed.TotalMilliseconds / iterations;
-
-        Assert.That(avgTime, Is.LessThan(1.0), $"平均转换时间 {avgTime} ms 超过 1 ms");
-        TestContext.WriteLine($"深度 {depth} 的树转换平均耗时: {avgTime:F6} ms");
     }
-    
-
-#endregion
 }

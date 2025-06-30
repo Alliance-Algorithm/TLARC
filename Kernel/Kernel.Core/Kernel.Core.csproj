@@ -11,7 +11,9 @@
         <EnableAnalyzersPublishing>true</EnableAnalyzersPublishing>
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <EnableAnalyzerPublishingTracking>true</EnableAnalyzerPublishingTracking>
-        <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)Tlarc.ruleset</CodeAnalysisRuleSet>
+        <Configurations>Debug;Release</Configurations>
+        <Platforms>AnyCPU;x64</Platforms>
+        <OptimizationPreference>Speed</OptimizationPreference>
     </PropertyGroup>
 
     <ItemGroup>

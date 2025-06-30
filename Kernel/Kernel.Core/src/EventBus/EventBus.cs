@@ -1,20 +1,19 @@
 ﻿using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
+using Kernel.Core.SoFucingFastAlgorithms;
 using Kernel.DataInterfaces;
 
 namespace Kernel.Core.EventBus;
 
-/// <summary>
-///     线程安全的事件总线
-/// </summary>
-public class EventBus
+public unsafe class EventBus<T> where T : ITlarcData
 {
-    public static EventBus Instance => LazyInstance.Value;
-    private static readonly Lazy<EventBus> LazyInstance = new(() => new EventBus());
+    public static EventBus<T> Instance => LazyInstance.Value;
+    private static readonly Lazy<EventBus<T>> LazyInstance = new(() => new EventBus<T>());
 
     /// 事件类型和对应处理器
-    private readonly ConcurrentDictionary<string, List<Delegate>> _handlers = new();
+    private readonly ConcurrentDictionary<string, Action<T>[]> _handlers = new();
 
-    private readonly HashSet<string> _runnings = [];
+    private HybridDictionary<Action<T>[]> _fastHandlers = new([]);
 
     /// 同步锁
     private readonly ReaderWriterLockSlim _handlersLock = new();
@@ -26,11 +25,10 @@ public class EventBus
     {
     }
 
-
     /// <summary>
     ///     订阅事件
     /// </summary>
-    public void Subscribe<TData>(string name, Action<TData> handler) where TData : ITlarcData
+    public void Subscribe(string name, Action<T> handler)
     {
         ArgumentNullException.ThrowIfNull(handler, nameof(handler));
 
@@ -42,10 +40,50 @@ public class EventBus
             _handlers[name] = handlers;
         }
 
-        handlers.Add(handler);
+        _handlers[name] = [..handlers, handler];
         _handlersLock.ExitWriteLock();
+        _fastHandlers = new HybridDictionary<Action<T>[]>(_handlers);
     }
 
+    /// <summary>
+    ///     发布事件
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Publish(string name, T data)
+    {
+        ArgumentNullException.ThrowIfNull(data, nameof(data));
+
+        if (!_fastHandlers.TryGetValue(name, out var handlers))
+            return;
+        // var validHandlers = handlers.ToList();
+        foreach (var handler in handlers)
+            handler(data);
+    }
+}
+
+public unsafe class EventBus
+{
+    public static EventBus Instance => LazyInstance.Value;
+    private static readonly Lazy<EventBus> LazyInstance = new(() => new EventBus());
+
+    /// 事件类型和对应处理器
+    private readonly ConcurrentDictionary<string, Action[]> _handlers = new();
+
+    private HybridDictionary<Action[]> _fastHandlers = new([]);
+
+    /// 同步锁
+    private readonly ReaderWriterLockSlim _handlersLock = new();
+
+    private readonly Lock _runningMapLock = new();
+
+    /// 防止外部实例化
+    private EventBus()
+    {
+    }
+
+    /// <summary>
+    ///     订阅事件
+    /// </summary>
     public void Subscribe(string name, Action handler)
     {
         ArgumentNullException.ThrowIfNull(handler, nameof(handler));
@@ -58,38 +96,21 @@ public class EventBus
             _handlers[name] = handlers;
         }
 
-        handlers.Add(handler);
+        _handlers[name] = [.. handlers, handler];
         _handlersLock.ExitWriteLock();
+        _fastHandlers = new HybridDictionary<Action[]>(_handlers);
     }
 
     /// <summary>
     ///     发布事件
     /// </summary>
-    public void Publish<TData>(string name, TData data) where TData : ITlarcData
-    {
-        ArgumentNullException.ThrowIfNull(data, nameof(data));
-
-        _handlersLock.EnterReadLock();
-
-        if (_handlers.TryGetValue(name, out var handlers))
-        {
-            var validHandlers = handlers.OfType<Action<TData>>().ToList();
-            Parallel.ForEach(validHandlers, handler => handler(data));
-        }
-
-        _handlersLock.ExitReadLock();
-    }
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Publish(string name)
     {
-        _handlersLock.EnterReadLock();
+        if (!_fastHandlers.TryGetValue(name, out var handlers))
+            return;
 
-        if (_handlers.TryGetValue(name, out var handlers))
-        {
-            var validHandlers = handlers.OfType<Action>().ToList();
-            Parallel.ForEach(validHandlers, handler => handler());
-        }
-
-        _handlersLock.ExitReadLock();
+        foreach (var handler in handlers)
+            handler();
     }
 }

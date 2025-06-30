@@ -10,8 +10,5 @@ internal class Map : ITlarcData;
 public class TlarcMessagesTest
 {
     [Test]
-    public void Test()
-    {
-        Core.EventBus.EventBus.Instance.Publish("tlarc_message", new Map());
-    }
+    public void Test() => Core.EventBus.EventBus<ITlarcData>.Instance.Publish("tlarc_message", new Map());
 }

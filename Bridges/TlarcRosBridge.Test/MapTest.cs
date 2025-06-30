@@ -1,5 +1,6 @@
 using System.Numerics;
 using Kernel.Core.EventBus;
+using Kernel.DataInterfaces;
 using Kernel.DataInterfaces.Navigation;
 using TlarcRosBridge.Infrastructure.Messages.Nav;
 
@@ -10,7 +11,12 @@ public class MapTest
 {
     private class GridMap2DData : IGridMap2DData
     {
-        public string Identifier { get; init; } = "tlarc_link";
+        public struct HeaderInner(string id = "tlarc_link") : IHeader
+        {
+            public string Identifier { get; set; }
+        }
+
+        public IHeader Header { get; init; } = new HeaderInner();
         public required uint Width { get; init; }
         public required uint Height { get; init; }
         public required sbyte[] Data { get; init; }
@@ -47,13 +53,13 @@ public class MapTest
     {
         var ros = Domain.RosBridge.Build("map_test");
         ros.Publish<IGridMap2DData, OccupancyGrid>("ros_test_map", "ros_test_map",
-            Domain.DataProcess.Publisher.GridMap2dToOccupancyGridMap);
+            Infrastructure.DataProcess.Publisher.GridMap2dToOccupancyGridMap);
     }
 
     [Test]
     public void Test1()
     {
-        EventBus.Instance.Publish("ros_test_map", MapGenerator(1000, 500));
+        EventBus<IGridMap2DData>.Instance.Publish("ros_test_map", MapGenerator(1000, 500));
         Thread.Sleep(1000);
         Environment.Exit(0);
     }

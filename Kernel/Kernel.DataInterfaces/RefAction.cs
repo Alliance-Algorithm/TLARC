@@ -1,4 +1,4 @@
-﻿namespace Kernel.Core.EventBus;
+﻿namespace Kernel.DataInterfaces;
 
 public delegate void RefAction<T, TRef>(in T item1, ref TRef item2);
 

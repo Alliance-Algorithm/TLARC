@@ -4,10 +4,12 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <Configurations>Debug;Release;Release-linux-amd64</Configurations>
+        <Platforms>AnyCPU;x64</Platforms>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\ALPlanner.Infrastructure\ALPlanner.Infrastructure.csproj" />
+        <ProjectReference Include="..\ALPlanner.Infrastructure\ALPlanner.Infrastructure.csproj"/>
     </ItemGroup>
 
 </Project>

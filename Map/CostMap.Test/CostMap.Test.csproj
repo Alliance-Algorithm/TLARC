@@ -6,6 +6,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
+        <Configurations>Debug;Release</Configurations>
+        <Platforms>AnyCPU;x64</Platforms>
     </PropertyGroup>
 
     <ItemGroup>
@@ -22,7 +24,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\Kernel\Kernel.Core\Kernel.Core.csproj"/>
-        <ProjectReference Include="..\CostMap.Domain\CostMap.Domain.csproj"/>
         <ProjectReference Include="..\CostMap.Infrastructure\CostMap.Infrastructure.csproj"/>
     </ItemGroup>
 

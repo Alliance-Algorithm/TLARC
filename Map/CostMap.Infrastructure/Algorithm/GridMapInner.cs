@@ -1,10 +1,15 @@
 ﻿using System.Numerics;
+using System.Runtime.InteropServices;
 using g4;
+using Kernel.DataInterfaces;
 using Kernel.DataInterfaces.Navigation;
+using SkiaSharp;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace CostMap.Infrastructure.Algorithm;
 
-internal class GridMapInner
+public static class GridMapInner
 {
     internal enum ThresholdType
     {
@@ -15,6 +20,103 @@ internal class GridMapInner
         Equal
     }
 
+
+    private class Grid2DMapData : IGridMap2DData
+    {
+        public struct HeaderInner() : IHeader
+        {
+            public string Identifier { get; set; } = "";
+        }
+
+        private HeaderInner HeaderData { get; init; } = new();
+        public IHeader Header => HeaderData;
+        public Vector2 Origin { get; set; }
+        public uint Width { get; set; }
+        public uint Height { get; set; }
+        public double RotationRad { get; set; }
+        public Matrix3x2 RotationMatrix { get; set; }
+        public float Resolution { get; set; }
+        public sbyte[] Data { get; set; } = [];
+    }
+
+    private struct Header()
+    {
+        public string Identifier = "";
+        public double RotationRad = 0;
+        public float Resolution = 0.02f;
+        public Matrix3x2 RotationMatrix = Matrix3x2.Identity;
+        public Vector2 Origin = Vector2.Zero;
+    }
+
+    /// <summary>
+    /// 保存地图
+    /// </summary>
+    /// <param name="map2d">要保存的地图</param>
+    /// <param name="path">地图文件夹</param>
+    public static void SaveMap(IGridMap2DData map2d, string path)
+    {
+        path = path.TrimEnd('/').TrimEnd('\\');
+        if (!Directory.Exists(path))
+            Directory.CreateDirectory(path);
+        using var bitmap = new SKBitmap((int)map2d.Width, (int)map2d.Height, SKColorType.Gray8, SKAlphaType.Opaque);
+        unsafe
+        {
+            fixed (sbyte* ptr = map2d.Data)
+            {
+                bitmap.SetPixels((nint)ptr);
+            }
+
+            using var wStream = new SKFileWStream(path + "/map.png");
+            bitmap.Encode(wStream, SKEncodedImageFormat.Png, 100);
+        }
+
+        var header = new Header
+        {
+            Identifier = map2d.Header.Identifier,
+            RotationRad = map2d.RotationRad,
+            Origin = map2d.Origin,
+            RotationMatrix = map2d.RotationMatrix,
+            Resolution = map2d.Resolution
+        };
+        var serializer = new SerializerBuilder()
+            .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .Build();
+        var yaml = serializer.Serialize(header);
+        File.WriteAllText(path + "/header.yaml", yaml);
+    }
+
+    /// <summary>
+    /// 读取地图
+    /// </summary>
+    /// <param name="path">地图文件夹</param>
+    /// <returns></returns>
+    /// <exception cref="FileNotFoundException">地图信息</exception>
+    public static IGridMap2DData LoadMap(string path)
+    {
+        Grid2DMapData map2d = new();
+        path = path.TrimEnd('/').TrimEnd('\\');
+        if (!Directory.Exists(path))
+            throw new DirectoryNotFoundException($"Directory not found: {path}");
+        using var bitmap = SKBitmap.Decode(path + "/map.png");
+        if (bitmap is null)
+            throw new FileNotFoundException(path);
+        map2d.Width = (uint)bitmap.Width;
+        map2d.Height = (uint)bitmap.Height;
+        map2d.Data = new sbyte[bitmap.ByteCount];
+        Buffer.BlockCopy(bitmap.Bytes, 0, map2d.Data, 0, bitmap.ByteCount);
+
+        var serializer = new DeserializerBuilder()
+            .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .Build();
+        var yaml   = File.ReadAllText(path + "/header.yaml");
+        var header = serializer.Deserialize<Header>(yaml);
+        map2d.RotationMatrix = header.RotationMatrix;
+        map2d.Origin = header.Origin;
+        map2d.RotationRad = header.RotationRad;
+        map2d.Resolution = header.Resolution;
+        map2d.Resolution = header.Resolution;
+        return map2d;
+    }
 
     /// <summary>
     /// 返回目标点是否有障碍物
@@ -48,6 +150,7 @@ internal class GridMapInner
             _                          => false
         };
     }
+
 
     /// <summary>
     /// 

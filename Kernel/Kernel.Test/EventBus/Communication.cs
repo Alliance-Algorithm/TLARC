@@ -16,7 +16,7 @@ public class Communication
         public A()
         {
             Core.EventBus.EventBus.Instance.Subscribe(Name, Process);
-            Core.EventBus.EventBus.Instance.Subscribe<StdMessage<int>>(Name, Process);
+            Core.EventBus.EventBus<StdMessage<int>>.Instance.Subscribe(Name, Process);
         }
 
         private void Process()
@@ -48,7 +48,7 @@ public class Communication
             var tmp = bs[j].Total;
             Core.EventBus.EventBus.Instance.Publish(Name);
             Assert.That(bs[j].Total, Is.EqualTo(tmp + 1));
-            Core.EventBus.EventBus.Instance.Publish(Name, StdMessage<int>.Build(bs[j].Total));
+            Core.EventBus.EventBus<StdMessage<int>>.Instance.Publish(Name, StdMessage<int>.Build(bs[j].Total));
         }
     }
 }

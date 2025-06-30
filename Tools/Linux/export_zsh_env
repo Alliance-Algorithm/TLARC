@@ -1,0 +1,26 @@
+#!/bin/zsh
+
+# 导出 Zsh 环境变量到 .env 文件
+OUTPUT_FILE=${1:-.env}
+
+{
+  echo "# Generated from Zsh environment on $(date)"
+  echo "# User: $USER"
+  echo ""
+  
+  # 获取所有环境变量，过滤敏感信息
+  printenv | grep -E -v '^(PWD|OLDPWD|SHELL|SHLVL|_|USER|HOME|LOGNAME|TERM|TMPDIR|PATH|SECRET_|API_|PASSWORD|TOKEN)' | \
+  while IFS='=' read -r key value; do
+    # 转义特殊字符
+    if [[ $value =~ [[:space:]\'\"] ]]; then
+      value="\"${value//\"/\\\"}\""
+    fi
+    echo "${key}=${value}"
+  done
+  
+  # 特殊处理 PATH 变量
+  echo "# PATH variable (${#path[@]} entries):"
+  echo "# PATH=${(j/:/)path}"
+} > "$OUTPUT_FILE"
+
+echo "Exported $(wc -l < "$OUTPUT_FILE") variables to $OUTPUT_FILE"

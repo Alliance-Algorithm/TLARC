@@ -29,16 +29,25 @@ public class RosBridge
                                                 Func<RosMessageBuffer, TTlarcData> dataFunc)
         where TMessage : IMessage where TTlarcData : ITlarcData
     {
-        Task.Run(async () =>
+        var task = Task.Run(async () =>
         {
             using var sub = Node.CreateNativeSubscription<TMessage>(rosTopicName);
-
             await foreach (var msg in sub.ReadAllAsync())
                 using (msg)
                 {
-                    EventBus.Instance.Publish(tlarcEventName, dataFunc(msg));
+                    EventBus<TTlarcData>.Instance.Publish(tlarcEventName, dataFunc(msg));
                 }
         });
+
+        task.ContinueWith(t =>
+        {
+            if (t.IsFaulted)
+            {
+                Console.WriteLine($"{t.Exception.Message}, \"hello\", {t.Exception.StackTrace}");
+                Environment.Exit(-1);
+            }
+        }, TaskContinuationOptions.OnlyOnFaulted);
+
         Thread.Sleep(1);
     }
 
@@ -50,7 +59,7 @@ public class RosBridge
         var pub = Node.CreatePublisher<TMessage>(rosTopicName);
         var rec = new PublisherRecord(pub, pub.CreateBuffer());
         _publisherRecords.Add(rec);
-        EventBus.Instance.Subscribe(tlarcEventName, (TTlarcData data) =>
+        EventBus<TTlarcData>.Instance.Subscribe(tlarcEventName, (TTlarcData data) =>
             {
                 var tmp = Node;
                 dataFunc(in data, in tmp, ref rec.Buffer);
@@ -62,12 +71,10 @@ public class RosBridge
     }
 
 
-    public static RosBridge Build(string nodeName)
-    {
-        return new RosBridge
+    public static RosBridge Build(string nodeName) =>
+        new()
         {
             NodeName = nodeName,
             Node = Context.Value.CreateNode(nodeName)
         };
-    }
 }

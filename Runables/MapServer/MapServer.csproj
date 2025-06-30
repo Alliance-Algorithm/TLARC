@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Bridges\TlarcRosBridge.Domain\TlarcRosBridge.Domain.csproj"/>
+        <ProjectReference Include="..\..\Map\Map\Map.csproj"/>
+        <ProjectReference Include="..\Bridges\TlarcRosBridge.Domain\TlarcRosBridge.Domain.csproj"/>
+        <ProjectReference Include="..\Map\Map\Map.csproj"/>
+    </ItemGroup>
+
+</Project>

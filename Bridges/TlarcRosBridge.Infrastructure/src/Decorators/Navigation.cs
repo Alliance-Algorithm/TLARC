@@ -1,17 +1,23 @@
 using System.Numerics;
+using Kernel.DataInterfaces;
 using Rcl;
 using Kernel.DataInterfaces.Navigation;
 using TlarcRosBridge.Infrastructure.Messages.Nav;
 
 namespace TlarcRosBridge.Infrastructure.Decorators;
 
-public static class Navigation
+internal static class Navigation
 {
     public static class GridMap
     {
         private class GridMap2DData : IGridMap2DData
         {
-            public required string Identifier { get; init; }
+            public struct HeaderInner(string id) : IHeader
+            {
+                public string Identifier { get; set; } = id;
+            }
+
+            public required IHeader Header { get; init; }
             public required Vector2 Origin { get; init; }
             public required uint Height { get; init; }
             public uint Width { get; init; }
@@ -27,8 +33,9 @@ public static class Navigation
                                               map.Info.Origin.Orientation.X * map.Info.Origin.Orientation.Z)));
             return new GridMap2DData
             {
-                Identifier = map.Header.FrameId.ToString(),
-                Origin = new Vector2 { X = (float)map.Info.Origin.Position.X, Y = (float)map.Info.Origin.Position.Y },
+                Header = new GridMap2DData.HeaderInner(map.Header.FrameId.ToString()),
+                Origin = new Vector2
+                    { X = (float)map.Info.Origin.Position.X, Y = (float)map.Info.Origin.Position.Y },
                 Width = map.Info.Width,
                 Height = map.Info.Height,
                 RotationRad = rad,
@@ -38,7 +45,10 @@ public static class Navigation
             };
         }
 
-        public static void WriteInto(IGridMap2DData mapIn, string frameId, IRclNode node, ref OccupancyGrid.Priv mapOut)
+        public static void WriteInto(IGridMap2DData         mapIn,
+                                     string                 frameId,
+                                     IRclNode               node,
+                                     ref OccupancyGrid.Priv mapOut)
         {
             var q = Quaternion.CreateFromAxisAngle(Vector3.UnitY, (float)mapIn.RotationRad);
             mapOut.Data.CopyFrom(mapIn.Data);

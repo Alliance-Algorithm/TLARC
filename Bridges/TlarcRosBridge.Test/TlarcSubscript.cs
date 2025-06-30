@@ -13,17 +13,16 @@ public class TlarcSubscript
 {
     private int all = 0;
 
-    private void Process(in StdMessage<int> from, in IRclNode _, ref RosMessageBuffer to)
-    {
+    private void Process(in StdMessage<int> from, in IRclNode _, ref RosMessageBuffer to) =>
         to.AsRef<Int32.Priv>().Data = from.Instance;
-    }
 
     [SetUp]
     public void Setup()
     {
         var pub = Domain.RosBridge.Build("pub");
         var sub = Domain.RosBridge.Build("sub");
-        EventBus.Instance.Subscribe<StdMessage<int>>("test_d", x => all += x.Instance);
+        EventBus<StdMessage<int>>.Instance.Subscribe("test_d", (StdMessage<int> x) => all +=
+            x.Instance);
         sub.Subscript<Int32, StdMessage<int>>("test_c", "test_d",
             msg => StdMessage<int>.Build(msg.AsRef<Int32.Priv>().Data));
         pub.Publish<StdMessage<int>, Int32>("test_c", "test_c", Process);
@@ -39,7 +38,7 @@ public class TlarcSubscript
         {
             Thread.Sleep(1);
             i++;
-            EventBus.Instance.Publish("test_c", StdMessage<int>.Build(i));
+            EventBus<StdMessage<int>>.Instance.Publish("test_c", StdMessage<int>.Build(i));
             total += i;
         }
 

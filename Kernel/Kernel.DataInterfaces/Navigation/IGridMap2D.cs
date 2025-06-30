@@ -2,8 +2,9 @@
 
 namespace Kernel.DataInterfaces.Navigation;
 
-public interface IGridMap2DData : ITlarcData, ITransform
+public interface IGridMap2DData : ITlarcData
 {
+    IHeader Header { get; }
     /// <summary>
     /// 地图在世界中的右下角位置
     /// </summary>
@@ -46,4 +47,8 @@ public interface IGridMap2DData : ITlarcData, ITransform
     public sbyte[] Data { get; }
 }
 
-public interface IGridMap2D : IGridMap2DData, IMap2D;
+public interface IGridMap2D : ITlarcData
+{
+    public IGridMap2DData Data { get; }
+    public IMap2D Actions { get; }
+}

@@ -10,7 +10,7 @@ internal static class Geometry
     /// <param name="from">起点坐标</param>
     /// <param name="to">终点坐标</param>
     /// <returns>直线路径上的所有栅格点</returns>
-    private static List<Vector2i> BresenhamLine(Vector2i from, Vector2i to)
+    public static List<Vector2i> BresenhamLine(Vector2i from, Vector2i to)
     {
         var points = new List<Vector2i>();
 
@@ -61,6 +61,82 @@ internal static class Geometry
         for (var y = -radius; y <= radius; y++)
             if (x * x + y * y <= radius * radius)
                 points.Add(new Vector2i(center.x + x, center.y + y));
+    }
+
+    public static List<Vector3i> Bresenham3D(Vector3i from, Vector3i to)
+    {
+        var voxels = new List<Vector3i>();
+
+
+        var dx = Math.Abs(to.x - from.x);
+        var dy = Math.Abs(to.y - from.y);
+        var dz = Math.Abs(to.z - from.z);
+
+        var sx = from.x < to.x ? 1 : -1;
+        var sy = from.y < to.y ? 1 : -1;
+        var sz = from.z < to.z ? 1 : -1;
+
+        var x0 = from.x;
+        var y0 = from.y;
+        var z0 = from.z;
+
+        // 确定主导方向
+        if (dx > dy)
+        {
+            // X 主导
+            var err1 = 2 * dy - dx;
+            var err2 = 2 * dz - dx;
+
+            for (var i = 0; i <= dx; i++)
+            {
+                voxels.Add(new Vector3i(x0, y0, z0));
+
+                if (err1 > 0)
+                {
+                    y0 += sy;
+                    err1 -= 2 * dx;
+                }
+
+                if (err2 > 0)
+                {
+                    z0 += sz;
+                    err2 -= 2 * dx;
+                }
+
+                err1 += 2 * dy;
+                err2 += 2 * dz;
+                x0 += sx;
+            }
+        }
+        else if (dy >= dx)
+        {
+            // Y 主导
+            var err1 = 2 * dz - dy;
+            var err2 = 2 * dx - dy;
+
+            for (var i = 0; i <= dy; i++)
+            {
+                voxels.Add(new Vector3i(x0, y0, z0));
+
+                if (err1 > 0)
+                {
+                    z0 += sz;
+                    err1 -= 2 * dy;
+                }
+
+                if (err2 > 0)
+                {
+                    x0 += sx;
+                    err2 -= 2 * dy;
+                }
+
+                err1 += 2 * dz;
+                err2 += 2 * dx;
+                y0 += sy;
+            }
+        }
+
+        return voxels;
     }
 
     /// <summary>

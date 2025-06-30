@@ -8,8 +8,13 @@ public class StdMessage<TInterface> : ITlarcData where TInterface : struct
     private StdMessage() { }
     public required TInterface Instance;
 
-    public static StdMessage<TInterface> Build(TInterface instance)
-    {
-        return new StdMessage<TInterface> { Instance = instance };
-    }
+    public static StdMessage<TInterface> Build(TInterface instance) => new() { Instance = instance };
+}
+
+public class StringMessage : ITlarcData
+{
+    private StringMessage() { }
+    public required string Instance;
+
+    public static StringMessage Build(string instance) => new() { Instance = instance };
 }

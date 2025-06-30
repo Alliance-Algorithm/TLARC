@@ -2,7 +2,7 @@
 
 namespace Kernel.DataInterfaces.Navigation;
 
-public interface ITrajectory2D : ITransform, ITlarcData
+public interface ITrajectory2D : IHeader, ITlarcData
 {
     /// <summary>
     ///  轨迹起始时间

@@ -8,10 +8,8 @@ using Int32 = TlarcRosBridge.Infrastructure.Messages.Std.Int32;
 [TestFixture]
 public class TlarcPublish
 {
-    private static void Process(in StdMessage<int> from, in IRclNode _, ref RosMessageBuffer to)
-    {
+    private static void Process(in StdMessage<int> from, in IRclNode _, ref RosMessageBuffer to) =>
         to.AsRef<Int32.Priv>().Data = from.Instance;
-    }
 
     [SetUp]
     public void Setup()
@@ -25,7 +23,7 @@ public class TlarcPublish
     {
         var i = 0;
 
-        while (i < 20) EventBus.Instance.Publish("test_a", StdMessage<int>.Build(i++));
+        while (i < 20) EventBus<StdMessage<int>>.Instance.Publish("test_a", StdMessage<int>.Build(i++));
         Thread.Sleep(100);
         Environment.Exit(0);
     }

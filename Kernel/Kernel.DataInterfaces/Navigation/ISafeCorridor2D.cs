@@ -2,6 +2,6 @@
 
 namespace Kernel.DataInterfaces.Navigation;
 
-public interface ISafeCorridor2D<TGeometry> : ITransform, IMap2D, ITlarcData where TGeometry : IConstraint
+public interface ISafeCorridor2D<TGeometry> : IHeader, IMap2D, ITlarcData where TGeometry : IConstraint
 {
 }

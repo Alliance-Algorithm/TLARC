@@ -1,9 +1,9 @@
 namespace Kernel.DataInterfaces;
 
-public interface ITransform
+public interface IHeader
 {
     /// <summary>
     /// Transform id
     /// </summary>
-    public string Identifier { get; }
+    public string Identifier { get; set; }
 }
