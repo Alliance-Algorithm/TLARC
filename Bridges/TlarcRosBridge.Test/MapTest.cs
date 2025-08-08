@@ -13,7 +13,7 @@ public class MapTest
     {
         public struct HeaderInner(string id = "tlarc_link") : IHeader
         {
-            public string Identifier { get; set; }
+            public string Identifier { get; set; } = id;
         }
 
         public IHeader Header { get; init; } = new HeaderInner();
