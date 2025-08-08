@@ -116,6 +116,7 @@
     </Project>
   </Folder>
   <Folder Name="/Runables/">
+    <Project Path="Runables/ALPlanner/ALPlanner.csproj" />
     <Project Path="Runables/MapServer/MapServer.csproj">
       <BuildType Solution="Debug|x64" Project="?" />
       <Platform Solution="Debug|x64" Project="?" />

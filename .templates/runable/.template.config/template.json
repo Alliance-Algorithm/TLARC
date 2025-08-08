@@ -1,0 +1,17 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "alray",
+    "classifications": [
+        "Console",
+        "C#13"
+    ],
+    "identity": "0x0001",
+    "name": "Tlarc Runable Projcet",
+    "shortName": "tlarc-runable",
+    "sourceName": "$TlarcTemplate$",
+    "tags": {
+        "language": "C#",
+        "type": "project"
+    },
+    "preferNameDirectory": true
+}

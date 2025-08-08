@@ -1,5 +1,6 @@
 bin/
-install/
+.install/
+.test/
 obj/
 *log*
 /packages/

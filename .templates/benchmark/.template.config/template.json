@@ -1,0 +1,17 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "YourName",
+    "classifications": [
+        "Console",
+        "C#13"
+    ],
+    "identity": "0x0002",
+    "name": "Tlarc Benchmark Projcet",
+    "shortName": "tlarc-benchmark",
+    "sourceName": "$TlarcTemplate$",
+    "tags": {
+        "language": "C#",
+        "type": "project"
+    },
+    "preferNameDirectory": true
+}
