@@ -24,7 +24,7 @@ public class EventBusBenchmarks
             public string Identifier { get; set; } = id;
         }
 
-        public IHeader Header { get; init; }
+        public required IHeader Header { get; init; } 
         public required Vector2 Origin { get; init; }
 
         public required uint Width { get; init; }

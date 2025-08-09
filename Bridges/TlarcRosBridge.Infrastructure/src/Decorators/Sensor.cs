@@ -12,8 +12,8 @@ internal static class Sensor
 {
     private class PointCloud : IPointCloud
     {
-        public string Identifier { get; set; }
-        public Vector3[] Points { get; set; }
+        public string Identifier { get; set; } = "";
+        public Vector3[] Points { get; set; } = [];
     }
 
     public static IPointCloud RmcsSlamSegmentationPart(ref PointCloud2.Priv map)

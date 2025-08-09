@@ -3,7 +3,7 @@ using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Environments;
 using BenchmarkDotNet.Jobs;
 
-namespace Kernel.Benchmarks;
+namespace $TlarcTemplate$;
 
 public class Program
 {
