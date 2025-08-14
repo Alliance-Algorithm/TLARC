@@ -7,27 +7,8 @@ namespace CostMap.Infrastructure.Data;
 
 public class Grid2DMap : IMap2D, IGridMap2D
 {
-    public class DataInner : IGridMap2DData
-    {
-        public class HeaderInner(string id) : IHeader
-        {
-            public string Identifier { get; set; } = id;
-        }
-
-        public IHeader Header => HeaderData;
-
-        public required HeaderInner HeaderData { get; init; }
-        public required Vector2 Origin { get; init; }
-        public required uint Width { get; init; }
-        public required uint Height { get; init; }
-        public required double RotationRad { get; init; }
-        public required Matrix3x2 RotationMatrix { get; init; }
-        public required float Resolution { get; init; }
-        public required sbyte[] Data { get; init; }
-    }
-
-    public DataInner DataChangable { get; init; }
-    public IGridMap2DData Data => DataChangable;
+    public required Grid2DMapData DataChangeable { get; init; }
+    public IGridMap2DData Data => DataChangeable;
     public IMap2D Actions => this;
 
     public bool IsMoveAble(Vector2 from, Vector2 to) =>
@@ -42,9 +23,9 @@ public class Grid2DMap : IMap2D, IGridMap2D
     public static Grid2DMap Build_IGridMap2DData(IGridMap2DData data) =>
         new()
         {
-            DataChangable = new DataInner
+            DataChangeable = new Grid2DMapData
             {
-                HeaderData = new DataInner.HeaderInner(data.Header.Identifier),
+                HeaderData = new Grid2DMapData.HeaderInner(data.Header.Identifier),
                 Origin = data.Origin,
                 Height = data.Height,
                 Width = data.Width,

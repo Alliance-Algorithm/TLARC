@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace Kernel.Core.SoFucingFastAlgorithms;
+namespace Kernel.Core.SoFuckingFastAlgorithms;
 
 using System.Collections.Frozen;
 using System.Runtime.CompilerServices;
@@ -21,7 +21,7 @@ public sealed class HybridDictionary<TValue>
     {
         // 分区处理
         var shortItems = new Dictionary<ulong, TValue>();
-        var longItems  = new Dictionary<string, TValue>();
+        var longItems = new Dictionary<string, TValue>();
 
         foreach (var (key, value) in items)
             if (key.Length <= ShortKeyThreshold)
@@ -67,7 +67,7 @@ public sealed class HybridDictionary<TValue>
         fixed (char* ptr = key)
         {
             ulong result = 0;
-            var   len    = Math.Min(key.Length, 4); // 8字节=4字符
+            var len = Math.Min(key.Length, 4); // 8字节=4字符
 
             for (var i = 0; i < len; i++)
                 result |= (ulong)ptr[i] << i * 16;
@@ -95,7 +95,7 @@ public sealed class HybridDictionary<TValue>
 
             foreach (var (key, value) in source)
             {
-                var hash  = SimdDictionary.ComputeCrossPlatformHash(key);
+                var hash = SimdDictionary.ComputeCrossPlatformHash(key);
                 var index = (int)(hash % (uint)_capacity);
 
                 // 线性探测解决冲突
@@ -107,7 +107,7 @@ public sealed class HybridDictionary<TValue>
 
         public bool TryGetValue(string key, out TValue value)
         {
-            var hash  = SimdDictionary.ComputeCrossPlatformHash(key);
+            var hash = SimdDictionary.ComputeCrossPlatformHash(key);
             var index = (int)(hash % (uint)_capacity);
             var start = index;
 
@@ -146,9 +146,9 @@ public sealed class HybridDictionary<TValue>
         private static unsafe uint ComputeCrossPlatformHash(string key)
         {
             var hash = 2166136261u;
-            var len  = key.Length;
-            var i    = 0;
-            var ptr  = Unsafe.As<ushort[]>(key);
+            var len = key.Length;
+            var i = 0;
+            var ptr = Unsafe.As<ushort[]>(key);
             // 使用 Vector<T> 跨平台 SIMD
             var vectorSize = Vector<uint>.Count * 2; // 每次处理的字符数
             while (len - i >= vectorSize)
@@ -203,7 +203,7 @@ public sealed class HybridDictionary<TValue>
                     return prime;
 
             // 对于大于缓存的数，计算扩展质数
-            for (var candidate = min | 1;; candidate += 2)
+            for (var candidate = min | 1; ; candidate += 2)
             {
                 if (candidate < 0) // 溢出保护
                     throw new OverflowException("Prime size overflow");
@@ -216,12 +216,12 @@ public sealed class HybridDictionary<TValue>
         // 优化的素数检查
         private static bool IsPrime(int n)
         {
-            if (n     <= 1) return false;
-            if (n     == 2) return true;
+            if (n <= 1) return false;
+            if (n == 2) return true;
             if (n % 2 == 0) return false;
 
             // 快速检查小因子
-            if (n % 3  == 0 || n % 5  == 0 || n % 7  == 0 ||
+            if (n % 3 == 0 || n % 5 == 0 || n % 7 == 0 ||
                 n % 11 == 0 || n % 13 == 0 || n % 17 == 0)
                 return false;
 

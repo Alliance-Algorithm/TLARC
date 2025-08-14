@@ -2,7 +2,7 @@ using System.Collections.Frozen;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Kernel.Core.SoFucingFastAlgorithms;
+using Kernel.Core.SoFuckingFastAlgorithms;
 using Kernel.DataInterfaces;
 using Kernel.DataInterfaces.Geometry;
 using Kernel.DataInterfaces.Tf;
@@ -19,8 +19,8 @@ public static class Tf
     [MethodImpl(MethodImplOptions.AggressiveInlining |
                 MethodImplOptions.AggressiveOptimization)]
     [SkipLocalsInit]
-    private static bool CalculateTransferNode(in  string   identifierTo,
-                                              in  string   identifierFrom,
+    private static bool CalculateTransferNode(in string identifierTo,
+                                              in string identifierFrom,
                                               out string[] rootToFrom,
                                               out string[] rootToTo)
     {
@@ -32,7 +32,7 @@ public static class Tf
         if (!Nodes.ContainsKey(identifierTo))
             throw new TlarcTfError.FoundNoNodeException(identifierTo);
         var parentIdsFrom = CollectionsMarshal.AsSpan(Nodes[identifierFrom].ParentIds);
-        var parentIdsTo   = CollectionsMarshal.AsSpan(Nodes[identifierTo].ParentIds);
+        var parentIdsTo = CollectionsMarshal.AsSpan(Nodes[identifierTo].ParentIds);
         int max1 = Nodes[identifierFrom].ParentIds.Count,
             max2 = Nodes[identifierTo].ParentIds.Count;
 
@@ -40,8 +40,8 @@ public static class Tf
             i++;
         if (i == 0)
             return false;
-        rootToFrom = [.. parentIdsFrom[i ..]];
-        rootToTo = [.. parentIdsTo[i ..]];
+        rootToFrom = [.. parentIdsFrom[i..]];
+        rootToTo = [.. parentIdsTo[i..]];
         return true;
     }
 
@@ -54,8 +54,8 @@ public static class Tf
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static Vector3 CastImpl(in string identifierFrom, in string identifierTo, Vector3 position)
     {
-        var     hashcode = Tf.HashFunc(HybridNodes[identifierFrom].Id, HybridNodes[identifierTo].Id);
-        ref var cache    = ref _caches[hashcode];
+        var hashcode = Tf.HashFunc(HybridNodes[identifierFrom].Id, HybridNodes[identifierTo].Id);
+        ref var cache = ref _caches[hashcode];
         if (cache is null)
         {
             if (!Tf.CalculateTransferNode(identifierTo, identifierFrom, out var rootToFrom, out var rootTo))
@@ -73,15 +73,15 @@ public static class Tf
         }
 
         ref var transform = ref cache.GetTransform();
-        var     ret       = Vector3.Transform(position, transform);
+        var ret = Vector3.Transform(position, transform);
         return ret;
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private static Vector3[] CastImpl(in string identifierFrom, in string identifierTo, Vector3[] positions)
     {
-        var     hashcode = Tf.HashFunc(HybridNodes[identifierFrom].Id, HybridNodes[identifierTo].Id);
-        ref var cache    = ref _caches[hashcode];
+        var hashcode = Tf.HashFunc(HybridNodes[identifierFrom].Id, HybridNodes[identifierTo].Id);
+        ref var cache = ref _caches[hashcode];
         if (cache is null)
         {
             if (!Tf.CalculateTransferNode(identifierTo, identifierFrom, out var rootToFrom, out var rootTo))
@@ -100,12 +100,12 @@ public static class Tf
 
         var transform = cache.GetTransform();
         var chunkSize = Math.Max(1, positions.Length / 2000);
-        var ret       = new Vector3[positions.Length];
+        var ret = new Vector3[positions.Length];
 
         Parallel.For(0, (positions.Length + chunkSize - 1) / chunkSize, i =>
         {
             var start = i * chunkSize;
-            var end   = Math.Min(start + chunkSize, positions.Length);
+            var end = Math.Min(start + chunkSize, positions.Length);
 
             for (var j = start; j < end; j++)
                 ret[j] = Vector3.Transform(positions[j], transform);

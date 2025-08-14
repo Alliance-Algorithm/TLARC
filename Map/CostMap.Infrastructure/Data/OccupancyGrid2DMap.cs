@@ -5,31 +5,24 @@ using Kernel.DataInterfaces.Navigation;
 
 namespace CostMap.Infrastructure.Data;
 
+
+
 public class OccupancyGrid2DMap : IMap2D, IOccupancyGridMap2D
 {
-    public class DataInner : IOccupancyGridMap2DData
-    {
-        public IGridMap2DData GridData => DataChangable;
-        public required Grid2DMap.DataInner DataChangable { get; init; }
-        public sbyte Threshold { get; init; } = 70;
-        public float LossFree { get; init; } = 0.7f;
-        public float LossOccu { get; init; } = -1.9f;
-        public required float[] OccupancyRate { get; set; }
-    }
 
     public float ButtonZ { get; set; } = 0f;
     public float TopZ { get; set; } = 1f;
-    public required DataInner DataChangeable { get; init; }
+    public required OccupancyGridData DataChangeable { get; init; }
 
     public IOccupancyGridMap2DData OccupancyData => DataChangeable;
     public IMap2D Actions => this;
 
     public bool IsMoveAble(Vector2 from, Vector2 to) =>
-        GridMapInner.CheckMoveable(from, DataChangeable.GridData, DataChangeable.Threshold,
+        GridMapInner.CheckMoveable(from, DataChangeable.GridMapData, DataChangeable.Threshold,
             GridMapInner.ThresholdType.LessEqual);
 
     public bool IsMoveAble(Vector2 position) =>
-        GridMapInner.CheckMoveable(position, DataChangeable.GridData, DataChangeable.Threshold,
+        GridMapInner.CheckMoveable(position, DataChangeable.GridMapData, DataChangeable.Threshold,
             GridMapInner.ThresholdType.LessEqual);
 
     private OccupancyGrid2DMap() { }
@@ -37,17 +30,18 @@ public class OccupancyGrid2DMap : IMap2D, IOccupancyGridMap2D
     public static OccupancyGrid2DMap Build_IOccupancyGridMap2D(IOccupancyGridMap2D data) =>
         new()
         {
-            DataChangeable = new DataInner
+            DataChangeable = new OccupancyGridData
             {
-                DataChangable = new Grid2DMap.DataInner
+                DataChangeable = new Grid2DMapData
                 {
-                    HeaderData = new Grid2DMap.DataInner.HeaderInner(data.Header.Identifier),
-                    Data = data.OccupancyData.GridData.Data, Height = data.OccupancyData.GridData.Height,
-                    Width = data.OccupancyData.GridData.Width,
-                    RotationRad = data.OccupancyData.GridData.RotationRad,
-                    RotationMatrix = data.OccupancyData.GridData.RotationMatrix,
-                    Origin = data.OccupancyData.GridData.Origin,
-                    Resolution = data.OccupancyData.GridData.Resolution
+                    HeaderData = new Grid2DMapData.HeaderInner(data.Header.Identifier),
+                    Data = data.OccupancyData.GridMapData.Data,
+                    Height = data.OccupancyData.GridMapData.Height,
+                    Width = data.OccupancyData.GridMapData.Width,
+                    RotationRad = data.OccupancyData.GridMapData.RotationRad,
+                    RotationMatrix = data.OccupancyData.GridMapData.RotationMatrix,
+                    Origin = data.OccupancyData.GridMapData.Origin,
+                    Resolution = data.OccupancyData.GridMapData.Resolution
                 },
                 LossFree = data.OccupancyData.LossFree,
                 LossOccu = data.OccupancyData.LossOccu,
@@ -59,17 +53,18 @@ public class OccupancyGrid2DMap : IMap2D, IOccupancyGridMap2D
     public static OccupancyGrid2DMap Build_IOccupancyGridMap2DData(IOccupancyGridMap2DData data) =>
         new()
         {
-            DataChangeable = new DataInner
+            DataChangeable = new OccupancyGridData
             {
-                DataChangable = new Grid2DMap.DataInner
+                DataChangeable = new Grid2DMapData
                 {
-                    HeaderData = new Grid2DMap.DataInner.HeaderInner(data.Header.Identifier),
-                    Data = data.GridData.Data, Height = data.GridData.Height,
-                    Width = data.GridData.Width,
-                    RotationRad = data.GridData.RotationRad,
-                    RotationMatrix = data.GridData.RotationMatrix,
-                    Origin = data.GridData.Origin,
-                    Resolution = data.GridData.Resolution
+                    HeaderData = new Grid2DMapData.HeaderInner(data.Header.Identifier),
+                    Data = data.GridMapData.Data,
+                    Height = data.GridMapData.Height,
+                    Width = data.GridMapData.Width,
+                    RotationRad = data.GridMapData.RotationRad,
+                    RotationMatrix = data.GridMapData.RotationMatrix,
+                    Origin = data.GridMapData.Origin,
+                    Resolution = data.GridMapData.Resolution
                 },
                 LossFree = data.LossFree,
                 LossOccu = data.LossOccu,
@@ -81,12 +76,13 @@ public class OccupancyGrid2DMap : IMap2D, IOccupancyGridMap2D
     public static OccupancyGrid2DMap Build_IGridMap2DData(IGridMap2DData data) =>
         new()
         {
-            DataChangeable = new DataInner
+            DataChangeable = new OccupancyGridData
             {
-                DataChangable = new Grid2DMap.DataInner
+                DataChangeable = new Grid2DMapData
                 {
-                    HeaderData = new Grid2DMap.DataInner.HeaderInner(data.Header.Identifier),
-                    Data = data.Data, Height = data.Height,
+                    HeaderData = new Grid2DMapData.HeaderInner(data.Header.Identifier),
+                    Data = data.Data,
+                    Height = data.Height,
                     Width = data.Width,
                     RotationRad = data.RotationRad,
                     RotationMatrix = data.RotationMatrix,

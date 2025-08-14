@@ -1,4 +1,4 @@
-namespace Kernel.Core.SoFucingFastAlgorithms;
+namespace Kernel.Utils;
 
 public sealed class FastEvent
 {

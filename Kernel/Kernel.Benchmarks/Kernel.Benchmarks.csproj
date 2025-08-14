@@ -13,7 +13,6 @@
 
         
         <PublishSingleFile>true</PublishSingleFile>
-        <SelfContained>true</SelfContained>
 
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>

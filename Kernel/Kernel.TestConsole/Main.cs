@@ -1,0 +1,1 @@
+﻿Console.WriteLine(Kernel.Utils.BlockParallel.Test());

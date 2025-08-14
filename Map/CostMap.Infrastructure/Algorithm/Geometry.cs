@@ -1,9 +1,12 @@
-﻿using g4;
+﻿using System.Numerics;
+using g4;
 
 namespace CostMap.Infrastructure.Algorithm;
 
 internal static class Geometry
 {
+
+
     /// <summary>
     /// 使用 Bresenham 算法计算两点之间直线经过的所有栅格坐标
     /// </summary>
@@ -14,10 +17,11 @@ internal static class Geometry
     {
         var points = new List<Vector2i>();
 
-        var dx  = Math.Abs(to.x - from.x);
-        var dy  = Math.Abs(to.y - from.y);
-        var sx  = from.x < to.x ? 1 : -1;
-        var sy  = from.y < to.y ? 1 : -1;
+        var dx = Math.Abs(to.x - from.x);
+        var dy = Math.Abs(to.y - from.y);
+        var sx = from.x < to.x ? 1 : -1;
+        var sy = from.y < to.y ? 1 : -1;
+
         var err = dx - dy;
 
         var x = from.x;
@@ -58,9 +62,9 @@ internal static class Geometry
     {
         points = [];
         for (var x = -radius; x <= radius; x++)
-        for (var y = -radius; y <= radius; y++)
-            if (x * x + y * y <= radius * radius)
-                points.Add(new Vector2i(center.x + x, center.y + y));
+            for (var y = -radius; y <= radius; y++)
+                if (x * x + y * y <= radius * radius)
+                    points.Add(new Vector2i(center.x + x, center.y + y));
     }
 
     public static List<Vector3i> Bresenham3D(Vector3i from, Vector3i to)
@@ -150,8 +154,8 @@ internal static class Geometry
         var mainLine = Geometry.BresenhamLine(from, to);
 
         // 计算垂直方向向量
-        var dx     = to.x - from.x;
-        var dy     = to.y - from.y;
+        var dx = to.x - from.x;
+        var dy = to.y - from.y;
         var length = MathF.Sqrt(dx * dx + dy * dy);
 
         if (length < float.Epsilon)
@@ -165,7 +169,7 @@ internal static class Geometry
 
         // 计算垂直方向的单位向量
         var perpX = -dy / length;
-        var perpY = dx  / length;
+        var perpY = dx / length;
 
         // 为路径上的每个点添加厚度
         foreach (var point in mainLine)

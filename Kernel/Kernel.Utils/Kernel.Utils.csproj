@@ -18,6 +18,5 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Kernel.DataInterfaces\Kernel.DataInterfaces.csproj"/>
-        <ProjectReference Include="..\Kernel.Utils\Kernel.Utils.csproj"/>
     </ItemGroup>
 </Project>

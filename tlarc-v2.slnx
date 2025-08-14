@@ -49,6 +49,10 @@
       <Platform Solution="Release|x64" Project="x64" />
       <Build Solution="Debug|x64" Project="false" />
     </Project>
+    <Project Path="Kernel/Kernel.TestConsole/Kernel.TestConsole.csproj" />
+    <Project Path="Kernel/Kernel.Utils/Kernel.Utils.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
   </Folder>
   <Folder Name="/Map/">
     <Project Path="Map/Map/Map.csproj">

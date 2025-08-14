@@ -1,6 +1,7 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using Kernel.Core.SoFucingFastAlgorithms;
+using Kernel.Core.SoFuckingFastAlgorithms;
+using Kernel.Utils;
 
 namespace Kernel.Core.TransformTree;
 

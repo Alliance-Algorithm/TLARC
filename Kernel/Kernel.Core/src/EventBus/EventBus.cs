@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
-using Kernel.Core.SoFucingFastAlgorithms;
+using Kernel.Core.SoFuckingFastAlgorithms;
 using Kernel.DataInterfaces;
 
 namespace Kernel.Core.EventBus;
@@ -40,7 +40,7 @@ public unsafe class EventBus<T> where T : ITlarcData
             _handlers[name] = handlers;
         }
 
-        _handlers[name] = [..handlers, handler];
+        _handlers[name] = [.. handlers, handler];
         _handlersLock.ExitWriteLock();
         _fastHandlers = new HybridDictionary<Action<T>[]>(_handlers);
     }

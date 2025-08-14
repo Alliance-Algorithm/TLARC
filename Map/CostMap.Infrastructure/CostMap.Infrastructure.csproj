@@ -7,18 +7,21 @@
         <Configurations>Debug;Release</Configurations>
         <Platforms>AnyCPU;x64</Platforms>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    </PropertyGroup>
+        <LangVersion>preview</LangVersion>
+      <UserSecretsId>3ef32871-e13a-4e9b-8c87-13931ff97436</UserSecretsId>
+  </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="geometry4Sharp" Version="1.0.0"/>
-        <PackageReference Include="MathNet.Numerics" Version="6.0.0-beta2"/>
-        <PackageReference Include="SkiaSharp" Version="3.119.0"/>
-        <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.0"/>
-        <PackageReference Include="YamlDotNet" Version="16.3.0"/>
+        <PackageReference Include="geometry4Sharp" Version="1.0.0" />
+        <PackageReference Include="MathNet.Numerics" Version="6.0.0-beta2" />
+        <PackageReference Include="SkiaSharp" Version="3.119.0" />
+        <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.0" />
+        <PackageReference Include="YamlDotNet" Version="16.3.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Kernel\Kernel.DataInterfaces\Kernel.DataInterfaces.csproj"/>
+        <ProjectReference Include="..\..\Kernel\Kernel.DataInterfaces\Kernel.DataInterfaces.csproj" />
+        <ProjectReference Include="..\..\Kernel\Kernel.Utils\Kernel.Utils.csproj" />
     </ItemGroup>
 
 </Project>
