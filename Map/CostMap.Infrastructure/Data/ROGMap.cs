@@ -29,7 +29,7 @@ public class ROGMap : IMap2D, IOccupancyGridMap2D
     internal float[]? _memory;
     internal float[]? _updateFrameCount;
 
-    internal uint[] _gridData;
+    internal uint[] _gridData = [];
 
     internal float[] _upper = [];
     internal float[] _lower = [];
