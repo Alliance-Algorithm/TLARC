@@ -29,8 +29,8 @@ public class ROGMap : IMap2D, IHeader, IGridMap2DData
 
     public float InflationDistance { private get; init; }
 
-    internal float[]? _memory;
-    internal sbyte[]? _updateFrameCount;
+    internal readonly float[] _memory;
+    internal readonly sbyte[] _updateFrameCount;
     internal uint[] _gridData = [];
     internal float[] _upper = [];
     internal float[] _lower = [];
@@ -39,7 +39,7 @@ public class ROGMap : IMap2D, IHeader, IGridMap2DData
 
     public float _lossHit { internal get; init; } = 0.9f;
     public float _lossMiss { internal get; init; } = -0.7f;
-    public string Identifier { get; init; }
+    public required string Identifier { get; init; }
 
     /// <summary>
     ///  as p_max = 99.9999%
@@ -51,13 +51,12 @@ public class ROGMap : IMap2D, IHeader, IGridMap2DData
     internal readonly float _lossOccu = 2.0f;
     internal readonly float _lossFree = -2.0f;
 
-    internal int _inflationDistance;
-    internal int _inflationDistanceHalf;
+    internal readonly int _inflationDistance;
+    internal readonly int _inflationDistanceHalf;
 
-    public float[] Memory => _memory ?? throw new NullReferenceException("ROGMap does not build, run ROGMap.Build() first");
+    public float[] Memory => _memory;
 
-    public sbyte[] UpdateFrameCount => _updateFrameCount ?? throw new NullReferenceException("ROGMap does not build, run ROGMap.Build() first");
-
+    public sbyte[] UpdateFrameCount => _updateFrameCount;
     public IMap2D Actions => this;
 
     public IHeader Header => this;
@@ -68,8 +67,8 @@ public class ROGMap : IMap2D, IHeader, IGridMap2DData
 
     public Matrix3x2 RotationMatrix => Matrix3x2.Identity;
 
-    public sbyte[]? _data;
-    public sbyte[] Data => _data ?? throw new NullReferenceException("ROGMap does not build, run ROGMap.Build() first");
+    internal readonly sbyte[] _data;
+    public sbyte[] Data => _data;
 
     public bool IsMoveAble(Vector2 from, Vector2 to)
     {
@@ -82,11 +81,6 @@ public class ROGMap : IMap2D, IHeader, IGridMap2DData
     }
     public ROGMap()
     {
-        Identifier = "";
-    }
-
-    public ROGMap Build()
-    {
         _inflationDistance = (int)Math.Round(InflationDistance / Resolution);
         _inflationDistanceHalf = _inflationDistance / 2;
         _gridData = new uint[SizeX * SizeY];
@@ -95,7 +89,7 @@ public class ROGMap : IMap2D, IHeader, IGridMap2DData
         _lower = new float[SizeX * SizeY];
         _updateFrameCount = new sbyte[SizeX * SizeY];
         _data = new sbyte[SizeX * SizeY];
-        return this;
     }
+
 
 }

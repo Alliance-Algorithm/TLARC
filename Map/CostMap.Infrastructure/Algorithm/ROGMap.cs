@@ -233,6 +233,17 @@ public static class ROGMap
 
     }
 
+    private static void UpdateGridMap(this Data.ROGMap rogMap)
+    {
+        BlockParallel.For(
+            rogMap.SizeX, rogMap.SizeY, rogMap._inflationDistance, rogMap._inflationDistance,
+            (x, y) =>
+            {
+                var c = new Vector2i(x, y).Normalize(rogMap);
+                var index = c.x + c.y * rogMap.SizeX;
+                rogMap._data[x + y * rogMap.SizeX] = (sbyte)(rogMap._gridData[index] != 0 ? 100 : 0);
+            });
+    }
     private static void IncrementalInflation(this Data.ROGMap rogMap, in Memory<sbyte> c)
     {
 
@@ -285,6 +296,7 @@ public static class ROGMap
             var old = rogMap._center;
             rogMap.UpdateLocalMapOrigin(x);
             rogMap.ResetMemoryOutsideMap(old);
+            rogMap.UpdateGridMap();
         }
 
     }
@@ -303,5 +315,6 @@ public static class ROGMap
         var memoryHandle = memoryOwner.Memory;
         rogMap.Raycasting(robotPositionInGlobal, pointCloudInMapCenter, ref memoryHandle);
         rogMap.IncrementalInflation(memoryHandle);
+
     }
 }
