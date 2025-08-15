@@ -20,7 +20,7 @@ _______  _        ______   ______   ______ @
 "
 );
 
-const string mapSaverExe        = "map_saver";
+const string mapSaverExe = "map_saver";
 const string mapSaverOptionPath = "map_path";
 
 const string helpString = @$"

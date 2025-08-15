@@ -43,12 +43,12 @@ public class Communication
             bs.Add(new A());
 
         for (var i = 0; i < 100; i++)
-        for (var j = 0; j < 10; j++)
-        {
-            var tmp = bs[j].Total;
-            Core.EventBus.EventBus.Instance.Publish(Name);
-            Assert.That(bs[j].Total, Is.EqualTo(tmp + 1));
-            Core.EventBus.EventBus<StdMessage<int>>.Instance.Publish(Name, StdMessage<int>.Build(bs[j].Total));
-        }
+            for (var j = 0; j < 10; j++)
+            {
+                var tmp = bs[j].Total;
+                Core.EventBus.EventBus.Instance.Publish(Name);
+                Assert.That(bs[j].Total, Is.EqualTo(tmp + 1));
+                Core.EventBus.EventBus<StdMessage<int>>.Instance.Publish(Name, StdMessage<int>.Build(bs[j].Total));
+            }
     }
 }

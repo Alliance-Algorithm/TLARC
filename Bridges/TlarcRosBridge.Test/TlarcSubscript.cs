@@ -32,7 +32,7 @@ public class TlarcSubscript
     public void Test1()
     {
         var total = 0;
-        var i     = 0;
+        var i = 0;
         Thread.Sleep(2);
         while (i < 20)
         {

@@ -29,7 +29,9 @@
 
 
     <ItemGroup>
-        <!-- <ProjectReference Include="path\to\your.csproj"/> -->
+        <!-- <ProjectReference Include="path\to\your.csproj" /> -->
+        <ProjectReference Include="..\Map\Map.csproj" />
+        <ProjectReference Include="..\..\Bridges\TlarcRosBridge.Domain\TlarcRosBridge.Domain.csproj" />
     </ItemGroup>
 
 </Project>

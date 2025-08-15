@@ -159,8 +159,8 @@ public class TfTest
         string[] nodes = { World, Base, Arm, Tool, Sensor, Camera, Object };
 
         foreach (var from in nodes)
-        foreach (var to in nodes)
-            TestConsistentTransform(from, to);
+            foreach (var to in nodes)
+                TestConsistentTransform(from, to);
     }
 
     // 5. 测试反向变换
@@ -173,9 +173,9 @@ public class TfTest
 
         // 验证反向变换与正向变换互逆
         TestConsistentTransform(World, Base);
-        TestConsistentTransform(Base,  Object);
-        TestConsistentTransform(Arm,   Camera);
-        TestConsistentTransform(Tool,  Sensor);
+        TestConsistentTransform(Base, Object);
+        TestConsistentTransform(Arm, Camera);
+        TestConsistentTransform(Tool, Sensor);
     }
 
     // 6. 测试相同坐标系

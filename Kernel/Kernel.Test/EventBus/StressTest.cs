@@ -8,9 +8,9 @@ public class StressTest
     [Test] // 标识测试方法
     public void IsDataAllRight()
     {
-        var a  = "a";
-        var b  = "b";
-        var c  = "c";
+        var a = "a";
+        var b = "b";
+        var c = "c";
         var da = 1;
         var db = 1.0f;
         var dc = 'a';

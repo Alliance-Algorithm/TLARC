@@ -5,7 +5,7 @@
         "Console",
         "C#13"
     ],
-    "identity": "0x0001",
+    "identity": "0x0004",
     "name": "Tlarc UnitTest Projcet",
     "shortName": "tlarc-unittest",
     "sourceName": "$TlarcTemplate$",

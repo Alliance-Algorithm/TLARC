@@ -8,7 +8,7 @@ namespace Map;
 
 public class MapLoader
 {
-#region 成员变量与属性
+    #region 成员变量与属性
 
     private string _mapPath = "";
     private IGridMap2DData? _map;
@@ -21,9 +21,9 @@ public class MapLoader
         _mapPath = mapPath;
     }
 
-#endregion
+    #endregion
 
-#region 公共接口
+    #region 公共接口
 
     public MapLoader SetMapPath(string path)
     {
@@ -72,5 +72,5 @@ public class MapLoader
     /// </summary>
     public static MapLoader Default => new("", "/map_server/static_map");
 
-#endregion
+    #endregion
 }

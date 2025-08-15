@@ -8,8 +8,8 @@ namespace TlarcRosBridge.Infrastructure.Decorators;
 
 internal static class Tf
 {
-    public static void TfCollectionToTfMessage(in  ITfCollection  poseStamped,
-                                               in  IRclNode       node,
+    public static void TfCollectionToTfMessage(in ITfCollection poseStamped,
+                                               in IRclNode node,
                                                ref TFMessage.Priv msg)
     {
         msg.Transforms = new TransformStamped.PrivSequence(poseStamped.TransformStampeds.Length);
@@ -17,8 +17,8 @@ internal static class Tf
             Tf.TlarcTfStampedToTfStamped(poseStamped.TransformStampeds[i], node, ref msg.Transforms.AsSpan()[i]);
     }
 
-    public static void TlarcTfStampedToTfStamped(in  ITransformStamped     poseStamped,
-                                                 in  IRclNode              node,
+    public static void TlarcTfStampedToTfStamped(in ITransformStamped poseStamped,
+                                                 in IRclNode node,
                                                  ref TransformStamped.Priv msg)
     {
         msg.ChildFrameId.CopyFrom(poseStamped.Header.Identifier);

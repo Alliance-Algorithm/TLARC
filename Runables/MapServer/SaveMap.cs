@@ -17,25 +17,25 @@ using Vector3 = System.Numerics.Vector3;
 
 public static class SaveMap
 {
-#region Parameters 调好了，改这里就好
+    #region Parameters 调好了，改这里就好
 
-// TF
-/*
- * tf tree:
- * car_init
- * |
- * L car_link
- * |    |
- * |    L lidar_link
- * |
- * L cost_map_link
- * |
- * L lidar_init
- */
+    // TF
+    /*
+     * tf tree:
+     * car_init
+     * |
+     * L car_link
+     * |    |
+     * |    L lidar_link
+     * |
+     * L cost_map_link
+     * |
+     * L lidar_init
+     */
     private static Quaternion QuaternionFromYawPitchRoll(float yaw = 0, float pitch = 0, float roll = 0) =>
-        Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float)(yaw   / 180 * Math.PI)) *
+        Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float)(yaw / 180 * Math.PI)) *
         Quaternion.CreateFromAxisAngle(Vector3.UnitY, (float)(pitch / 180 * Math.PI)) *
-        Quaternion.CreateFromAxisAngle(Vector3.UnitX, (float)(roll  / 180 * Math.PI));
+        Quaternion.CreateFromAxisAngle(Vector3.UnitX, (float)(roll / 180 * Math.PI));
 
     private const string TfCostMapLinkName = "cost_map_link";
     private const string TfCarLinkName = "car_link";
@@ -47,7 +47,7 @@ public static class SaveMap
     private static readonly Vector3 TfLidarLinkTranslate = new(0.14f, 0.12f, 0.27f);
     private static readonly Quaternion TfLidarLinkRotation = SaveMap.QuaternionFromYawPitchRoll(-49.7f, roll: -50.0f);
 
-// Events
+    // Events
     private const string EventPointCloudInputName = "/tlarc/map_server/point_cloud";
     private const string EventRobotPositionName = "/tlarc/map_server/sensor_pose";
     private const string EventGridMapName = "/tlarc/map/cost_map_with_pcd";
@@ -55,7 +55,7 @@ public static class SaveMap
     private const string EventPointCloudOutputName = "/tlarc/point_cloud";
     private const string EventSaveMapName = "/tlarc/save_map";
 
-// Ros
+    // Ros
     private const string RosNodeName = "TlarcMapServer";
     private const string RosSubRegisteredPointCloudTopicName = "/rmcs_slam/cloud_registered_world";
     private const string RosSubRobotPosTopicName = "/rmcs_slam/pose";
@@ -63,7 +63,7 @@ public static class SaveMap
     private const string RosPubDebugTlarcTfTopicName = "/tlarc_tf";
     private const string RosPubTlarcPointCloudTopicName = "/tlarc/point_cloud";
 
-// Others
+    // Others
     private const string PointCloudInputId = TfCarInitName;
     private const string PointCloudOutputId = TfCostMapLinkName;
     private const string PointCloudCostMapSensorId = TfLidarLinkName;
@@ -74,22 +74,22 @@ public static class SaveMap
     private static MapSaver _saver;
     private static PointCloudTo2dMap _pcdStaticMap;
 
-#endregion
+    #endregion
 
     public static void Build()
     {
-#region TFSetupHere
+        #region TFSetupHere
 
         Tf.AddTfNode(TfCostMapLinkName, TfCarInitName);
-        Tf.AddTfNode(TfCarLinkName,     TfCarInitName);
-        Tf.AddTfNode(TfLidarInitName,   TfCarInitName);
-        Tf.AddTfNode(TfLidarLinkName,   TfCarLinkName);
+        Tf.AddTfNode(TfCarLinkName, TfCarInitName);
+        Tf.AddTfNode(TfLidarInitName, TfCarInitName);
+        Tf.AddTfNode(TfLidarLinkName, TfCarLinkName);
         Tf.SetTfNode(TfCostMapLinkName, TfCostMapLinkTranslate, TfCostMapLinkRotation);
-        Tf.SetTfNode(TfLidarLinkName,   TfLidarLinkTranslate,   Quaternion.Identity);
+        Tf.SetTfNode(TfLidarLinkName, TfLidarLinkTranslate, Quaternion.Identity);
 
-#endregion
+        #endregion
 
-#region ROS Setup Here
+        #region ROS Setup Here
 
         var ros = TlarcRosBridge.Domain.RosBridge.Build(RosNodeName);
 
@@ -112,9 +112,9 @@ public static class SaveMap
             RosPubTlarcPointCloudTopicName,
             TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishPointCloud);
 
-#endregion
+        #endregion
 
-#region Domain Setup Here
+        #region Domain Setup Here
 
         _pcdStaticMap =
             PointCloudTo2dMap.DefaultNew
@@ -130,12 +130,12 @@ public static class SaveMap
                 .SetTrigger_SaveTriggerTopicName(EventSaveMapName)
                 .Build();
 
-#endregion
+        #endregion
 
         GC.KeepAlive(_pcdStaticMap);
         GC.KeepAlive(_saver);
 
-#region MainLogics
+        #region MainLogics
 
         EventBus<IPose>.Instance.Subscribe(EventRobotPositionName,
             data =>
@@ -155,7 +155,7 @@ public static class SaveMap
                 EventBus<IPointCloud>.Instance.Publish(EventPointCloudOutputName, pointCloud);
             });
 
-#endregion
+        #endregion
     }
 
 

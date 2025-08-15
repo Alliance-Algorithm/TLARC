@@ -12,14 +12,14 @@ using MapType = OccupancyHighGrid2DMap;
 
 public class MapSaver
 {
-#region 局部变量
+    #region 局部变量
 
     private string _costMapTopicName;
     private string _saveMapTopicName;
     private string _saveTargetLink;
     private MapType? _data;
 
-#endregion
+    #endregion
 
     private MapSaver(string costMapTopicName, string saveMapTopicName, string saveTargetLink)
     {
@@ -28,7 +28,7 @@ public class MapSaver
         _saveTargetLink = saveTargetLink;
     }
 
-# region 公共设置接口
+    #region 公共设置接口
 
     /// <summary>
     /// <para></para> pointCloudTopicName = "/tlarc/point_cloud/segment"
@@ -87,5 +87,5 @@ public class MapSaver
         return this;
     }
 
-#endregion
+    #endregion
 }

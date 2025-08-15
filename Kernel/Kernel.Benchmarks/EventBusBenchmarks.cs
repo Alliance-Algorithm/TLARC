@@ -24,7 +24,7 @@ public class EventBusBenchmarks
             public string Identifier { get; set; } = id;
         }
 
-        public required IHeader Header { get; init; } 
+        public required IHeader Header { get; init; }
         public required Vector2 Origin { get; init; }
 
         public required uint Width { get; init; }
@@ -45,7 +45,7 @@ public class EventBusBenchmarks
         Origin = new Vector2(),
         RotationMatrix = Matrix3x2.Identity,
         Resolution = 1,
-        Data = new sbyte [1000 * 1000],
+        Data = new sbyte[1000 * 1000],
         RotationRad = 0
     };
 

@@ -7,7 +7,7 @@ using Kernel.Utils;
 
 namespace CostMap.Infrastructure.Algorithm;
 
-static class ROGMap
+public static class ROGMap
 {
 
     #region  Utils
@@ -274,10 +274,10 @@ static class ROGMap
     /// </summary>
     /// <param name="rogMap"></param>
     /// <param name="robotPositionInGlobal">robot position in global tf node</param>
-    public static void MapSliding(this Data.ROGMap rogMap, in Vector3 robotPositionInGlobal)
+    public static void MapSliding(in Data.ROGMap rogMap, in Vector3 robotPositionInGlobal)
     {
         var x = new Vector3(robotPositionInGlobal.X, robotPositionInGlobal.Y, 0);
-        var o = new Vector3(rogMap.CenterX, rogMap.CenterY, 0);
+        var o = new Vector3(rogMap.CenterX * rogMap.Resolution, rogMap.CenterY * rogMap.Resolution, 0);
         var d = rogMap.SlidingThreshold;
 
         if ((x - o).Length() < d)
@@ -295,7 +295,7 @@ static class ROGMap
     /// <param name="rogMap"></param>
     /// <param name="robotPositionInGlobal">robot position in global tf node</param>
     /// <param name="pointCloudInMapCenter">point list in map center tf node</param>
-    public static void MapUpdate(this Data.ROGMap rogMap, in Vector3 robotPositionInGlobal, in Vector3[] pointCloudInMapCenter)
+    public static void MapUpdate(in Data.ROGMap rogMap, in Vector3 robotPositionInGlobal, in Vector3[] pointCloudInMapCenter)
     {
         var x = new Vector3(robotPositionInGlobal.X, robotPositionInGlobal.Y, 0);
 

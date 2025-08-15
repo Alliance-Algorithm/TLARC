@@ -55,6 +55,7 @@
     </Project>
   </Folder>
   <Folder Name="/Map/">
+    <Project Path="Map/Map.Test.Console/Map.Test.Console.csproj" />
     <Project Path="Map/Map/Map.csproj">
       <BuildType Solution="Debug|x64" Project="?" />
       <Platform Solution="Debug|x64" Project="?" />
@@ -118,6 +119,10 @@
       <Platform Solution="Release|x64" Project="x64" />
       <Build Solution="Debug|x64" Project="false" />
     </Project>
+  </Folder>
+  <Folder Name="/Runables/">
+    <Project Path="Runables/AlPlanner/AlPlanner.csproj" />
+    <Project Path="Runables/MapServer/MapServer.csproj" />
   </Folder>
   <Folder Name="/TrajectoryTracker/">
     <Project Path="TrajectoryTracker/TrajectoryTracker/TrajectoryTracker.csproj">

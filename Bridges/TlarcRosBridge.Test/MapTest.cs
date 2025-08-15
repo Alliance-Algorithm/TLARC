@@ -31,14 +31,14 @@ public class MapTest
     {
         var data = new sbyte[width * height];
         for (var i = 0; i < width; i++)
-        for (var j = 0; j < height; j++)
-        {
-            var xr  = (i * 4.0 - 2 * width)  / width;
-            var yr  = (j * 4.0 - 2 * height) / height;
-            var val = xr * xr + double.Pow(yr - double.Pow(xr, 2 / 3.0), 2);
-            if (val <= 1 || xr < 0)
-                data[i + width * j] = (sbyte)(50 + xr * 10 + yr * 10);
-        }
+            for (var j = 0; j < height; j++)
+            {
+                var xr = (i * 4.0 - 2 * width) / width;
+                var yr = (j * 4.0 - 2 * height) / height;
+                var val = xr * xr + double.Pow(yr - double.Pow(xr, 2 / 3.0), 2);
+                if (val <= 1 || xr < 0)
+                    data[i + width * j] = (sbyte)(50 + xr * 10 + yr * 10);
+            }
 
         return new GridMap2DData
         {

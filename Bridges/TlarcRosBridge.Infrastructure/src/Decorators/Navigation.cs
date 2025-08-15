@@ -35,7 +35,7 @@ internal static class Navigation
             {
                 Header = new GridMap2DData.HeaderInner(map.Header.FrameId.ToString()),
                 Origin = new Vector2
-                    { X = (float)map.Info.Origin.Position.X, Y = (float)map.Info.Origin.Position.Y },
+                { X = (float)map.Info.Origin.Position.X, Y = (float)map.Info.Origin.Position.Y },
                 Width = map.Info.Width,
                 Height = map.Info.Height,
                 RotationRad = rad,
@@ -45,9 +45,9 @@ internal static class Navigation
             };
         }
 
-        public static void WriteInto(IGridMap2DData         mapIn,
-                                     string                 frameId,
-                                     IRclNode               node,
+        public static void WriteInto(IGridMap2DData mapIn,
+                                     string frameId,
+                                     IRclNode node,
                                      ref OccupancyGrid.Priv mapOut)
         {
             var q = Quaternion.CreateFromAxisAngle(Vector3.UnitY, (float)mapIn.RotationRad);

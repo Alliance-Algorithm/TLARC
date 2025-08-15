@@ -16,12 +16,14 @@ public class ROGMap : IMap2D, IOccupancyGridMap2D
     public required float TopZ { get; init; }
     public required float ButtonZ { get; init; }
     public required float Resolution { get; init; }
-    public required int SizeX { get; init; }
-    public required int SizeY { get; init; }
     public required int ForgetFrameCount { get; init; }
 
+    public int SizeX => (int)Width;
+    public int SizeY => (int)Height;
+
+
     public required float BlindCircleRadius { get; init; }
-    public required int SlidingThreshold { get; init; }
+    public required float SlidingThreshold { get; init; }
 
 
     internal float InflationDistance { get; init; }
@@ -36,8 +38,8 @@ public class ROGMap : IMap2D, IOccupancyGridMap2D
 
     internal Vector2i _center;
 
-    internal float _lossHit { get; init; } = 0.9f;
-    internal float _lossMiss { get; init; } = -0.7f;
+    public float _lossHit { internal get; init; } = 0.9f;
+    public float _lossMiss { internal get; init; } = -0.7f;
 
     /// <summary>
     ///  as p_max = 99.9999%
@@ -71,7 +73,7 @@ public class ROGMap : IMap2D, IOccupancyGridMap2D
     {
         throw new NotImplementedException();
     }
-    internal ROGMap()
+    public ROGMap()
     {
 
     }

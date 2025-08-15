@@ -17,7 +17,7 @@ internal static class Sensor
 
     public static IPointCloud RmcsSlamSegmentationPart(ref PointCloud2.Priv map)
     {
-        var data   = map.Data.AsSpan().Cast<byte, Vector4>();
+        var data = map.Data.AsSpan().Cast<byte, Vector4>();
         var points = new Vector3[data.Length];
         for (var i = 0; i < data.Length; i++)
             points[i] = new Vector3(data[i].X, data[i].Y, data[i].Z);
@@ -40,7 +40,7 @@ internal static class Sensor
 
     public static IPointCloud FastLioRegistered(ref PointCloud2.Priv map)
     {
-        var data   = map.Data.AsSpan().Cast<byte, FastLioPointCloud>();
+        var data = map.Data.AsSpan().Cast<byte, FastLioPointCloud>();
         var points = new Vector3[data.Length];
         for (var i = 0; i < data.Length; i++)
             points[i] = new Vector3(data[i].x, data[i].y, data[i].z);

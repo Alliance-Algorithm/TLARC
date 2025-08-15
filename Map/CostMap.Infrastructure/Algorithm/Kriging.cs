@@ -42,13 +42,13 @@ public class Kriging(float nugget, float sill, float range, List<GridPoint> know
         var k = Matrix<float>.Build.Dense(n, n);
 
         for (var i = 0; i < n; i++)
-        for (var j = i; j < n; j++)
-        {
-            var distance = Distance(points[i], points[j]);
-            var cov      = Covariance(distance);
-            k[i, j] = cov;
-            if (i != j) k[j, i] = cov; // 对称矩阵
-        }
+            for (var j = i; j < n; j++)
+            {
+                var distance = Distance(points[i], points[j]);
+                var cov = Covariance(distance);
+                k[i, j] = cov;
+                if (i != j) k[j, i] = cov; // 对称矩阵
+            }
 
         return k;
     }
@@ -75,8 +75,8 @@ public class Kriging(float nugget, float sill, float range, List<GridPoint> know
 
     private Vector<float> BuildRightHandVector(
         List<GridPoint> points,
-        float           x,
-        float           y)
+        float x,
+        float y)
     {
         var n = points.Count;
         var b = Vector<float>.Build.Dense(n + 1);
@@ -116,11 +116,11 @@ public class Kriging(float nugget, float sill, float range, List<GridPoint> know
 
     private (float height, float variance) CalculateHeightAndVariance(
         List<GridPoint> points,
-        Vector<float>   weights,
-        float           x,
-        float           y)
+        Vector<float> weights,
+        float x,
+        float y)
     {
-        var n      = points.Count;
+        var n = points.Count;
         var height = 0.0f;
 
         // 计算预测高度
@@ -128,13 +128,13 @@ public class Kriging(float nugget, float sill, float range, List<GridPoint> know
             height += weights[i] * points[i].Z;
 
         // 计算预测方差
-        var c0       = Covariance(0); // 点自身的协方差
+        var c0 = Covariance(0); // 点自身的协方差
         var variance = c0;
 
         for (var i = 0; i < n; i++)
         {
             var distance = Distance(x, y, points[i].X, points[i].Y);
-            var cov      = Covariance(distance);
+            var cov = Covariance(distance);
             variance -= weights[i] * cov;
         }
 
@@ -155,15 +155,15 @@ public class Kriging(float nugget, float sill, float range, List<GridPoint> know
 
     private float Distance(GridPoint a, GridPoint b)
     {
-        var dx = a.X              - b.X;
-        var dy = a.Y              - b.Y;
+        var dx = a.X - b.X;
+        var dy = a.Y - b.Y;
         return float.Sqrt(dx * dx + dy * dy);
     }
 
     private float Distance(float x1, float y1, float x2, float y2)
     {
-        var dx = x1               - x2;
-        var dy = y1               - y2;
+        var dx = x1 - x2;
+        var dy = y1 - y2;
         return float.Sqrt(dx * dx + dy * dy);
     }
 }
@@ -181,7 +181,7 @@ public class KdTree
     public List<GridPoint> FindNearestNeighbors(float x, float y, int k)
     {
         var nearest = new List<GridPoint>(k);
-        var target  = new GridPoint(x, y, 0);
+        var target = new GridPoint(x, y, 0);
         FindNearest(_root, target, k, 0, nearest);
         return nearest;
     }
@@ -194,10 +194,10 @@ public class KdTree
         var axis = depth % 2;
         points.Sort((a, b) => axis == 0 ? a.X.CompareTo(b.X) : a.Y.CompareTo(b.Y));
 
-        var mid  = points.Count / 2;
+        var mid = points.Count / 2;
         var node = new Node(points[mid]);
 
-        node.Left = BuildTree(points.GetRange(0,        mid),                    depth + 1);
+        node.Left = BuildTree(points.GetRange(0, mid), depth + 1);
         node.Right = BuildTree(points.GetRange(mid + 1, points.Count - mid - 1), depth + 1);
 
         return node;
@@ -207,13 +207,13 @@ public class KdTree
     {
         if (node is null) return;
 
-        var axis        = depth % 2;
-        var nodeValue   = axis == 0 ? node.Point.X : node.Point.Y;
+        var axis = depth % 2;
+        var nodeValue = axis == 0 ? node.Point.X : node.Point.Y;
         var targetValue = axis == 0 ? target.X : target.Y;
 
         // 确定搜索路径
         var nearChild = targetValue < nodeValue ? node.Left : node.Right;
-        var farChild  = targetValue < nodeValue ? node.Right : node.Left;
+        var farChild = targetValue < nodeValue ? node.Right : node.Left;
 
         // 递归搜索最近子树
         FindNearest(nearChild, target, k, depth + 1, nearest);
@@ -246,17 +246,17 @@ public class KdTree
         }
     }
 
-    private bool ShouldSearchFarChild(Node            node,
-                                      GridPoint       target,
-                                      int             k,
-                                      int             depth,
+    private bool ShouldSearchFarChild(Node node,
+                                      GridPoint target,
+                                      int k,
+                                      int depth,
                                       List<GridPoint> nearest)
     {
         if (nearest.Count < k) return true;
 
-        var axis            = depth % 2;
-        var nodeValue       = axis == 0 ? node.Point.X : node.Point.Y;
-        var targetValue     = axis == 0 ? target.X : target.Y;
+        var axis = depth % 2;
+        var nodeValue = axis == 0 ? node.Point.X : node.Point.Y;
+        var targetValue = axis == 0 ? target.X : target.Y;
         var distanceToPlane = Math.Abs(nodeValue - targetValue);
 
         // 如果到分割平面的距离小于当前最大距离，则需要搜索
@@ -265,8 +265,8 @@ public class KdTree
 
     private double Distance(GridPoint a, GridPoint b)
     {
-        var dx = a.X             - b.X;
-        var dy = a.Y             - b.Y;
+        var dx = a.X - b.X;
+        var dy = a.Y - b.Y;
         return Math.Sqrt(dx * dx + dy * dy);
     }
 

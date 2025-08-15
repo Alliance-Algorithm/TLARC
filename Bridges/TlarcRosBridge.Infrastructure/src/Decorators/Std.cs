@@ -13,13 +13,13 @@ internal static class Std
     public static void FromData(ReadOnlySpan<char> dataIn, Rcl.IRclNode node, ref Header.Priv dataOut)
     {
         var now = (long)node.Clock.Elapsed.TotalNanoseconds;
-        dataOut.Stamp.Sec = (int)(now      / 1_000_000_000);
+        dataOut.Stamp.Sec = (int)(now / 1_000_000_000);
         dataOut.Stamp.Nanosec = (uint)(now % 1_000_000_000);
         dataOut.FrameId.CopyFrom(dataIn);
     }
 
 
-#region Int
+    #region Int
 
     public static void FromData(sbyte dataIn, ref Int8.Priv dataOut) => dataOut.Data = dataIn;
 
@@ -64,9 +64,9 @@ internal static class Std
     public static void FromData(ReadOnlySpan<ulong> dataIn, ref UInt64MultiArray.Priv dataOut) =>
         dataOut.Data.CopyFrom(dataIn);
 
-#endregion
+    #endregion
 
-#region Float
+    #region Float
 
     public static void FromData(float dataIn, ref Float32.Priv dataOut) => dataOut.Data = dataIn;
 
@@ -80,7 +80,7 @@ internal static class Std
     public static void FromData(ReadOnlySpan<double> dataIn, ref Float64MultiArray.Priv dataOut) =>
         dataOut.Data.CopyFrom(dataIn);
 
-#endregion
+    #endregion
 
     public static void FromData(bool dataIn, ref Bool.Priv dataOut) => dataOut.Data = dataIn;
 }

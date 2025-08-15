@@ -112,7 +112,7 @@ public static class GridMapInner
             Identifier = map2d.OccupancyData.Header.Identifier,
             RotationRad = map2d.OccupancyData.RotationRad,
             Origin = new Header.HeVector2
-                { X = map2d.OccupancyData.Origin.X, Y = map2d.OccupancyData.Origin.Y },
+            { X = map2d.OccupancyData.Origin.X, Y = map2d.OccupancyData.Origin.Y },
             RotationMatrix = new Header.HeMatrix3x2
             {
                 M11 = map2d.OccupancyData.RotationMatrix.M11,
@@ -195,9 +195,9 @@ public static class GridMapInner
         var serializer = new DeserializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .Build();
-        var           yaml   = File.ReadAllText(path + "/header.yaml");
-        var           header = serializer.Deserialize<Header>(yaml);
-        Grid2DMapData map2d  = new() { HeaderData = new Grid2DMapData.HeaderInner { Identifier = header.Identifier } };
+        var yaml = File.ReadAllText(path + "/header.yaml");
+        var header = serializer.Deserialize<Header>(yaml);
+        Grid2DMapData map2d = new() { HeaderData = new Grid2DMapData.HeaderInner { Identifier = header.Identifier } };
         map2d.Width = (uint)bitmap.Width;
         map2d.Height = (uint)bitmap.Height;
         map2d.Data = new sbyte[bitmap.ByteCount];
@@ -245,9 +245,9 @@ public static class GridMapInner
         var serializer = new DeserializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .Build();
-        var           yaml   = File.ReadAllText(path + "/header.yaml");
-        var           header = serializer.Deserialize<Header>(yaml);
-        Grid2DMapData map2d  = new() { HeaderData = new Grid2DMapData.HeaderInner { Identifier = header.Identifier } };
+        var yaml = File.ReadAllText(path + "/header.yaml");
+        var header = serializer.Deserialize<Header>(yaml);
+        Grid2DMapData map2d = new() { HeaderData = new Grid2DMapData.HeaderInner { Identifier = header.Identifier } };
         map2d.Width = (uint)bitmap.Width;
         map2d.Height = (uint)bitmap.Height;
         map2d.Data = new sbyte[bitmap.ByteCount];
@@ -283,13 +283,13 @@ public static class GridMapInner
     ///<para>example: type == LessEqual then if(data &le; threshold) return true;</para>
     /// </param>
     /// <returns>如果有障碍物：true</returns>
-    internal static bool CheckMoveable(Vector2        target,
+    internal static bool CheckMoveable(Vector2 target,
                                        IGridMap2DData data,
-                                       sbyte          threshold,
-                                       ThresholdType  type)
+                                       sbyte threshold,
+                                       ThresholdType type)
     {
         var vecInWorld = target - data.Origin;
-        var vecInMap   = (data.RotationMatrix * Matrix3x2.CreateTranslation(vecInWorld / data.Resolution)).Translation;
+        var vecInMap = (data.RotationMatrix * Matrix3x2.CreateTranslation(vecInWorld / data.Resolution)).Translation;
         if (vecInMap.X < 0 || vecInMap.X >= data.Width || vecInMap.Y < 0 || vecInMap.Y >= data.Height)
             return false;
 
@@ -297,12 +297,12 @@ public static class GridMapInner
             yIndexInMap = (int)vecInMap.Y;
         return type switch
         {
-            ThresholdType.Equal        => data.Data[xIndexInMap + yIndexInMap * data.Width] == threshold,
+            ThresholdType.Equal => data.Data[xIndexInMap + yIndexInMap * data.Width] == threshold,
             ThresholdType.GreaterEqual => data.Data[xIndexInMap + yIndexInMap * data.Width] >= threshold,
-            ThresholdType.LessEqual    => data.Data[xIndexInMap + yIndexInMap * data.Width] <= threshold,
-            ThresholdType.Less         => data.Data[xIndexInMap + yIndexInMap * data.Width] < threshold,
-            ThresholdType.Greater      => data.Data[xIndexInMap + yIndexInMap * data.Width] > threshold,
-            _                          => false
+            ThresholdType.LessEqual => data.Data[xIndexInMap + yIndexInMap * data.Width] <= threshold,
+            ThresholdType.Less => data.Data[xIndexInMap + yIndexInMap * data.Width] < threshold,
+            ThresholdType.Greater => data.Data[xIndexInMap + yIndexInMap * data.Width] > threshold,
+            _ => false
         };
     }
 
@@ -318,11 +318,11 @@ public static class GridMapInner
     ///<para>example: type == LessEqual then if(data &le; threshold) return true;</para>
     /// </param>
     /// <returns>如果有障碍物：true</returns>
-    internal static bool CheckMoveable(Vector2        from,
-                                       Vector2        to,
+    internal static bool CheckMoveable(Vector2 from,
+                                       Vector2 to,
                                        IGridMap2DData data,
-                                       sbyte          threshold,
-                                       ThresholdType  type)
+                                       sbyte threshold,
+                                       ThresholdType type)
     {
         var fromVecInWorld = from - data.Origin;
         var fromVecInMap = (data.RotationMatrix *
@@ -339,25 +339,25 @@ public static class GridMapInner
 
         Vector2i
             fromIndexInMap = new((int)fromVecInMap.X, (int)fromVecInMap.Y),
-            toIndexInMap   = new((int)toVecInMap.X, (int)toVecInMap.Y);
+            toIndexInMap = new((int)toVecInMap.X, (int)toVecInMap.Y);
 
 
         var indexes = Geometry.ThickLine(fromIndexInMap, toIndexInMap);
 
         return indexes.All(predicate: indexInMap => type switch
         {
-            ThresholdType.Equal        => data.Data[indexInMap.x + indexInMap.y * data.Width] == threshold,
+            ThresholdType.Equal => data.Data[indexInMap.x + indexInMap.y * data.Width] == threshold,
             ThresholdType.GreaterEqual => data.Data[indexInMap.x + indexInMap.y * data.Width] >= threshold,
-            ThresholdType.LessEqual    => data.Data[indexInMap.x + indexInMap.y * data.Width] <= threshold,
-            ThresholdType.Less         => data.Data[indexInMap.x + indexInMap.y * data.Width] < threshold,
-            ThresholdType.Greater      => data.Data[indexInMap.x + indexInMap.y * data.Width] > threshold,
-            _                          => false
+            ThresholdType.LessEqual => data.Data[indexInMap.x + indexInMap.y * data.Width] <= threshold,
+            ThresholdType.Less => data.Data[indexInMap.x + indexInMap.y * data.Width] < threshold,
+            ThresholdType.Greater => data.Data[indexInMap.x + indexInMap.y * data.Width] > threshold,
+            _ => false
         });
     }
 
-    public static void SelectPointsInHighMap(ref Vector3[]          points,
-                                             float                  carHigh,
-                                             float                  carStep,
+    public static void SelectPointsInHighMap(ref Vector3[] points,
+                                             float carHigh,
+                                             float carStep,
                                              OccupancyHighGrid2DMap map)
     {
         var check = (Vector3 p) =>
@@ -371,9 +371,9 @@ public static class GridMapInner
             var index = end.x + end.y * map.OccupancyData.Width;
             return map.High[index] + carStep < p.Z && p.Z < map.High[index] + carHigh;
         };
-        points = (
+        points = [..
             from p in points
             where check(p)
-            select p).ToArray();
+            select p];
     }
 }

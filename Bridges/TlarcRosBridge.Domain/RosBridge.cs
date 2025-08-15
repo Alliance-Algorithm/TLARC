@@ -24,8 +24,8 @@ public class RosBridge
     {
     }
 
-    public void Subscript<TMessage, TTlarcData>(string                             rosTopicName,
-                                                string                             tlarcEventName,
+    public void Subscript<TMessage, TTlarcData>(string rosTopicName,
+                                                string tlarcEventName,
                                                 Func<RosMessageBuffer, TTlarcData> dataFunc)
         where TMessage : IMessage where TTlarcData : ITlarcData
     {
@@ -43,7 +43,7 @@ public class RosBridge
         {
             if (t.IsFaulted)
             {
-                Console.WriteLine($"{t.Exception.Message}, \"hello\", {t.Exception.StackTrace}");
+                Console.WriteLine($"{t.Exception.Message}, \"Ros Subscript\", {t.Exception.StackTrace}");
                 Environment.Exit(-1);
             }
         }, TaskContinuationOptions.OnlyOnFaulted);
@@ -52,8 +52,8 @@ public class RosBridge
     }
 
 
-    public void Publish<TTlarcData, TMessage>(string                                            tlarcEventName,
-                                              string                                            rosTopicName,
+    public void Publish<TTlarcData, TMessage>(string tlarcEventName,
+                                              string rosTopicName,
                                               RefAction<TTlarcData, IRclNode, RosMessageBuffer> dataFunc)
         where TMessage : IMessage where TTlarcData : ITlarcData
     {
@@ -72,9 +72,9 @@ public class RosBridge
     }
 
 
-    public void Recast<TMessage>(string                                                          rosTopicName,
-                                 string                                                          recastTopicName,
-                                 string                                                          id,
+    public void Recast<TMessage>(string rosTopicName,
+                                 string recastTopicName,
+                                 string id,
                                  RefAction<IRclNode, string, RosMessageBuffer, RosMessageBuffer> dataFunc)
         where TMessage : IMessage
     {
@@ -95,7 +95,7 @@ public class RosBridge
         {
             if (t.IsFaulted)
             {
-                Console.WriteLine($"{t.Exception.Message}, \"hello\", {t.Exception.StackTrace}");
+                Console.WriteLine($"{t.Exception.Message}, \"Ros Recast\", {t.Exception.StackTrace}");
                 Environment.Exit(-1);
             }
         }, TaskContinuationOptions.OnlyOnFaulted);

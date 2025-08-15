@@ -25,34 +25,34 @@ internal static class Geometry
             )
         };
 
-    public static void WriteData(Vector3              dataInPos,
-                                 Quaternion           dataInRotation,
-                                 ReadOnlySpan<char>   frameId,
-                                 IRclNode             node,
+    public static void WriteData(Vector3 dataInPos,
+                                 Quaternion dataInRotation,
+                                 ReadOnlySpan<char> frameId,
+                                 IRclNode node,
                                  ref PoseStamped.Priv dataOut)
     {
-        Geometry.WriteData(dataInPos,      frameId, node, ref dataOut);
+        Geometry.WriteData(dataInPos, frameId, node, ref dataOut);
         Geometry.WriteData(dataInRotation, frameId, node, ref dataOut);
     }
 
     public static void WriteData(Vector3 dataInPos, Quaternion dataInRotation, ref PoseStamped.Priv dataOut)
     {
-        Geometry.WriteData(dataInPos,      ref dataOut.Pose);
+        Geometry.WriteData(dataInPos, ref dataOut.Pose);
         Geometry.WriteData(dataInRotation, ref dataOut.Pose);
     }
 
-    public static void WriteData(Vector3              dataIn,
-                                 ReadOnlySpan<char>   frameId,
-                                 IRclNode             node,
+    public static void WriteData(Vector3 dataIn,
+                                 ReadOnlySpan<char> frameId,
+                                 IRclNode node,
                                  ref PoseStamped.Priv dataOut)
     {
         Std.FromData(frameId, node, ref dataOut.Header);
         Geometry.WriteData(dataIn, ref dataOut.Pose);
     }
 
-    public static void WriteData(Quaternion           dataIn,
-                                 ReadOnlySpan<char>   frameId,
-                                 IRclNode             node,
+    public static void WriteData(Quaternion dataIn,
+                                 ReadOnlySpan<char> frameId,
+                                 IRclNode node,
                                  ref PoseStamped.Priv dataOut)
     {
         Std.FromData(frameId, node, ref dataOut.Header);
@@ -67,7 +67,7 @@ internal static class Geometry
 
     public static void WriteData(Vector3 dataInPos, Quaternion dataInRotation, ref Pose.Priv dataOut)
     {
-        Geometry.WriteData(dataInPos,      ref dataOut);
+        Geometry.WriteData(dataInPos, ref dataOut);
         Geometry.WriteData(dataInRotation, ref dataOut);
     }
 

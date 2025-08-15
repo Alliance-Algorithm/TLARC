@@ -206,13 +206,13 @@ internal static class Geometry
 
     internal static bool CohenSutherland(ref Vector2i from,
                                          ref Vector2i to,
-                                         in  Vector2i leftTop,
-                                         in  Vector2i rightBottom,
-                                         out bool     toState
+                                         in Vector2i leftTop,
+                                         in Vector2i rightBottom,
+                                         out bool toState
     )
     {
         var p1 = Geometry.EncodeCohenSutherland(from, leftTop, rightBottom);
-        var p2 = Geometry.EncodeCohenSutherland(to,   leftTop, rightBottom);
+        var p2 = Geometry.EncodeCohenSutherland(to, leftTop, rightBottom);
         toState = p2 == 0;
         if ((p1 | p2) == 0)
             return true;
@@ -236,7 +236,7 @@ internal static class Geometry
             }
 
             if (pt == 0)
-                if (mid.x == leftTop.x     || mid.y == leftTop.y ||
+                if (mid.x == leftTop.x || mid.y == leftTop.y ||
                     mid.x == rightBottom.x || mid.y == rightBottom.y)
                     if (p1 != 0)
                     {

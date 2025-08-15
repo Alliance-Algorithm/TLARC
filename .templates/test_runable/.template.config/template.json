@@ -5,9 +5,9 @@
         "Console",
         "C#13"
     ],
-    "identity": "0x0001",
+    "identity": "0x0003",
     "name": "Tlarc Runable Projcet",
-    "shortName": "tlarc-test-runable",
+    "shortName": "tlarc-consoletest",
     "sourceName": "$TlarcTemplate$",
     "tags": {
         "language": "C#",
