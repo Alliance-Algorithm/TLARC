@@ -1,12 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
+<PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-    </PropertyGroup>
+        <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
+        
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <OptimizationPreference>Speed</OptimizationPreference>
+        
 
+        <PublishDir>$(SolutionDir)\.install\</PublishDir>
+
+        
+        <PublishSingleFile>true</PublishSingleFile>
+        <SelfContained>true</SelfContained>
+
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\Bridges\TlarcRosBridge.Domain\TlarcRosBridge.Domain.csproj"/>
         <ProjectReference Include="..\..\Kernel\Kernel.Core\Kernel.Core.csproj"/>

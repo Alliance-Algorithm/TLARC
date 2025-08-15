@@ -119,13 +119,6 @@
       <Build Solution="Debug|x64" Project="false" />
     </Project>
   </Folder>
-  <Folder Name="/Runables/">
-    <Project Path="Runables/MapServer/MapServer.csproj">
-      <BuildType Solution="Debug|x64" Project="?" />
-      <Platform Solution="Debug|x64" Project="?" />
-      <Build Solution="Debug|x64" Project="false" />
-    </Project>
-  </Folder>
   <Folder Name="/TrajectoryTracker/">
     <Project Path="TrajectoryTracker/TrajectoryTracker/TrajectoryTracker.csproj">
       <BuildType Solution="Debug|x64" Project="?" />

@@ -59,7 +59,7 @@ public class MapLoader
     {
         EventBus<OccupancyHighGrid2DMap>.Instance.Publish(_mapEventName,
             _highMap ??= GridMapInner.LoadHighMap(_mapPath));
-        EventBus<IGridMap2DData>.Instance.Publish(_mapEventName, _highMap.OccupancyData.GridData);
+        EventBus<IGridMap2DData>.Instance.Publish(_mapEventName, _highMap.OccupancyData.GridMapData);
         return this;
     }
 

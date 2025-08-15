@@ -8,3 +8,4 @@ riderModule.iml
 /_ReSharper.Caches/
 build/
 UnitTest/
+dotnet-install.sh

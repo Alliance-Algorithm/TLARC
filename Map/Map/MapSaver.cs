@@ -65,10 +65,10 @@ public class MapSaver
                 if (_data is not null)
                 {
                     var map = MapType.Build_Clone(_data);
-                    map.DataChangeable.DataChangable.HeaderData.Identifier = _saveTargetLink;
-                    var xyz = Tf.Cast(_data.DataChangeable.DataChangable.Header.Identifier, _saveTargetLink,
-                        new Vector3(_data.DataChangeable.DataChangable.Origin, 0));
-                    map.DataChangeable.DataChangable.Origin = new Vector2(xyz.X, xyz.Y);
+                    map.DataChangeable.DataChangeable.HeaderData.Identifier = _saveTargetLink;
+                    var xyz = Tf.Cast(_data.DataChangeable.DataChangeable.Header.Identifier, _saveTargetLink,
+                        new Vector3(_data.DataChangeable.DataChangeable.Origin, 0));
+                    map.DataChangeable.DataChangeable.Origin = new Vector2(xyz.X, xyz.Y);
                     CostMap.Infrastructure.Algorithm.GridMapInner.SaveHighMap(map, str.Instance);
                 }
             });

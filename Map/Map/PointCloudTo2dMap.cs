@@ -16,7 +16,7 @@ public class PointCloudTo2dMap
     private class InnerData : IOccupancyGridMap2DData, IHeader, IGridMap2DData
     {
         public IHeader Header => this;
-        public IGridMap2DData GridData => this;
+        public IGridMap2DData GridMapData => this;
         public string Identifier { get; set; } = "";
         public Vector2 Origin { get; } = new();
         public uint Width { get; set; } = 100;
@@ -113,7 +113,7 @@ public class PointCloudTo2dMap
                 if (staticHigh is null)
                     return;
                 Array.Fill(_innerMap.DataChangeable.OccupancyRate, 0);
-                _innerMap.DataChangeable.DataChangable.HeaderData.Identifier = _costMapId;
+                _innerMap.DataChangeable.DataChangeable.HeaderData.Identifier = _costMapId;
                 var points = Tf.Cast(_pointCloudId, staticHighId, pointCloud.Points);
                 CostMap.Infrastructure.Algorithm.GridMapInner.SelectPointsInHighMap(ref points, 0.4f, 0.15f,
                     staticHigh);
@@ -122,7 +122,7 @@ public class PointCloudTo2dMap
                     Tf.Cast(_sensorId,    _costMapId, Vector3.Zero),
                     _innerMap
                 );
-                EventBus<IGridMap2DData>.Instance.Publish(_costMapTopicName, _innerMap.OccupancyData.GridData);
+                EventBus<IGridMap2DData>.Instance.Publish(_costMapTopicName, _innerMap.OccupancyData.GridMapData);
             });
         return this;
     }
@@ -147,14 +147,14 @@ public class PointCloudTo2dMap
             pointCloud =>
             {
                 Array.Fill(_innerMap.DataChangeable.OccupancyRate, 2);
-                _innerMap.DataChangeable.DataChangable.HeaderData.Identifier = _costMapId;
+                _innerMap.DataChangeable.DataChangeable.HeaderData.Identifier = _costMapId;
 
                 CostMap.Infrastructure.Algorithm.OccupancyGridMapBuilder.UpdateRateFromPointCloud(
                     Tf.Cast(_pointCloudId, _costMapId, pointCloud.Points),
                     Tf.Cast(_sensorId,     _costMapId, Vector3.Zero),
                     _innerMap
                 );
-                EventBus<IGridMap2DData>.Instance.Publish(_costMapTopicName, _innerMap.OccupancyData.GridData);
+                EventBus<IGridMap2DData>.Instance.Publish(_costMapTopicName, _innerMap.OccupancyData.GridMapData);
             });
         return this;
     }
@@ -182,7 +182,7 @@ public class PointCloudTo2dMap
         EventBus<IPointCloud>.Instance.Subscribe(_pointCloudTopicName,
             pointCloud =>
             {
-                _inner25DMap.DataChangeable.DataChangable.HeaderData.Identifier = _costMapId;
+                _inner25DMap.DataChangeable.DataChangeable.HeaderData.Identifier = _costMapId;
 
                 CostMap.Infrastructure.Algorithm.OccupancyGridMapBuilder.UpdateHighRateWithPointCloud(
                     Tf.Cast(_pointCloudId, _costMapId, pointCloud.Points),
@@ -190,7 +190,7 @@ public class PointCloudTo2dMap
                     Tf.Cast(_chassisId,    _costMapId, step),
                     _inner25DMap
                 );
-                EventBus<IGridMap2DData>.Instance.Publish(_costMapTopicName, _inner25DMap.OccupancyData.GridData);
+                EventBus<IGridMap2DData>.Instance.Publish(_costMapTopicName, _inner25DMap.OccupancyData.GridMapData);
                 EventBus<OccupancyHighGrid2DMap>.Instance.Publish(_costMapTopicName, _inner25DMap);
             });
         return this;

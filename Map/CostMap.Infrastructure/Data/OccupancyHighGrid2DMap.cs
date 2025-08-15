@@ -6,21 +6,11 @@ namespace CostMap.Infrastructure.Data;
 
 public class OccupancyHighGrid2DMap : IMap2D, IOccupancyGridMap2D
 {
-    public class DataInner : IOccupancyGridMap2DData
-    {
-        public IGridMap2DData GridMapData => DataChangeable;
-        public required Grid2DMapData DataChangeable { get; init; }
-        public sbyte Threshold { get; init; } = 70;
-        public float LossFree { get; init; } = 0.7f;
-        public float LossOccu { get; init; } = -1.9f;
-        public required float[] OccupancyRate { get; set; }
-    }
-
     public required float[] High { get; set; }
 
     public float ButtonZ { get; set; } = 0f;
     public float TopZ { get; set; } = 1f;
-    public required DataInner DataChangeable { get; init; }
+    public required OccupancyGridData DataChangeable { get; init; }
 
     public IOccupancyGridMap2DData OccupancyData => DataChangeable;
     public IMap2D Actions => this;
@@ -38,7 +28,7 @@ public class OccupancyHighGrid2DMap : IMap2D, IOccupancyGridMap2D
     public static OccupancyHighGrid2DMap Build_IOccupancyGridMap2D(IOccupancyGridMap2D data) =>
         new()
         {
-            DataChangeable = new DataInner
+            DataChangeable = new OccupancyGridData
             {
                 DataChangeable = new Grid2DMapData
                 {
@@ -62,7 +52,7 @@ public class OccupancyHighGrid2DMap : IMap2D, IOccupancyGridMap2D
     public static OccupancyHighGrid2DMap Build_IOccupancyGridMap2DData(IOccupancyGridMap2DData data) =>
         new()
         {
-            DataChangeable = new DataInner
+            DataChangeable = new OccupancyGridData
             {
                 DataChangeable = new Grid2DMapData
                 {
@@ -86,7 +76,7 @@ public class OccupancyHighGrid2DMap : IMap2D, IOccupancyGridMap2D
     public static OccupancyHighGrid2DMap Build_IGridMap2DData(IGridMap2DData data) =>
         new()
         {
-            DataChangeable = new DataInner
+            DataChangeable = new OccupancyGridData
             {
                 DataChangeable = new Grid2DMapData
                 {
@@ -107,19 +97,19 @@ public class OccupancyHighGrid2DMap : IMap2D, IOccupancyGridMap2D
     public static OccupancyHighGrid2DMap Build_Clone(OccupancyHighGrid2DMap data) =>
         new()
         {
-            DataChangeable = new DataInner
+            DataChangeable = new OccupancyGridData
             {
-                DataChangable = new Grid2DMap.DataInner
+                DataChangeable = new Grid2DMapData
                 {
                     HeaderData =
-                        new Grid2DMap.DataInner.HeaderInner(data.DataChangeable.DataChangable.Header.Identifier),
-                    Data = data.DataChangeable.DataChangable.Data[..],
-                    Height = data.DataChangeable.DataChangable.Height,
-                    Width = data.DataChangeable.DataChangable.Width,
-                    RotationRad = data.DataChangeable.DataChangable.RotationRad,
-                    RotationMatrix = data.DataChangeable.DataChangable.RotationMatrix,
-                    Origin = data.DataChangeable.DataChangable.Origin,
-                    Resolution = data.DataChangeable.DataChangable.Resolution
+                        new Grid2DMapData.HeaderInner(data.DataChangeable.DataChangeable.Header.Identifier),
+                    Data = data.DataChangeable.DataChangeable.Data[..],
+                    Height = data.DataChangeable.DataChangeable.Height,
+                    Width = data.DataChangeable.DataChangeable.Width,
+                    RotationRad = data.DataChangeable.DataChangeable.RotationRad,
+                    RotationMatrix = data.DataChangeable.DataChangeable.RotationMatrix,
+                    Origin = data.DataChangeable.DataChangeable.Origin,
+                    Resolution = data.DataChangeable.DataChangeable.Resolution
                 },
                 OccupancyRate = data.OccupancyData.OccupancyRate[..]
             },
