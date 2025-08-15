@@ -223,6 +223,7 @@ public class PointCloudTo2dMap
             Resolution = _innerData.Resolution,
             _lossHit = Math.Abs(_innerData.LossOccu),
             _lossMiss = -Math.Abs(_innerData.LossFree),
+            Identifier = _costMapId
         };
 
 

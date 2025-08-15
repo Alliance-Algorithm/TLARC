@@ -76,6 +76,22 @@ ros.Publish<IPointCloud, PointCloud2>(
 
 
 
+#endif
+#endregion
+
+#region TFSetupHere
+
+Tf.AddTfNode(TfCostMapLinkName, TfCarInitName);
+Tf.AddTfNode(TfCarLinkName, TfCarInitName);
+Tf.AddTfNode(TfLidarInitName, TfCarInitName);
+Tf.AddTfNode(TfLidarLinkName, TfCarLinkName);
+Tf.SetTfNode(TfCostMapLinkName, TfCostMapLinkTranslate, TfCostMapLinkRotation);
+Tf.SetTfNode(TfLidarLinkName, TfLidarLinkTranslate, Quaternion.Identity);
+EventBus<ITfCollection>.Instance.Publish(EventTfName, Tf.GetTree());
+
+#endregion
+
+
 EventBus<IPose>.Instance.Subscribe(EventRobotPositionName,
     data =>
     {
@@ -93,20 +109,6 @@ EventBus<IPointCloud>.Instance.Subscribe(EventPointCloudInputName,
         };
         EventBus<IPointCloud>.Instance.Publish(EventPointCloudOutputName, pointCloud);
     });
-#endif
-#endregion
-
-#region TFSetupHere
-
-Tf.AddTfNode(TfCostMapLinkName, TfCarInitName);
-Tf.AddTfNode(TfCarLinkName, TfCarInitName);
-Tf.AddTfNode(TfLidarInitName, TfCarInitName);
-Tf.AddTfNode(TfLidarLinkName, TfCarLinkName);
-Tf.SetTfNode(TfCostMapLinkName, TfCostMapLinkTranslate, TfCostMapLinkRotation);
-Tf.SetTfNode(TfLidarLinkName, TfLidarLinkTranslate, Quaternion.Identity);
-EventBus<ITfCollection>.Instance.Publish(EventTfName, Tf.GetTree());
-
-#endregion
 
 GC.KeepAlive(
     PointCloudTo2dMap.DefaultNew

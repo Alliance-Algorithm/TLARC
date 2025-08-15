@@ -12,8 +12,8 @@ public class ROGMap : IMap2D, IHeader, IGridMap2DData
 
     public int CenterX => _center.x;
     public int CenterY => _center.y;
-    public required uint Width { get; init { field = value; SizeX = (int)value; } }
-    public required uint Height { get; init { field = value; SizeY = (int)value; } }
+    public required uint Width { get; init { var v = value - value % 2 + 1; field = v; SizeX = (int)v; } }
+    public required uint Height { get; init { var v = value - value % 2 + 1; field = v; SizeY = (int)v; } }
     public required float TopZ { get; init; }
     public required float ButtonZ { get; init; }
     public required float Resolution { get; init; }
@@ -61,7 +61,7 @@ public class ROGMap : IMap2D, IHeader, IGridMap2DData
 
     public IHeader Header => this;
 
-    public Vector2 Origin => new((CenterX - SizeX / 2) / Resolution, (CenterY - SizeY / 2) / Resolution);
+    public Vector2 Origin => new((CenterX - SizeX / 2) * Resolution, (CenterY - SizeY / 2) * Resolution);
 
     public double RotationRad => 0;
 

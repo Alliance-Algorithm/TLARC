@@ -203,7 +203,7 @@ public static class ROGMap
                         curr = rogMap._upper[pointIndex];
                         min = Math.Max(rogMap._upper[pointIndex], p.Z);
                     }
-                    while (rogMap._upper[pointIndex] < p.Z && Interlocked.CompareExchange(ref rogMap._lower[pointIndex], curr, min) != curr);
+                    while (rogMap._upper[pointIndex] < p.Z && Interlocked.CompareExchange(ref rogMap._upper[pointIndex], curr, min) != curr);
                 }
             );
             BlockParallel.For(rogMap.SizeX, rogMap.SizeY, 0, 0, (x, y) =>
