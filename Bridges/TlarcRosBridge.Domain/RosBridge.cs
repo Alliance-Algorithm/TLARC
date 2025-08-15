@@ -51,6 +51,7 @@ public class RosBridge
         Thread.Sleep(1);
     }
 
+
     public void Publish<TTlarcData, TMessage>(string                                            tlarcEventName,
                                               string                                            rosTopicName,
                                               RefAction<TTlarcData, IRclNode, RosMessageBuffer> dataFunc)
@@ -70,6 +71,35 @@ public class RosBridge
         Thread.Sleep(1);
     }
 
+
+    public void Recast<TMessage>(string                                                          rosTopicName,
+                                 string                                                          recastTopicName,
+                                 string                                                          id,
+                                 RefAction<IRclNode, string, RosMessageBuffer, RosMessageBuffer> dataFunc)
+        where TMessage : IMessage
+    {
+        var pub = Node.CreatePublisher<TMessage>(recastTopicName);
+        var rec = new PublisherRecord(pub, pub.CreateBuffer());
+        var task = Task.Run(async () =>
+        {
+            using var sub = Node.CreateNativeSubscription<TMessage>(rosTopicName);
+            await foreach (var msg in sub.ReadAllAsync())
+                using (msg)
+                {
+                    var tmp = Node;
+                    dataFunc(in tmp, in id, in msg, ref rec.Buffer);
+                    rec.Publisher.Publish(rec.Buffer);
+                }
+        });
+        task.ContinueWith(t =>
+        {
+            if (t.IsFaulted)
+            {
+                Console.WriteLine($"{t.Exception.Message}, \"hello\", {t.Exception.StackTrace}");
+                Environment.Exit(-1);
+            }
+        }, TaskContinuationOptions.OnlyOnFaulted);
+    }
 
     public static RosBridge Build(string nodeName) =>
         new()

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using System.Runtime.CompilerServices;
 using Kernel.Core.SoFuckingFastAlgorithms;
 using Kernel.DataInterfaces;
@@ -69,7 +70,7 @@ public unsafe class EventBus
     /// 事件类型和对应处理器
     private readonly ConcurrentDictionary<string, Action[]> _handlers = new();
 
-    private HybridDictionary<Action[]> _fastHandlers = new([]);
+    private FrozenDictionary<string, Action[]> _fastHandlers = FrozenDictionary<string, Action[]>.Empty;
 
     /// 同步锁
     private readonly ReaderWriterLockSlim _handlersLock = new();
@@ -98,7 +99,7 @@ public unsafe class EventBus
 
         _handlers[name] = [.. handlers, handler];
         _handlersLock.ExitWriteLock();
-        _fastHandlers = new HybridDictionary<Action[]>(_handlers);
+        _fastHandlers = _handlers.ToFrozenDictionary();
     }
 
     /// <summary>

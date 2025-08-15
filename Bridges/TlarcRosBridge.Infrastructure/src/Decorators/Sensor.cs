@@ -3,7 +3,6 @@ using System.Runtime.InteropServices;
 using Kernel.DataInterfaces.Sensor;
 using Microsoft.Toolkit.HighPerformance;
 using Rcl;
-using Rosidl.Runtime.Interop;
 using TlarcRosBridge.Infrastructure.Messages.Sensor;
 
 namespace TlarcRosBridge.Infrastructure.Decorators;

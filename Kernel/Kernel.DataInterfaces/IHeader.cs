@@ -5,5 +5,5 @@ public interface IHeader
     /// <summary>
     /// Transform id
     /// </summary>
-    public string Identifier { get; set; }
+    public string Identifier { get; }
 }

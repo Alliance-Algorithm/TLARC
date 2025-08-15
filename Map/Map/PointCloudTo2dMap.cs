@@ -9,14 +9,14 @@ using Kernel.DataInterfaces.Sensor;
 
 namespace Map;
 
-public class PointCloudCostMap
+public class PointCloudTo2dMap
 {
-    #region 类型定义
+# region 类型定义
 
     private class InnerData : IOccupancyGridMap2DData, IHeader, IGridMap2DData
     {
         public IHeader Header => this;
-        public IGridMap2DData GridMapData => this;
+        public IGridMap2DData GridData => this;
         public string Identifier { get; set; } = "";
         public Vector2 Origin { get; } = new();
         public uint Width { get; set; } = 100;
@@ -31,15 +31,15 @@ public class PointCloudCostMap
         public float LossOccu { get; set; } = -0.9f;
         public float BottomZ { get; set; } = 0.01f;
         public float TopZ { get; set; } = 0.08f;
-
     }
 
-    #endregion
+#endregion
 
-    #region 局部变量
+#region 局部变量
 
     private string _pointCloudTopicName;
     private string _costMapTopicName;
+    private string _staticMapTopicName;
 
     private string _pointCloudId = "lidar_link";
     private string _sensorId = "lidar_link";
@@ -51,20 +51,22 @@ public class PointCloudCostMap
 
     private readonly InnerData _innerData;
 
-    #endregion
+#endregion
 
-    private PointCloudCostMap(string pointCloudTopicName, string costMapTopicName)
+    private PointCloudTo2dMap(string pointCloudTopicName, string costMapTopicName, string staticMapTopicName)
     {
         _pointCloudTopicName = pointCloudTopicName;
         _costMapTopicName = costMapTopicName;
+        _staticMapTopicName = staticMapTopicName;
         _innerData = new InnerData();
     }
 
-    #region 公共设置接口
+# region 公共设置接口
 
     /// <summary>
     /// <para></para> pointCloudTopicName = "/tlarc/point_cloud/segment"
     /// <para></para> costMapTopicName = "/tlarc/map/cost_map_with_pcd"
+    /// <para></para> staticMapTopicName = "/tlarc/map_server/static_map"
     /// <para></para> uint  width      = 100,
     /// <para></para> uint  height     = 100,
     /// <para></para> sbyte threshold  = 70,
@@ -74,12 +76,11 @@ public class PointCloudCostMap
     /// <para></para> float buttonZ    = -0.5f,
     /// <para></para> float topZ       = 0.1f
     /// </summary>
-    public static PointCloudCostMap DefaultNew
+    public static PointCloudTo2dMap DefaultNew
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => new("/tlarc/point_cloud/segment", "/tlarc/map/cost_map_with_pcd");
+        get => new("/tlarc/point_cloud/segment", "/tlarc/map/cost_map_with_pcd", "/tlarc/map_server/static_map");
     }
-
 
     /// <summary>
     /// 在事件系统中注册所有的事件
@@ -89,10 +90,55 @@ public class PointCloudCostMap
     /// <para>PointCloudInterface ->  Kernel.DataInterfaces.Sensor.IPointCloud</para>
     /// </remarks>
     /// <returns></returns>
-    public PointCloudCostMap BuildOccupancyMap()
+    public PointCloudTo2dMap BuildOccupancyMapWithStaticHigh()
     {
-        _innerData.Data = new sbyte[_innerData.Width * _innerData.Height];
-        _innerData.OccupancyRate = new float[_innerData.Width * _innerData.Height];
+        _innerData.Data = new sbyte[_innerData.Width           * _innerData.Height];
+        _innerData.OccupancyRate = new float [_innerData.Width * _innerData.Height];
+        Array.Fill(_innerData.OccupancyRate, 0);
+        _innerMap = OccupancyGrid2DMap.Build_IOccupancyGridMap2DData(_innerData);
+        _innerMap.TopZ = _innerData.TopZ;
+        _innerMap.ButtonZ = _innerData.BottomZ;
+        OccupancyHighGrid2DMap? staticHigh   = null;
+        var                     staticHighId = "";
+        EventBus<OccupancyHighGrid2DMap>.Instance.Subscribe(_staticMapTopicName, m =>
+        {
+            staticHigh = m;
+            staticHighId = (staticHigh ?? throw new Exception("No static map"))
+                .OccupancyData.Header
+                .Identifier;
+        });
+        EventBus<IPointCloud>.Instance.Subscribe(_pointCloudTopicName,
+            pointCloud =>
+            {
+                if (staticHigh is null)
+                    return;
+                Array.Fill(_innerMap.DataChangeable.OccupancyRate, 0);
+                _innerMap.DataChangeable.DataChangable.HeaderData.Identifier = _costMapId;
+                var points = Tf.Cast(_pointCloudId, staticHighId, pointCloud.Points);
+                CostMap.Infrastructure.Algorithm.GridMapInner.SelectPointsInHighMap(ref points, 0.4f, 0.15f,
+                    staticHigh);
+                CostMap.Infrastructure.Algorithm.OccupancyGridMapBuilder.UpdateRateFromPointCloud(
+                    Tf.Cast(staticHighId, _costMapId, points),
+                    Tf.Cast(_sensorId,    _costMapId, Vector3.Zero),
+                    _innerMap
+                );
+                EventBus<IGridMap2DData>.Instance.Publish(_costMapTopicName, _innerMap.OccupancyData.GridData);
+            });
+        return this;
+    }
+
+    /// <summary>
+    /// 在事件系统中注册所有的事件
+    /// </summary>
+    /// <remarks>
+    /// <para>输入：</para>
+    /// <para>PointCloudInterface ->  Kernel.DataInterfaces.Sensor.IPointCloud</para>
+    /// </remarks>
+    /// <returns></returns>
+    public PointCloudTo2dMap BuildOccupancyMap()
+    {
+        _innerData.Data = new sbyte[_innerData.Width           * _innerData.Height];
+        _innerData.OccupancyRate = new float [_innerData.Width * _innerData.Height];
         Array.Fill(_innerData.OccupancyRate, 0);
         _innerMap = OccupancyGrid2DMap.Build_IOccupancyGridMap2DData(_innerData);
         _innerMap.TopZ = _innerData.TopZ;
@@ -100,14 +146,15 @@ public class PointCloudCostMap
         EventBus<IPointCloud>.Instance.Subscribe(_pointCloudTopicName,
             pointCloud =>
             {
-                _innerMap.DataChangeable.DataChangeable.HeaderData.Identifier = _costMapId;
+                Array.Fill(_innerMap.DataChangeable.OccupancyRate, 2);
+                _innerMap.DataChangeable.DataChangable.HeaderData.Identifier = _costMapId;
 
                 CostMap.Infrastructure.Algorithm.OccupancyGridMapBuilder.UpdateRateFromPointCloud(
                     Tf.Cast(_pointCloudId, _costMapId, pointCloud.Points),
-                    Tf.Cast(_sensorId, _costMapId, Vector3.Zero),
+                    Tf.Cast(_sensorId,     _costMapId, Vector3.Zero),
                     _innerMap
                 );
-                EventBus<IGridMap2DData>.Instance.Publish(_costMapTopicName, _innerMap.OccupancyData.GridMapData);
+                EventBus<IGridMap2DData>.Instance.Publish(_costMapTopicName, _innerMap.OccupancyData.GridData);
             });
         return this;
     }
@@ -120,66 +167,73 @@ public class PointCloudCostMap
     /// <para>PointCloudInterface ->  Kernel.DataInterfaces.Sensor.IPointCloud</para>
     /// </remarks>
     /// <returns></returns>
-    public PointCloudCostMap BuildOccupancyHighMap()
+    public PointCloudTo2dMap BuildOccupancyHighMap()
     {
-        _innerData.Data = new sbyte[_innerData.Width * _innerData.Height];
-        _innerData.OccupancyRate = new float[_innerData.Width * _innerData.Height];
+        _innerData.Data = new sbyte[_innerData.Width           * _innerData.Height];
+        _innerData.OccupancyRate = new float [_innerData.Width * _innerData.Height];
         _inner25DMap = OccupancyHighGrid2DMap.Build_IOccupancyGridMap2DData(_innerData);
         _inner25DMap.TopZ = _innerData.TopZ;
         _inner25DMap.ButtonZ = _innerData.BottomZ;
         Array.Fill(_innerData.OccupancyRate, 0);
-        Array.Fill(_inner25DMap.High, float.MaxValue);
+        Array.Fill(_inner25DMap.High,        float.MaxValue);
 
         var step = Vector3.UnitZ * 0.1f;
 
         EventBus<IPointCloud>.Instance.Subscribe(_pointCloudTopicName,
             pointCloud =>
             {
-                _inner25DMap.DataChangeable.DataChangeable.HeaderData.Identifier = _costMapId;
+                _inner25DMap.DataChangeable.DataChangable.HeaderData.Identifier = _costMapId;
 
                 CostMap.Infrastructure.Algorithm.OccupancyGridMapBuilder.UpdateHighRateWithPointCloud(
                     Tf.Cast(_pointCloudId, _costMapId, pointCloud.Points),
-                    Tf.Cast(_sensorId, _costMapId, Vector3.Zero),
-                    Tf.Cast(_chassisId, _costMapId, step),
+                    Tf.Cast(_sensorId,     _costMapId, Vector3.Zero),
+                    Tf.Cast(_chassisId,    _costMapId, step),
                     _inner25DMap
                 );
-                EventBus<IGridMap2DData>.Instance.Publish(_costMapTopicName, _inner25DMap.OccupancyData.GridMapData);
+                EventBus<IGridMap2DData>.Instance.Publish(_costMapTopicName, _inner25DMap.OccupancyData.GridData);
+                EventBus<OccupancyHighGrid2DMap>.Instance.Publish(_costMapTopicName, _inner25DMap);
             });
         return this;
     }
 
-    public PointCloudCostMap SetInput_PointCloudTopicName(string topicName)
+    public PointCloudTo2dMap SetInput_StaticMapTopicName(string topicName)
+    {
+        _staticMapTopicName = topicName;
+        return this;
+    }
+
+    public PointCloudTo2dMap SetInput_PointCloudTopicName(string topicName)
     {
         _pointCloudTopicName = topicName;
         return this;
     }
 
 
-    public PointCloudCostMap SetId_PointCloud(string id)
+    public PointCloudTo2dMap SetId_PointCloud(string id)
     {
         _pointCloudId = id;
         return this;
     }
 
-    public PointCloudCostMap SetId_Sensor(string id)
+    public PointCloudTo2dMap SetId_Sensor(string id)
     {
         _sensorId = id;
         return this;
     }
 
-    public PointCloudCostMap SetId_Map(string id)
+    public PointCloudTo2dMap SetId_Map(string id)
     {
         _costMapId = id;
         return this;
     }
 
-    public PointCloudCostMap SetId_Chassis(string id)
+    public PointCloudTo2dMap SetId_Chassis(string id)
     {
         _chassisId = id;
         return this;
     }
 
-    public PointCloudCostMap SetOutput_CostMapTopicName(string topicName)
+    public PointCloudTo2dMap SetOutput_CostMapTopicName(string topicName)
     {
         _costMapTopicName = topicName;
         return this;
@@ -196,14 +250,14 @@ public class PointCloudCostMap
     /// <param name="lossOccu">占据增量</param>
     /// <param name="bottomZ">低于这个高度的点不处理</param>
     /// <param name="topZ">高于这个高度的点不处理</param>
-    public PointCloudCostMap SetOutput_DataStructure(uint width = 100,
-                                                     uint height = 100,
-                                                     sbyte threshold = 70,
+    public PointCloudTo2dMap SetOutput_DataStructure(uint  width      = 100,
+                                                     uint  height     = 100,
+                                                     sbyte threshold  = 70,
                                                      float resolution = 60f,
-                                                     float lossFree = 0.7f,
-                                                     float lossOccu = -0.9f,
-                                                     float bottomZ = 0.1f,
-                                                     float topZ = 0.2f)
+                                                     float lossFree   = 0.7f,
+                                                     float lossOccu   = -0.9f,
+                                                     float bottomZ    = 0.1f,
+                                                     float topZ       = 0.2f)
     {
         _innerData.Width = width;
         _innerData.Height = height;
@@ -216,5 +270,5 @@ public class PointCloudCostMap
         return this;
     }
 
-    #endregion
+#endregion
 }

@@ -33,7 +33,7 @@ public class OccupancyHighGrid2DMap : IMap2D, IOccupancyGridMap2D
         GridMapInner.CheckMoveable(position, DataChangeable.GridMapData, DataChangeable.Threshold,
             GridMapInner.ThresholdType.LessEqual);
 
-    private OccupancyHighGrid2DMap() { }
+    internal OccupancyHighGrid2DMap() { }
 
     public static OccupancyHighGrid2DMap Build_IOccupancyGridMap2D(IOccupancyGridMap2D data) =>
         new()
@@ -102,5 +102,27 @@ public class OccupancyHighGrid2DMap : IMap2D, IOccupancyGridMap2D
                 OccupancyRate = new float[data.Width * data.Height]
             },
             High = new float[data.Width * data.Height]
+        };
+
+    public static OccupancyHighGrid2DMap Build_Clone(OccupancyHighGrid2DMap data) =>
+        new()
+        {
+            DataChangeable = new DataInner
+            {
+                DataChangable = new Grid2DMap.DataInner
+                {
+                    HeaderData =
+                        new Grid2DMap.DataInner.HeaderInner(data.DataChangeable.DataChangable.Header.Identifier),
+                    Data = data.DataChangeable.DataChangable.Data[..],
+                    Height = data.DataChangeable.DataChangable.Height,
+                    Width = data.DataChangeable.DataChangable.Width,
+                    RotationRad = data.DataChangeable.DataChangable.RotationRad,
+                    RotationMatrix = data.DataChangeable.DataChangable.RotationMatrix,
+                    Origin = data.DataChangeable.DataChangable.Origin,
+                    Resolution = data.DataChangeable.DataChangable.Resolution
+                },
+                OccupancyRate = data.OccupancyData.OccupancyRate[..]
+            },
+            High = data.High[..]
         };
 }

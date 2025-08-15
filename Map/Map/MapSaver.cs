@@ -1,9 +1,14 @@
+using System.Numerics;
 using System.Runtime.CompilerServices;
+using CostMap.Infrastructure.Data;
 using Kernel.Core.EventBus;
 using Kernel.Core.Messages;
+using Kernel.Core.TransformTree;
 using Kernel.DataInterfaces.Navigation;
 
 namespace Map;
+
+using MapType = OccupancyHighGrid2DMap;
 
 public class MapSaver
 {
@@ -11,14 +16,16 @@ public class MapSaver
 
     private string _costMapTopicName;
     private string _saveMapTopicName;
-    private IGridMap2DData? _data;
+    private string _saveTargetLink;
+    private MapType? _data;
 
 #endregion
 
-    private MapSaver(string costMapTopicName, string saveMapTopicName)
+    private MapSaver(string costMapTopicName, string saveMapTopicName, string saveTargetLink)
     {
         _costMapTopicName = costMapTopicName;
         _saveMapTopicName = saveMapTopicName;
+        _saveTargetLink = saveTargetLink;
     }
 
 # region 公共设置接口
@@ -38,7 +45,7 @@ public class MapSaver
     public static MapSaver DefaultNew
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => new("/tlarc/point_cloud/segment", "/tlarc/trigger/save_map");
+        get => new("/tlarc/point_cloud/segment", "/tlarc/trigger/save_map", "car_init");
     }
 
     /// <summary>
@@ -51,12 +58,19 @@ public class MapSaver
     /// </remarks>
     public MapSaver Build()
     {
-        EventBus<IGridMap2DData>.Instance.Subscribe(_costMapTopicName, map => _data = map);
+        EventBus<MapType>.Instance.Subscribe(_costMapTopicName, map => _data = map);
         EventBus<StringMessage>.Instance.Subscribe(_saveMapTopicName,
             str =>
             {
                 if (_data is not null)
-                    CostMap.Infrastructure.Algorithm.GridMapInner.SaveMap(_data, str.Instance);
+                {
+                    var map = MapType.Build_Clone(_data);
+                    map.DataChangeable.DataChangable.HeaderData.Identifier = _saveTargetLink;
+                    var xyz = Tf.Cast(_data.DataChangeable.DataChangable.Header.Identifier, _saveTargetLink,
+                        new Vector3(_data.DataChangeable.DataChangable.Origin, 0));
+                    map.DataChangeable.DataChangable.Origin = new Vector2(xyz.X, xyz.Y);
+                    CostMap.Infrastructure.Algorithm.GridMapInner.SaveHighMap(map, str.Instance);
+                }
             });
         return this;
     }

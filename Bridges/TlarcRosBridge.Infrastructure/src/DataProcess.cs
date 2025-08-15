@@ -4,6 +4,7 @@ using Kernel.DataInterfaces.Navigation;
 using Kernel.DataInterfaces.Sensor;
 using Kernel.DataInterfaces.Tf;
 using Rcl;
+using TlarcRosBridge.Infrastructure.Decorators;
 using TlarcRosBridge.Infrastructure.Messages.Geometry;
 using TlarcRosBridge.Infrastructure.Messages.Nav;
 using TlarcRosBridge.Infrastructure.Messages.Sensor;
@@ -17,23 +18,23 @@ public static class DataProcess
     {
         public static readonly Func<RosMessageBuffer, IGridMap2DData> OccupancyGridMapToGridMap2D =
             item =>
-                Decorators.Navigation.GridMap.ConvertToGridMap2DData(
+                Navigation.GridMap.ConvertToGridMap2DData(
                     ref item.AsRef<OccupancyGrid.Priv>());
 
         public static readonly Func<RosMessageBuffer, IPointCloud> RmcsSlamSegmentationPart =
             item =>
-                Decorators.Sensor.RmcsSlamSegmentationPart(
+                Sensor.RmcsSlamSegmentationPart(
                     ref item.AsRef<PointCloud2.Priv>());
 
         public static readonly Func<RosMessageBuffer, IPointCloud> FastLioRegistered =
             item =>
-                Decorators.Sensor.FastLioRegistered(
+                Sensor.FastLioRegistered(
                     ref item.AsRef<PointCloud2.Priv>());
 
 
         public static readonly Func<RosMessageBuffer, IPose> RawPoseFromPoseStamped =
             item =>
-                Decorators.Geometry.ReadDataWithoutTransform(
+                Geometry.ReadDataWithoutTransform(
                     ref item.AsRef<PoseStamped.Priv>());
     }
 
@@ -42,26 +43,45 @@ public static class DataProcess
         public static readonly RefAction<IGridMap2DData, IRclNode, RosMessageBuffer> GridMap2dToOccupancyGridMap =
             (in IGridMap2DData item1, in IRclNode node, ref RosMessageBuffer item2) =>
             {
-                Decorators.Navigation.GridMap.WriteInto(item1, item1.Header.Identifier, node,
+                Navigation.GridMap.WriteInto(item1, item1.Header.Identifier, node,
                     ref item2.AsRef<OccupancyGrid.Priv>());
             };
 
         public static readonly RefAction<ITransformStamped, IRclNode, RosMessageBuffer> TransformStampedToTf =
             (in ITransformStamped item1, in IRclNode node, ref RosMessageBuffer item2) =>
             {
-                Decorators.Tf.TlarcTfStampedToTfStamped(item1, node, ref item2.AsRef<TransformStamped.Priv>());
+                Tf.TlarcTfStampedToTfStamped(item1, node, ref item2.AsRef<TransformStamped.Priv>());
             };
 
         public static readonly RefAction<ITfCollection, IRclNode, RosMessageBuffer> TfCollectionToTfMessage =
             (in ITfCollection item1, in IRclNode node, ref RosMessageBuffer item2) =>
             {
-                Decorators.Tf.TfCollectionToTfMessage(item1, node, ref item2.AsRef<TFMessage.Priv>());
+                Tf.TfCollectionToTfMessage(item1, node, ref item2.AsRef<TFMessage.Priv>());
             };
 
         public static readonly RefAction<IPointCloud, IRclNode, RosMessageBuffer> PublishPointCloud =
             (in IPointCloud item1, in IRclNode node, ref RosMessageBuffer item2) =>
             {
-                Decorators.Sensor.WriteIntoPointCloud(item1, node, ref item2.AsRef<PointCloud2.Priv>());
+                Sensor.WriteIntoPointCloud(item1, node, ref item2.AsRef<PointCloud2.Priv>());
             };
+    }
+
+    public static class Recast
+    {
+        public static readonly RefAction<IRclNode, string, RosMessageBuffer, RosMessageBuffer>
+            OccupancyGrid =
+                (in IRclNode node, in string id, in RosMessageBuffer item1, ref RosMessageBuffer item2) =>
+                {
+                    item2.AsRef<OccupancyGrid.Priv>().CopyFrom(item1.AsRef<OccupancyGrid.Priv>());
+                    Std.FromData(id, node, ref item2.AsRef<OccupancyGrid.Priv>().Header);
+                };
+
+        public static readonly RefAction<IRclNode, string, RosMessageBuffer, RosMessageBuffer>
+            PointCloud2 =
+                (in IRclNode node, in string id, in RosMessageBuffer item1, ref RosMessageBuffer item2) =>
+                {
+                    item2.AsRef<PointCloud2.Priv>().CopyFrom(item1.AsRef<PointCloud2.Priv>());
+                    Std.FromData(id, node, ref item2.AsRef<PointCloud2.Priv>().Header);
+                };
     }
 }

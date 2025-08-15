@@ -6,22 +6,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
-        
-        <PublishDir>$(SolutionDir)\.install\</PublishDir>
-
-        
-        <PublishSingleFile>true</PublishSingleFile>
-        <SelfContained>true</SelfContained>
-
-        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+        <RootNamespace>MapServer</RootNamespace>
     </PropertyGroup>
-    
-    <PropertyGroup Condition="'$(Configuration)'=='Release'">
-        <DebugSymbols>False</DebugSymbols>
-        <DebugType>None</DebugType>
-    </PropertyGroup>
-
 
     <ItemGroup>
         <ProjectReference Include="..\..\Bridges\TlarcRosBridge.Domain\TlarcRosBridge.Domain.csproj"/>

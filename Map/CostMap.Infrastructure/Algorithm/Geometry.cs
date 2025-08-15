@@ -1,5 +1,8 @@
-﻿using System.Numerics;
+using System.Collections;
+using System.Numerics;
 using g4;
+using Kernel.DataInterfaces;
+using Kernel.DataInterfaces.Navigation;
 
 namespace CostMap.Infrastructure.Algorithm;
 
@@ -183,4 +186,131 @@ internal static class Geometry
 
         return points;
     }
+
+
+    private static byte EncodeCohenSutherland(in Vector2i point,
+                                              in Vector2i leftTop,
+                                              in Vector2i rightBottom)
+    {
+        byte result = 0;
+        if (point.x >= leftTop.x)
+            result |= 0b0001;
+        else if (point.x <= rightBottom.x)
+            result |= 0b0010;
+        if (point.y <= rightBottom.y)
+            result |= 0b0100;
+        else if (point.y >= leftTop.y)
+            result |= 0b1000;
+        return result;
+    }
+
+    internal static bool CohenSutherland(ref Vector2i from,
+                                         ref Vector2i to,
+                                         in  Vector2i leftTop,
+                                         in  Vector2i rightBottom,
+                                         out bool     toState
+    )
+    {
+        var p1 = Geometry.EncodeCohenSutherland(from, leftTop, rightBottom);
+        var p2 = Geometry.EncodeCohenSutherland(to,   leftTop, rightBottom);
+        toState = p2 == 0;
+        if ((p1 | p2) == 0)
+            return true;
+        if ((p1 & p2) == 0)
+            return false;
+
+        var mid = (from + to) / 2;
+
+        while (p1 != p2)
+        {
+            var pt = Geometry.EncodeCohenSutherland(mid, leftTop, rightBottom);
+            if (pt == p1)
+            {
+                from = mid;
+                mid = (from + to) / 2;
+            }
+            else if (pt == p2)
+            {
+                to = mid;
+                mid = (from + to) / 2;
+            }
+
+            if (pt == 0)
+                if (mid.x == leftTop.x     || mid.y == leftTop.y ||
+                    mid.x == rightBottom.x || mid.y == rightBottom.y)
+                    if (p1 != 0)
+                    {
+                        from = mid;
+                        mid = (from + to) / 2;
+                        p1 = 0;
+                    }
+                    else if (p2 != 0)
+
+                    {
+                        to = mid;
+                        mid = (from + to) / 2;
+                        p2 = 0;
+                    }
+
+            if (p1 != 0)
+                mid = (from + mid) / 2;
+            else if (p2 != 0)
+                mid = (to + mid) / 2;
+        }
+
+        return true;
+    }
+
+    internal enum DilateKernelType
+    {
+        Euclidean,
+        Manhattan
+    }
+
+    internal enum DilateForeground
+    {
+        Max,
+        Min
+    }
+
+    private class GridMap2DDataInner : IGridMap2DData
+    {
+        public IHeader Header { get; set; }
+        public Vector2 Origin { get; set; }
+
+        public uint Width { get; set; }
+
+        public uint Height { get; set; }
+
+        public double RotationRad { get; set; }
+
+        public Matrix3x2 RotationMatrix { get; set; }
+
+        public float Resolution { get; set; }
+        public sbyte[] Data { get; set; }
+    }
+
+
+    // internal static void Dilate(IGridMap2DData     map,
+    //                             DilateKernelType   type,
+    //                             DilateForeground   foreground,
+    //                             int                lenghtNotAllow,
+    //                             int                lenghtPunish,
+    //                             int                mapSplitLine,
+    //                             out IGridMap2DData outMap)
+    // {
+    //     GridMap2DDataInner inner = new();
+    //     inner.Header = map.Header;
+    //     inner.Origin = map.Origin;
+    //     inner.Width = map.Width;
+    //     inner.Height = map.Height;
+    //     inner.RotationRad = map.RotationRad;
+    //     inner.RotationMatrix = map.RotationMatrix;
+    //     inner.Resolution = map.Resolution;
+    //     var data = new sbyte[map.Data.Length];
+    //
+    //
+    //     if (lenghtPunish < lenghtNotAllow)
+    //         throw new Exception("禁止通行的距离应该小于惩罚距离");
+    // }
 }
