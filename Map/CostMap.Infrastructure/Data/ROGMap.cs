@@ -2,37 +2,36 @@
 using System.Buffers;
 using System.Numerics;
 using g4;
+using Kernel.DataInterfaces;
 using Kernel.DataInterfaces.Navigation;
 
 namespace CostMap.Infrastructure.Data;
 
-public class ROGMap : IMap2D, IOccupancyGridMap2D
+public class ROGMap : IMap2D, IHeader, IGridMap2DData
 {
 
     public int CenterX => _center.x;
     public int CenterY => _center.y;
-    public required uint Width { get; init; }
-    public required uint Height { get; init; }
+    public required uint Width { get; init { field = value; SizeX = (int)value; } }
+    public required uint Height { get; init { field = value; SizeY = (int)value; } }
     public required float TopZ { get; init; }
     public required float ButtonZ { get; init; }
     public required float Resolution { get; init; }
     public required int ForgetFrameCount { get; init; }
 
-    public int SizeX => (int)Width;
-    public int SizeY => (int)Height;
+    public readonly int SizeX;
+    public readonly int SizeY;
 
 
     public required float BlindCircleRadius { get; init; }
     public required float SlidingThreshold { get; init; }
 
 
-    internal float InflationDistance { get; init; }
+    public float InflationDistance { private get; init; }
 
     internal float[]? _memory;
-    internal float[]? _updateFrameCount;
-
+    internal sbyte[]? _updateFrameCount;
     internal uint[] _gridData = [];
-
     internal float[] _upper = [];
     internal float[] _lower = [];
 
@@ -40,6 +39,7 @@ public class ROGMap : IMap2D, IOccupancyGridMap2D
 
     public float _lossHit { internal get; init; } = 0.9f;
     public float _lossMiss { internal get; init; } = -0.7f;
+    public string Identifier { get; init; }
 
     /// <summary>
     ///  as p_max = 99.9999%
@@ -51,18 +51,25 @@ public class ROGMap : IMap2D, IOccupancyGridMap2D
     internal readonly float _lossOccu = 2.0f;
     internal readonly float _lossFree = -2.0f;
 
-    internal readonly int _inflationDistance;
-    internal readonly int _inflationDistanceHalf;
-
-    private OccupancyGridData? _data;
+    internal int _inflationDistance;
+    internal int _inflationDistanceHalf;
 
     public float[] Memory => _memory ?? throw new NullReferenceException("ROGMap does not build, run ROGMap.Build() first");
 
-    public float[] UpdateFrameCount => _updateFrameCount ?? throw new NullReferenceException("ROGMap does not build, run ROGMap.Build() first");
+    public sbyte[] UpdateFrameCount => _updateFrameCount ?? throw new NullReferenceException("ROGMap does not build, run ROGMap.Build() first");
 
     public IMap2D Actions => this;
 
-    public IOccupancyGridMap2DData OccupancyData => _data ?? throw new NullReferenceException("ROGMap does not build, run ROGMap.Build() first");
+    public IHeader Header => this;
+
+    public Vector2 Origin => new((CenterX - SizeX / 2) / Resolution, (CenterY - SizeY / 2) / Resolution);
+
+    public double RotationRad => 0;
+
+    public Matrix3x2 RotationMatrix => Matrix3x2.Identity;
+
+    public sbyte[]? _data;
+    public sbyte[] Data => _data ?? throw new NullReferenceException("ROGMap does not build, run ROGMap.Build() first");
 
     public bool IsMoveAble(Vector2 from, Vector2 to)
     {
@@ -75,11 +82,19 @@ public class ROGMap : IMap2D, IOccupancyGridMap2D
     }
     public ROGMap()
     {
-
+        Identifier = "";
     }
 
     public ROGMap Build()
     {
+        _inflationDistance = (int)Math.Round(InflationDistance / Resolution);
+        _inflationDistanceHalf = _inflationDistance / 2;
+        _gridData = new uint[SizeX * SizeY];
+        _memory = new float[SizeX * SizeY];
+        _upper = new float[SizeX * SizeY];
+        _lower = new float[SizeX * SizeY];
+        _updateFrameCount = new sbyte[SizeX * SizeY];
+        _data = new sbyte[SizeX * SizeY];
         return this;
     }
 

@@ -230,9 +230,9 @@ public class PointCloudTo2dMap
             pointCloud =>
             {
                 CostMap.Infrastructure.Algorithm.ROGMap.MapSliding(_innerROGMap, Tf.Cast(_chassisId, _odomId, Vector3.Zero));
-                Tf.SetTfNode(_costMapId, new(_innerROGMap.CenterX / _innerROGMap.Resolution, _innerROGMap.CenterY / _innerROGMap.Resolution, 0), Quaternion.Identity);
+                Tf.SetTfNode(_costMapId, new(_innerROGMap.Origin, 0), Quaternion.Identity);
                 CostMap.Infrastructure.Algorithm.ROGMap.MapUpdate(_innerROGMap, Tf.Cast(_chassisId, _odomId, Vector3.Zero), Tf.Cast(_pointCloudId, _costMapId, pointCloud.Points));
-                EventBus<IGridMap2DData>.Instance.Publish(_costMapTopicName, _innerROGMap.OccupancyData.GridMapData);
+                EventBus<IGridMap2DData>.Instance.Publish(_costMapTopicName, _innerROGMap);
             });
         return this;
     }
