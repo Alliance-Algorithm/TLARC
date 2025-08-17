@@ -1,6 +1,7 @@
 
 using System.Buffers;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using g4;
 using Kernel.DataInterfaces;
 using Kernel.DataInterfaces.Navigation;
@@ -12,22 +13,30 @@ public class ROGMap : IMap2D, IHeader, IGridMap2DData
 
     public int CenterX => _center.x;
     public int CenterY => _center.y;
-    public required uint Width { get; init { var v = value - value % 2 + 1; field = v; SizeX = (int)v; } }
-    public required uint Height { get; init { var v = value - value % 2 + 1; field = v; SizeY = (int)v; } }
-    public required float TopZ { get; init; }
-    public required float ButtonZ { get; init; }
-    public required float Resolution { get; init; }
-    public required int ForgetFrameCount { get; init; }
+    public uint Width { get; }
+    public uint Height { get; }
 
+    public float TopZ { get; private set; }
+    public float ButtonZ { get; private set; }
+    public float Resolution { get; }
+    public required int ForgetFrameCount { get; init; }
+    public required float HighOccupyDensity { init { _occuDensity = value; } }
+    public required float HighError { init => _highError = Math.Abs(value) / Resolution; }
     public readonly int SizeX;
     public readonly int SizeY;
+    public readonly int Size2D;
+    public readonly int SizeZ;
 
+    internal readonly int s_x_2;
+    internal readonly int s_y_2;
+    internal readonly float _highError;
+    internal readonly float _occuDensity;
 
     public required float BlindCircleRadius { get; init; }
-    public required float SlidingThreshold { get; init; }
+    public required float SlidingThreshold { init { _slidingThreshold = value; } }
+    internal readonly float _slidingThreshold;
 
-
-    public float InflationDistance { private get; init; }
+    public float InflationDistance { get; }
 
     internal readonly float[] _memory;
     internal readonly sbyte[] _updateFrameCount;
@@ -61,7 +70,13 @@ public class ROGMap : IMap2D, IHeader, IGridMap2DData
 
     public IHeader Header => this;
 
-    public Vector2 Origin => new((CenterX - SizeX / 2) * Resolution, (CenterY - SizeY / 2) * Resolution);
+    public Vector3 CenterInWorld
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get =>
+        new((CenterX) * Resolution, (CenterY) * Resolution, 0);
+    }
+    public Vector2 Origin { get; }
 
     public double RotationRad => 0;
 
@@ -79,14 +94,34 @@ public class ROGMap : IMap2D, IHeader, IGridMap2DData
     {
         throw new NotImplementedException();
     }
-    public ROGMap()
+    public ROGMap(uint height, uint width, float inflationDistance, float resolution, float topZ, float buttonZ)
     {
+        TopZ = topZ;
+        ButtonZ = buttonZ;
+        SizeZ = (int)Math.Round((TopZ - ButtonZ) / resolution);
+
+        var v = height - height % 2 + 1;
+        Height = v; SizeX = (int)v;
+        v = width - width % 2 + 1;
+        Width = v; SizeY = (int)v;
+        InflationDistance = inflationDistance;
+        Resolution = resolution;
+        Size2D = SizeX * SizeY;
+
+        s_x_2 = SizeX / 2;
+        s_y_2 = SizeY / 2;
+
+        Origin = new(-height / 2 * resolution, -width / 2 * resolution);
+
         _inflationDistance = (int)Math.Round(InflationDistance / Resolution);
+        _inflationDistance = _inflationDistance - _inflationDistance % 2 + 1;
         _inflationDistanceHalf = _inflationDistance / 2;
         _gridData = new uint[SizeX * SizeY];
-        _memory = new float[SizeX * SizeY];
+        _memory = new float[SizeX * SizeY * SizeZ];
         _upper = new float[SizeX * SizeY];
         _lower = new float[SizeX * SizeY];
+        Array.Fill(_upper, -1e6f);
+        Array.Fill(_lower, 1e6f);
         _updateFrameCount = new sbyte[SizeX * SizeY];
         _data = new sbyte[SizeX * SizeY];
     }

@@ -39,7 +39,7 @@ const string EventPointCloudOutputName = "/tlarc/point_cloud";
 
 // Others
 const string PointCloudInputId = TfCarInitName;
-const string PointCloudOutputId = TfCostMapLinkName;
+const string PointCloudOutputId = TfLidarLinkName;
 const string PointCloudCostMapSensorId = TfLidarLinkName;
 const string RobotPositionInputTfId = TfCarLinkName;
 #endregion
@@ -113,8 +113,8 @@ EventBus<IPointCloud>.Instance.Subscribe(EventPointCloudInputName,
 GC.KeepAlive(
     PointCloudTo2dMap.DefaultNew
         .SetInput_PointCloudTopicName(EventPointCloudInputName)
-        .SetOutput_DataStructure(width: 1000, height: 1000, resolution: 0.02f, topZ: 0.4f, bottomZ: -0.5f, lossFree: 0.7f, lossOccu: -0.9f,
-                                    BlindCircleRadius: 0.4f, SlidingThreshold: 9, ForgetFrameCount: 10)
+        .SetOutput_DataStructure(width: 600, height: 600, resolution: 0.02f, topZ: 0.7f, bottomZ: -0.1f, lossFree: 0.7f, lossOccu: -2.7f,
+                                    blindCircleRadius: 0.4f, slidingThreshold: 1, forgetFrameCount: 60, highError: 0.2f, OccupyDensity: 0.5f, inflationRadius: 0.1f)
         .SetOutput_CostMapTopicName(EventGridMapName)
         .SetId_PointCloud(PointCloudInputId)
         .SetId_Sensor(PointCloudCostMapSensorId)

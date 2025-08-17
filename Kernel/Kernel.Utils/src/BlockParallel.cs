@@ -14,6 +14,8 @@ public static class BlockParallel
     {
         < 3 => 1,
         < 5 => 2,
+        < 10 => 3,
+        < 100 => 10,
         _ => 3
     } : 3;
 
@@ -98,10 +100,10 @@ public static class BlockParallel
     )
     {
         var recs = SplitToRect(sizeX, sizeY, kernelSizeX, kernelSizeY);
-        Parallel.ForEach(recs[0], x => EnumIndexInRect(x, inIndexAction));
-        Parallel.ForEach(recs[1], x => EnumIndexInRect(x, inIndexAction));
-        Parallel.ForEach(recs[2], x => EnumIndexInRect(x, inIndexAction));
-        Parallel.ForEach(recs[3], x => EnumIndexInRect(x, inIndexAction));
+        recs[0].AsParallel().WithDegreeOfParallelism(Environment.ProcessorCount).ForAll(x => EnumIndexInRect(x, inIndexAction));
+        recs[1].AsParallel().WithDegreeOfParallelism(Environment.ProcessorCount).ForAll(x => EnumIndexInRect(x, inIndexAction));
+        recs[2].AsParallel().WithDegreeOfParallelism(Environment.ProcessorCount).ForAll(x => EnumIndexInRect(x, inIndexAction));
+        recs[3].AsParallel().WithDegreeOfParallelism(Environment.ProcessorCount).ForAll(x => EnumIndexInRect(x, inIndexAction));
     }
 
     public static string Test()
@@ -113,10 +115,10 @@ public static class BlockParallel
         string result = string.Empty;
         int[] m = new int[sizeX * sizeY];
         var recs = SplitToRect(sizeX, sizeY, kernelSizeX, kernelSizeY);
-        Parallel.ForEach(recs[0], x => EnumIndexInRect(x, (i, j) => m[i + j * sizeX] += 1));
-        Parallel.ForEach(recs[1], x => EnumIndexInRect(x, (i, j) => m[i + j * sizeX] += 2));
-        Parallel.ForEach(recs[2], x => EnumIndexInRect(x, (i, j) => m[i + j * sizeX] += 3));
-        Parallel.ForEach(recs[3], x => EnumIndexInRect(x, (i, j) => m[i + j * sizeX] += 4));
+        Parallel.ForEach(recs[0], x => EnumIndexInRect(x, (i, j) => m[i + j * sizeX] = j));
+        Parallel.ForEach(recs[1], x => EnumIndexInRect(x, (i, j) => m[i + j * sizeX] = j));
+        Parallel.ForEach(recs[2], x => EnumIndexInRect(x, (i, j) => m[i + j * sizeX] = j));
+        Parallel.ForEach(recs[3], x => EnumIndexInRect(x, (i, j) => m[i + j * sizeX] = j));
 
         result += $"rect count : {recs[0].Length}\n";
 

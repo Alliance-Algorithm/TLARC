@@ -43,7 +43,7 @@ public class RosBridge
         {
             if (t.IsFaulted)
             {
-                Console.WriteLine($"{t.Exception.Message}\n${t.Exception.InnerException?.StackTrace}, \"Ros Subscript\", {t.Exception.StackTrace}");
+                Console.WriteLine($"{t.Id}\t{t.Exception.Message}\n${t.Exception.InnerException?.StackTrace}, \"Ros Subscript\", {t.Exception.StackTrace}");
                 Environment.Exit(-1);
             }
         }, TaskContinuationOptions.OnlyOnFaulted);

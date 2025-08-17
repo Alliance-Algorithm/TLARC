@@ -34,6 +34,9 @@ public class PointCloudTo2dMap
         public float BlindCircleRadius { get; set; } = 0.4f;
         public int ForgetFrameCount { get; set; } = 6;
         public float RogMapSlidingThreshold { get; set; } = 5;
+        public float InflationRadius { get; set; } = 0.2f;
+        public float HighError { get; set; } = 0.5f;
+        public float OccupyDensity { get; set; } = 0.5f;
     }
 
     #endregion
@@ -211,28 +214,28 @@ public class PointCloudTo2dMap
     /// <returns></returns>
     public PointCloudTo2dMap BuildROGMap()
     {
-        _innerROGMap = new ROGMap()
+        _innerROGMap = new ROGMap(_innerData.Height, _innerData.Width, _innerData.InflationRadius, _innerData.Resolution, _innerData.TopZ, _innerData.BottomZ)
         {
             ForgetFrameCount = _innerData.ForgetFrameCount,
             SlidingThreshold = Math.Min(Math.Min(_innerData.Width, _innerData.Height) * _innerData.Resolution * 0.48f, _innerData.RogMapSlidingThreshold),
             BlindCircleRadius = _innerData.BlindCircleRadius,
-            TopZ = _innerData.TopZ,
-            ButtonZ = _innerData.BottomZ,
-            Height = _innerData.Height,
-            Width = _innerData.Width,
-            Resolution = _innerData.Resolution,
             _lossHit = Math.Abs(_innerData.LossOccu),
             _lossMiss = -Math.Abs(_innerData.LossFree),
-            Identifier = _costMapId
+            Identifier = _costMapId,
+            HighError = _innerData.HighError,
+            HighOccupyDensity = _innerData.OccupyDensity
         };
 
 
         EventBus<IPointCloud>.Instance.Subscribe(_pointCloudTopicName,
             pointCloud =>
             {
+                var a = DateTime.UtcNow;
                 CostMap.Infrastructure.Algorithm.ROGMap.MapSliding(_innerROGMap, Tf.Cast(_chassisId, _odomId, Vector3.Zero));
-                Tf.SetTfNode(_costMapId, new(_innerROGMap.Origin, 0), Quaternion.Identity);
-                CostMap.Infrastructure.Algorithm.ROGMap.MapUpdate(_innerROGMap, Tf.Cast(_chassisId, _odomId, Vector3.Zero), Tf.Cast(_pointCloudId, _costMapId, pointCloud.Points));
+                Tf.SetTfNode(_costMapId, _innerROGMap.CenterInWorld, Quaternion.Identity);
+                CostMap.Infrastructure.Algorithm.ROGMap.MapUpdate(_innerROGMap, Tf.Cast(_chassisId, _costMapId, Vector3.Zero), Tf.Cast(_pointCloudId, _costMapId, pointCloud.Points));
+                Console.WriteLine((DateTime.UtcNow - a).TotalMilliseconds);
+                CostMap.Infrastructure.Algorithm.ROGMap.UpdateGridMap(_innerROGMap);
                 EventBus<IGridMap2DData>.Instance.Publish(_costMapTopicName, _innerROGMap);
             });
         return this;
@@ -298,6 +301,10 @@ public class PointCloudTo2dMap
     /// <param name="lossOccu">占据增量</param>
     /// <param name="bottomZ">低于这个高度的点不处理</param>
     /// <param name="topZ">高于这个高度的点不处理</param>
+    /// <param name="forgetFrameCount">保留帧率</param>
+    /// <param name="blindCircleRadius">盲区半径</param>
+    /// <param name="slidingThreshold">局部地图滑动阈值</param>
+    /// <param name="inflationRadius">局部地图不可行区域膨胀距离</param>
     public PointCloudTo2dMap SetOutput_DataStructure(uint width = 300,
                                                      uint height = 300,
                                                      sbyte threshold = 70,
@@ -306,9 +313,12 @@ public class PointCloudTo2dMap
                                                      float lossOccu = -0.9f,
                                                      float bottomZ = 0.1f,
                                                      float topZ = 0.2f,
-                                                     int ForgetFrameCount = 10,
-                                                     float BlindCircleRadius = 0.4f,
-                                                     float SlidingThreshold = 4)
+                                                     int forgetFrameCount = 10,
+                                                     float blindCircleRadius = 0.4f,
+                                                     float slidingThreshold = 4,
+                                                     float inflationRadius = 0.2f,
+                                                     float highError = 0.5f,
+                                                     float OccupyDensity = 0.5f)
     {
         _innerData.Width = width;
         _innerData.Height = height;
@@ -318,9 +328,12 @@ public class PointCloudTo2dMap
         _innerData.LossOccu = lossOccu;
         _innerData.BottomZ = bottomZ;
         _innerData.TopZ = topZ;
-        _innerData.ForgetFrameCount = ForgetFrameCount;
-        _innerData.BlindCircleRadius = BlindCircleRadius;
-        _innerData.RogMapSlidingThreshold = SlidingThreshold;
+        _innerData.ForgetFrameCount = forgetFrameCount;
+        _innerData.BlindCircleRadius = blindCircleRadius;
+        _innerData.RogMapSlidingThreshold = slidingThreshold;
+        _innerData.InflationRadius = inflationRadius;
+        _innerData.HighError = highError;
+        _innerData.OccupyDensity = OccupyDensity;
         return this;
     }
 
