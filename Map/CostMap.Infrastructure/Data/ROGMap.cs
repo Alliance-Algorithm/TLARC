@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using CostMap.Infrastructure.Algorithm;
 using g4;
 using Kernel.DataInterfaces;
 using Kernel.DataInterfaces.Navigation;
@@ -99,12 +100,22 @@ public class ROGMap : IMap2D, IHeader, IGridMap2DData, IGridMap2D
 
     public bool IsMoveAble(in int fromX, in int fromY, in int toX, in int toY)
     {
-        throw new NotImplementedException();
+        return Geometry.BresenhamLine(new(fromX, fromY), new(toX, toY)).AsParallel().All(p =>
+        {
+            if (p.x < 0 || p.y < 0 || p.x >= SizeX || p.y >= SizeY)
+                return true;
+            var k = p.LocalToGlobalNormalize(this);
+            return _gridData[k.x + k.y * SizeX] == 0;
+        });
     }
 
     public bool IsMoveAble(in int positionX, in int positionY)
     {
-        throw new NotImplementedException();
+        Vector2i p = new(positionX, positionY);
+        if (p.x < 0 || p.y < 0 || p.x >= SizeX || p.y >= SizeY)
+            return true;
+        var k = p.LocalToGlobalNormalize(this);
+        return _gridData[k.x + k.y * SizeX] == 0;
     }
 
     public ROGMap(uint height, uint width, float inflationDistance, float resolution, float topZ, float buttonZ)
@@ -127,7 +138,7 @@ public class ROGMap : IMap2D, IHeader, IGridMap2DData, IGridMap2D
         Origin = new(-height / 2 * resolution, -width / 2 * resolution);
 
         _inflationDistance = (int)Math.Round(InflationDistance / Resolution);
-        _inflationDistance = _inflationDistance - _inflationDistance % 2 + 1;
+        _inflationDistance = _inflationDistance * 2 + 1;
         _inflationDistanceHalf = _inflationDistance / 2;
         _gridData = new uint[SizeX * SizeY];
         _memory = new float[SizeX * SizeY * SizeZ];

@@ -12,7 +12,7 @@ public static class ROGMap
 {
 
     #region  Utils
-    static Vector3i Index3(in Vector3 point, in Infrastructure.Data.ROGMap rogMap)
+    internal static Vector3i Index3(in Vector3 point, in Infrastructure.Data.ROGMap rogMap)
     {
         var i_l_x = (int)Math.Round(point.X / rogMap.Resolution);
         var i_l_y = (int)Math.Round(point.Y / rogMap.Resolution);
@@ -20,7 +20,7 @@ public static class ROGMap
 
         return new(i_l_x, i_l_y, i_l_z);
     }
-    static Vector2i Index(in Vector3 point, in Infrastructure.Data.ROGMap rogMap)
+    internal static Vector2i Index(in Vector3 point, in Infrastructure.Data.ROGMap rogMap)
     {
         var i_l_x = (int)Math.Round(point.X / rogMap.Resolution);
         var i_l_y = (int)Math.Round(point.Y / rogMap.Resolution);
@@ -28,7 +28,7 @@ public static class ROGMap
         return new(i_l_x, i_l_y);
     }
 
-    static Vector3i Normalize(this Vector3i vec, in Infrastructure.Data.ROGMap rogMap)
+    internal static Vector3i Normalize(this Vector3i vec, in Infrastructure.Data.ROGMap rogMap)
     {
 
         var i_l_x = vec.x;
@@ -45,14 +45,14 @@ public static class ROGMap
 
         return vec;
     }
-    static Vector3i LocalToGlobalNormalize(this Vector3i vec, in Infrastructure.Data.ROGMap rogMap)
+    internal static Vector3i LocalToGlobalNormalize(this Vector3i vec, in Infrastructure.Data.ROGMap rogMap)
     {
         vec.x += rogMap.CenterX - rogMap.s_x_2;
         vec.y += rogMap.CenterY - rogMap.s_y_2;
         return vec.Normalize(rogMap);
     }
 
-    static Vector2i LocalToGlobalNormalize(this Vector2i vec, in Infrastructure.Data.ROGMap rogMap)
+    internal static Vector2i LocalToGlobalNormalize(this Vector2i vec, in Infrastructure.Data.ROGMap rogMap)
     {
         vec += rogMap._center;
         vec.x -= rogMap.s_x_2;
@@ -60,7 +60,7 @@ public static class ROGMap
         return vec.Normalize(rogMap);
     }
 
-    static Vector2i Normalize(this Vector2i vec, in Infrastructure.Data.ROGMap rogMap)
+    internal static Vector2i Normalize(this Vector2i vec, in Infrastructure.Data.ROGMap rogMap)
     {
 
         var i_l_x = vec.x;
@@ -265,7 +265,7 @@ public static class ROGMap
                         // }
                         // while (rogMap._lower[index] > z && Interlocked.CompareExchange(ref rogMap._lower[index], min, curr) != curr);
                         rogMap._upper[index] = Math.Max(rogMap._upper[index], z);
-                        rogMap._lower[index] = Math.Min(lower, z);
+                        rogMap._lower[index] = Math.Min(rogMap._lower[index], z);
                     }
                 }
 

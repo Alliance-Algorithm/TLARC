@@ -235,9 +235,9 @@ public class PointCloudTo2dMap
                 Tf.SetTfNode(_costMapId, _innerROGMap.CenterInWorld, Quaternion.Identity);
                 CostMap.Infrastructure.Algorithm.ROGMap.MapUpdate(_innerROGMap, Tf.Cast(_chassisId, _costMapId, Vector3.Zero), Tf.Cast(_pointCloudId, _costMapId, pointCloud.Points));
                 Console.WriteLine((DateTime.UtcNow - a).TotalMilliseconds);
+                var inflationMap = CostMap.Infrastructure.Algorithm.InflationLayerBuilder.Build(_innerROGMap);
                 // CostMap.Infrastructure.Algorithm.ROGMap.UpdateGridMap(_innerROGMap);
-
-                EventBus<IGridMap2DData>.Instance.Publish(_costMapTopicName, _innerROGMap);
+                EventBus<IGridMap2DData>.Instance.Publish(_costMapTopicName, inflationMap.Data);
             });
         return this;
     }
@@ -288,6 +288,11 @@ public class PointCloudTo2dMap
     public PointCloudTo2dMap SetOutput_CostMapTopicName(string topicName)
     {
         _costMapTopicName = topicName;
+        return this;
+    }
+    public PointCloudTo2dMap SetOutput_Inflation(int radius)
+    {
+        CostMap.Infrastructure.Algorithm.InflationLayerBuilder.SetPara(radius);
         return this;
     }
 
