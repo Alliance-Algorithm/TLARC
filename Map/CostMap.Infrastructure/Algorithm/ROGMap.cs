@@ -212,7 +212,7 @@ public static class ROGMap
                             rogMap.UpdateFrameCount[idx] = 0;
                             float curr, min; do curr = rogMap.Memory[x];
                             while (Interlocked.CompareExchange(ref rogMap.Memory[x],
-                                Math.Clamp(rogMap.Memory[x] + rogMap._lossMiss, 0, rogMap._lossMax), curr) != curr);
+                                Math.Clamp(rogMap.Memory[x] + rogMap._lossMiss, -rogMap._lossMax, rogMap._lossMax), curr) != curr);
                             do
                             {
                                 curr = rogMap._lower[idx];
@@ -242,6 +242,7 @@ public static class ROGMap
                 temp.LocalToGlobalNormalize(rogMap);
                 int index = temp.x + temp.y * rogMap.SizeX;
                 var cnt = 0;
+                var lower = 1e6f;
                 for (int i = 0; i < rogMap.SizeZ; i++)
                 {
                     var pointIndex = index + i * rogMap.Size2D;
@@ -250,20 +251,21 @@ public static class ROGMap
                     {
                         cnt++;
                         float z = i;
-                        float curr, min;
-                        do
-                        {
-                            curr = rogMap._upper[index];
-                            min = Math.Max(rogMap._upper[index], z);
-                        }
-                        while (rogMap._upper[index] < z && Interlocked.CompareExchange(ref rogMap._upper[index], min, curr) != curr);
-                        do
-                        {
-                            curr = rogMap._lower[index];
-                            min = Math.Min(rogMap._lower[index], z);
-                        }
-                        while (rogMap._lower[index] > z && Interlocked.CompareExchange(ref rogMap._lower[index], min, curr) != curr);
-
+                        // float curr, min;
+                        // do
+                        // {
+                        //     curr = rogMap._upper[index];
+                        //     min = Math.Max(rogMap._upper[index], z);
+                        // }
+                        // while (rogMap._upper[index] < z && Interlocked.CompareExchange(ref rogMap._upper[index], min, curr) != curr);
+                        // do
+                        // {
+                        //     curr = rogMap._lower[index];
+                        //     min = Math.Min(rogMap._lower[index], z);
+                        // }
+                        // while (rogMap._lower[index] > z && Interlocked.CompareExchange(ref rogMap._lower[index], min, curr) != curr);
+                        rogMap._upper[index] = Math.Max(rogMap._upper[index], z);
+                        rogMap._lower[index] = Math.Min(lower, z);
                     }
                 }
 

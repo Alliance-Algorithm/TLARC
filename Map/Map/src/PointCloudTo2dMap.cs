@@ -235,7 +235,8 @@ public class PointCloudTo2dMap
                 Tf.SetTfNode(_costMapId, _innerROGMap.CenterInWorld, Quaternion.Identity);
                 CostMap.Infrastructure.Algorithm.ROGMap.MapUpdate(_innerROGMap, Tf.Cast(_chassisId, _costMapId, Vector3.Zero), Tf.Cast(_pointCloudId, _costMapId, pointCloud.Points));
                 Console.WriteLine((DateTime.UtcNow - a).TotalMilliseconds);
-                CostMap.Infrastructure.Algorithm.ROGMap.UpdateGridMap(_innerROGMap);
+                // CostMap.Infrastructure.Algorithm.ROGMap.UpdateGridMap(_innerROGMap);
+
                 EventBus<IGridMap2DData>.Instance.Publish(_costMapTopicName, _innerROGMap);
             });
         return this;

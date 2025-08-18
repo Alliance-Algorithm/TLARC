@@ -51,9 +51,9 @@ public class ROGMap : IMap2D, IHeader, IGridMap2DData, IGridMap2D
     public required string Identifier { get; init; }
 
     /// <summary>
-    ///  as p_max = 99.9999%
+    ///  as p_max = 99.99%
     /// </summary>
-    internal readonly float _lossMax = 6.0f;
+    internal readonly float _lossMax = 4.0f;
     /// <summary>
     ///  as p_max = 99.0%
     /// </summary>
