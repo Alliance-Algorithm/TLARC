@@ -8,7 +8,7 @@ using Kernel.DataInterfaces.Navigation;
 
 namespace CostMap.Infrastructure.Data;
 
-public class ROGMap : IMap2D, IHeader, IGridMap2DData
+public class ROGMap : IMap2D, IHeader, IGridMap2DData, IGridMap2D
 {
 
     public int CenterX => _center.x;
@@ -85,6 +85,8 @@ public class ROGMap : IMap2D, IHeader, IGridMap2DData
     internal readonly sbyte[] _data;
     public sbyte[] Data => _data;
 
+    IGridMap2DData IGridMap2D.Data => this;
+
     public bool IsMoveAble(Vector2 from, Vector2 to)
     {
         throw new NotImplementedException();
@@ -94,6 +96,17 @@ public class ROGMap : IMap2D, IHeader, IGridMap2DData
     {
         throw new NotImplementedException();
     }
+
+    public bool IsMoveAble(in int fromX, in int fromY, in int toX, in int toY)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool IsMoveAble(in int positionX, in int positionY)
+    {
+        throw new NotImplementedException();
+    }
+
     public ROGMap(uint height, uint width, float inflationDistance, float resolution, float topZ, float buttonZ)
     {
         TopZ = topZ;

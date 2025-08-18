@@ -2,7 +2,8 @@
 
 namespace Kernel.DataInterfaces.Navigation;
 
-public interface IPath2D : ITlarcData, IHeader
+public interface IPath2D : ITlarcData
 {
-    internal IEnumerable<Vector2> GetPoints();
+    public IHeader Header { get; }
+    public IEnumerable<Vector2> GetPoints();
 }
