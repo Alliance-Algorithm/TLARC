@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using CostMap.Infrastructure.Data;
@@ -122,14 +123,16 @@ public class PointCloudTo2dMap
                     return;
                 Array.Fill(_innerMap.DataChangeable.OccupancyRate, 0);
                 _innerMap.DataChangeable.DataChangeable.HeaderData.Identifier = _costMapId;
-                var points = Tf.Cast(_pointCloudId, staticHighId, pointCloud.Points);
+                var arr = ArrayPool<Vector3>.Shared.Rent(pointCloud.Points.Length);
+                var points = Tf.Cast(_pointCloudId, staticHighId, pointCloud.Points, arr);
                 CostMap.Infrastructure.Algorithm.GridMapInner.SelectPointsInHighMap(ref points, 0.4f, 0.15f,
                     staticHigh);
                 CostMap.Infrastructure.Algorithm.OccupancyGridMapBuilder.UpdateRateFromPointCloud(
-                    Tf.Cast(staticHighId, _costMapId, points),
+                    Tf.Cast(staticHighId, _costMapId, points, points),
                     Tf.Cast(_sensorId, _costMapId, Vector3.Zero),
                     _innerMap
                 );
+                ArrayPool<Vector3>.Shared.Return(arr);
                 EventBus<IGridMap2DData>.Instance.Publish(_costMapTopicName, _innerMap.OccupancyData.GridMapData);
             });
         return this;
@@ -157,11 +160,13 @@ public class PointCloudTo2dMap
                 Array.Fill(_innerMap.DataChangeable.OccupancyRate, 2);
                 _innerMap.DataChangeable.DataChangeable.HeaderData.Identifier = _costMapId;
 
+                var arr = ArrayPool<Vector3>.Shared.Rent(pointCloud.Points.Length);
                 CostMap.Infrastructure.Algorithm.OccupancyGridMapBuilder.UpdateRateFromPointCloud(
-                    Tf.Cast(_pointCloudId, _costMapId, pointCloud.Points),
+                    Tf.Cast(_pointCloudId, _costMapId, pointCloud.Points, arr),
                     Tf.Cast(_sensorId, _costMapId, Vector3.Zero),
                     _innerMap
                 );
+                ArrayPool<Vector3>.Shared.Return(arr);
                 EventBus<IGridMap2DData>.Instance.Publish(_costMapTopicName, _innerMap.OccupancyData.GridMapData);
             });
         return this;
@@ -192,12 +197,14 @@ public class PointCloudTo2dMap
             {
                 _inner25DMap.DataChangeable.DataChangeable.HeaderData.Identifier = _costMapId;
 
+                var arr = ArrayPool<Vector3>.Shared.Rent(pointCloud.Points.Length);
                 CostMap.Infrastructure.Algorithm.OccupancyGridMapBuilder.UpdateHighRateWithPointCloud(
-                    Tf.Cast(_pointCloudId, _costMapId, pointCloud.Points),
+                    Tf.Cast(_pointCloudId, _costMapId, pointCloud.Points, arr),
                     Tf.Cast(_sensorId, _costMapId, Vector3.Zero),
                     Tf.Cast(_chassisId, _costMapId, step),
                     _inner25DMap
                 );
+                ArrayPool<Vector3>.Shared.Return(arr);
                 EventBus<IGridMap2DData>.Instance.Publish(_costMapTopicName, _inner25DMap.OccupancyData.GridMapData);
                 EventBus<OccupancyHighGrid2DMap>.Instance.Publish(_costMapTopicName, _inner25DMap);
             });
@@ -233,7 +240,9 @@ public class PointCloudTo2dMap
                 var a = DateTime.UtcNow;
                 CostMap.Infrastructure.Algorithm.ROGMap.MapSliding(_innerROGMap, Tf.Cast(_chassisId, _odomId, Vector3.Zero));
                 Tf.SetTfNode(_costMapId, _innerROGMap.CenterInWorld, Quaternion.Identity);
-                CostMap.Infrastructure.Algorithm.ROGMap.MapUpdate(_innerROGMap, Tf.Cast(_chassisId, _costMapId, Vector3.Zero), Tf.Cast(_pointCloudId, _costMapId, pointCloud.Points));
+                var arr = ArrayPool<Vector3>.Shared.Rent(pointCloud.Points.Length);
+                CostMap.Infrastructure.Algorithm.ROGMap.MapUpdate(_innerROGMap, Tf.Cast(_chassisId, _costMapId, Vector3.Zero), Tf.Cast(_pointCloudId, _costMapId, pointCloud.Points, arr));
+                ArrayPool<Vector3>.Shared.Return(arr);
                 Console.WriteLine((DateTime.UtcNow - a).TotalMilliseconds);
                 var inflationMap = CostMap.Infrastructure.Algorithm.InflationLayerBuilder.Build(_innerROGMap);
                 // CostMap.Infrastructure.Algorithm.ROGMap.UpdateGridMap(_innerROGMap);

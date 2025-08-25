@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Collections.Frozen;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -78,7 +79,7 @@ public static class Tf
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static Vector3[] CastImpl(in string identifierFrom, in string identifierTo, Vector3[] positions)
+    private static void CastImpl(in string identifierFrom, in string identifierTo, Vector3[] positions, Vector3[] outPositions)
     {
         var hashcode = Tf.HashFunc(HybridNodes[identifierFrom].Id, HybridNodes[identifierTo].Id);
         ref var cache = ref _caches[hashcode];
@@ -90,7 +91,7 @@ public static class Tf
             cache = new TransformCache
             {
                 RootToFrom = rootToFrom.Select(id => Nodes[id]).Reverse().ToArray(),
-                ToToRoot = rootTo.Select(id => Nodes[id]).ToArray()
+                ToToRoot = [.. rootTo.Select(id => Nodes[id])]
             };
 
             foreach (var node in
@@ -100,7 +101,6 @@ public static class Tf
 
         var transform = cache.GetTransform();
         var chunkSize = Math.Max(1, positions.Length / 2000);
-        var ret = new Vector3[positions.Length];
 
         Parallel.For(0, (positions.Length + chunkSize - 1) / chunkSize, i =>
         {
@@ -108,10 +108,9 @@ public static class Tf
             var end = Math.Min(start + chunkSize, positions.Length);
 
             for (var j = start; j < end; j++)
-                ret[j] = Vector3.Transform(positions[j], transform);
+                outPositions[j] = Vector3.Transform(positions[j], transform);
         });
 
-        return ret;
     }
 
     /// <summary>
@@ -125,9 +124,15 @@ public static class Tf
         identifierFrom == identifierTo ? position : Tf.CastImpl(identifierFrom, identifierTo, position);
 
 
-    public static Vector3[] Cast(in string identifierFrom, in string identifierTo, Vector3[] position) =>
-        identifierFrom == identifierTo ? position : Tf.CastImpl(identifierFrom, identifierTo, position);
-
+    public unsafe static Vector3[] Cast(in string identifierFrom, in string identifierTo, Vector3[] position, Vector3[] outPositions)
+    {
+        if (identifierFrom == identifierTo)
+        {
+            if (position != outPositions) Buffer.BlockCopy(position, 0, outPositions, 0, position.Length * sizeof(Vector3));
+        }
+        else Tf.CastImpl(identifierFrom, identifierTo, position, outPositions);
+        return outPositions;
+    }
 
     public static void AddTfNode(in string identifier, in string parentId)
     {

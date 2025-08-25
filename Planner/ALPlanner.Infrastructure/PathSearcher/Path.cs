@@ -5,11 +5,13 @@ using Kernel.DataInterfaces.Navigation;
 
 namespace ALPlanner.Infrastructure.PathSearcher;
 
-class Path(string id, IEnumerable<Vector2> path) : IPath2D, IHeader
+class Path(string id, int length, IEnumerable<Vector2> path) : IPath2D, IHeader
 {
     public string Identifier => id;
 
     public IHeader Header => this;
+
+    public int Length => length;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<Vector2> GetPoints() => path;

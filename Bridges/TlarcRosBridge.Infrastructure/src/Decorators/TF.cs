@@ -13,7 +13,7 @@ internal static class Tf
                                                ref TFMessage.Priv msg)
     {
         msg.Transforms = new TransformStamped.PrivSequence(poseStamped.TransformStampeds.Length);
-        for (var i = 0; i < poseStamped.TransformStampeds.Length; i++)
+        for (var i = 0; i < poseStamped.TransformStampeds.Length; ++i)
             Tf.TlarcTfStampedToTfStamped(poseStamped.TransformStampeds[i], node, ref msg.Transforms.AsSpan()[i]);
     }
 

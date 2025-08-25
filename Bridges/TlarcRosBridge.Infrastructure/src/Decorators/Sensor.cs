@@ -19,7 +19,7 @@ internal static class Sensor
     {
         var data = map.Data.AsSpan().Cast<byte, Vector4>();
         var points = new Vector3[data.Length];
-        for (var i = 0; i < data.Length; i++)
+        for (var i = 0; i < data.Length; ++i)
             points[i] = new Vector3(data[i].X, data[i].Y, data[i].Z);
 
         PointCloud pointCloud = new()
@@ -42,7 +42,7 @@ internal static class Sensor
     {
         var data = map.Data.AsSpan().Cast<byte, FastLioPointCloud>();
         var points = new Vector3[data.Length];
-        for (var i = 0; i < data.Length; i++)
+        for (var i = 0; i < data.Length; ++i)
             points[i] = new Vector3(data[i].x, data[i].y, data[i].z);
 
 

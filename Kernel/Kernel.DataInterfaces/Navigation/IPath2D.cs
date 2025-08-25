@@ -5,5 +5,6 @@ namespace Kernel.DataInterfaces.Navigation;
 public interface IPath2D : ITlarcData
 {
     public IHeader Header { get; }
+    public int Length { get; }
     public IEnumerable<Vector2> GetPoints();
 }

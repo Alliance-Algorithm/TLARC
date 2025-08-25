@@ -242,7 +242,6 @@ public static class ROGMap
                 temp.LocalToGlobalNormalize(rogMap);
                 int index = temp.x + temp.y * rogMap.SizeX;
                 var cnt = 0;
-                var lower = 1e6f;
                 for (int i = 0; i < rogMap.SizeZ; i++)
                 {
                     var pointIndex = index + i * rogMap.Size2D;

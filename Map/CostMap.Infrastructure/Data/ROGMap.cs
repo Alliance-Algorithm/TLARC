@@ -98,6 +98,7 @@ public class ROGMap : IMap2D, IHeader, IGridMap2DData, IGridMap2D
         throw new NotImplementedException();
     }
 
+
     public bool IsMoveAble(in int fromX, in int fromY, in int toX, in int toY)
     {
         return Geometry.BresenhamLine(new(fromX, fromY), new(toX, toY)).AsParallel().All(p =>
@@ -117,6 +118,7 @@ public class ROGMap : IMap2D, IHeader, IGridMap2DData, IGridMap2D
         var k = p.LocalToGlobalNormalize(this);
         return _gridData[k.x + k.y * SizeX] == 0;
     }
+
 
     public ROGMap(uint height, uint width, float inflationDistance, float resolution, float topZ, float buttonZ)
     {
