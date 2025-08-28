@@ -2,12 +2,14 @@
 
 namespace Kernel.DataInterfaces.Navigation;
 
-public interface ITrajectory2D : IHeader, ITlarcData
+public interface ITrajectory2D : ITlarcData
 {
     /// <summary>
     ///  轨迹起始时间
     /// </summary>
     DateTime FromWhen { get; }
+
+    IHeader Header { get; }
 
     /// <summary>
     /// 轨迹结束时间
@@ -28,5 +30,5 @@ public interface ITrajectory2D : IHeader, ITlarcData
     /// <param name="stepInSecond">每个点相隔几秒</param>
     /// <param name="count">需要几个点</param>
     /// <returns></returns>
-    IEnumerable<Vector2> GetPositionArray(DateTime beginTime, double stepInSecond, int count);
+    IEnumerable<Vector2> GetPositions(DateTime beginTime, double stepInSecond, int count);
 }

@@ -64,4 +64,26 @@ internal static class Navigation
             Std.FromData(frameId, node, ref mapOut.Header);
         }
     }
+    public static class Path
+    {
+
+
+        public static void WriteInto(IPath2D pathIn,
+                                     string frameId,
+                                     IRclNode node,
+                                     ref Messages.Nav.Path.Priv pathOut)
+        {
+            pathOut.Poses = new Messages.Geometry.PoseStamped.PrivSequence(pathIn.Length);
+            var index = 0;
+            var span = pathOut.Poses.AsSpan();
+            foreach (var p in pathIn.GetPoints())
+            {
+                Std.FromData(frameId, node, ref span[index].Header);
+                span[index].Pose.Position.X = p.X;
+                span[index].Pose.Position.Y = p.Y;
+                index++;
+            }
+            Std.FromData(frameId, node, ref pathOut.Header);
+        }
+    }
 }

@@ -139,7 +139,7 @@ EventBus<IPointCloud>.Instance.Subscribe(EventPointCloudInputName,
     {
         Kernel.DataInterfaces.Sensor.PointCloud pointCloud = new()
         {
-            Points = Tf.Cast(PointCloudInputId, PointCloudOutputId, data.Points),
+            Points = Tf.Cast(PointCloudInputId, PointCloudOutputId, data.Points, new Vector3[data.Points.Length]),
             Identifier = PointCloudOutputId
         };
         EventBus<IPointCloud>.Instance.Publish(EventPointCloudOutputName, pointCloud);

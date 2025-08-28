@@ -10,11 +10,12 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\Kernel\Kernel.DataInterfaces\Kernel.DataInterfaces.csproj" />
+        <ProjectReference Include="..\..\Bridges\TlarcRosBridge.Domain\TlarcRosBridge.Domain.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Accord" Version="3.8.0" />
-      <PackageReference Include="Accord.Math" Version="3.8.0" />
+      <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.4.0" />
+      <PackageReference Include="MathNet.Numerics" Version="6.0.0-beta2" />
     </ItemGroup>
 
 </Project>

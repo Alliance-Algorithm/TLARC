@@ -71,8 +71,6 @@ public static class SaveMap
 
     internal static string MapSavePath = "~/Download/Tlarc/Maps/";
 
-    private static MapSaver _saver;
-    private static PointCloudTo2dMap _pcdStaticMap;
 
     #endregion
 
@@ -116,15 +114,15 @@ public static class SaveMap
 
         #region Domain Setup Here
 
-        _pcdStaticMap =
-            PointCloudTo2dMap.DefaultNew
-                .SetInput_PointCloudTopicName(EventPointCloudInputName)
-                .SetOutput_DataStructure(750, 450, resolution: 0.04f, topZ: 0.4f, bottomZ: -0.5f, lossFree: 0.7f,
-                    lossOccu: -0.9f)
-                .SetId_PointCloud(PointCloudInputId)
-                .SetId_Sensor(PointCloudCostMapSensorId)
-                .BuildOccupancyHighMap();
-        _saver =
+        var _pcdStaticMap =
+             PointCloudTo2dMap.DefaultNew
+                 .SetInput_PointCloudTopicName(EventPointCloudInputName)
+                 .SetOutput_DataStructure(750, 450, resolution: 0.04f, topZ: 0.4f, bottomZ: -0.5f, lossFree: 0.7f,
+                     lossOccu: -0.9f)
+                 .SetId_PointCloud(PointCloudInputId)
+                 .SetId_Sensor(PointCloudCostMapSensorId)
+                 .BuildOccupancyHighMap();
+        var _saver =
             MapSaver.DefaultNew
                 .SetInput_CostMapTopicName(EventGridMapName)
                 .SetTrigger_SaveTriggerTopicName(EventSaveMapName)
@@ -149,7 +147,7 @@ public static class SaveMap
             {
                 Kernel.DataInterfaces.Sensor.PointCloud pointCloud = new()
                 {
-                    Points = Tf.Cast(PointCloudInputId, PointCloudOutputId, data.Points),
+                    Points = Tf.Cast(PointCloudInputId, PointCloudOutputId, data.Points, new Vector3[data.Points.Length]),
                     Identifier = PointCloudOutputId
                 };
                 EventBus<IPointCloud>.Instance.Publish(EventPointCloudOutputName, pointCloud);

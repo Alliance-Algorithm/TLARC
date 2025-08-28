@@ -64,6 +64,11 @@ public static class DataProcess
             {
                 Sensor.WriteIntoPointCloud(item1, node, ref item2.AsRef<PointCloud2.Priv>());
             };
+        public static readonly RefAction<IPath2D, IRclNode, RosMessageBuffer> PublishPath =
+            (in IPath2D item1, in IRclNode node, ref RosMessageBuffer item2) =>
+            {
+                Navigation.Path.WriteInto(item1, item1.Header.Identifier, node, ref item2.AsRef<Messages.Nav.Path.Priv>());
+            };
     }
 
     public static class Recast
