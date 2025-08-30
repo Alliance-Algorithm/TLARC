@@ -1,4 +1,5 @@
 using Kernel.DataInterfaces;
+using Kernel.DataInterfaces.Constraints;
 using Kernel.DataInterfaces.Geometry;
 using Kernel.DataInterfaces.Navigation;
 using Kernel.DataInterfaces.Sensor;
@@ -68,6 +69,11 @@ public static class DataProcess
             (in IPath2D item1, in IRclNode node, ref RosMessageBuffer item2) =>
             {
                 Navigation.Path.WriteInto(item1, item1.Header.Identifier, node, ref item2.AsRef<Messages.Nav.Path.Priv>());
+            };
+        public static readonly RefAction<ISafeCorridor2D<Circle2D>, IRclNode, RosMessageBuffer> PublishSafeCorridor =
+            (in ISafeCorridor2D<Circle2D> item1, in IRclNode node, ref RosMessageBuffer item2) =>
+            {
+                Visualization.Draw(item1.Header.Identifier, node, item1, ref item2.AsRef<Messages.Visualization.MarkerArray.Priv>());
             };
     }
 

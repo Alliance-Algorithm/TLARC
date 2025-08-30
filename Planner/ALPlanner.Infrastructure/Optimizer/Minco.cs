@@ -6,11 +6,10 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using CommunityToolkit.HighPerformance;
 using Kernel.DataInterfaces.Navigation;
-using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.LinearAlgebra.Double;
-using Vectord = MathNet.Numerics.LinearAlgebra.Vector<double>;
-using Matrixd = MathNet.Numerics.LinearAlgebra.Matrix<double>;
+using Vectorf = NumFlat.Vec<double>;
+using Matrixf = NumFlat.Mat<double>;
 using Kernel.DataInterfaces.Constraints;
+using NumFlat;
 
 namespace ALPlanner.Infrastructure.Optimizer;
 
@@ -18,17 +17,19 @@ public class Minco
 {
     internal readonly int N;
     internal const int S = 3;
-    internal readonly Matrixd A;
-    internal readonly Vectord T1;
-    internal readonly Vectord T2;
-    internal readonly Vectord T3;
-    internal readonly Vectord T4;
-    internal readonly Vectord T5;
-    internal readonly Matrixd c;
-    internal readonly Matrixd gC;
-    internal readonly Vectord gT;
-    internal readonly Matrixd gQ;
-    internal readonly Vectord gKesi;
+    internal readonly Matrixf A;
+    internal readonly Vectorf T1;
+    internal readonly Vectorf T2;
+    internal readonly Vectorf T3;
+    internal readonly Vectorf T4;
+    internal readonly Vectorf T5;
+    internal readonly Matrixf c;
+    internal readonly Matrixf G;
+    internal readonly Matrixf gC;
+    internal readonly Matrixf gQ;
+    internal readonly Vectorf gT;
+    internal readonly Vectorf gKesi;
+    internal readonly Vectorf gd;
     readonly PolynomialTraj poly;
     readonly MincoTraj minco;
     readonly Diffeomorphism diffeomorphism;
@@ -36,7 +37,7 @@ public class Minco
     readonly public Vector2[] _headPVA;
     readonly public Vector2[] _tailPVA;
 
-    readonly Matrixd Q;
+    readonly Matrixf Q;
 
     readonly Circle2D[] _obstacles;
 
@@ -47,37 +48,45 @@ public class Minco
         this.N = N;
         this._headPVA = new Vector2[3];
         this._tailPVA = new Vector2[3];
-        this.A = Matrixd.Build.Dense(2 * S * N, 2 * S * N);
-        this.T1 = Vectord.Build.Dense(N);
-        this.T2 = Vectord.Build.Dense(N);
-        this.T3 = Vectord.Build.Dense(N);
-        this.T4 = Vectord.Build.Dense(N);
-        this.T5 = Vectord.Build.Dense(N);
-        this.c = Matrixd.Build.Dense(2 * S * N, 2);
-        this.gC = Matrixd.Build.Dense(2 * S * N, 2);
-        this.gT = Vectord.Build.Dense(N);
-        this.gQ = Matrixd.Build.Dense(N - 1, 2);
-        this.gKesi = Vectord.Build.Dense((N - 1) * 2 - obstacles.Length + 1);
-        this.Q = Matrixd.Build.Dense(N - 1, 2);
+        this.A = new Matrixf(2 * S * N, 2 * S * N);
+        this.T1 = new Vectorf(N);
+        this.T2 = new Vectorf(N);
+        this.T3 = new Vectorf(N);
+        this.T4 = new Vectorf(N);
+        this.T5 = new Vectorf(N);
+        this.c = new Matrixf(2 * S * N, 2);
+        this.gC = new Matrixf(2 * S * N, 2);
+        this.G = new Matrixf(2 * S * N, 2);
+        this.gQ = new Matrixf(N - 1, 2);
+        this.gd = new Vectorf((N - 1) * 2 - obstacles.Length + 1 + N);
+        this.gT = gd[..N];
+        this.gKesi = gd[N..];
+        this.Q = new Matrixf(N - 1, 2);
         this._obstacles = obstacles;
-        poly = new PolynomialTraj(N, c, T1, T2, T3, T4, T5);
+        poly = new PolynomialTraj(N, c, T1, T2, T3, T4, T5, gT, gC);
         minco = new MincoTraj(c, N, T1, T2, T3, T4, T5, A, _headPVA, _tailPVA);
         diffeomorphism = new Diffeomorphism(T1, Q, gQ, gKesi, _obstacles);
     }
 
 
 
-    public void Generate(in Vectord tau, Vectord kesi)
+    public void Generate(in Vectorf tau, Vectorf kesi)
     {
+        gT.Clear();
+        gQ.Clear();
+        gC.Clear();
+
+
         diffeomorphism.VTToRT(tau);
         diffeomorphism.KesiToQ(kesi);
         minco.Generate(Q);
+        poly.Calculate();
         TotalSecond = T1.Sum();
     }
 
     public double GetJ() =>
         diffeomorphism.AddJCostT() +
-        poly.AddJCostJerk();
+        poly.AddJCostJerk() + poly.Costs;
 
 
     /// <summary>
@@ -86,27 +95,21 @@ public class Minco
     /// </summary>
     /// <param name="gT"></param>
     /// <param name="gQ"></param>
-    public Vectord GetGradient(Vectord kesi, Vectord paras)
+    public Vectorf GetGradient(Vectorf kesi)
     {
-        gT.Clear();
-        gQ.Clear();
-        gC.Clear();
+        poly.AddGradJbyC();
+        poly.AddGradJbyT();
 
-        poly.AddGradJbyC(gC);
-        poly.AddGradJbyT(gT);
-
-        A.Transpose().LU().Solve(gC, gC);
+        A.Transpose().Lu().Solve(gC, G);
 
         // Given G, \frac{\partial K}{\partial T} get the \frac{\partial W}{\partial T}.
-        minco.AddPropCtoT(gC, gT);
+        minco.AddPropCtoT(G, gT);
         // Given G, get the \frac{\partial W}{\partial q}
-        minco.AddPropCtoP(gC, gQ);
+        minco.AddPropCtoP(G, gQ);
 
         diffeomorphism.VirtualTGrad(gT, gT);
         diffeomorphism.AddGradQByKesi(kesi);
-        paras.SetSubVector(0, N, gT);
-        paras.SetSubVector(N, gKesi.Count, gKesi);
-        return paras;
+        return gd;
     }
 
     public Vector2 GetPosition(double t)
@@ -137,7 +140,15 @@ public class Minco
                 (c[(6 * i) + 4, 1] * t4) +
                 (c[(6 * i) + 5, 1] * t5)));
     }
-
+    public IEnumerable<Vector2> GetControlPoints()
+    {
+        List<Vector2> ret = new(N - 1);
+        for (int i = 1; i < N; i++)
+            ret.Add(new(
+            (float)(c[(6 * i) + 0, 0] * 1),
+            (float)(c[(6 * i) + 0, 1] * 1)));
+        return ret;
+    }
     public IEnumerable<Vector2> GetPositions(double beginTime, double stepInSecond, int count)
     {
         List<Vector2> ret = new(count);
@@ -213,6 +224,48 @@ public class Minco
                     (c[(6 * i) + 5, 0] * t5)),
             (float)(
                     (c[(6 * i) + 1, 1] * 1) +
+                    (c[(6 * i) + 2, 1] * t2) +
+                    (c[(6 * i) + 3, 1] * t3) +
+                    (c[(6 * i) + 4, 1] * t4) +
+                    (c[(6 * i) + 5, 1] * t5))));
+            beginTime += stepInSecond;
+            while (i < N && beginTime >= T1[i])
+            {
+                beginTime -= T1[i];
+                ++i;
+            }
+        }
+        return ret;
+    }
+    public IEnumerable<Vector2> GetAccelerates(double beginTime, double stepInSecond, int count)
+    {
+        List<Vector2> ret = new(count);
+        int i;
+        double t2, t3, t4, t5;
+        for (i = 0; i < N; i++)
+        {
+            if (beginTime < T1[i])
+                break;
+            beginTime -= T1[i];
+        }
+        for (int j = 0; j < count; j++)
+        {
+            if (i == N)
+            {
+                i = N - 1;
+                beginTime = T1[i];
+            }
+            t2 = 2;
+            t3 = 6 * beginTime;
+            t4 = 12 * beginTime * beginTime;
+            t5 = 20 * beginTime * beginTime * beginTime;
+            ret.Add(new(
+            (float)(
+                    (c[(6 * i) + 2, 0] * t2) +
+                    (c[(6 * i) + 3, 0] * t3) +
+                    (c[(6 * i) + 4, 0] * t4) +
+                    (c[(6 * i) + 5, 0] * t5)),
+            (float)(
                     (c[(6 * i) + 2, 1] * t2) +
                     (c[(6 * i) + 3, 1] * t3) +
                     (c[(6 * i) + 4, 1] * t4) +

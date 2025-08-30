@@ -14,8 +14,8 @@ class AStar(int sizeX, int sizeY, float step, float mapResolution)
                                 new(-step / MathF.Sqrt(2), step / MathF.Sqrt(2)),
                                 new(-step / MathF.Sqrt(2), -step / MathF.Sqrt(2)),
                                 new(step / MathF.Sqrt(2), -step / MathF.Sqrt(2)),];
-    PriorityQueue<AStarNode, float> _openList = new();
-    bool[] _closeMap = new bool[sizeX * sizeY];
+    readonly PriorityQueue<AStarNode, float> _openList = new();
+    readonly bool[] _closeMap = new bool[sizeX * sizeY];
     /// <summary>
     /// Find path in map tf node
     /// </summary>
@@ -27,7 +27,7 @@ class AStar(int sizeX, int sizeY, float step, float mapResolution)
     {
         var closeSpan = _closeMap.AsSpan();
         closeSpan.Clear();
-        _openList = new();
+        _openList.Clear();
 
         AStarNode begin = new(0, 0, from, null);
         AStarNode end = new(0, 0, to, null);
