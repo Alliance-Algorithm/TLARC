@@ -13,11 +13,11 @@ public class MapLoader
     private string _mapPath = "";
     private IGridMap2DData? _map;
     private OccupancyHighGrid2DMap? _highMap;
-    private string _mapEventName = "/map_server/static_map";
+    public string MapEventName { get; private set; } = "/map_server/static_map";
 
     private MapLoader(string mapPath, string mapEventName)
     {
-        _mapEventName = mapEventName;
+        MapEventName = mapEventName;
         _mapPath = mapPath;
     }
 
@@ -33,7 +33,7 @@ public class MapLoader
 
     public MapLoader SetEventName(string name)
     {
-        _mapEventName = name;
+        MapEventName = name;
         return this;
     }
 
@@ -42,7 +42,6 @@ public class MapLoader
         _map = GridMapInner.LoadMap(_mapPath);
         return this;
     }
-
     public MapLoader LoadHighMap()
     {
         _highMap = GridMapInner.LoadHighMap(_mapPath);
@@ -51,15 +50,15 @@ public class MapLoader
 
     public MapLoader MapPublish()
     {
-        EventBus<IGridMap2DData>.Instance.Publish(_mapEventName, _map ??= GridMapInner.LoadMap(_mapPath));
+        EventBus<IGridMap2DData>.Instance.Publish(MapEventName, _map ??= GridMapInner.LoadMap(_mapPath));
         return this;
     }
 
     public MapLoader HighMapPublish()
     {
-        EventBus<OccupancyHighGrid2DMap>.Instance.Publish(_mapEventName,
+        EventBus<OccupancyHighGrid2DMap>.Instance.Publish(MapEventName,
             _highMap ??= GridMapInner.LoadHighMap(_mapPath));
-        EventBus<IGridMap2DData>.Instance.Publish(_mapEventName, _highMap.OccupancyData.GridMapData);
+        EventBus<IGridMap2DData>.Instance.Publish(MapEventName, _highMap.OccupancyData.GridMapData);
         return this;
     }
 

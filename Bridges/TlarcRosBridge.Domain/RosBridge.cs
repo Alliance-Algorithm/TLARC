@@ -31,7 +31,7 @@ public class RosBridge
     {
         var task = Task.Run(async () =>
         {
-            using var sub = Node.CreateNativeSubscription<TMessage>(rosTopicName);
+            using var sub = Node.CreateNativeSubscription<TMessage>(rosTopicName, new SubscriptionOptions(qos: Rcl.Qos.QosProfile.SensorData));
             await foreach (var msg in sub.ReadAllAsync())
                 using (msg)
                 {

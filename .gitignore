@@ -9,3 +9,4 @@ riderModule.iml
 build/
 UnitTest/
 dotnet-install.sh
+**.png

@@ -25,7 +25,7 @@ public class PlannerBuilder : IHeader
 
     public string Identifier { get; private set; } = "map_link";
 
-    void ProcessPath(ISafeCorridor2D<Circle2D> path)
+    void ProcessPath(ISafeCorridor2DData<Circle2D> path)
     {
         Minco minco = new(path.Length * K, path.Corridors);
         EventBus<ITrajectory2D>.Instance.Publish("/tlarc/trajectorys", new MincoTrajectory(minco) { Header = this });
@@ -34,7 +34,7 @@ public class PlannerBuilder : IHeader
 
     public PlannerBuilder BuildALPlanner()
     {
-        EventBus<ISafeCorridor2D<Circle2D>>.Instance.Subscribe("", path =>
+        EventBus<ISafeCorridor2DData<Circle2D>>.Instance.Subscribe("", path =>
         {
         });
 

@@ -123,6 +123,7 @@
   </Folder>
   <Folder Name="/Runables/">
     <Project Path="Runables/AlPlanner/AlPlanner.csproj" />
+    <Project Path="Runables/MapBuilder/MapBuilder.csproj" />
     <Project Path="Runables/MapServer/MapServer.csproj" />
   </Folder>
   <Folder Name="/TrajectoryTracker/">

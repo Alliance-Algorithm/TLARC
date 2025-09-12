@@ -140,6 +140,62 @@ public class Minco
                 (c[(6 * i) + 4, 1] * t4) +
                 (c[(6 * i) + 5, 1] * t5)));
     }
+    public Vector2 GetVelocity(double t)
+    {
+        double t2, t3, t4, t5;
+        int i;
+        for (i = 0; i < N; i++)
+        {
+            if (t < T1[i])
+                break;
+            t -= T1[i];
+        }
+        t2 = 2 * t;
+        t3 = 3 / 2 * t2 * t;
+        t4 = 4 / 3 * t3 * t;
+        t5 = 5 / 4 * t4 * t;
+        return new(
+        (float)((c[(6 * i) + 0, 0] * 0) +
+                (c[(6 * i) + 1, 0] * 1) +
+                (c[(6 * i) + 2, 0] * t2) +
+                (c[(6 * i) + 3, 0] * t3) +
+                (c[(6 * i) + 4, 0] * t4) +
+                (c[(6 * i) + 5, 0] * t5)),
+        (float)((c[(6 * i) + 0, 1] * 0) +
+                (c[(6 * i) + 1, 1] * 1) +
+                (c[(6 * i) + 2, 1] * t2) +
+                (c[(6 * i) + 3, 1] * t3) +
+                (c[(6 * i) + 4, 1] * t4) +
+                (c[(6 * i) + 5, 1] * t5)));
+    }
+    public Vector2 GetAccelerate(double t)
+    {
+        double t2, t3, t4, t5;
+        int i;
+        for (i = 0; i < N; i++)
+        {
+            if (t < T1[i])
+                break;
+            t -= T1[i];
+        }
+        t2 = 2;
+        t3 = 3 * 2 * t;
+        t4 = 4 * 3 * t * t;
+        t5 = 5 * 4 * t * t * t;
+        return new(
+        (float)((c[(6 * i) + 0, 0] * 0) +
+                (c[(6 * i) + 1, 0] * 0) +
+                (c[(6 * i) + 2, 0] * t2) +
+                (c[(6 * i) + 3, 0] * t3) +
+                (c[(6 * i) + 4, 0] * t4) +
+                (c[(6 * i) + 5, 0] * t5)),
+        (float)((c[(6 * i) + 0, 1] * 0) +
+                (c[(6 * i) + 1, 1] * 0) +
+                (c[(6 * i) + 2, 1] * t2) +
+                (c[(6 * i) + 3, 1] * t3) +
+                (c[(6 * i) + 4, 1] * t4) +
+                (c[(6 * i) + 5, 1] * t5)));
+    }
     public IEnumerable<Vector2> GetControlPoints()
     {
         List<Vector2> ret = new(N - 1);

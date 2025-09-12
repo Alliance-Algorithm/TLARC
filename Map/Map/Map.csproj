@@ -9,8 +9,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Kernel\Kernel.Core\Kernel.Core.csproj"/>
-        <ProjectReference Include="..\CostMap.Infrastructure\CostMap.Infrastructure.csproj"/>
+        <ProjectReference Include="..\..\Kernel\Kernel.Core\Kernel.Core.csproj" />
+        <ProjectReference Include="..\CostMap.Infrastructure\CostMap.Infrastructure.csproj" />
+        <ProjectReference Include="..\SafetyCorridor.Infractructure\SafetyCorridor.Infractructure.csproj" />
     </ItemGroup>
 
 </Project>

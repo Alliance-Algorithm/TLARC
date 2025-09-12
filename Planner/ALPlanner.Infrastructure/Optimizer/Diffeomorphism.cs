@@ -18,7 +18,7 @@ class Diffeomorphism
     readonly Matrixf dQ;
     readonly Vectorf gKesi;
     readonly Circle2D[] obstacles;
-    internal const double wei_time_ = 1e1;
+    internal const double wei_time_ = 1e4;
     static (Vector2 o, Vector2 dir, float r) CircleIntersection(Circle2D a, Circle2D b)
     {
         var sd = (a.Origin - b.Origin).LengthSquared();

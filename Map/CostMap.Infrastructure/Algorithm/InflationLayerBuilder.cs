@@ -16,7 +16,7 @@ public static class InflationLayerBuilder
             _inflationDistance = 0;
             return;
         }
-        _inflationDistance = inflationDistance * 2 + +1;
+        _inflationDistance = inflationDistance * 2 + 1;
         float max = _inflationDistance / 2.0f;
         _i_s_2 = _inflationDistance / 2;
         _distance_cache = new sbyte[_inflationDistance * _inflationDistance];
@@ -29,13 +29,14 @@ public static class InflationLayerBuilder
             }
     }
 
-    public static Grid2DMap Build(IGridMap2D map2D)
+    public static InflationMap Build(IGridMap2D map2D)
     {
-        Grid2DMap grid2D = Grid2DMap.New_IGridMap2DData(map2D.Data);
+        InflationMap ret = InflationMap.New_IGridMap2DData(map2D.Data, _inflationDistance / 2 * map2D.Data.Resolution);
         if (_inflationDistance == 0)
-            return grid2D;
+            return ret;
+        var grid2D = ret.GridMap;
         int sizeX = (int)map2D.Data.Width;
-        int sizeY = (int)map2D.Data.Width;
+        int sizeY = (int)map2D.Data.Height;
         BlockParallel.For(sizeX, sizeY, _inflationDistance, _inflationDistance,
             (x, y) =>
             {
@@ -47,13 +48,13 @@ public static class InflationLayerBuilder
                     {
                         var ox = x + i;
                         var oy = y + j;
-                        if (ox < 0 || oy < 0 || ox >= sizeX || oy >= sizeX || (ox == oy && ox == 0)) continue;
+                        if (ox < 0 || oy < 0 || ox >= sizeX || oy >= sizeY || (ox == oy && ox == 0)) continue;
                         var index = ox + oy * sizeX;
                         grid2D.DataChangeable.Data[index] = Math.Max(grid2D.DataChangeable.Data[index], _distance_cache[i + _i_s_2 + (j + _i_s_2) * _inflationDistance]);
                         ;
                     }
             });
-        return grid2D;
+        return ret;
     }
 
 }

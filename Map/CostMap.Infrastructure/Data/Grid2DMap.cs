@@ -6,7 +6,7 @@ using Kernel.DataInterfaces.Navigation;
 
 namespace CostMap.Infrastructure.Data;
 
-public class Grid2DMap : IMap2D, IGridMap2D, ISdf2D
+public class Grid2DMap : IMap2D, IGridMap2D
 {
     public required Grid2DMapData DataChangeable { get; init; }
     public IGridMap2DData Data => DataChangeable;
@@ -24,21 +24,11 @@ public class Grid2DMap : IMap2D, IGridMap2D, ISdf2D
         GridMapInner.CheckMoveable(position, Data, 50, GridMapInner.ThresholdType.LessEqual);
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsMoveAble(in int fromX, in int fromY, in int toX, in int toY) =>
-            IsMoveAble(new Vector2(fromX, fromY) * Data.Resolution, new Vector2(toX, toY) * Data.Resolution);
+            IsMoveAble(new Vector2(fromX, fromY) * Data.Resolution + Data.Origin, new Vector2(toX, toY) * Data.Resolution + Data.Origin);
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsMoveAble(in int positionX, in int positionY) =>
-            IsMoveAble(new Vector2(positionX, positionY) * Data.Resolution);
+            IsMoveAble(new Vector2(positionX, positionY) * Data.Resolution + Data.Origin);
 
-    public bool IsMoveAble(Vector2 point, out float distance)
-    {
-        var vecInWorld = point - Data.Origin;
-        var vecInMap = (Data.RotationMatrix * Matrix3x2.CreateTranslation(vecInWorld / Data.Resolution)).Translation;
-        var ret = IsMoveAble(point);
-        distance = 100;
-        if (ret)
-            distance = Data.Data[(int)vecInMap.X + (int)vecInMap.Y * Data.Width];
-        return ret;
-    }
     private Grid2DMap() { }
 
 

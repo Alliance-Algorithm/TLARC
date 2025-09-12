@@ -20,9 +20,9 @@ public class PolynomialTraj(in int N, in Matrixf c, in Vectorf T1, in Vectorf T2
 
     const double max_vel_ = 1.9;
     // Magic! $max_acc_ < $max_vel_ * 2
-    const double max_acc_ = 1.9;
+    const double max_acc_ = 4.9;
     // Magic! $wei_time_ *  $max_vel_  in Diffeomorphism is wei_feas_mod_
-    const double wei_feas_mod_ = 1e2;
+    const double wei_feas_mod_ = 1e4;
 
     internal double Costs { get; private set; }
 

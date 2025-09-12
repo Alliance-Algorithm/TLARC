@@ -2,7 +2,7 @@
 
 namespace Kernel.DataInterfaces.Navigation;
 
-public interface ISafeCorridor2D<TGeometry> : IHeader, ITlarcData where TGeometry : IConstraint
+public interface ISafeCorridor2DData<TGeometry> : ITlarcData where TGeometry : IConstraint
 {
     IHeader Header { get; }
     int Length { get; }

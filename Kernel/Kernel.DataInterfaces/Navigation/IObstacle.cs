@@ -4,11 +4,10 @@ namespace Kernel.DataInterfaces.Navigation;
 
 public interface IObstacle : ITlarcData
 {
+    IHeader Header { get; }
     /// <summary>
-    /// 从from 周围radius 范围内的所有障碍物
+    /// 从from 周围radius 范围内的最近障碍物距离
     /// </summary>
-    /// <param name="from">起始位置</param>
-    /// <param name="to">终点位置</param>
     /// <returns>如果有可以直线通过：true</returns>
-    public bool FindObstacle(Vector2 from, float radius, out IEnumerable<Vector2> obstacles);
+    public bool FindNearestObstacleDistance(Vector2 from, float radius, out float obstacles);
 }

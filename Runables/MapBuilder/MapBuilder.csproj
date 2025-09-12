@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        
+        
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <OptimizationPreference>Speed</OptimizationPreference>
+
+        <UseRidGraph>true</UseRidGraph>
+        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+        
+        <PublishDir>$(SolutionDir)\.install\</PublishDir>
+
+        
+        <PublishSingleFile>true</PublishSingleFile>
+        <!-- <SelfContained>true</SelfContained> -->
+
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition="'$(Configuration)'=='Release'">
+        <DebugSymbols>False</DebugSymbols>
+        <DebugType>None</DebugType>
+    </PropertyGroup>
+
+
+    <ItemGroup>
+        <!-- <ProjectReference Include="path\to\your.csproj"/> -->
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <PackageReference Include="Emgu.CV" Version="4.9.0.5494" />
+      <PackageReference Include="Emgu.CV.runtime.ubuntu-x64" Version="4.9.0.5494" />
+      <!-- 不同的ubuntu支持的libc版本不一致，opencv版本也不一致，需要查看emgu.runtime.ubuntu的release-note：
+      https://www.emgu.com/wiki/index.php/Version_History -->
+      <PackageReference Include="GtkSharp" Version="3.24.24.95" />
+    </ItemGroup>
+
+</Project>

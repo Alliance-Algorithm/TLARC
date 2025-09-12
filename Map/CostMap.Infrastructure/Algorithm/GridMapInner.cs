@@ -239,18 +239,19 @@ public static class GridMapInner
         path = DirectoryParser.ExpandTildePath(path);
         if (!Directory.Exists(path))
             throw new DirectoryNotFoundException($"Directory not found: {path}");
-        using var bitmap = SKBitmap.Decode(path + "/map.png");
-        if (bitmap is null)
-            throw new FileNotFoundException(path);
+        using var bitmap = SKBitmap.Decode(path + "/map.png") ?? throw new FileNotFoundException(path);
         var serializer = new DeserializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .Build();
         var yaml = File.ReadAllText(path + "/header.yaml");
         var header = serializer.Deserialize<Header>(yaml);
-        Grid2DMapData map2d = new() { HeaderData = new Grid2DMapData.HeaderInner { Identifier = header.Identifier } };
-        map2d.Width = (uint)bitmap.Width;
-        map2d.Height = (uint)bitmap.Height;
-        map2d.Data = new sbyte[bitmap.ByteCount];
+        Grid2DMapData map2d = new()
+        {
+            HeaderData = new Grid2DMapData.HeaderInner { Identifier = header.Identifier },
+            Width = (uint)bitmap.Width,
+            Height = (uint)bitmap.Height,
+            Data = new sbyte[bitmap.ByteCount]
+        };
         Buffer.BlockCopy(bitmap.Bytes, 0, map2d.Data, 0, bitmap.ByteCount);
 
         map2d.RotationMatrix = new Matrix3x2
@@ -291,7 +292,7 @@ public static class GridMapInner
         var vecInWorld = target - data.Origin;
         var vecInMap = (data.RotationMatrix * Matrix3x2.CreateTranslation(vecInWorld / data.Resolution)).Translation;
         if (vecInMap.X < 0 || vecInMap.X >= data.Width || vecInMap.Y < 0 || vecInMap.Y >= data.Height)
-            return false;
+            return true;
 
         int xIndexInMap = (int)vecInMap.X,
             yIndexInMap = (int)vecInMap.Y;
@@ -302,7 +303,7 @@ public static class GridMapInner
             ThresholdType.LessEqual => data.Data[xIndexInMap + yIndexInMap * data.Width] <= threshold,
             ThresholdType.Less => data.Data[xIndexInMap + yIndexInMap * data.Width] < threshold,
             ThresholdType.Greater => data.Data[xIndexInMap + yIndexInMap * data.Width] > threshold,
-            _ => false
+            _ => true
         };
     }
 

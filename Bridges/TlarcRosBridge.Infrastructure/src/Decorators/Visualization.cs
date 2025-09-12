@@ -20,7 +20,7 @@ internal static class Visualization
         marker.Pose.Position.Y = circle.Origin.Y;
         marker.Pose.Position.Z = 0;
     }
-    static internal void Draw(in string id, IRclNode node, in ISafeCorridor2D<Circle2D> circles, ref Messages.Visualization.MarkerArray.Priv markers)
+    static internal void Draw(in string id, IRclNode node, in ISafeCorridor2DData<Circle2D> circles, ref Messages.Visualization.MarkerArray.Priv markers)
     {
         markers.Markers = new(circles.Length);
         var span = markers.Markers.AsSpan();
