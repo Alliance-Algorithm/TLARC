@@ -40,7 +40,7 @@ public static class InflationLayerBuilder
         BlockParallel.For(sizeX, sizeY, _inflationDistance, _inflationDistance,
             (x, y) =>
             {
-                if (map2D.IsMoveAble(x, y))
+                if (!map2D.IsMoveAble(x, y))
                     return;
                 grid2D.DataChangeable.Data[x + y * sizeX] = 100;
                 for (int i = -_i_s_2; i < _i_s_2; i++)

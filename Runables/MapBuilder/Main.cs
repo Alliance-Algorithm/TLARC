@@ -28,6 +28,12 @@ class ThreeColumnApp
     static int zoomRight = 100, offsetXRight = 0, offsetYRight = 0;
 
     // 操作复选框和参数控件
+    static CheckButton? cbGaussianBlur;
+    static HScale? scaleGaussianBlur;
+    static CheckButton? cbBinary;
+    static HScale? scaleBinary;
+    static CheckButton? cbCanny;
+    static HScale? scaleCanny;
     static CheckButton? cbDilate;
     static HScale? scaleDilate;
     static CheckButton? cbErode;
@@ -53,8 +59,6 @@ class ThreeColumnApp
         window.Resizable = true;
         window.DeleteEvent += (o, e) => Application.Quit();
 
-        // 主容器：三栏均分
-        HBox hbox = new(true, 5);
 
         // 横线
 
@@ -63,22 +67,43 @@ class ThreeColumnApp
 
         // 上方：图像处理选项
         VBox topOptions = new(false, 5);
+        cbGaussianBlur = new CheckButton("高斯模糊");
+        scaleGaussianBlur = new HScale(new Adjustment(2, 2, 10, 1, 1, 0))
+        { Digits = 0, ValuePos = PositionType.Right };
+        scaleGaussianBlur.ValueChanged += (s, e) => ApplyAlgorithm();
+        topOptions.PackStart(cbGaussianBlur, false, false, 0);
+        topOptions.PackStart(scaleGaussianBlur, false, false, 0);
+
+        cbBinary = new CheckButton("二值化");
+        scaleBinary = new HScale(new Adjustment(1, 1, 255, 1, 1, 0))
+        { Digits = 0, ValuePos = PositionType.Right };
+        scaleBinary.ValueChanged += (s, e) => ApplyAlgorithm();
+        topOptions.PackStart(cbBinary, false, false, 0);
+        topOptions.PackStart(scaleBinary, false, false, 0);
+
+        cbCanny = new CheckButton("边缘检测");
+        scaleCanny = new HScale(new Adjustment(1, 1, 120, 1, 1, 0))
+        { Digits = 0, ValuePos = PositionType.Right };
+        scaleCanny.ValueChanged += (s, e) => ApplyAlgorithm();
+        topOptions.PackStart(cbCanny, false, false, 0);
+        topOptions.PackStart(scaleCanny, false, false, 0);
+
         cbDilate = new CheckButton("膨胀");
-        scaleDilate = new HScale(new Adjustment(1, 0, 10, 1, 1, 0))
+        scaleDilate = new HScale(new Adjustment(1, 1, 10, 1, 1, 0))
         { Digits = 0, ValuePos = PositionType.Right };
         scaleDilate.ValueChanged += (s, e) => ApplyAlgorithm();
         topOptions.PackStart(cbDilate, false, false, 0);
         topOptions.PackStart(scaleDilate, false, false, 0);
 
         cbErode = new CheckButton("腐蚀");
-        scaleErode = new HScale(new Adjustment(1, 0, 10, 1, 1, 0))
+        scaleErode = new HScale(new Adjustment(1, 1, 10, 1, 1, 0))
         { Digits = 0, ValuePos = PositionType.Right };
         scaleErode.ValueChanged += (s, e) => ApplyAlgorithm();
         topOptions.PackStart(cbErode, false, false, 0);
         topOptions.PackStart(scaleErode, false, false, 0);
 
         cbDilate2 = new CheckButton("二次膨胀");
-        scaleDilate2 = new HScale(new Adjustment(1, 0, 10, 1, 1, 0))
+        scaleDilate2 = new HScale(new Adjustment(1, 1, 10, 1, 1, 0))
         { Digits = 0, ValuePos = PositionType.Right };
         scaleDilate2.ValueChanged += (s, e) => ApplyAlgorithm();
         topOptions.PackStart(cbDilate2, false, false, 0);
@@ -141,7 +166,6 @@ class ThreeColumnApp
         leftBox.PackStart(new Label(), true, true, 0);
         leftBox.PackStart(new Separator(Gtk.Orientation.Horizontal), false, false, 5);
 
-        hbox.PackStart(leftBox, true, true, 0);
 
         // 中栏：原始图片
         centerContainer = new EventBox();
@@ -154,7 +178,6 @@ class ThreeColumnApp
             () => DrawPixbuf(originalPixbuf!, zoomCenter, offsetXCenter, offsetYCenter, centerContainer, centerImage));
         var centerFrame = new Frame("原始图片");
         centerFrame.Add(centerContainer);
-        hbox.PackStart(centerFrame, true, true, 0);
 
         // 右栏：处理后图片
         rightContainer = new EventBox();
@@ -167,9 +190,26 @@ class ThreeColumnApp
             () => DrawPixbuf(processedPixbuf!, zoomRight, offsetXRight, offsetYRight, rightContainer, rightImage));
         var rightFrame = new Frame("处理后图片");
         rightFrame.Add(rightContainer);
-        hbox.PackStart(rightFrame, true, true, 0);
+        var table = new Table(1, 5, true); // 1 行，5 列
 
-        window.Add(hbox);
+        // 左栏占 1 列
+        table.Attach(leftBox, 0, 1, 0, 1,
+            AttachOptions.Expand | AttachOptions.Fill,
+            AttachOptions.Expand | AttachOptions.Fill,
+            5, 5);
+
+        // 中栏占 2 列
+        table.Attach(centerFrame, 1, 3, 0, 1,
+            AttachOptions.Expand | AttachOptions.Fill,
+            AttachOptions.Expand | AttachOptions.Fill,
+            5, 5);
+
+        // 右栏占 2 列
+        table.Attach(rightFrame, 3, 5, 0, 1,
+            AttachOptions.Expand | AttachOptions.Fill,
+            AttachOptions.Expand | AttachOptions.Fill,
+            5, 5);
+        window.Add(table);
         window.ShowAll();
         Application.Run();
     }
@@ -184,7 +224,8 @@ class ThreeColumnApp
         if (chooser.Run() == (int)ResponseType.Accept)
         {
             originalMat = CvInvoke.Imread(chooser.Filename);
-            originalPixbuf = new Pixbuf(chooser.Filename);
+            processedMat = new();
+            originalPixbuf = new Pixbuf(chooser.Filename).RotateSimple(PixbufRotation.Counterclockwise).Flip(true);
             zoomCenter = 100; offsetXCenter = 0; offsetYCenter = 0;
             DrawPixbuf(originalPixbuf, zoomCenter, offsetXCenter, offsetYCenter, centerContainer!, centerImage!);
             ApplyAlgorithm();
@@ -209,7 +250,7 @@ class ThreeColumnApp
             var fn = chooser.Filename;
             if (!fn.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
                 fn += ".png";
-            processedPixbuf.Save(fn, "png");
+            CvInvoke.Imwrite(fn, processedMat);
         }
     }
 
@@ -218,25 +259,49 @@ class ThreeColumnApp
     {
         if (originalPixbuf == null) return;
         CvInvoke.CvtColor(originalMat, processedMat, ColorConversion.Bgr2Gray);
-        CvInvoke.Threshold(processedMat, processedMat, 50, 255, ThresholdType.Binary);
+
+        if (cbGaussianBlur!.Active)
+            CvInvoke.GaussianBlur(processedMat, processedMat, new((int)scaleGaussianBlur!.Value, (int)scaleGaussianBlur!.Value), scaleGaussianBlur!.Value / 3);
+        if (cbBinary!.Active)
+            CvInvoke.Threshold(processedMat, processedMat, (int)scaleBinary!.Value, 255, ThresholdType.Binary);
+        if (cbCanny!.Active)
+            CvInvoke.Canny(processedMat, processedMat, scaleCanny!.Value, scaleCanny!.Value * 2);
         if (cbDilate!.Active)
             CvInvoke.Dilate(processedMat, processedMat,
-                CvInvoke.GetStructuringElement(ElementShape.Rectangle, new((int)scaleDilate!.Value, (int)scaleDilate!.Value), new(-1, -1)),
+                CvInvoke.GetStructuringElement(MorphShapes.Rectangle, new((int)scaleDilate!.Value, (int)scaleDilate!.Value), new(-1, -1)),
                 new(-1, -1), 1, BorderType.Default, new MCvScalar(0));
         if (cbErode!.Active)
             CvInvoke.Erode(processedMat, processedMat,
-                CvInvoke.GetStructuringElement(ElementShape.Rectangle, new((int)scaleErode!.Value, (int)scaleErode!.Value), new(-1, -1)),
+                CvInvoke.GetStructuringElement(MorphShapes.Rectangle, new((int)scaleErode!.Value, (int)scaleErode!.Value), new(-1, -1)),
                 new(-1, -1), 1, BorderType.Default, new MCvScalar(0));
         if (cbDilate2!.Active)
             CvInvoke.Dilate(processedMat, processedMat,
-                CvInvoke.GetStructuringElement(ElementShape.Rectangle, new((int)scaleDilate2!.Value, (int)scaleDilate2!.Value), new(-1, -1)),
+                CvInvoke.GetStructuringElement(MorphShapes.Rectangle, new((int)scaleDilate2!.Value, (int)scaleDilate2!.Value), new(-1, -1)),
                 new(-1, -1), 1, BorderType.Default, new MCvScalar(0));
         if (cbInvert!.Active) CvInvoke.BitwiseNot(processedMat, processedMat);
         CvInvoke.Threshold(processedMat, processedMat, 50, 100, ThresholdType.Binary);
-        CvInvoke.Threshold(processedMat, processedMat, 50, 100, ThresholdType.Binary);
-        byte[] bytes = new byte[processedMat!.Width * processedMat!.Height];
-        Marshal.Copy(processedMat.DataPointer, bytes, 0, processedMat!.Width * processedMat!.Height);
-        var pix = new Pixbuf(bytes, processedMat!.Width, processedMat!.Height);
+        var pix = new Pixbuf(
+                        Colorspace.Rgb,      // 色彩空间
+                        false,               // 是否有 alpha 通道
+                        8,                   // 每个颜色通道的位数
+                        processedMat!.Width, processedMat!.Height
+                        );
+        unsafe
+        {
+            var bytes = (byte*)pix.Pixels;
+            var span = (byte*)processedMat.DataPointer;
+            for (int i = 0; i < processedMat!.Width; i++)
+                for (int j = 0; j < processedMat!.Height; j++)
+                {
+                    var index = j * processedMat!.Width * 3 + i * 3;
+                    bytes[index] =
+                    span[j * processedMat!.Width + i];
+                    bytes[index + 1] =
+                    span[j * processedMat!.Width + i];
+                    bytes[index + 2] =
+                    span[j * processedMat!.Width + i];
+                }
+        }
         if (cbResize!.Active) pix = pix.ScaleSimple(spinWidth!.ValueAsInt, spinHeight!.ValueAsInt, InterpType.Bilinear);
         if (cbRotate!.Active) pix = rotationCombo!.ActiveText switch
         {
@@ -258,8 +323,8 @@ class ThreeColumnApp
                pix.Flip(true).Flip(false),
             _ => pix
         };
-        processedPixbuf!.Dispose();
-        processedPixbuf = pix;
+        processedPixbuf?.Dispose();
+        processedPixbuf = pix.RotateSimple(PixbufRotation.Counterclockwise).Flip(true);
         DrawPixbuf(processedPixbuf, zoomRight, offsetXRight, offsetYRight, rightContainer!, rightImage!);
     }
 
@@ -325,8 +390,7 @@ class ThreeColumnApp
         container.ScrollEvent += (o, args) =>
         {
             bool ctrl = (args.Event.State & ModifierType.ControlMask) != 0;
-            bool middle = (args.Event.State & ModifierType.Button2Mask) != 0;
-            if (!(ctrl && middle)) return;
+            if (!ctrl) return;
             if (args.Event.Direction == ScrollDirection.Up)
                 setZoom(getZoom() + 10);
             else if (args.Event.Direction == ScrollDirection.Down)

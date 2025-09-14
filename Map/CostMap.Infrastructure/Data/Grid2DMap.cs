@@ -18,10 +18,10 @@ public class Grid2DMap : IMap2D, IGridMap2D
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsMoveAble(Vector2 from, Vector2 to) =>
-            GridMapInner.CheckMoveable(from, to, Data, 50, GridMapInner.ThresholdType.LessEqual);
+            GridMapInner.CheckMoveable(from, to, Data, 100, GridMapInner.ThresholdType.GreaterEqual);
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsMoveAble(Vector2 position) =>
-        GridMapInner.CheckMoveable(position, Data, 50, GridMapInner.ThresholdType.LessEqual);
+        GridMapInner.CheckMoveable(position, Data, 100, GridMapInner.ThresholdType.GreaterEqual);
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsMoveAble(in int fromX, in int fromY, in int toX, in int toY) =>
             IsMoveAble(new Vector2(fromX, fromY) * Data.Resolution + Data.Origin, new Vector2(toX, toY) * Data.Resolution + Data.Origin);

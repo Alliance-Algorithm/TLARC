@@ -16,14 +16,14 @@ public static class SafeCorridorTest
     static readonly Vector2[] DebugPath = [
         new (2, 7),
         new (11, 5),
-        new (7, 2),
+        new (7, -2),
         new (3, 2),
         new (14, 3),
-        new (8, 5),
-        new (5, 6),
-        new (12, 7),
+        new (8, -5),
+        new (5, -7),
+        new (12, -7),
         new (1, 6),
-        new (9, 2)
+        new (9, -2)
     ];
     public static void Build()
     {
@@ -38,6 +38,7 @@ public static class SafeCorridorTest
 #if true
         const string RosNodeName = "TlarcMapServer";
         const string RosStaticMap = "/tlarc/static_map";
+        const string RosStaticInflationMap = "/tlarc/static_map_inflation";
         const string RosSafeCorridorName = "/tlarc/safe_corridor";
 
         var ros = TlarcRosBridge.Domain.RosBridge.Build(RosNodeName);
@@ -45,14 +46,21 @@ public static class SafeCorridorTest
         ros.Publish<IGridMap2DData, OccupancyGrid>(
              loader.MapEventName, RosStaticMap,
             TlarcRosBridge.Infrastructure.DataProcess.Publisher.GridMap2dToOccupancyGridMap);
+        ros.Publish<IGridMap2DData, OccupancyGrid>(
+             RosStaticInflationMap, RosStaticInflationMap,
+            TlarcRosBridge.Infrastructure.DataProcess.Publisher.GridMap2dToOccupancyGridMap);
         ros.Publish<ISafeCorridor2DData<Circle2D>, MarkerArray>(
              RosSafeCorridorName, RosSafeCorridorName,
             TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishSafeCorridor);
 #endif
-        InflationLayerBuilder.SetPara(10);
+        InflationLayerBuilder.SetPara(50);
 
         EventBus<IGridMap2DData>.Instance.Subscribe(loader.MapEventName, x =>
-            EventBus<ISdf2D>.Instance.Publish(loader.MapEventName, InflationLayerBuilder.Build(Grid2DMap.Build_IGridMap2DData(x)))
+        {
+            var infmap = InflationLayerBuilder.Build(Grid2DMap.Build_IGridMap2DData(x));
+            EventBus<ISdf2D>.Instance.Publish(loader.MapEventName, infmap);
+            EventBus<IGridMap2DData>.Instance.Publish(RosStaticInflationMap, infmap.GridMap.Data);
+        }
             );
 
         EventBus<IObstacle>.Instance.Subscribe(obs.EventObstacleName, x =>
