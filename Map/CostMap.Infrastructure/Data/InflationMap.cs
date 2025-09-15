@@ -22,10 +22,10 @@ public class InflationMap : IMap2D, ISdf2D
     {
         distance = -1;
         if (IsMoveAble(point)) return true;
-        var p = point - GridMap.Data.Origin;
-        distance = (100 - GridMap.DataChangeable.Data[
-           (int)Math.Round(p.X / GridMap.Data.Resolution) +
-            (int)Math.Round(p.Y / GridMap.Data.Resolution) * GridMap.Data.Width]) / 100.0f * _distance;
+        var p = (point - GridMap.Data.Origin) / GridMap.Data.Resolution;
+        distance = (100 - GridMap.Data.Data[
+           (int)p.X +
+            (int)p.Y * GridMap.Data.Width]) / 100.0f * _distance;
         return false;
     }
 

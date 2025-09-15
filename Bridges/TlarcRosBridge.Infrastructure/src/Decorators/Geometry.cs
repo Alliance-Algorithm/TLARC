@@ -86,4 +86,9 @@ internal static class Geometry
         dataOut.Orientation.Y = dataIn.Y;
         dataOut.Orientation.Z = dataIn.Z;
     }
+
+    public static System.Numerics.Vector2 WriteData(PointStamped.Priv dataIn)
+    {
+        return new((float)dataIn.Point.X, (float)dataIn.Point.Y);
+    }
 }

@@ -1,3 +1,5 @@
+using System.Numerics;
+using Kernel.Core.Messages;
 using Kernel.DataInterfaces;
 using Kernel.DataInterfaces.Constraints;
 using Kernel.DataInterfaces.Geometry;
@@ -31,6 +33,12 @@ public static class DataProcess
             item =>
                 Sensor.FastLioRegistered(
                     ref item.AsRef<PointCloud2.Priv>());
+
+
+        public static readonly Func<RosMessageBuffer, StdMessage<Vector2>> PointToVector2 =
+            item => StdMessage<Vector2>.Build(
+                Geometry.WriteData(item.AsRef<PointStamped.Priv>()));
+
 
 
         public static readonly Func<RosMessageBuffer, IPose> RawPoseFromPoseStamped =

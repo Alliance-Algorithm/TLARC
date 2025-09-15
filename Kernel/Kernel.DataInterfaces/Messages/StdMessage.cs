@@ -1,5 +1,4 @@
-﻿using Kernel.Core.EventBus;
-using Kernel.DataInterfaces;
+﻿using Kernel.DataInterfaces;
 
 namespace Kernel.Core.Messages;
 

@@ -93,6 +93,7 @@
   </Folder>
   <Folder Name="/Planner/">
     <Project Path="Planner/ALPlanner.Test.Console/ALPlanner.Test.Console.csproj" />
+    <Project Path="Planner/Planner.Test.Console/Planner.Test.Console.csproj" />
     <Project Path="Planner/Planner/Planner.csproj">
       <BuildType Solution="Debug|x64" Project="?" />
       <Platform Solution="Debug|x64" Project="?" />

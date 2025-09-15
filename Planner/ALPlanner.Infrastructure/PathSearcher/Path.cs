@@ -5,7 +5,7 @@ using Kernel.DataInterfaces.Navigation;
 
 namespace ALPlanner.Infrastructure.PathSearcher;
 
-class Path(string id, int length, IEnumerable<Vector2> path) : IPath2D, IHeader
+public class Path(string id, int length, IEnumerable<Vector2> path) : IPath2D, IHeader
 {
     public string Identifier => id;
 

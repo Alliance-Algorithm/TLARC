@@ -21,6 +21,12 @@ public class MapLoader
         _mapPath = mapPath;
     }
 
+    public uint MapHeight { get; private set; }
+    public uint MapWidth { get; private set; }
+    public float MapResolution { get; private set; }
+
+
+
     #endregion
 
     #region 公共接口
@@ -40,6 +46,9 @@ public class MapLoader
     public MapLoader LoadMap()
     {
         _map = GridMapInner.LoadMap(_mapPath);
+        MapHeight = _map.Height;
+        MapWidth = _map.Width;
+        MapResolution = _map.Resolution;
         return this;
     }
     public MapLoader LoadHighMap()

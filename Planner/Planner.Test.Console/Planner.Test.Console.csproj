@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
+        
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <OptimizationPreference>Speed</OptimizationPreference>
+        
+        
+        <PublishDir>$(SolutionDir)\.test\Test\$(ProjectName)\$(Configuration)</PublishDir>
+
+
+        
+        <PublishSingleFile>true</PublishSingleFile>
+        <SelfContained>true</SelfContained>
+
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition="'$(Configuration)'=='Release'">
+        <DebugSymbols>False</DebugSymbols>
+        <DebugType>None</DebugType>
+    </PropertyGroup>
+
+
+    <ItemGroup><!-- <ProjectReference Include="path\to\your.csproj"/> -->
+    
+      <ProjectReference Include="..\Planner\Planner.csproj" />
+    
+      <ProjectReference Include="..\..\Map\Map\Map.csproj" />
+    
+      <ProjectReference Include="..\..\Bridges\TlarcRosBridge.Domain\TlarcRosBridge.Domain.csproj" />
+    </ItemGroup>
+
+</Project>
