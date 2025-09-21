@@ -6,8 +6,10 @@ using Kernel.Core.EventBus;
 using Kernel.DataInterfaces;
 using Kernel.DataInterfaces.Constraints;
 using Kernel.DataInterfaces.Navigation;
+using Kernel.DataInterfaces.Visualization;
 using Map;
 using SafetyCorridor.Infractructure.CircleSafecorridor;
+using SafetyCorridor.Infractructure.RectangleSafeCorridor;
 using TlarcRosBridge.Infrastructure.Messages.Nav;
 using TlarcRosBridge.Infrastructure.Messages.Visualization;
 
@@ -49,9 +51,12 @@ public static class SafeCorridorTest
         ros.Publish<IGridMap2DData, OccupancyGrid>(
              RosStaticInflationMap, RosStaticInflationMap,
             TlarcRosBridge.Infrastructure.DataProcess.Publisher.GridMap2dToOccupancyGridMap);
-        ros.Publish<ISafeCorridor2DData<Circle2D>, MarkerArray>(
-             RosSafeCorridorName, RosSafeCorridorName,
-            TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishSafeCorridor);
+        ros.Publish<ISafeCorridor2DData<ICircle>, MarkerArray>(
+             $"{RosSafeCorridorName}_circle", $"{RosSafeCorridorName}_circle",
+            TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishCircleSafeCorridor);
+        ros.Publish<ISafeCorridor2DData<IRectangle>, MarkerArray>(
+             $"{RosSafeCorridorName}_rectangle", $"{RosSafeCorridorName}_rectangle",
+            TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishRectangleSafeCorridor);
 #endif
         InflationLayerBuilder.SetPara(50);
 
@@ -68,8 +73,8 @@ public static class SafeCorridorTest
             float dis = -1;
             var arr = (from p in DebugPath
                        where obs.Obstacle!.FindNearestObstacleDistance(p, 2, out dis)
-                       select new Circle2D(dis, p)).ToArray();
-            EventBus<ISafeCorridor2DData<Circle2D>>.Instance.Publish(RosSafeCorridorName,
+                       select new Circle2D(dis, p) as ICircle).ToArray();
+            EventBus<ISafeCorridor2DData<ICircle>>.Instance.Publish($"{RosSafeCorridorName}_circle",
                    new CircleSafecorridorImpl()
                    {
                        Header = obs.Obstacle!.Header,
@@ -77,9 +82,24 @@ public static class SafeCorridorTest
                        Corridors = arr,
                    }
             );
-        }
+        });
 
-        );
+        EventBus<IObstacle>.Instance.Subscribe(obs.EventObstacleName, x =>
+        {
+            var arr = (from p in DebugPath
+                       select new AABB2D(p.X - 0.1f, p.Y - 0.1f,
+                                         p.X + 0.1f, p.Y + 0.1f) as IRectangle).ToArray();
+            EventBus<ISafeCorridor2DData<IRectangle>>.Instance.Publish($"{RosSafeCorridorName}_rectangle",
+                   new RectangleSafecorridorImpl()
+                   {
+                       Header = obs.Obstacle!.Header,
+                       Length = arr.Length,
+                       Corridors = arr,
+                   }
+            );
+        });
+
+
 
 
 

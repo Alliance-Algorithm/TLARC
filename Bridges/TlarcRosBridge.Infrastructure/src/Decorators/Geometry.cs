@@ -1,15 +1,22 @@
 ﻿using Kernel.DataInterfaces.Geometry;
 using Rcl;
 using TlarcRosBridge.Infrastructure.Messages.Geometry;
-
+using Vector3 = System.Numerics.Vector3;
+using Quaternion = System.Numerics.Quaternion;
+using Kernel.DataInterfaces;
+using TlarcRosBridge.Infrastructure.Messages.Std;
 namespace TlarcRosBridge.Infrastructure.Decorators;
 
 internal static class Geometry
 {
-    private class PoseInner : IPose
+    private class PoseInner : IPose, IHeader
     {
         public System.Numerics.Vector3 Position { get; set; }
         public System.Numerics.Quaternion Orientation { get; set; }
+
+        public IHeader Header => this;
+
+        public string Identifier { get; set; } = "";
     }
 
     public static IPose ReadDataWithoutTransform(ref PoseStamped.Priv data) =>
@@ -39,6 +46,15 @@ internal static class Geometry
     {
         Geometry.WriteData(dataInPos, ref dataOut.Pose);
         Geometry.WriteData(dataInRotation, ref dataOut.Pose);
+    }
+
+    public static void WriteData(IPose dataIn,
+                                 ReadOnlySpan<char> frameId,
+                                 IRclNode node,
+                                 ref PoseStamped.Priv dataOut)
+    {
+        Std.FromData(frameId, node, ref dataOut.Header);
+        Geometry.WriteData(dataIn.Position, dataIn.Orientation, ref dataOut.Pose);
     }
 
     public static void WriteData(Vector3 dataIn,

@@ -22,6 +22,12 @@ public interface ITrajectory2D : ITlarcData
     /// <param name="time">实际时间</param>
     /// <returns></returns>
     Vector2 GetPosition(DateTime time);
+    /// <summary>
+    /// 获取轨迹中的某个点的速度
+    /// </summary>
+    /// <param name="time">实际时间</param>
+    /// <returns></returns>
+    Vector2 GetVelocity(DateTime time);
 
     /// <summary>
     /// 获取一段轨迹点序列

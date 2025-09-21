@@ -25,4 +25,7 @@ public class MincoTrajectory(Minco minco) : ITrajectory2D
 
     public IEnumerable<Vector2> GetPositions(DateTime beginTime, double stepInSecond, int count) =>
         minco.GetPositions((beginTime - FromWhen).TotalSeconds, stepInSecond, count);
+
+    public Vector2 GetVelocity(DateTime time) => time < ToWhen ? minco.GetVelocity((time - FromWhen).TotalSeconds) : minco.GetVelocity(minco.TotalSecond);
+
 }

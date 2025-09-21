@@ -2,6 +2,7 @@ using System.Numerics;
 using ALPlanner.Domain.Trajectorys;
 using Kernel.DataInterfaces.Constraints;
 using Kernel.DataInterfaces.Navigation;
+using Kernel.DataInterfaces.Visualization;
 using MathNet.Numerics.Optimization;
 using NumFlat;
 
@@ -9,14 +10,14 @@ namespace ALPlanner.Infrastructure.Optimizer;
 
 public static class MincoOptimizer
 {
-    static readonly LimitedMemoryBfgsMinimizer minimizer = new(1e-6, 1e-6, 1e-6, 10 * 1024 * 1024, 100);
+    static readonly LimitedMemoryBfgsMinimizer minimizer = new(1e-6, 1e-6, 1e-6, 10 * 1024 * 1024, 1000);
     public record Status(Vector2 Pos, Vector2 Vel, Vector2 Acc);
-    static readonly int K = 1;
+    static readonly int K = 2;
     public static ITrajectory2D? Optimize(ISafeCorridor2DData<Circle2D> path, Status head, Status tail)
     {
         try
         {
-            DateTime now = DateTime.Now;
+            DateTime now = DateTime.UtcNow;
 
             Minco minco = new(path.Length * K, path.Corridors);
 
@@ -40,6 +41,7 @@ public static class MincoOptimizer
             var rst = minimizer.FindMinimum(func, MathNet.Numerics.LinearAlgebra.Vector<double>.Build.Dense(path.Length - 1 + (K - 1) * 2 * path.Length + path.Length * K));
 
             var x = rst.MinimizingPoint;
+            // var x = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.Dense(path.Length - 1 + (K - 1) * 2 * path.Length + path.Length * K);
             var arr = x.ToArray().AsMemory();
             var XVec = new Vec<double>(arr);
             var tau = XVec[..(path.Length * K)];
@@ -48,6 +50,6 @@ public static class MincoOptimizer
 
             return new MincoTrajectory(minco) { Header = path.Header, FromWhen = now };
         }
-        catch { return null; }
+        catch (Exception e) { Console.WriteLine(e.Message); return null; }
     }
 }

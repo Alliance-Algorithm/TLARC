@@ -4,11 +4,11 @@ using Kernel.DataInterfaces.Constraints;
 using Kernel.DataInterfaces.Navigation;
 using Kernel.DataInterfaces.Visualization;
 
-namespace SafetyCorridor.Infractructure.CircleSafecorridor;
+namespace SafetyCorridor.Infractructure.RectangleSafeCorridor;
 
-public readonly struct CircleSafecorridorImpl : ISafeCorridor2DData<ICircle>
+public readonly struct RectangleSafecorridorImpl : ISafeCorridor2DData<IRectangle>
 {
     public readonly required IHeader Header { get; init; }
     public readonly required int Length { get; init; }
-    public readonly required ICircle[] Corridors { get; init; }
+    public readonly required IRectangle[] Corridors { get; init; }
 }

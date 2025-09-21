@@ -24,7 +24,7 @@ public unsafe class EventBus<T> where T : ITlarcData
     /// 防止外部实例化
     private EventBus()
     {
-        if (!typeof(T).IsInterface) Console.WriteLine($"EventBus<T> butter use a interface in Project:Kernel.DataInterfaces as T, where T is {typeof(T).FullName}");
+        if (!typeof(T).IsInterface) Console.WriteLine($"EventBus<T> better use a interface in Project:Kernel.DataInterfaces as T, where T is {typeof(T).FullName}");
     }
 
     /// <summary>

@@ -6,6 +6,7 @@ using Kernel.DataInterfaces.Geometry;
 using Kernel.DataInterfaces.Navigation;
 using Kernel.DataInterfaces.Sensor;
 using Kernel.DataInterfaces.Tf;
+using Kernel.DataInterfaces.Visualization;
 using Rcl;
 using TlarcRosBridge.Infrastructure.Decorators;
 using TlarcRosBridge.Infrastructure.Messages.Geometry;
@@ -78,11 +79,19 @@ public static class DataProcess
             {
                 Navigation.Path.WriteInto(item1, item1.Header.Identifier, node, ref item2.AsRef<Messages.Nav.Path.Priv>());
             };
-        public static readonly RefAction<ISafeCorridor2DData<Circle2D>, IRclNode, RosMessageBuffer> PublishSafeCorridor =
-            (in ISafeCorridor2DData<Circle2D> item1, in IRclNode node, ref RosMessageBuffer item2) =>
+        public static readonly RefAction<ISafeCorridor2DData<ICircle>, IRclNode, RosMessageBuffer> PublishCircleSafeCorridor =
+            (in ISafeCorridor2DData<ICircle> item1, in IRclNode node, ref RosMessageBuffer item2) =>
             {
                 Visualization.Draw(item1.Header.Identifier, node, item1, ref item2.AsRef<Messages.Visualization.MarkerArray.Priv>());
             };
+        public static readonly RefAction<ISafeCorridor2DData<IRectangle>, IRclNode, RosMessageBuffer> PublishRectangleSafeCorridor =
+            (in ISafeCorridor2DData<IRectangle> item1, in IRclNode node, ref RosMessageBuffer item2) =>
+            {
+                Visualization.Draw(item1.Header.Identifier, node, item1, ref item2.AsRef<Messages.Visualization.MarkerArray.Priv>());
+            };
+        public static readonly RefAction<IPose, IRclNode, RosMessageBuffer> PublishPoseStamped =
+            (in IPose pose, in IRclNode node, ref RosMessageBuffer item2) =>
+                Geometry.WriteData(pose, pose.Header.Identifier, node, ref item2.AsRef<PoseStamped.Priv>());
     }
 
     public static class Recast

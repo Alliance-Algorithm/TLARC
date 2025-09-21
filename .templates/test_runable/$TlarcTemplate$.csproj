@@ -15,6 +15,7 @@
 
 
         
+        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
         <PublishSingleFile>true</PublishSingleFile>
         <SelfContained>true</SelfContained>
 

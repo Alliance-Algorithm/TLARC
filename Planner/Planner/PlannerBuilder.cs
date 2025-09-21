@@ -6,6 +6,7 @@ using Kernel.Core.EventBus;
 using Kernel.DataInterfaces;
 using Kernel.DataInterfaces.Constraints;
 using Kernel.DataInterfaces.Navigation;
+using Kernel.DataInterfaces.Visualization;
 
 namespace Planner;
 
@@ -37,11 +38,6 @@ public class PlannerBuilder : IHeader
 
     public string Identifier { get; private set; } = "map_link";
 
-    public ITrajectory2D ObtimiazePath(ISafeCorridor2DData<Circle2D> path)
-    {
-        Minco minco = new(path.Length * K, path.Corridors);
-        return new MincoTrajectory(minco) { Header = this };
-    }
     public IPath2D SeachPath(Vector2 from, Vector2 to) => _aStar!.Search(from, to, _sdf2d!);
     public ISafeCorridor2DData<Circle2D> SearchSafeCorridor(IPath2D path) =>
     ALPlanner.Infrastructure.SafeCorridorConstruct.GaussianSample.RadiusWithDistance(path, obstacle!);

@@ -13,7 +13,7 @@ using NumFlat;
 
 namespace ALPlanner.Infrastructure.Optimizer;
 
-public class Minco
+public unsafe class Minco
 {
     internal readonly int N;
     internal const int S = 3;
@@ -33,6 +33,7 @@ public class Minco
     readonly PolynomialTraj poly;
     readonly MincoTraj minco;
     readonly Diffeomorphism diffeomorphism;
+    readonly int[] ipiv;
 
     readonly public Vector2[] _headPVA;
     readonly public Vector2[] _tailPVA;
@@ -63,8 +64,9 @@ public class Minco
         this.gKesi = gd[N..];
         this.Q = new Matrixf(N - 1, 2);
         this._obstacles = obstacles;
+        ipiv = new int[A.RowCount];
         poly = new PolynomialTraj(N, c, T1, T2, T3, T4, T5, gT, gC);
-        minco = new MincoTraj(c, N, T1, T2, T3, T4, T5, A, _headPVA, _tailPVA);
+        minco = new MincoTraj(c, N, T1, T2, T3, T4, T5, A, _headPVA, _tailPVA, ipiv);
         diffeomorphism = new Diffeomorphism(T1, Q, gQ, gKesi, _obstacles);
     }
 
@@ -100,12 +102,30 @@ public class Minco
         poly.AddGradJbyC();
         poly.AddGradJbyT();
 
-        A.Transpose().Lu().Solve(gC, G);
+        fixed (int* ipivPtr = ipiv)
+        fixed (double* APtr = A.Memory.Span)
+        fixed (double* bPtr = gC.Memory.Span)
+            unsafe
+            {
+                int n = A.ColCount;
+                int nrhs = gC.ColCount;
+                int info;
+                // 求解 AX = B
+                byte trans = 84;
+
+                if (BlasSharp.OpenBlas.NativeMethods.dgetrs_(&trans, &n, &nrhs, APtr, &n, ipivPtr, bPtr, &n, &info, 0) != 0)
+                {
+                    throw new Exception($"求解失败，info = {info}");
+                }
+
+            }
+
+
 
         // Given G, \frac{\partial K}{\partial T} get the \frac{\partial W}{\partial T}.
-        minco.AddPropCtoT(G, gT);
+        minco.AddPropCtoT(gC, gT);
         // Given G, get the \frac{\partial W}{\partial q}
-        minco.AddPropCtoP(G, gQ);
+        minco.AddPropCtoP(gC, gQ);
 
         diffeomorphism.VirtualTGrad(gT, gT);
         diffeomorphism.AddGradQByKesi(kesi);

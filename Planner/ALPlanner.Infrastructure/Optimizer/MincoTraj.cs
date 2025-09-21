@@ -3,16 +3,20 @@ using Vectorf = NumFlat.Vec<double>;
 using Matrixf = NumFlat.Mat<double>;
 using System.Numerics;
 using NumFlat;
+using Kernel.DataInterfaces.Constraints;
 
 namespace ALPlanner.Infrastructure.Optimizer;
 
-internal class MincoTraj(in Matrixf c, in int N, in Vectorf T1, in Vectorf T2, in Vectorf T3, in Vectorf T4, in Vectorf T5, in Matrixf A,
+internal unsafe class MincoTraj(in Matrixf c, in int N, in Vectorf T1, in Vectorf T2, in Vectorf T3, in Vectorf T4, in Vectorf T5, in Matrixf A,
 
- in Vector2[] headPVA, in Vector2[] tailPVA)
+ in Vector2[] headPVA, in Vector2[] tailPVA, in int[] ipiv)
 {
+
+
     internal readonly int N = N;
     internal const int S = Minco.S;
     internal readonly Matrixf b = new(2 * S * N, 2);
+    readonly int[] ipiv = ipiv;
     readonly Matrixf c = c;
     readonly Vectorf T1 = T1;
     readonly Vectorf T2 = T2;
@@ -25,9 +29,10 @@ internal class MincoTraj(in Matrixf c, in int N, in Vectorf T1, in Vectorf T2, i
     readonly Matrixf B1 = new(6, c.ColCount);
     readonly Matrixf B2 = new(3, c.ColCount);
 
-
     internal void Generate(in Matrixf innerPath)
     {
+        A.Clear();
+        b.Clear();
         if (N != 0)
         {
             T1.CopyTo(T2);
@@ -122,10 +127,34 @@ internal class MincoTraj(in Matrixf c, in int N, in Vectorf T1, in Vectorf T2, i
         b[6 * N - 2, 0] = tailPVA[1].X; b[6 * N - 2, 1] = tailPVA[1].Y;  // vel for xyz
         b[6 * N - 1, 0] = tailPVA[2].X; b[6 * N - 1, 1] = tailPVA[2].Y; // acc for xyz
 
-
         // solve the Ax=b function with A^-1 calculate by factorizeLU(). 
+        A.Copy();
+        b.CopyTo(c);
+        fixed (int* ipivPtr = ipiv)
+        fixed (double* APtr = A.Memory.Span)
+        fixed (double* bPtr = c.Memory.Span)
+            unsafe
+            {
+                int n = A.ColCount;
+                int nrhs = b.ColCount;
+                int info;
+                // LU 分解
+                if (BlasSharp.OpenBlas.NativeMethods.dgetrf_(&n, &n, APtr, &n, ipivPtr, &info) != 0)
+                {
+                    throw new Exception($"LU 分解失败，info = {info}");
+                }
+                // 求解 AX = B
+                byte trans = 78;
 
-        A.Lu().Solve(b, c);
+                if (BlasSharp.OpenBlas.NativeMethods.dgetrs_(&trans, &n, &nrhs, APtr, &n, ipivPtr, bPtr, &n, &info, 0) != 0)
+                {
+                    throw new Exception($"求解失败，info = {info}");
+                }
+
+            }
+
+
+        // A.Lu().Solve(b, c);
 
         return;
     }

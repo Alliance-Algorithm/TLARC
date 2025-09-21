@@ -14,6 +14,7 @@ public class MapLoader
     private IGridMap2DData? _map;
     private OccupancyHighGrid2DMap? _highMap;
     public string MapEventName { get; private set; } = "/map_server/static_map";
+    public string MapFrame => (_map ?? throw new Exception("No map loaded")).Header.Identifier;
 
     private MapLoader(string mapPath, string mapEventName)
     {
