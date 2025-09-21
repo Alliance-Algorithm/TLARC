@@ -98,7 +98,7 @@ EventBus<IPose>.Instance.Subscribe(RosPositionPoint, x =>
     if (lasttraj is not null)
     {
         vel = lasttraj?.GetVelocity(DateTime.UtcNow) ?? Vector2.Zero;
-        EventBus<IPose>.Instance.Publish(RosTargetVelocityTopic, new PoseDecoratior(new(vel, 0), System.Numerics.Quaternion.Zero, lasttraj.Header));
+        EventBus<IPose>.Instance.Publish(RosTargetVelocityTopic, new PoseDecoratior(new(vel, 0), System.Numerics.Quaternion.Zero, lasttraj!.Header));
     }
     if (!reload)
         return;
@@ -107,7 +107,7 @@ EventBus<IPose>.Instance.Subscribe(RosPositionPoint, x =>
     var astar = planner.SeachPath(from, to);
     EventBus<IPath2D>.Instance.Publish(RosPathTopic, astar);
     var safeCorridor = planner.SearchSafeCorridor(astar);
-    // EventBus<ISafeCorridor2DData<ICircle>>.Instance.Publish(RosSafeCorridorName, safeCorridor);
+    EventBus<ISafeCorridor2DData<ICircle>>.Instance.Publish(RosSafeCorridorName, safeCorridor);
 
 
     var trajectory = planner.OptimizePath(

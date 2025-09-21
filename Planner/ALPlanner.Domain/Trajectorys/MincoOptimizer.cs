@@ -10,16 +10,16 @@ namespace ALPlanner.Infrastructure.Optimizer;
 
 public static class MincoOptimizer
 {
-    static readonly LimitedMemoryBfgsMinimizer minimizer = new(1e-6, 1e-6, 1e-6, 10 * 1024 * 1024, 1000);
+    static readonly LimitedMemoryBfgsMinimizer minimizer = new(1e-6, 1e-6, 1e-6, 10 * 1024 * 1024, 100);
     public record Status(Vector2 Pos, Vector2 Vel, Vector2 Acc);
-    static readonly int K = 2;
-    public static ITrajectory2D? Optimize(ISafeCorridor2DData<Circle2D> path, Status head, Status tail)
+    static readonly int K = 1;
+    public static ITrajectory2D? Optimize(ISafeCorridor2DData<ICircle> path, Status head, Status tail)
     {
         try
         {
             DateTime now = DateTime.UtcNow;
 
-            Minco minco = new(path.Length * K, path.Corridors);
+            Minco<ICircle> minco = new(path.Length * K, path.Corridors);
 
             var func = ObjectiveFunction.Gradient(x =>
             {
@@ -48,7 +48,7 @@ public static class MincoOptimizer
             var kesi = XVec[(path.Length * K)..];
             minco.Generate(tau, kesi);
 
-            return new MincoTrajectory(minco) { Header = path.Header, FromWhen = now };
+            return new MincoTrajectory(minco.Record) { Header = path.Header, FromWhen = now };
         }
         catch (Exception e) { Console.WriteLine(e.Message); return null; }
     }

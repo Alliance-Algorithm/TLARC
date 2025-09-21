@@ -3,6 +3,7 @@ using Vectorf = NumFlat.Vec<double>;
 using Matrixf = NumFlat.Mat<double>;
 using ALPlanner.Infrastructure.Optimizer;
 using Kernel.DataInterfaces.Constraints;
+using Kernel.DataInterfaces.Visualization;
 
 namespace ALPlanner.Infrastructure.Optimizer;
 
@@ -24,7 +25,7 @@ public static class DiffeomorphismFactory
     public static IDiffeomorphism Build<T>(in Vectorf RT, in Matrixf Q, in Matrixf dQ, Vectorf gKesi, in T data) =>
     data switch
     {
-        Circle2D[] d => new Diffeomorphism_Circle2D(RT, Q, dQ, gKesi, d),
-        _ => throw new NotImplementedException(data.GetType().FullName)
+        ICircle[] d => new Diffeomorphism_Circle2D(RT, Q, dQ, gKesi, d),
+        _ => throw new NotImplementedException(data!.GetType().FullName)
     };
 }

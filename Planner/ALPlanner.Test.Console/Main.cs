@@ -4,26 +4,27 @@ using Kernel.Core.EventBus;
 using Kernel.DataInterfaces;
 using Kernel.DataInterfaces.Constraints;
 using Kernel.DataInterfaces.Navigation;
+using Kernel.DataInterfaces.Visualization;
 using MathNet.Numerics.Optimization;
 using NumFlat;
 
 static class Program
 {
 
-    static Circle2D[] path = [
-       new(1.0f, new(0,0)),
-        new(0.8f,new(1f,1f)),
-        new(0.8f,new(2f,2f)),
-        new(0.5f,new(2.5f,3f)),
-        new(0.4f,new(3f,3.4f)),
-        new(0.4f,new(3.0f,4.0f)),
-        new(0.4f,new(2.6f,4.2f)),
-        new(0.4f,new(2.0f,4.4f)),
-        new(0.5f,new(1.3f,4.1f)),
-        new(0.5f,new(0.7f,3.5f)),
-        new(0.6f,new(0.2f,3.0f)),
-        new(0.7f,new(-0.5f,2.7f)),
-        new(0.8f,new(-1.5f,2.5f)),
+    static ICircle[] path = [
+        new Circle2D(1.0f, new(0,0)),
+        new Circle2D(0.8f,new(1f,1f)),
+        new Circle2D(0.8f,new(2f,2f)),
+        new Circle2D(0.5f,new(2.5f,3f)),
+        new Circle2D(0.4f,new(3f,3.4f)),
+        new Circle2D(0.4f,new(3.0f,4.0f)),
+        new Circle2D(0.4f,new(2.6f,4.2f)),
+        new Circle2D(0.4f,new(2.0f,4.4f)),
+        new Circle2D(0.5f,new(1.3f,4.1f)),
+        new Circle2D(0.5f,new(0.7f,3.5f)),
+        new Circle2D(0.6f,new(0.2f,3.0f)),
+        new Circle2D(0.7f,new(-0.5f,2.7f)),
+        new Circle2D(0.8f,new(-1.5f,2.5f)),
     ];
     class PathDecorator<T>(T path) : IPath2D, IHeader where T : IEnumerable<Vector2>
     {
@@ -35,7 +36,7 @@ static class Program
 
         public IEnumerable<Vector2> GetPoints() => path;
     }
-    class CorridorDecorator(Circle2D[] path) : ISafeCorridor2DData<Circle2D>, IHeader
+    class CorridorDecorator(ICircle[] path) : ISafeCorridor2DData<ICircle>, IHeader
     {
         public IHeader Header => this;
 
@@ -43,7 +44,7 @@ static class Program
 
         public string Identifier => "Test";
 
-        public Circle2D[] Corridors => path;
+        public ICircle[] Corridors => path;
 
     }
 
@@ -58,15 +59,15 @@ static class Program
                             , TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishPath);
         ros.Publish<IPath2D, TlarcRosBridge.Infrastructure.Messages.Nav.Path>("/path", "/path"
         , TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishPath);
-        // ros.Publish<ISafeCorridor2DData<Circle2D>, TlarcRosBridge.Infrastructure.Messages.Visualization.MarkerArray>("/safeCorridor", "/safeCorridor"
-        // , TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishSafeCorridor);
+        ros.Publish<ISafeCorridor2DData<ICircle>, TlarcRosBridge.Infrastructure.Messages.Visualization.MarkerArray>("/safeCorridor", "/safeCorridor"
+        , TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishCircleSafeCorridor);
 
         Vector2 head = new(0, 0);
         Vector2 headv = new(0, 0);
         Vector2 heada = new(0, 0);
         var ts = 0f;
 
-        Minco minco = new(path.Length * K, path);
+        Minco<ICircle> minco = new(path.Length * K, path);
         var now = DateTime.UtcNow;
         var total = DateTime.UtcNow;
         var minimizer = new LimitedMemoryBfgsMinimizer(1e-6, 1e-6, 1e-6, 10 * 1024 * 1024, 100);
@@ -103,14 +104,15 @@ static class Program
                 // Console.WriteLine(minco.TotalSecond);
             }
             ts = (float)(DateTime.UtcNow - now).TotalSeconds;
-            EventBus<IPath2D>.Instance.Publish("/traj", new PathDecorator<IEnumerable<Vector2>>(minco.GetPositions(ts, (minco.TotalSecond - ts) / 100, 101)));
-            EventBus<IPath2D>.Instance.Publish("/path", new PathDecorator<IEnumerable<Vector2>>(minco.GetControlPoints()));
-            EventBus<ISafeCorridor2DData<Circle2D>>.Instance.Publish("/safeCorridor", new CorridorDecorator(path));
+            var recordMinco = minco.Record;
+            EventBus<IPath2D>.Instance.Publish("/traj", new PathDecorator<IEnumerable<Vector2>>(recordMinco.GetPositions(ts, (minco.TotalSecond - ts) / 100, 101)));
+            EventBus<IPath2D>.Instance.Publish("/path", new PathDecorator<IEnumerable<Vector2>>(recordMinco.GetControlPoints()));
+            EventBus<ISafeCorridor2DData<ICircle>>.Instance.Publish("/safeCorridor", new CorridorDecorator(path));
 
             Thread.Sleep(50);
-            head = minco.GetPosition(ts);
-            headv = minco.GetVelocity(ts);
-            heada = minco.GetAccelerate(ts);
+            head = recordMinco.GetPosition(ts);
+            headv = recordMinco.GetVelocity(ts);
+            heada = recordMinco.GetAccelerate(ts);
             if ((head - path[0].Origin).Length() < path[0].R)
             {
                 path = path[1..];

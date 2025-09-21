@@ -10,13 +10,13 @@ using Vectorf = NumFlat.Vec<double>;
 using Matrixf = NumFlat.Mat<double>;
 using Kernel.DataInterfaces.Constraints;
 using NumFlat;
+using Kernel.DataInterfaces.Visualization;
 
 namespace ALPlanner.Infrastructure.Optimizer;
 
-public unsafe class Minco
+public unsafe class Minco<T> where T : IConstraint
 {
     internal readonly int N;
-    internal const int S = 3;
     internal readonly Matrixf A;
     internal readonly Vectorf T1;
     internal readonly Vectorf T2;
@@ -32,7 +32,7 @@ public unsafe class Minco
     internal readonly Vectorf gd;
     readonly PolynomialTraj poly;
     readonly MincoTraj minco;
-    readonly Diffeomorphism diffeomorphism;
+    readonly IDiffeomorphism diffeomorphism;
     readonly int[] ipiv;
 
     readonly public Vector2[] _headPVA;
@@ -40,11 +40,13 @@ public unsafe class Minco
 
     readonly Matrixf Q;
 
-    readonly Circle2D[] _obstacles;
+    readonly T[] _obstacles;
 
     public double TotalSecond { get; private set; }
 
-    public Minco(in int N, in Circle2D[] obstacles)
+    const int S = Minco.S;
+
+    public Minco(in int N, in T[] obstacles)
     {
         this.N = N;
         this._headPVA = new Vector2[3];
@@ -67,7 +69,7 @@ public unsafe class Minco
         ipiv = new int[A.RowCount];
         poly = new PolynomialTraj(N, c, T1, T2, T3, T4, T5, gT, gC);
         minco = new MincoTraj(c, N, T1, T2, T3, T4, T5, A, _headPVA, _tailPVA, ipiv);
-        diffeomorphism = new Diffeomorphism(T1, Q, gQ, gKesi, _obstacles);
+        diffeomorphism = DiffeomorphismFactory.Build(T1, Q, gQ, gKesi, _obstacles);
     }
 
 
@@ -132,8 +134,15 @@ public unsafe class Minco
         return gd;
     }
 
-    public Vector2 GetPosition(double t)
+    public Minco Record => new(N, T1, c, TotalSecond, _headPVA, _tailPVA);
+}
+public readonly record struct Minco(in int N, in Vectorf T1, in Matrixf C, in double TotalSecond, in Vector2[] Header, in Vector2[] Tail)
+{
+    public const int S = 3;
+    public readonly Vector2 GetPosition(double t)
     {
+        if (t <= 0) return Header[0];
+        else if (t >= TotalSecond) return Tail[0];
         double t2, t3, t4, t5;
         int i;
         for (i = 0; i < N; i++)
@@ -147,21 +156,23 @@ public unsafe class Minco
         t4 = t3 * t;
         t5 = t4 * t;
         return new(
-        (float)((c[(6 * i) + 0, 0] * 1) +
-                (c[(6 * i) + 1, 0] * t) +
-                (c[(6 * i) + 2, 0] * t2) +
-                (c[(6 * i) + 3, 0] * t3) +
-                (c[(6 * i) + 4, 0] * t4) +
-                (c[(6 * i) + 5, 0] * t5)),
-        (float)((c[(6 * i) + 0, 1] * 1) +
-                (c[(6 * i) + 1, 1] * t) +
-                (c[(6 * i) + 2, 1] * t2) +
-                (c[(6 * i) + 3, 1] * t3) +
-                (c[(6 * i) + 4, 1] * t4) +
-                (c[(6 * i) + 5, 1] * t5)));
+        (float)((C[(6 * i) + 0, 0] * 1) +
+                (C[(6 * i) + 1, 0] * t) +
+                (C[(6 * i) + 2, 0] * t2) +
+                (C[(6 * i) + 3, 0] * t3) +
+                (C[(6 * i) + 4, 0] * t4) +
+                (C[(6 * i) + 5, 0] * t5)),
+        (float)((C[(6 * i) + 0, 1] * 1) +
+                (C[(6 * i) + 1, 1] * t) +
+                (C[(6 * i) + 2, 1] * t2) +
+                (C[(6 * i) + 3, 1] * t3) +
+                (C[(6 * i) + 4, 1] * t4) +
+                (C[(6 * i) + 5, 1] * t5)));
     }
-    public Vector2 GetVelocity(double t)
+    public readonly Vector2 GetVelocity(double t)
     {
+        if (t <= 0) return Header[1];
+        else if (t >= TotalSecond) return Tail[1];
         double t2, t3, t4, t5;
         int i;
         for (i = 0; i < N; i++)
@@ -175,21 +186,23 @@ public unsafe class Minco
         t4 = 4 / 3 * t3 * t;
         t5 = 5 / 4 * t4 * t;
         return new(
-        (float)((c[(6 * i) + 0, 0] * 0) +
-                (c[(6 * i) + 1, 0] * 1) +
-                (c[(6 * i) + 2, 0] * t2) +
-                (c[(6 * i) + 3, 0] * t3) +
-                (c[(6 * i) + 4, 0] * t4) +
-                (c[(6 * i) + 5, 0] * t5)),
-        (float)((c[(6 * i) + 0, 1] * 0) +
-                (c[(6 * i) + 1, 1] * 1) +
-                (c[(6 * i) + 2, 1] * t2) +
-                (c[(6 * i) + 3, 1] * t3) +
-                (c[(6 * i) + 4, 1] * t4) +
-                (c[(6 * i) + 5, 1] * t5)));
+        (float)((C[(6 * i) + 0, 0] * 0) +
+                (C[(6 * i) + 1, 0] * 1) +
+                (C[(6 * i) + 2, 0] * t2) +
+                (C[(6 * i) + 3, 0] * t3) +
+                (C[(6 * i) + 4, 0] * t4) +
+                (C[(6 * i) + 5, 0] * t5)),
+        (float)((C[(6 * i) + 0, 1] * 0) +
+                (C[(6 * i) + 1, 1] * 1) +
+                (C[(6 * i) + 2, 1] * t2) +
+                (C[(6 * i) + 3, 1] * t3) +
+                (C[(6 * i) + 4, 1] * t4) +
+                (C[(6 * i) + 5, 1] * t5)));
     }
-    public Vector2 GetAccelerate(double t)
+    public readonly Vector2 GetAccelerate(double t)
     {
+        if (t <= 0) return Header[2];
+        else if (t >= TotalSecond) return Tail[2];
         double t2, t3, t4, t5;
         int i;
         for (i = 0; i < N; i++)
@@ -203,29 +216,29 @@ public unsafe class Minco
         t4 = 4 * 3 * t * t;
         t5 = 5 * 4 * t * t * t;
         return new(
-        (float)((c[(6 * i) + 0, 0] * 0) +
-                (c[(6 * i) + 1, 0] * 0) +
-                (c[(6 * i) + 2, 0] * t2) +
-                (c[(6 * i) + 3, 0] * t3) +
-                (c[(6 * i) + 4, 0] * t4) +
-                (c[(6 * i) + 5, 0] * t5)),
-        (float)((c[(6 * i) + 0, 1] * 0) +
-                (c[(6 * i) + 1, 1] * 0) +
-                (c[(6 * i) + 2, 1] * t2) +
-                (c[(6 * i) + 3, 1] * t3) +
-                (c[(6 * i) + 4, 1] * t4) +
-                (c[(6 * i) + 5, 1] * t5)));
+        (float)((C[(6 * i) + 0, 0] * 0) +
+                (C[(6 * i) + 1, 0] * 0) +
+                (C[(6 * i) + 2, 0] * t2) +
+                (C[(6 * i) + 3, 0] * t3) +
+                (C[(6 * i) + 4, 0] * t4) +
+                (C[(6 * i) + 5, 0] * t5)),
+        (float)((C[(6 * i) + 0, 1] * 0) +
+                (C[(6 * i) + 1, 1] * 0) +
+                (C[(6 * i) + 2, 1] * t2) +
+                (C[(6 * i) + 3, 1] * t3) +
+                (C[(6 * i) + 4, 1] * t4) +
+                (C[(6 * i) + 5, 1] * t5)));
     }
-    public IEnumerable<Vector2> GetControlPoints()
+    public readonly IEnumerable<Vector2> GetControlPoints()
     {
         List<Vector2> ret = new(N - 1);
         for (int i = 1; i < N; i++)
             ret.Add(new(
-            (float)(c[(6 * i) + 0, 0] * 1),
-            (float)(c[(6 * i) + 0, 1] * 1)));
+            (float)(C[(6 * i) + 0, 0] * 1),
+            (float)(C[(6 * i) + 0, 1] * 1)));
         return ret;
     }
-    public IEnumerable<Vector2> GetPositions(double beginTime, double stepInSecond, int count)
+    public readonly IEnumerable<Vector2> GetPositions(double beginTime, double stepInSecond, int count)
     {
         List<Vector2> ret = new(count);
         int i;
@@ -238,6 +251,8 @@ public unsafe class Minco
         }
         for (int j = 0; j < count; j++)
         {
+            if (beginTime <= 0) ret.Add(Header[0]);
+            else if (beginTime >= TotalSecond) ret.Add(Tail[0]);
             if (i == N)
             {
                 i = N - 1;
@@ -248,18 +263,18 @@ public unsafe class Minco
             t4 = t3 * beginTime;
             t5 = t4 * beginTime;
             ret.Add(new(
-            (float)((c[(6 * i) + 0, 0] * 1) +
-                    (c[(6 * i) + 1, 0] * beginTime) +
-                    (c[(6 * i) + 2, 0] * t2) +
-                    (c[(6 * i) + 3, 0] * t3) +
-                    (c[(6 * i) + 4, 0] * t4) +
-                    (c[(6 * i) + 5, 0] * t5)),
-            (float)((c[(6 * i) + 0, 1] * 1) +
-                    (c[(6 * i) + 1, 1] * beginTime) +
-                    (c[(6 * i) + 2, 1] * t2) +
-                    (c[(6 * i) + 3, 1] * t3) +
-                    (c[(6 * i) + 4, 1] * t4) +
-                    (c[(6 * i) + 5, 1] * t5))));
+            (float)((C[(6 * i) + 0, 0] * 1) +
+                    (C[(6 * i) + 1, 0] * beginTime) +
+                    (C[(6 * i) + 2, 0] * t2) +
+                    (C[(6 * i) + 3, 0] * t3) +
+                    (C[(6 * i) + 4, 0] * t4) +
+                    (C[(6 * i) + 5, 0] * t5)),
+            (float)((C[(6 * i) + 0, 1] * 1) +
+                    (C[(6 * i) + 1, 1] * beginTime) +
+                    (C[(6 * i) + 2, 1] * t2) +
+                    (C[(6 * i) + 3, 1] * t3) +
+                    (C[(6 * i) + 4, 1] * t4) +
+                    (C[(6 * i) + 5, 1] * t5))));
             beginTime += stepInSecond;
             while (i < N && beginTime >= T1[i])
             {
@@ -269,7 +284,7 @@ public unsafe class Minco
         }
         return ret;
     }
-    public IEnumerable<Vector2> GetVelocitys(double beginTime, double stepInSecond, int count)
+    public readonly IEnumerable<Vector2> GetVelocitys(double beginTime, double stepInSecond, int count)
     {
         List<Vector2> ret = new(count);
         int i;
@@ -282,6 +297,8 @@ public unsafe class Minco
         }
         for (int j = 0; j < count; j++)
         {
+            if (beginTime <= 0) ret.Add(Header[0]);
+            else if (beginTime >= TotalSecond) ret.Add(Tail[0]);
             if (i == N)
             {
                 i = N - 1;
@@ -293,17 +310,17 @@ public unsafe class Minco
             t5 = 5 * t4 * beginTime / 4;
             ret.Add(new(
             (float)(
-                    (c[(6 * i) + 1, 0] * 1) +
-                    (c[(6 * i) + 2, 0] * t2) +
-                    (c[(6 * i) + 3, 0] * t3) +
-                    (c[(6 * i) + 4, 0] * t4) +
-                    (c[(6 * i) + 5, 0] * t5)),
+                    (C[(6 * i) + 1, 0] * 1) +
+                    (C[(6 * i) + 2, 0] * t2) +
+                    (C[(6 * i) + 3, 0] * t3) +
+                    (C[(6 * i) + 4, 0] * t4) +
+                    (C[(6 * i) + 5, 0] * t5)),
             (float)(
-                    (c[(6 * i) + 1, 1] * 1) +
-                    (c[(6 * i) + 2, 1] * t2) +
-                    (c[(6 * i) + 3, 1] * t3) +
-                    (c[(6 * i) + 4, 1] * t4) +
-                    (c[(6 * i) + 5, 1] * t5))));
+                    (C[(6 * i) + 1, 1] * 1) +
+                    (C[(6 * i) + 2, 1] * t2) +
+                    (C[(6 * i) + 3, 1] * t3) +
+                    (C[(6 * i) + 4, 1] * t4) +
+                    (C[(6 * i) + 5, 1] * t5))));
             beginTime += stepInSecond;
             while (i < N && beginTime >= T1[i])
             {
@@ -313,7 +330,7 @@ public unsafe class Minco
         }
         return ret;
     }
-    public IEnumerable<Vector2> GetAccelerates(double beginTime, double stepInSecond, int count)
+    public readonly IEnumerable<Vector2> GetAccelerates(double beginTime, double stepInSecond, int count)
     {
         List<Vector2> ret = new(count);
         int i;
@@ -326,6 +343,8 @@ public unsafe class Minco
         }
         for (int j = 0; j < count; j++)
         {
+            if (beginTime <= 0) ret.Add(Header[0]);
+            else if (beginTime >= TotalSecond) ret.Add(Tail[0]);
             if (i == N)
             {
                 i = N - 1;
@@ -337,15 +356,15 @@ public unsafe class Minco
             t5 = 20 * beginTime * beginTime * beginTime;
             ret.Add(new(
             (float)(
-                    (c[(6 * i) + 2, 0] * t2) +
-                    (c[(6 * i) + 3, 0] * t3) +
-                    (c[(6 * i) + 4, 0] * t4) +
-                    (c[(6 * i) + 5, 0] * t5)),
+                    (C[(6 * i) + 2, 0] * t2) +
+                    (C[(6 * i) + 3, 0] * t3) +
+                    (C[(6 * i) + 4, 0] * t4) +
+                    (C[(6 * i) + 5, 0] * t5)),
             (float)(
-                    (c[(6 * i) + 2, 1] * t2) +
-                    (c[(6 * i) + 3, 1] * t3) +
-                    (c[(6 * i) + 4, 1] * t4) +
-                    (c[(6 * i) + 5, 1] * t5))));
+                    (C[(6 * i) + 2, 1] * t2) +
+                    (C[(6 * i) + 3, 1] * t3) +
+                    (C[(6 * i) + 4, 1] * t4) +
+                    (C[(6 * i) + 5, 1] * t5))));
             beginTime += stepInSecond;
             while (i < N && beginTime >= T1[i])
             {
@@ -355,4 +374,5 @@ public unsafe class Minco
         }
         return ret;
     }
+
 }

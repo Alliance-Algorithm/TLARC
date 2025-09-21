@@ -18,9 +18,9 @@ unsafe internal class Diffeomorphism_Circle2D : IDiffeomorphism
     readonly Matrixf Q;
     readonly Matrixf dQ;
     readonly Vectorf gKesi;
-    readonly Circle2D[] obstacles;
+    readonly ICircle[] obstacles;
     internal const double wei_time_ = 1e4;
-    static (Vector2 o, Vector2 dir, float r) CircleIntersection(Circle2D a, Circle2D b)
+    static (Vector2 o, Vector2 dir, float r) CircleIntersection(ICircle a, ICircle b)
     {
         var sd = (a.Origin - b.Origin).LengthSquared();
         var d = MathF.Sqrt(sd);
@@ -71,7 +71,7 @@ unsafe internal class Diffeomorphism_Circle2D : IDiffeomorphism
         }
     }
 
-    public Diffeomorphism_Circle2D(in Vectorf RT, in Matrixf Q, in Matrixf dQ, Vectorf gKesi, in Circle2D[] obstacles)
+    public Diffeomorphism_Circle2D(in Vectorf RT, in Matrixf Q, in Matrixf dQ, Vectorf gKesi, in ICircle[] obstacles)
     {
         VT = new Vectorf(RT.Count);
         this.RT = RT;

@@ -39,9 +39,9 @@ public class PlannerBuilder : IHeader
     public string Identifier { get; private set; } = "map_link";
 
     public IPath2D SeachPath(Vector2 from, Vector2 to) => _aStar!.Search(from, to, _sdf2d!);
-    public ISafeCorridor2DData<Circle2D> SearchSafeCorridor(IPath2D path) =>
+    public ISafeCorridor2DData<ICircle> SearchSafeCorridor(IPath2D path) =>
     ALPlanner.Infrastructure.SafeCorridorConstruct.GaussianSample.RadiusWithDistance(path, obstacle!);
-    public ITrajectory2D? OptimizePath(ISafeCorridor2DData<Circle2D> corridor, MincoOptimizer.Status header, MincoOptimizer.Status tail) =>
+    public ITrajectory2D? OptimizePath(ISafeCorridor2DData<ICircle> corridor, MincoOptimizer.Status header, MincoOptimizer.Status tail) =>
             MincoOptimizer.Optimize(corridor, header, tail);
 
     public PlannerBuilder BuildALPlanner()
