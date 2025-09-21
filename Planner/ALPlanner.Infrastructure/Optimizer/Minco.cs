@@ -28,8 +28,6 @@ public unsafe class Minco<T> where T : IConstraint
     internal readonly Matrixf gC;
     internal readonly Matrixf gQ;
     internal readonly Vectorf gT;
-    internal readonly Vectorf gKesi;
-    internal readonly Vectorf gd;
     readonly PolynomialTraj poly;
     readonly MincoTraj minco;
     readonly IDiffeomorphism diffeomorphism;
@@ -61,15 +59,13 @@ public unsafe class Minco<T> where T : IConstraint
         this.gC = new Matrixf(2 * S * N, 2);
         this.G = new Matrixf(2 * S * N, 2);
         this.gQ = new Matrixf(N - 1, 2);
-        this.gd = new Vectorf((N - 1) * 2 - obstacles.Length + 1 + N);
-        this.gT = gd[..N];
-        this.gKesi = gd[N..];
         this.Q = new Matrixf(N - 1, 2);
         this._obstacles = obstacles;
+        diffeomorphism = DiffeomorphismFactory.Build(T1, Q, gQ, N, _obstacles);
+        this.gT = diffeomorphism.Gd[..N];
         ipiv = new int[A.RowCount];
         poly = new PolynomialTraj(N, c, T1, T2, T3, T4, T5, gT, gC);
         minco = new MincoTraj(c, N, T1, T2, T3, T4, T5, A, _headPVA, _tailPVA, ipiv);
-        diffeomorphism = DiffeomorphismFactory.Build(T1, Q, gQ, gKesi, _obstacles);
     }
 
 
@@ -131,7 +127,7 @@ public unsafe class Minco<T> where T : IConstraint
 
         diffeomorphism.VirtualTGrad(gT, gT);
         diffeomorphism.AddGradQByKesi(kesi);
-        return gd;
+        return diffeomorphism.Gd;
     }
 
     public Minco Record => new(N, T1, c, TotalSecond, _headPVA, _tailPVA);

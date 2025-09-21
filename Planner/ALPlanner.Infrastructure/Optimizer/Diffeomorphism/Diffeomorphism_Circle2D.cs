@@ -11,7 +11,7 @@ namespace ALPlanner.Infrastructure.Optimizer;
 
 
 
-unsafe internal class Diffeomorphism_Circle2D : IDiffeomorphism
+unsafe internal readonly struct Diffeomorphism_Circle2D : IDiffeomorphism
 {
     readonly Vectorf VT;
     readonly Vectorf RT;
@@ -19,6 +19,7 @@ unsafe internal class Diffeomorphism_Circle2D : IDiffeomorphism
     readonly Matrixf dQ;
     readonly Vectorf gKesi;
     readonly ICircle[] obstacles;
+    readonly public Vectorf Gd { get; }
     internal const double wei_time_ = 1e4;
     static (Vector2 o, Vector2 dir, float r) CircleIntersection(ICircle a, ICircle b)
     {
@@ -71,13 +72,14 @@ unsafe internal class Diffeomorphism_Circle2D : IDiffeomorphism
         }
     }
 
-    public Diffeomorphism_Circle2D(in Vectorf RT, in Matrixf Q, in Matrixf dQ, Vectorf gKesi, in ICircle[] obstacles)
+    public Diffeomorphism_Circle2D(in Vectorf RT, in Matrixf Q, in Matrixf dQ, in int N, in ICircle[] obstacles)
     {
-        VT = new Vectorf(RT.Count);
+        this.Gd = new Vectorf((N - 1) * 2 - obstacles.Length + 1 + N);
+        this.VT = new Vectorf(RT.Count);
         this.RT = RT;
         this.Q = Q;
         this.obstacles = obstacles;
-        this.gKesi = gKesi;
+        this.gKesi = Gd[N..];
         this.dQ = dQ;
     }
 

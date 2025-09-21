@@ -10,15 +10,13 @@
         <InvariantGlobalization>true</InvariantGlobalization>
         <OptimizationPreference>Speed</OptimizationPreference>
         
+        <UseRidGraph>true</UseRidGraph>
+        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
         
         <PublishDir>$(SolutionDir)\.test\Test\$(ProjectName)\$(Configuration)</PublishDir>
 
-
-         
-        <UseRidGraph>true</UseRidGraph>
-        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-        <PublishSingleFile>true</PublishSingleFile>
-        <SelfContained>true</SelfContained>
+        <!-- <SelfContained>true</SelfContained>
+        <PublishSingleFile>true</PublishSingleFile> -->
 
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>

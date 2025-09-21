@@ -15,8 +15,8 @@
 
 
         
-        <PublishSingleFile>true</PublishSingleFile>
-        <SelfContained>true</SelfContained>
+        <!-- <PublishSingleFile>true</PublishSingleFile>
+        <SelfContained>true</SelfContained> -->
 
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>

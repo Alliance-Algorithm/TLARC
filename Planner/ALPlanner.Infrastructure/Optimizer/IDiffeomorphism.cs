@@ -9,6 +9,7 @@ namespace ALPlanner.Infrastructure.Optimizer;
 
 public interface IDiffeomorphism
 {
+    internal Vectorf Gd { get; }
     internal void VTToRT(in Vectorf tau);
 
     internal void KesiToQ(Vectorf kesi);
@@ -22,10 +23,10 @@ public interface IDiffeomorphism
 
 public static class DiffeomorphismFactory
 {
-    public static IDiffeomorphism Build<T>(in Vectorf RT, in Matrixf Q, in Matrixf dQ, Vectorf gKesi, in T data) =>
+    public static IDiffeomorphism Build<T>(in Vectorf RT, in Matrixf Q, in Matrixf dQ, in int N, in T data) =>
     data switch
     {
-        ICircle[] d => new Diffeomorphism_Circle2D(RT, Q, dQ, gKesi, d),
+        ICircle[] d => new Diffeomorphism_Circle2D(RT, Q, dQ, N, d),
         _ => throw new NotImplementedException(data!.GetType().FullName)
     };
 }
