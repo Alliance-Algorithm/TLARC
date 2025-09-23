@@ -33,6 +33,8 @@ public unsafe class Minco<T> where T : IConstraint
     readonly IDiffeomorphism diffeomorphism;
     readonly int[] ipiv;
 
+    readonly public int XSize;
+
     readonly public Vector2[] _headPVA;
     readonly public Vector2[] _tailPVA;
 
@@ -66,6 +68,7 @@ public unsafe class Minco<T> where T : IConstraint
         ipiv = new int[A.RowCount];
         poly = new PolynomialTraj(N, c, T1, T2, T3, T4, T5, gT, gC);
         minco = new MincoTraj(c, N, T1, T2, T3, T4, T5, A, _headPVA, _tailPVA, ipiv);
+        XSize = diffeomorphism.Length;
     }
 
 

@@ -10,6 +10,7 @@ namespace ALPlanner.Infrastructure.Optimizer;
 public interface IDiffeomorphism
 {
     internal Vectorf Gd { get; }
+    internal int Length { get; }
     internal void VTToRT(in Vectorf tau);
 
     internal void KesiToQ(Vectorf kesi);
@@ -27,6 +28,7 @@ public static class DiffeomorphismFactory
     data switch
     {
         ICircle[] d => new Diffeomorphism_Circle2D(RT, Q, dQ, N, d),
+        AABB2D[] d => new Diffeomorphism_AABB(RT, Q, dQ, N, d),
         _ => throw new NotImplementedException(data!.GetType().FullName)
     };
 }
