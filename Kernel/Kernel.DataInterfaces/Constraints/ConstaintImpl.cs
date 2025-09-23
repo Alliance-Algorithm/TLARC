@@ -9,7 +9,7 @@ public readonly record struct Circle2D(float R, Vector2 Origin) : IConstraint, I
 /// <summary>
 /// Axis-aligned bounding boxes
 /// </summary>
-public readonly struct AABB2D(float MinX, float MinY, float MaxX, float MaxY) : IConstraint, IRectangle
+public readonly record struct AABB2D(float MinX, float MinY, float MaxX, float MaxY) : IConstraint, IRectangle
 {
     public readonly Vector2 Origin { get; } = new(MinX, MinY);
 
