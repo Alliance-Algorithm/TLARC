@@ -19,7 +19,13 @@ unsafe internal readonly struct Diffeomorphism_Circle2D : IDiffeomorphism
     readonly Matrixf dQ;
     readonly Vectorf gKesi;
     readonly ICircle[] obstacles;
-    readonly public Vectorf Gd { get; }
+    readonly Vectorf Gd;
+    readonly int Length;
+
+    readonly Vectorf IDiffeomorphism.Gd => Gd;
+
+    readonly int IDiffeomorphism.Length => Length;
+
     internal const double wei_time_ = 1e4;
     static (Vector2 o, Vector2 dir, float r) CircleIntersection(ICircle a, ICircle b)
     {
@@ -74,7 +80,8 @@ unsafe internal readonly struct Diffeomorphism_Circle2D : IDiffeomorphism
 
     public Diffeomorphism_Circle2D(in Vectorf RT, in Matrixf Q, in Matrixf dQ, in int N, in ICircle[] obstacles)
     {
-        this.Gd = new Vectorf((N - 1) * 2 - obstacles.Length + 1 + N);
+        this.Length = (N - 1) * 2 - obstacles.Length + 1 + N;
+        this.Gd = new Vectorf(Length);
         this.VT = new Vectorf(RT.Count);
         this.RT = RT;
         this.Q = Q;
@@ -141,4 +148,28 @@ unsafe internal readonly struct Diffeomorphism_Circle2D : IDiffeomorphism
         }
     }
 
+    void IDiffeomorphism.VTToRT(in Vectorf tau)
+    {
+        VTToRT(tau);
+    }
+
+    void IDiffeomorphism.KesiToQ(Vectorf kesi)
+    {
+        KesiToQ(kesi);
+    }
+
+    double IDiffeomorphism.AddJCostT()
+    {
+        return AddJCostT();
+    }
+
+    void IDiffeomorphism.VirtualTGrad(Vectorf gdRT, Vectorf gdVT)
+    {
+        VirtualTGrad(gdRT, gdVT);
+    }
+
+    void IDiffeomorphism.AddGradQByKesi(Vectorf kesi)
+    {
+        AddGradQByKesi(kesi);
+    }
 }
