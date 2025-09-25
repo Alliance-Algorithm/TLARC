@@ -32,6 +32,7 @@ internal static class Visualization
         {
             Draw(circle, ref span[i]);
             span[i].Id = i;
+            span[i].Lifetime.Sec = 2;
             Std.FromData(id, node, ref span[i].Header);
             ++i;
         }
@@ -58,6 +59,7 @@ internal static class Visualization
         {
             Draw(circle, ref span[i]);
             span[i].Id = i;
+            span[i].Lifetime.Sec = 2;
             Std.FromData(id, node, ref span[i].Header);
             ++i;
         }

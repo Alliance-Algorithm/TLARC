@@ -9,14 +9,6 @@ namespace ALPlanner.Infrastructure.SafeCorridorConstruct;
 public static class GaussianSample
 {
 
-    public class SafeCorridorDecorator(LinkedList<ICircle> circle2Ds, IHeader header) : ISafeCorridor2DData<ICircle>
-    {
-        public IHeader Header => header;
-
-        public int Length => Corridors.Length;
-
-        public ICircle[] Corridors => [.. circle2Ds];
-    }
     static readonly Vector2[] GaussianOffset = [
         new (0, 0),
         new (0.01f,0),
@@ -66,6 +58,7 @@ public static class GaussianSample
 
             // if (++count is 10) break;
         }
-        return new SafeCorridorDecorator(corridor, obstacle.Header);
+        return new SafeCorridorDecorator<ICircle>(corridor, obstacle.Header);
     }
+
 }

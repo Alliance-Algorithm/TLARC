@@ -1,4 +1,5 @@
-﻿using Kernel.DataInterfaces.Constraints;
+﻿using System.ComponentModel;
+using Kernel.DataInterfaces.Constraints;
 
 namespace Kernel.DataInterfaces.Navigation;
 

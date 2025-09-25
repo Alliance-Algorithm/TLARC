@@ -16,6 +16,12 @@ namespace ALPlanner.Infrastructure.Optimizer;
 
 public unsafe class Minco<T> where T : IConstraint
 {
+    internal readonly int InitData = typeof(T) switch
+    {
+        ICircle => 0,
+        IRectangle => 1,
+        _ => 0
+    };
     internal readonly int N;
     internal readonly Matrixf A;
     internal readonly Vectorf T1;
@@ -34,6 +40,13 @@ public unsafe class Minco<T> where T : IConstraint
     readonly int[] ipiv;
 
     readonly public int XSize;
+    readonly static public int Init = typeof(T) switch
+    {
+        ICircle => 0,
+        _ =>
+        typeof(T) == typeof(AABB2D) ? 1 :
+        throw new NotImplementedException()
+    };
 
     readonly public Vector2[] _headPVA;
     readonly public Vector2[] _tailPVA;

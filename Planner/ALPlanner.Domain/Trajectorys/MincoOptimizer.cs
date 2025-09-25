@@ -13,13 +13,14 @@ public static class MincoOptimizer
     static readonly LimitedMemoryBfgsMinimizer minimizer = new(1e-6, 1e-6, 1e-6, 10 * 1024 * 1024, 100);
     public record Status(Vector2 Pos, Vector2 Vel, Vector2 Acc);
     static readonly int K = 1;
-    public static ITrajectory2D? Optimize(ISafeCorridor2DData<ICircle> path, Status head, Status tail)
+
+    public static ITrajectory2D? Optimize<T>(ISafeCorridor2DData<T> path, Status head, Status tail) where T : IConstraint
     {
         try
         {
             DateTime now = DateTime.UtcNow;
 
-            Minco<ICircle> minco = new(path.Length * K, path.Corridors);
+            Minco<T> minco = new(path.Length * K, path.Corridors);
 
             var func = ObjectiveFunction.Gradient(x =>
             {
@@ -38,7 +39,7 @@ public static class MincoOptimizer
             minco._tailPVA[1] = tail.Vel;
             minco._tailPVA[2] = tail.Acc;
 
-            var rst = minimizer.FindMinimum(func, MathNet.Numerics.LinearAlgebra.Vector<double>.Build.Dense(path.Length - 1 + (K - 1) * 2 * path.Length + path.Length * K));
+            var rst = minimizer.FindMinimum(func, MathNet.Numerics.LinearAlgebra.Vector<double>.Build.Dense(minco.XSize, Minco<T>.Init));
 
             var x = rst.MinimizingPoint;
             // var x = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.Dense(path.Length - 1 + (K - 1) * 2 * path.Length + path.Length * K);

@@ -30,27 +30,60 @@ public class PlannerBuilder : IHeader
     public string SdfMapTopicName { get; private set; } = "/tlarc/map";
     public string ObstacleMapTopicName { get; private set; } = "/tlarc/obstacle";
     public float PathSearchIteratorStep { get; private set; } = 0.2f;
+    public float MapResolution { get; private set; }
     public int MapWidth { get; private set; }
     public int MapHight { get; private set; }
-    public float MapResolution { get; private set; }
-
-    int K = 3;
 
     public string Identifier { get; private set; } = "map_link";
 
-    public IPath2D SeachPath(Vector2 from, Vector2 to) => _aStar!.Search(from, to, _sdf2d!);
-    public ISafeCorridor2DData<ICircle> SearchSafeCorridor(IPath2D path) =>
-    ALPlanner.Infrastructure.SafeCorridorConstruct.GaussianSample.RadiusWithDistance(path, obstacle!);
-    public ITrajectory2D? OptimizePath(ISafeCorridor2DData<ICircle> corridor, MincoOptimizer.Status header, MincoOptimizer.Status tail) =>
-            MincoOptimizer.Optimize(corridor, header, tail);
+    public
+    IPath2D
+        SeachPath
+        (Vector2 from, Vector2 to)
+        => _aStar!.Search(from, to, _sdf2d!);
+
+    public
+    ISafeCorridor2DData<ICircle>
+        SearchCircleSafeCorridor
+        (IPath2D path)
+        => ALPlanner.Infrastructure.SafeCorridorConstruct.GaussianSample.RadiusWithDistance(path, obstacle!);
+
+    public
+    ISafeCorridor2DData<AABB2D>
+        SearchAABBSafeCorridor
+        (IPath2D path)
+        => ALPlanner.Infrastructure.SafeCorridorConstruct.IncrementalRectangle.AABBGenerate(path, obstacle!);
+
+    public static
+    ITrajectory2D?
+        OptimizePath<T>
+        (ISafeCorridor2DData<T> corridor,
+         MincoOptimizer.Status header,
+         MincoOptimizer.Status tail)
+        where T : IConstraint
+        => MincoOptimizer.Optimize(corridor, header, tail);
+
+    // public static
+    // ITrajectory2D?
+    //     OptimizePath
+    //     (ISafeCorridor2DData<AABB2D> corridor,
+    //      MincoOptimizer.Status header,
+    //      MincoOptimizer.Status tail)
+    //     => MincoOptimizer.Optimize(corridor, header, tail);
+
 
     public PlannerBuilder BuildALPlanner()
     {
         _aStar = new(MapWidth, MapHight, PathSearchIteratorStep, MapResolution);
-        EventBus<ISdf2D>.Instance.Subscribe(SdfMapTopicName,
-        map => _sdf2d = map);
-        EventBus<IObstacle>.Instance.Subscribe(ObstacleMapTopicName,
-        map => obstacle = map);
+        EventBus<ISdf2D>
+            .Instance.Subscribe(
+                SdfMapTopicName,
+                map => _sdf2d = map);
+
+        EventBus<IObstacle>
+            .Instance.Subscribe(
+                ObstacleMapTopicName,
+                map => obstacle = map);
 
         return this;
     }

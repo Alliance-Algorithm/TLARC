@@ -1,8 +1,10 @@
 
 using System.Numerics;
 using Kernel.DataInterfaces;
+using Kernel.DataInterfaces.Constraints;
 using Kernel.DataInterfaces.Geometry;
 using Kernel.DataInterfaces.Navigation;
+using Kernel.DataInterfaces.Visualization;
 
 class PathDecorator<T>(T path, IHeader _header) : IPath2D where T : IEnumerable<Vector2>
 {

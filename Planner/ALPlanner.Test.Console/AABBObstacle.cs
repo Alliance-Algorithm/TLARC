@@ -18,17 +18,17 @@ static class AABBObstacle
         for (int i = 0; i < 5; i++)
         {
             float x = i * 2;
-            corridor.Add(new AABB2D(x, 0, x + 3, 2));
+            corridor.Add(new AABB2D(x, x - 1, x + 3, x + 2));
         }
 
         // 转弯段：连接水平和垂直段的拐角
-        corridor.Add(new AABB2D(10, 1, 13, 3)); // 拐角段
+        corridor.Add(new AABB2D(10, 9, 13, 13)); // 拐角段
 
         // 垂直段：从 (120,0) 向上延伸到 (120,100)，每段高度为20
         for (int i = 1; i <= 5; i++)
         {
             float y = i * 2;
-            corridor.Add(new AABB2D(12, y, 14, y + 3));
+            corridor.Add(new AABB2D(10 - y, 10 + y, 13 - y, y + 14));
         }
 
         return corridor;
@@ -79,7 +79,7 @@ static class AABBObstacle
         Minco<AABB2D> minco = new(path.Length * K, path);
         var now = DateTime.UtcNow;
         var total = DateTime.UtcNow;
-        var minimizer = new LimitedMemoryBfgsMinimizer(1e-6, 1e-6, 1e-6, 10 * 1024 * 1024, 1000);
+        var minimizer = new LimitedMemoryBfgsMinimizer(1e-6, 1e-6, 1e-6, 10 * 1024 * 1024, 100);
         do
         {
             if (ts == 0)
@@ -99,7 +99,7 @@ static class AABBObstacle
                 minco._headPVA[0] = head;
                 minco._headPVA[1] = headv;
                 minco._headPVA[2] = heada;
-                minco._tailPVA[0] = new(13, 12);
+                minco._tailPVA[0] = new(1.5f, 22);
                 minco._tailPVA[1] = new(0, 0);
                 minco._tailPVA[2] = new(0, 0);
                 var rst = minimizer.FindMinimum(func, MathNet.Numerics.LinearAlgebra.Vector<double>.Build.Dense(minco.XSize, 1));
@@ -131,7 +131,7 @@ static class AABBObstacle
                 ts = 0;
             }
             Console.WriteLine($"{minco.TotalSecond},{(DateTime.UtcNow - total).TotalSeconds}");
-        } while (false);
+        } while (true);
 
         ScottPlot.Plot myPlot = new();
 
