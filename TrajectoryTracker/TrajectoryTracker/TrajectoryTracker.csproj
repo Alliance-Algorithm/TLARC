@@ -9,8 +9,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Kernel\Kernel.Core\Kernel.Core.csproj"/>
-        <ProjectReference Include="..\MPC.Domain\MPC.Domain.csproj"/>
+        <ProjectReference Include="..\..\Kernel\Kernel.Core\Kernel.Core.csproj" />
+        <ProjectReference Include="..\MPC.Domain\MPC.Domain.csproj" />
     </ItemGroup>
 
 </Project>
