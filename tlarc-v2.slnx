@@ -136,19 +136,7 @@
     </Project>
   </Folder>
   <Folder Name="/TrajectoryTracker/MPC/">
-    <Project Path="TrajectoryTracker/MPC.Domain/MPC.Domain.csproj">
-      <BuildType Solution="Debug|x64" Project="?" />
-      <Platform Solution="Debug|x64" Project="?" />
-      <Platform Solution="Release|x64" Project="x64" />
-      <Build Solution="Debug|x64" Project="false" />
-    </Project>
     <Project Path="TrajectoryTracker/MPC.Instructure/MPC.Instructure.csproj">
-      <BuildType Solution="Debug|x64" Project="?" />
-      <Platform Solution="Debug|x64" Project="?" />
-      <Platform Solution="Release|x64" Project="x64" />
-      <Build Solution="Debug|x64" Project="false" />
-    </Project>
-    <Project Path="TrajectoryTracker/MPC.Test/MPC.Test.csproj">
       <BuildType Solution="Debug|x64" Project="?" />
       <Platform Solution="Debug|x64" Project="?" />
       <Platform Solution="Release|x64" Project="x64" />

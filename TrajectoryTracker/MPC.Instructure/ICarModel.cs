@@ -15,5 +15,4 @@ interface ICarModel2D
 
     public double[,] A => MatrixA;
     public double[,] B => MatrixB;
-
 }

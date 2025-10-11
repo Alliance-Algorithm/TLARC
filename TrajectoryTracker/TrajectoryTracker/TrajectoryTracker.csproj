@@ -10,7 +10,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\Kernel\Kernel.Core\Kernel.Core.csproj" />
-        <ProjectReference Include="..\MPC.Domain\MPC.Domain.csproj" />
+        <ProjectReference Include="..\MPC.Instructure\MPC.Instructure.csproj" />
     </ItemGroup>
 
 </Project>

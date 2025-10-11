@@ -5,5 +5,7 @@
         <DebugType>None</DebugType>
         <InvariantGlobalization>true</InvariantGlobalization>
         <OptimizationPreference>Speed</OptimizationPreference>
+        <UseRidGraph>true</UseRidGraph>
+        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     </PropertyGroup>
 </Project>
