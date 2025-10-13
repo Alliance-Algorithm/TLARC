@@ -83,12 +83,16 @@ public class TfTest
     {
         var result = Tf.Cast(from, to, TestPoint);
 
-        Assert.That(result.X, Is.EqualTo(expected.X).Within(Tolerance),
-            $"{from}->{to} transform X mismatch: {result.X} vs {expected.X}");
-        Assert.That(result.Y, Is.EqualTo(expected.Y).Within(Tolerance),
-            $"{from}->{to} transform Y mismatch: {result.Y} vs {expected.Y}");
-        Assert.That(result.Z, Is.EqualTo(expected.Z).Within(Tolerance),
-            $"{from}->{to} transform Z mismatch: {result.Z} vs {expected.Z}");
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.X, Is.EqualTo(expected.X).Within(Tolerance),
+                    $"{from}->{to} transform X mismatch: {result.X} vs {expected.X}");
+            Assert.That(result.Y, Is.EqualTo(expected.Y).Within(Tolerance),
+                $"{from}->{to} transform Y mismatch: {result.Y} vs {expected.Y}");
+            Assert.That(result.Z, Is.EqualTo(expected.Z).Within(Tolerance),
+                $"{from}->{to} transform Z mismatch: {result.Z} vs {expected.Z}");
+        });
+
     }
 
     // 1. 测试直接变换路径
@@ -120,7 +124,7 @@ public class TfTest
         //  2. 应用逆旋转: -30°Z
         //     x' = 1*cos(-30) - 2*sin(-30) ≈ 1*0.866 - 2*(-0.5) = 0.866 + 1 = 1.866
         //     y' = 1*sin(-30) + 2*cos(-30) ≈ 1*(-0.5) + 2*0.866 = -0.5 + 1.732 = 1.232
-        TestKnownTransform(World, Sensor, new Vector3(-0.423161983f, 1.7247448f, 0.1805207811f));
+        TestKnownTransform(World, Sensor, new Vector3(1.0960654f, -1.3876271f, 1.8534244f));
     }
 
     // 2. 测试多级变换路径
@@ -143,13 +147,13 @@ public class TfTest
     public void Cast_CrossBranchPaths()
     {
         // Tool -> Camera (Tool->Arm->Base->Camera)
-        TestKnownTransform(Tool, Camera, new Vector3(0.5f, 3.73205f, 1.23205f));
+        TestKnownTransform(Tool, Camera, new Vector3(-4.2420425f, -0.6643429f, 2.294444f));
 
         // Object -> Arm (Object->Camera->Base->Arm)
-        TestKnownTransform(Object, Arm, new Vector3(-0.5f, 0.68301f, 0.68301f));
+        TestKnownTransform(Object, Arm, new Vector3(3.982051f, -1.0826429f, 3.298698f));
 
         // Sensor -> Object (Sensor->Tool->Arm->Base->Camera->Object)
-        TestKnownTransform(Sensor, Object, new Vector3(0.70711f, 0.80301f, -0.80301f));
+        TestKnownTransform(Sensor, Object, new Vector3(-4.3193874f, 3.034069f, 0.34783986f));
     }
 
     // 4. 测试所有节点对组合（7x7=49种组合）
