@@ -28,14 +28,14 @@ public static class Tf
         rootToFrom = [];
         rootToTo = [];
         var i = 0;
-        if (!Nodes.ContainsKey(identifierFrom))
+        if (!Nodes.TryGetValue(identifierFrom, out TransformTreeNode? value1))
             throw new TlarcTfError.FoundNoNodeException(identifierFrom);
-        if (!Nodes.ContainsKey(identifierTo))
+        if (!Nodes.TryGetValue(identifierTo, out TransformTreeNode? value2))
             throw new TlarcTfError.FoundNoNodeException(identifierTo);
-        var parentIdsFrom = CollectionsMarshal.AsSpan(Nodes[identifierFrom].ParentIds);
-        var parentIdsTo = CollectionsMarshal.AsSpan(Nodes[identifierTo].ParentIds);
-        int max1 = Nodes[identifierFrom].ParentIds.Count,
-            max2 = Nodes[identifierTo].ParentIds.Count;
+        var parentIdsFrom = CollectionsMarshal.AsSpan(value1.ParentIds);
+        var parentIdsTo = CollectionsMarshal.AsSpan(value2.ParentIds);
+        int max1 = value1.ParentIds.Count,
+            max2 = value2.ParentIds.Count;
 
         while (i < max1 && i < max2 && parentIdsFrom[i] == parentIdsTo[i])
             i++;
@@ -53,7 +53,7 @@ public static class Tf
 
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static Vector3 CastImpl(in string identifierFrom, in string identifierTo, Vector3 position)
+    private static Vector3 CastImpl(in string identifierFrom, in string identifierTo, Vector3 position, long timeStamp)
     {
         var hashcode = Tf.HashFunc(HybridNodes[identifierFrom].Id, HybridNodes[identifierTo].Id);
         ref var cache = ref _caches[hashcode];
@@ -70,16 +70,16 @@ public static class Tf
 
             foreach (var node in
                      Nodes.Where(x => rootTo.Contains(x.Key) || rootToFrom.Contains(x.Key)))
-                node.Value.Changed.AddHandler(cache.ChangedCallback);
+                node.Value.AddCallBack(cache.CallBack);
         }
 
-        ref var transform = ref cache.GetTransform();
+        ref var transform = ref cache.GetTransform(timeStamp);
         var ret = Vector3.Transform(position, transform);
         return ret;
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private static void CastImpl(in string identifierFrom, in string identifierTo, Vector3[] positions, Vector3[] outPositions)
+    private static void CastImpl(in string identifierFrom, in string identifierTo, Vector3[] positions, Vector3[] outPositions, long timeStamp)
     {
         var hashcode = Tf.HashFunc(HybridNodes[identifierFrom].Id, HybridNodes[identifierTo].Id);
         ref var cache = ref _caches[hashcode];
@@ -95,11 +95,13 @@ public static class Tf
             };
 
             foreach (var node in
-                     Nodes.Where(x => rootTo.Contains(x.Key) || rootToFrom.Contains(x.Key)))
-                node.Value.Changed.AddHandler(cache.ChangedCallback);
+                     Nodes.Where(x => rootTo.Contains(x.Key) || rootToFrom.Contains(x.Key))){
+                Console.WriteLine("Fuck"); 
+                node.Value.AddCallBack(cache.CallBack);
+            }
         }
 
-        var transform = cache.GetTransform();
+        var transform = cache.GetTransform(timeStamp);
         var chunkSize = Math.Max(1, positions.Length / 2000);
 
         Parallel.For(0, (positions.Length + chunkSize - 1) / chunkSize, i =>
@@ -120,17 +122,41 @@ public static class Tf
     /// <param name="identifierFrom"></param>
     /// <param name="position">要转移的位置</param>
     /// <returns></returns>
-    public static Vector3 Cast(in string identifierFrom, in string identifierTo, Vector3 position) =>
-        identifierFrom == identifierTo ? position : Tf.CastImpl(identifierFrom, identifierTo, position);
+    public static Vector3 Cast(
+                            in string   identifierFrom, 
+                            in string   identifierTo, 
+                               Vector3  position, 
+                               long     timeStamp = -1) => 
+                        identifierFrom == identifierTo ? 
+                        position : 
+                        CastImpl(identifierFrom, identifierTo, position, timeStamp);
 
-
-    public unsafe static Vector3[] Cast(in string identifierFrom, in string identifierTo, Vector3[] position, Vector3[] outPositions)
+    public unsafe static Vector3[] Cast(
+                                    in string       identifierFrom, 
+                                    in string       identifierTo, 
+                                       Vector3[]    position, 
+                                       Vector3[]    outPositions, 
+                                       long         timeStamp = -1)
     {
-        if (identifierFrom == identifierTo)
+        if (identifierFrom  == identifierTo && 
+            position        != outPositions) 
         {
-            if (position != outPositions) Buffer.BlockCopy(position, 0, outPositions, 0, position.Length * sizeof(Vector3));
+            Buffer.BlockCopy(
+                position, 
+                0, 
+                outPositions, 
+                0, 
+                position.Length * sizeof(Vector3));
+            
+            return outPositions;
         }
-        else Tf.CastImpl(identifierFrom, identifierTo, position, outPositions);
+        
+        CastImpl(
+            identifierFrom, 
+            identifierTo, 
+            position, 
+            outPositions, 
+            timeStamp);
         return outPositions;
     }
 
@@ -163,11 +189,11 @@ public static class Tf
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void SetTfNode(string identifier, Vector3 translation, Quaternion rotation)
+    public static void SetTfNode(string identifier, Vector3 translation, Quaternion rotation, long timeStamp = -1)
     {
         if (!Nodes.TryGetValue(identifier, out var node))
             throw new TlarcTfError.SetNoNodeException(identifier);
-        node.SetTransform(translation, rotation);
+        node.SetTransform(translation, rotation, timeStamp);
     }
 
     private class TransformStamped : ITransformStamped, IHeader, IPose
@@ -191,8 +217,9 @@ public static class Tf
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ITfCollection GetTree() => new TfCollection
     {
-        TransformStampeds = Nodes.Values.Where(n => n.ParentIds.Count > 1).Select(n => Tf.GetNode(n.Identifier))
-            .ToArray()
+        TransformStampeds = [.. Nodes.Values
+                                .Where (n => n.ParentIds.Count > 1)
+                                .Select(n => Tf.GetNode(n.Identifier))]
     };
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -203,10 +230,10 @@ public static class Tf
 
         return new TransformStamped
         {
-            Identifier = identifier,
-            ParentFrameId = node.ParentIds.Count > 1 ? node.ParentIds[^2] : "",
-            Orientation = node.Rotation,
-            Position = node.Translate
+            Identifier      = identifier,
+            ParentFrameId   = node.ParentIds.Count > 1 ? node.ParentIds[^2] : "",
+            Orientation     = node.Orientation,
+            Position        = node.Translation
         };
     }
 }

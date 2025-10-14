@@ -10,3 +10,6 @@ build/
 UnitTest/
 dotnet-install.sh
 **.png
+
+**Artifacts/
+**Bin/

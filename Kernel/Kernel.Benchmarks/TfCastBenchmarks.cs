@@ -82,7 +82,7 @@ public class TfCastBenchmarks
     private int i = 0;
 
     [Benchmark]
-    public Vector3 CacheMiss_NewPath()
+    public Vector3 CacheHit_NewPath()
     {
         i = (i + 1) % 2;
         // 强制创建新缓存路径
