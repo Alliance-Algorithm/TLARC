@@ -1,7 +1,7 @@
 using System.Numerics;
 using ALPlanner.Infrastructure.Optimizer;
-using Kernel.DataInterfaces;
-using Kernel.DataInterfaces.Navigation;
+using Kernel.Contract;
+using Kernel.Contract.Navigation;
 using TlarcRosBridge.Infrastructure.Messages.Builtin;
 
 namespace ALPlanner.Domain.Trajectorys;
@@ -9,17 +9,19 @@ namespace ALPlanner.Domain.Trajectorys;
 public class MincoTrajectory(Minco minco) : ITrajectory2D
 {
 
-    public required IHeader Header { get; init; }
-    private DateTime _fromWhen;
+    public required Header Header { get; init; }
     public DateTime FromWhen
     {
-        get => _fromWhen; set
+        get => _data.FromWhen; set
         {
-            _fromWhen = value;
-            ToWhen = _fromWhen + TimeSpan.FromSeconds(minco.TotalSecond);
+            _data.FromWhen = value;
+            _data.ToWhen = value + TimeSpan.FromSeconds(minco.TotalSecond);
         }
     }
     public DateTime ToWhen { get; private set; }
+
+    private Trajectory2DHeader _data = new();
+    public Trajectory2DHeader Data => _data;
 
     public Vector2 GetPosition(DateTime time) => minco.GetPosition((time - FromWhen).TotalSeconds);
 

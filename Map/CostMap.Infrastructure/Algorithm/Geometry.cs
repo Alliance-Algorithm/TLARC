@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Numerics;
 using g4;
-using Kernel.DataInterfaces;
-using Kernel.DataInterfaces.Navigation;
+using Kernel.Contract;
+using Kernel.Contract.Navigation;
 
 namespace CostMap.Infrastructure.Algorithm;
 
@@ -273,31 +273,13 @@ internal static class Geometry
         Min
     }
 
-    private class GridMap2DDataInner : IGridMap2DData
-    {
-        public IHeader Header { get; set; }
-        public Vector2 Origin { get; set; }
-
-        public uint Width { get; set; }
-
-        public uint Height { get; set; }
-
-        public double RotationRad { get; set; }
-
-        public Matrix3x2 RotationMatrix { get; set; }
-
-        public float Resolution { get; set; }
-        public sbyte[] Data { get; set; }
-    }
-
-
-    // internal static void Dilate(IGridMap2DData     map,
+    // internal static void Dilate(GridMap2DData     map,
     //                             DilateKernelType   type,
     //                             DilateForeground   foreground,
     //                             int                lenghtNotAllow,
     //                             int                lenghtPunish,
     //                             int                mapSplitLine,
-    //                             out IGridMap2DData outMap)
+    //                             out GridMap2DData outMap)
     // {
     //     GridMap2DDataInner inner = new();
     //     inner.Header = map.Header;

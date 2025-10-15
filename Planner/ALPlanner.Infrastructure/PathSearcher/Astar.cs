@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using Kernel.DataInterfaces.Navigation;
+using Kernel.Contract.Navigation;
 
 namespace ALPlanner.Infrastructure.PathSearcher;
 
@@ -49,7 +49,7 @@ public class AStar(int sizeX, int sizeY, float step, float mapResolution)
     /// <param name="to">to in mapOriginTfNode</param>
     /// <param name="map"></param>
     /// <returns></returns>
-    public Path Search(Vector2 from, Vector2 to, ISdf2D map)
+    public Vector2[] Search(Vector2 from, Vector2 to, ISdf2D map)
     {
         var closeSpan = _closeMap.AsSpan();
         closeSpan.Clear();
@@ -92,8 +92,7 @@ public class AStar(int sizeX, int sizeY, float step, float mapResolution)
                 _openList.Enqueue(child, child.F);
             }
         }
-        var s = end.ToStack();
-        return new Path(map.Header.Identifier, s.Count, s);
+        return [.. end.ToStack()];
     }
 }
 

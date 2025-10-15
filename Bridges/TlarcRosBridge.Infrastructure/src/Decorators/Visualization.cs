@@ -1,7 +1,7 @@
 
-using Kernel.DataInterfaces.Constraints;
-using Kernel.DataInterfaces.Navigation;
-using Kernel.DataInterfaces.Visualization;
+using Kernel.Contract.Constraints;
+using Kernel.Contract.Navigation;
+using Kernel.Contract.Visualization;
 using Rcl;
 using TlarcRosBridge.Infrastructure.Messages.Builtin;
 
@@ -10,7 +10,7 @@ namespace TlarcRosBridge.Infrastructure.Decorators;
 
 internal static class Visualization
 {
-    static void Draw(in ICircle circle, ref Messages.Visualization.Marker.Priv marker)
+    static void Draw(in Circle circle, ref Messages.Visualization.Marker.Priv marker)
     {
         marker.Type = Messages.Visualization.Marker.SPHERE;
         marker.Scale.X = circle.R * 2;
@@ -22,7 +22,7 @@ internal static class Visualization
         marker.Pose.Position.Z = 0;
     }
     static internal void Draw(in string id, IRclNode node,
-    in ISafeCorridor2DData<ICircle> circles,
+    in SafeCorridor2DData<Circle> circles,
     ref Messages.Visualization.MarkerArray.Priv markers)
     {
         markers.Markers = new(circles.Length);
@@ -37,7 +37,7 @@ internal static class Visualization
             ++i;
         }
     }
-    static void Draw(in IRectangle circle, ref Messages.Visualization.Marker.Priv marker)
+    static void Draw(in Rectangle circle, ref Messages.Visualization.Marker.Priv marker)
     {
         marker.Type = Messages.Visualization.Marker.CUBE;
         marker.Scale.X = circle.Size.X;
@@ -49,7 +49,7 @@ internal static class Visualization
         marker.Pose.Position.Z = 0;
     }
     static internal void Draw(in string id, IRclNode node,
-    in ISafeCorridor2DData<IRectangle> rectangle,
+    in SafeCorridor2DData<Rectangle> rectangle,
     ref Messages.Visualization.MarkerArray.Priv markers)
     {
         markers.Markers = new(rectangle.Length);

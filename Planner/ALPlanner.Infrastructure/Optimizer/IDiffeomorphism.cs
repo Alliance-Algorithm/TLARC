@@ -2,8 +2,8 @@
 using Vectorf = NumFlat.Vec<double>;
 using Matrixf = NumFlat.Mat<double>;
 using ALPlanner.Infrastructure.Optimizer;
-using Kernel.DataInterfaces.Constraints;
-using Kernel.DataInterfaces.Visualization;
+using Kernel.Contract.Constraints;
+using Kernel.Contract.Visualization;
 
 namespace ALPlanner.Infrastructure.Optimizer;
 
@@ -27,7 +27,7 @@ public static class DiffeomorphismFactory
     public static IDiffeomorphism Build<T>(in Vectorf RT, in Matrixf Q, in Matrixf dQ, in int N, in T data) =>
     data switch
     {
-        ICircle[] d => new Diffeomorphism_Circle2D(RT, Q, dQ, N, d),
+        Circle[] d => new Diffeomorphism_Circle2D(RT, Q, dQ, N, d),
         AABB2D[] d => new Diffeomorphism_AABB(RT, Q, dQ, N, d),
         _ => throw new NotImplementedException(data!.GetType().FullName)
     };

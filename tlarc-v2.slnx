@@ -31,13 +31,10 @@
       <Platform Solution="Release|x64" Project="x64" />
       <Build Solution="Debug|x64" Project="false" />
     </Project>
-    <Project Path="Kernel/Kernel.Core/Kernel.Core.csproj">
-      <BuildType Solution="Debug|x64" Project="?" />
-      <Platform Solution="Debug|x64" Project="?" />
-      <Platform Solution="Release|x64" Project="x64" />
-      <Build Solution="Debug|x64" Project="false" />
+    <Project Path="Kernel/Kernel.Contract/Kernel.Contract.csproj">
+      <Platform Solution="*|x64" Project="x64" />
     </Project>
-    <Project Path="Kernel/Kernel.DataInterfaces/Kernel.DataInterfaces.csproj">
+    <Project Path="Kernel/Kernel.Core/Kernel.Core.csproj">
       <BuildType Solution="Debug|x64" Project="?" />
       <Platform Solution="Debug|x64" Project="?" />
       <Platform Solution="Release|x64" Project="x64" />
@@ -62,6 +59,9 @@
       <Platform Solution="Release|x64" Project="x64" />
       <Build Solution="Debug|x64" Project="false" />
     </Project>
+    <Project Path="Map/SafeCorridor.Infractructure/SafeCorridor.Infractructure.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
   </Folder>
   <Folder Name="/Map/CostMap/">
     <Project Path="Map/CostMap.Infrastructure/CostMap.Infrastructure.csproj">
@@ -71,20 +71,6 @@
       <Build Solution="Debug|x64" Project="false" />
     </Project>
     <Project Path="Map/CostMap.Test/CostMap.Test.csproj">
-      <BuildType Solution="Debug|x64" Project="?" />
-      <Platform Solution="Debug|x64" Project="?" />
-      <Platform Solution="Release|x64" Project="x64" />
-      <Build Solution="Debug|x64" Project="false" />
-    </Project>
-  </Folder>
-  <Folder Name="/Map/SafetyCorridor/">
-    <Project Path="Map/SafeCorridor.Test/SafeCorridor.Test.csproj">
-      <BuildType Solution="Debug|x64" Project="?" />
-      <Platform Solution="Debug|x64" Project="?" />
-      <Platform Solution="Release|x64" Project="x64" />
-      <Build Solution="Debug|x64" Project="false" />
-    </Project>
-    <Project Path="Map/SafetyCorridor.Infractructure/SafetyCorridor.Infractructure.csproj">
       <BuildType Solution="Debug|x64" Project="?" />
       <Platform Solution="Debug|x64" Project="?" />
       <Platform Solution="Release|x64" Project="x64" />

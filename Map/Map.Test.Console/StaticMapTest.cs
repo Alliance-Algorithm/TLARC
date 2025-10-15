@@ -1,5 +1,5 @@
 
-using Kernel.DataInterfaces.Navigation;
+using Kernel.Contract.Navigation;
 using Map;
 using TlarcRosBridge.Infrastructure.Messages.Nav;
 
@@ -19,7 +19,7 @@ public static class StaticMapTest
 
                 var ros = TlarcRosBridge.Domain.RosBridge.Build(RosNodeName);
 
-                ros.Publish<IGridMap2DData, OccupancyGrid>(
+                ros.Publish<GridMap2DData, OccupancyGrid>(
                      loader.MapEventName, RosStaticMap,
                     TlarcRosBridge.Infrastructure.DataProcess.Publisher.GridMap2dToOccupancyGridMap);
 #endif

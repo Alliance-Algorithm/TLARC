@@ -97,7 +97,7 @@ public static class ROGMap
                     rogMap._gridData[pointIndex] = 0;
                     for (int k = 0; k < rogMap.SizeZ; k++)
                         rogMap._memory[pointIndex + k * rogMap.Size2D] = 0;
-                    rogMap._data[pointIndex] = 0;
+                    rogMap.Data[pointIndex] = 0;
 
                     rogMap._upper[pointIndex] = -1e6f;
                     rogMap._lower[pointIndex] = 1e6f;
@@ -292,7 +292,7 @@ public static class ROGMap
                     rogMap._gridData[i] &= 0x7fffffff;
                     for (int k = 0; k < rogMap.SizeZ; k++)
                         rogMap._memory[i + k * rogMap.Size2D] = 0;
-                    rogMap._data[i] = 0;
+                    rogMap.Data[i] = 0;
                     rogMap._upper[i] = -1e6f;
                     rogMap._lower[i] = 1e6f;
                 }
@@ -386,7 +386,7 @@ public static class ROGMap
                 var c = new Vector2i(x, y).LocalToGlobalNormalize(rogMap);
                 var index = c.x + c.y * rogMap.SizeX;
                 var step = rogMap.TopZ - rogMap.ButtonZ;
-                rogMap._data[x + y * rogMap.SizeX] = (sbyte)((
+                rogMap.Data[x + y * rogMap.SizeX] = (sbyte)((
                     rogMap._gridData[index] != 0
                         ) ? 100 : (rogMap._lower[index] == 1e6 ? 0 : Math.Clamp(rogMap._lower[index] * rogMap.Resolution / step, 0.25, 1) * 49));
             });

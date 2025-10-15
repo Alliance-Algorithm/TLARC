@@ -21,9 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Kernel\Kernel.DataInterfaces\Kernel.DataInterfaces.csproj" />
-        <ProjectReference Include="..\..\Kernel\Kernel.Utils\Kernel.Utils.csproj" />
-        <ProjectReference Include="..\..\Kernel\Kernel.DataInterfaces\Kernel.DataInterfaces.csproj"/>
+        <ProjectReference Include="..\..\Kernel\Kernel.Contract\Kernel.Contract.csproj"/>
         <ProjectReference Include="..\..\Kernel\Kernel.Utils\Kernel.Utils.csproj"/>
     </ItemGroup>
 

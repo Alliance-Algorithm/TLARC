@@ -3,7 +3,7 @@ using Vectorf = NumFlat.Vec<double>;
 using Matrixf = NumFlat.Mat<double>;
 using System.Numerics;
 using NumFlat;
-using Kernel.DataInterfaces.Constraints;
+using Kernel.Contract.Constraints;
 
 namespace ALPlanner.Infrastructure.Optimizer;
 

@@ -1,5 +1,5 @@
-using Kernel.DataInterfaces.Geometry;
-using Kernel.DataInterfaces.Tf;
+using Kernel.Contract.Geometry;
+using Kernel.Contract.Tf;
 using Rcl;
 using TlarcRosBridge.Infrastructure.Messages.Geometry;
 using TlarcRosBridge.Infrastructure.Messages.Tf2;
@@ -8,18 +8,18 @@ namespace TlarcRosBridge.Infrastructure.Decorators;
 
 internal static class Tf
 {
-    public static void TfCollectionToTfMessage(in ITfCollection poseStamped,
+    public static void TfCollectionToTfMessage(in TfCollection poseStamped,
                                                in IRclNode node,
                                                ref TFMessage.Priv msg)
     {
-        msg.Transforms = new TransformStamped.PrivSequence(poseStamped.TransformStampeds.Length);
+        msg.Transforms = new Messages.Geometry.TransformStamped.PrivSequence(poseStamped.TransformStampeds.Length);
         for (var i = 0; i < poseStamped.TransformStampeds.Length; ++i)
             Tf.TlarcTfStampedToTfStamped(poseStamped.TransformStampeds[i], node, ref msg.Transforms.AsSpan()[i]);
     }
 
-    public static void TlarcTfStampedToTfStamped(in ITransformStamped poseStamped,
+    public static void TlarcTfStampedToTfStamped(in Kernel.Contract.Tf.TransformStamped poseStamped,
                                                  in IRclNode node,
-                                                 ref TransformStamped.Priv msg)
+                                                 ref Messages.Geometry.TransformStamped.Priv msg)
     {
         msg.ChildFrameId.CopyFrom(poseStamped.Header.Identifier);
         ref var a = ref msg.Transform;
@@ -28,7 +28,7 @@ internal static class Tf
     }
 
 
-    public static void WriteIntoTransform(in IPose pose, ref Transform.Priv transform)
+    public static void WriteIntoTransform(in Kernel.Contract.Geometry.Pose pose, ref Transform.Priv transform)
     {
         transform.Rotation.X = pose.Orientation.X;
         transform.Rotation.Y = pose.Orientation.Y;

@@ -2,8 +2,8 @@
 using Vectorf = NumFlat.Vec<double>;
 using Matrixf = NumFlat.Mat<double>;
 using System.Numerics;
-using Kernel.DataInterfaces.Visualization;
-using Kernel.DataInterfaces.Constraints;
+using Kernel.Contract.Visualization;
+using Kernel.Contract.Constraints;
 using CommunityToolkit.HighPerformance;
 using NumFlat;
 
@@ -18,7 +18,7 @@ unsafe internal readonly struct Diffeomorphism_Circle2D : IDiffeomorphism
     readonly Matrixf Q;
     readonly Matrixf dQ;
     readonly Vectorf gKesi;
-    readonly ICircle[] obstacles;
+    readonly Circle[] obstacles;
     readonly Vectorf Gd;
     readonly int Length;
 
@@ -27,7 +27,7 @@ unsafe internal readonly struct Diffeomorphism_Circle2D : IDiffeomorphism
     readonly int IDiffeomorphism.Length => Length;
 
     internal const double wei_time_ = 1e4;
-    static (Vector2 o, Vector2 dir, float r) CircleIntersection(ICircle a, ICircle b)
+    static (Vector2 o, Vector2 dir, float r) CircleIntersection(Circle a, Circle b)
     {
         var sd = (a.Origin - b.Origin).LengthSquared();
         var d = MathF.Sqrt(sd);
@@ -78,7 +78,7 @@ unsafe internal readonly struct Diffeomorphism_Circle2D : IDiffeomorphism
         }
     }
 
-    public Diffeomorphism_Circle2D(in Vectorf RT, in Matrixf Q, in Matrixf dQ, in int N, in ICircle[] obstacles)
+    public Diffeomorphism_Circle2D(in Vectorf RT, in Matrixf Q, in Matrixf dQ, in int N, in Circle[] obstacles)
     {
         this.Length = (N - 1) * 2 - obstacles.Length + 1 + N;
         this.Gd = new Vectorf(Length);

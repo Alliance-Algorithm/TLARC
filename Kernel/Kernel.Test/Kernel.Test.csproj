@@ -29,7 +29,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Kernel.Core\Kernel.Core.csproj"/>
-        <ProjectReference Include="..\Kernel.DataInterfaces\Kernel.DataInterfaces.csproj"/>
     </ItemGroup>
 
 </Project>

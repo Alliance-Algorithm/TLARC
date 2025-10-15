@@ -1,52 +1,31 @@
 using System.Numerics;
 using ALPlanner.Infrastructure.Optimizer;
 using Kernel.Core.EventBus;
-using Kernel.DataInterfaces;
-using Kernel.DataInterfaces.Constraints;
-using Kernel.DataInterfaces.Navigation;
-using Kernel.DataInterfaces.Visualization;
+using Kernel.Contract;
+using Kernel.Contract.Constraints;
+using Kernel.Contract.Navigation;
+using Kernel.Contract.Visualization;
 using MathNet.Numerics.Optimization;
 using NumFlat;
 
 static class CircleObstacle
 {
 
-    static ICircle[] path = [
-        new Circle2D(1.0f, new(0,0)),
-        new Circle2D(0.8f,new(1f,1f)),
-        new Circle2D(0.8f,new(2f,2f)),
-        new Circle2D(0.5f,new(2.5f,3f)),
-        new Circle2D(0.4f,new(3f,3.4f)),
-        new Circle2D(0.4f,new(3.0f,4.0f)),
-        new Circle2D(0.4f,new(2.6f,4.2f)),
-        new Circle2D(0.4f,new(2.0f,4.4f)),
-        new Circle2D(0.5f,new(1.3f,4.1f)),
-        new Circle2D(0.5f,new(0.7f,3.5f)),
-        new Circle2D(0.6f,new(0.2f,3.0f)),
-        new Circle2D(0.7f,new(-0.5f,2.7f)),
-        new Circle2D(0.8f,new(-1.5f,2.5f)),
+    static Circle[] path = [
+        new Circle{R = 1.0f, Origin = new(0,0)},
+        new Circle{R =0.8f,Origin = new(1f,1f)},
+        new Circle{R =0.8f,Origin = new(2f,2f)},
+        new Circle{R =0.5f,Origin = new(2.5f,3f)},
+        new Circle{R =0.4f,Origin = new(3f,3.4f)},
+        new Circle{R =0.4f,Origin = new(3.0f,4.0f)},
+        new Circle{R =0.4f,Origin = new(2.6f,4.2f)},
+        new Circle{R =0.4f,Origin = new(2.0f,4.4f)},
+        new Circle{R =0.5f,Origin = new(1.3f,4.1f)},
+        new Circle{R =0.5f,Origin = new(0.7f,3.5f)},
+        new Circle{R =0.6f,Origin = new(0.2f,3.0f)},
+        new Circle{R =0.7f,Origin = new(-0.5f,2.7f)},
+        new Circle{R =0.8f,Origin = new(-1.5f,2.5f)},
     ];
-    class PathDecorator<T>(T path) : IPath2D, IHeader where T : IEnumerable<Vector2>
-    {
-        public IHeader Header => this;
-
-        public int Length => path.Count();
-
-        public string Identifier => "Test";
-
-        public IEnumerable<Vector2> GetPoints() => path;
-    }
-    class CorridorDecorator(ICircle[] path) : ISafeCorridor2DData<ICircle>, IHeader
-    {
-        public IHeader Header => this;
-
-        public int Length => path.Length;
-
-        public string Identifier => "Test";
-
-        public ICircle[] Corridors => path;
-
-    }
 
 
     public static void Build()
@@ -55,11 +34,11 @@ static class CircleObstacle
         Console.WriteLine(2 * 3 * path.Length * K);
 
         var ros = TlarcRosBridge.Domain.RosBridge.Build("MincoTest");
-        ros.Publish<IPath2D, TlarcRosBridge.Infrastructure.Messages.Nav.Path>("/traj", "/traj"
+        ros.Publish<Path2D, TlarcRosBridge.Infrastructure.Messages.Nav.Path>("/traj", "/traj"
                             , TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishPath);
-        ros.Publish<IPath2D, TlarcRosBridge.Infrastructure.Messages.Nav.Path>("/path", "/path"
+        ros.Publish<Path2D, TlarcRosBridge.Infrastructure.Messages.Nav.Path>("/path", "/path"
         , TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishPath);
-        ros.Publish<ISafeCorridor2DData<ICircle>, TlarcRosBridge.Infrastructure.Messages.Visualization.MarkerArray>("/safeCorridor", "/safeCorridor"
+        ros.Publish<SafeCorridor2DData<Circle>, TlarcRosBridge.Infrastructure.Messages.Visualization.MarkerArray>("/safeCorridor", "/safeCorridor"
         , TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishCircleSafeCorridor);
 
         Vector2 head = new(0, 0);
@@ -67,7 +46,7 @@ static class CircleObstacle
         Vector2 heada = new(0, 0);
         var ts = 0f;
 
-        Minco<ICircle> minco = new(path.Length * K, path);
+        Minco<Circle> minco = new(path.Length * K, path);
         var now = DateTime.UtcNow;
         var total = DateTime.UtcNow;
         var minimizer = new LimitedMemoryBfgsMinimizer(1e-6, 1e-6, 1e-6, 10 * 1024 * 1024, 100);
@@ -105,9 +84,9 @@ static class CircleObstacle
             }
             ts = (float)(DateTime.UtcNow - now).TotalSeconds;
             var recordMinco = minco.Record;
-            EventBus<IPath2D>.Instance.Publish("/traj", new PathDecorator<IEnumerable<Vector2>>(recordMinco.GetPositions(ts, (minco.TotalSecond - ts) / 100, 101)));
-            EventBus<IPath2D>.Instance.Publish("/path", new PathDecorator<IEnumerable<Vector2>>(recordMinco.GetControlPoints()));
-            EventBus<ISafeCorridor2DData<ICircle>>.Instance.Publish("/safeCorridor", new CorridorDecorator(path));
+            EventBus<Path2D>.Instance.Publish("/traj", new Path2D{Points = [.. recordMinco.GetPositions(ts, (minco.TotalSecond - ts) / 100, 101)], Header = new Header{Identifier = "test"}});
+            EventBus<Path2D>.Instance.Publish("/path", new Path2D{Points = [.. recordMinco.GetControlPoints()], Header = new Header{Identifier = "test"}});
+            EventBus<SafeCorridor2DData<Circle>>.Instance.Publish("/safeCorridor", new SafeCorridor2DData<Circle>{Corridors = path, Header = new Header{Identifier = "test"}});
 
             Thread.Sleep(50);
             head = recordMinco.GetPosition(ts);

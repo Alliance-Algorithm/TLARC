@@ -3,25 +3,15 @@ using ALPlanner.Domain.Trajectorys;
 using ALPlanner.Infrastructure.Optimizer;
 using ALPlanner.Infrastructure.PathSearcher;
 using Kernel.Core.EventBus;
-using Kernel.DataInterfaces;
-using Kernel.DataInterfaces.Constraints;
-using Kernel.DataInterfaces.Navigation;
-using Kernel.DataInterfaces.Visualization;
+using Kernel.Contract;
+using Kernel.Contract.Constraints;
+using Kernel.Contract.Navigation;
+using Kernel.Contract.Visualization;
 
 namespace Planner;
 
-public class PlannerBuilder : IHeader
+public class PlannerBuilder
 {
-    class PathDecorator<T>(T path) : IPath2D, IHeader where T : IEnumerable<Vector2>
-    {
-        public IHeader Header => this;
-
-        public int Length => path.Count();
-
-        public string Identifier => "Test";
-
-        public IEnumerable<Vector2> GetPoints() => path;
-    }
 
     ALPlanner.Infrastructure.PathSearcher.AStar? _aStar;
     ISdf2D? _sdf2d;
@@ -37,27 +27,27 @@ public class PlannerBuilder : IHeader
     public string Identifier { get; private set; } = "map_link";
 
     public
-    IPath2D
+    Path2D
         SeachPath
         (Vector2 from, Vector2 to)
-        => _aStar!.Search(from, to, _sdf2d!);
+        => new() { Points = _aStar!.Search(from, to, _sdf2d!),Header = new Header{Identifier = Identifier}};
 
     public
-    ISafeCorridor2DData<ICircle>
+    SafeCorridor2DData<Circle>
         SearchCircleSafeCorridor
-        (IPath2D path)
+        (Path2D path)
         => ALPlanner.Infrastructure.SafeCorridorConstruct.GaussianSample.RadiusWithDistance(path, obstacle!);
 
     public
-    ISafeCorridor2DData<AABB2D>
+    SafeCorridor2DData<AABB2D>
         SearchAABBSafeCorridor
-        (IPath2D path)
+        (Path2D path)
         => ALPlanner.Infrastructure.SafeCorridorConstruct.IncrementalRectangle.AABBGenerate(path, obstacle!);
 
     public static
     ITrajectory2D?
         OptimizePath<T>
-        (ISafeCorridor2DData<T> corridor,
+        (SafeCorridor2DData<T> corridor,
          MincoOptimizer.Status header,
          MincoOptimizer.Status tail)
         where T : IConstraint

@@ -1,9 +1,9 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using ALPlanner.Infrastructure.SafeCorridorConstruct;
-using Kernel.DataInterfaces.Constraints;
-using Kernel.DataInterfaces.Navigation;
-using Kernel.DataInterfaces.Visualization;
+using Kernel.Contract.Constraints;
+using Kernel.Contract.Navigation;
+using Kernel.Contract.Visualization;
 using MathNet.Numerics.Financial;
 
 namespace ALPlanner.Infrastructure.SafeCorridorConstruct;
@@ -144,17 +144,17 @@ public static class IncrementalRectangle
                 ref MaxX,
                 ref MaxY);
 
-        corridor.AddLast(new AABB2D(MinX, MinY, MaxX, MaxY));
+        corridor.AddLast(new AABB2D{MinX = MinX, MinY = MinY, MaxX = MaxX, MaxY = MaxY});
     }
-    public static ISafeCorridor2DData<AABB2D> AABBGenerate(IPath2D path, IObstacle obstacle)
+    public static SafeCorridor2DData<AABB2D> AABBGenerate(Path2D path, IObstacle obstacle)
     {
 
 
         LinkedList<AABB2D> corridor = [];
 
-        Update(path.GetPoints().First(), obstacle, ref corridor);
-        Vector2 last = path.GetPoints().First();
-        foreach (var p in path.GetPoints().Skip(1))
+        Update(path.Points[0], obstacle, ref corridor);
+        Vector2 last = path.Points[0];
+        foreach (var p in path.Points[1 ..])
         {
             while (!CheckInside(corridor.Last!.Value, p))
             {
@@ -169,6 +169,6 @@ public static class IncrementalRectangle
 
         }
 
-        return new SafeCorridorDecorator<AABB2D>(corridor, obstacle.Header);
+        return new SafeCorridor2DData<AABB2D>{ Corridors =[.. corridor], Header = path.Header};
     }
 }

@@ -1,8 +1,8 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using CostMap.Infrastructure.Algorithm;
-using Kernel.DataInterfaces;
-using Kernel.DataInterfaces.Navigation;
+using Kernel.Contract;
+using Kernel.Contract.Navigation;
 
 namespace CostMap.Infrastructure.Data;
 
@@ -12,7 +12,7 @@ public class InflationMap : IMap2D, ISdf2D
     public required Grid2DMap GridMap { get; init; }
     public readonly float _distance;
 
-    public IHeader Header => GridMap.Header;
+    public Header Header => GridMap.Header;
 
     public bool IsMoveAble(Vector2 from, Vector2 to) => GridMap.IsMoveAble(from, to);
 
@@ -34,6 +34,6 @@ public class InflationMap : IMap2D, ISdf2D
         _distance = distance;
     }
 
-    public static InflationMap New_IGridMap2DData(in IGridMap2DData data, in float distance) =>
-    new(distance) { GridMap = Grid2DMap.New_IGridMap2DData(data) };
+    public static InflationMap New_GridMap2DData(in GridMap2DData data, in float distance) =>
+    new(distance) { GridMap = Grid2DMap.New_GridMap2DData(data) };
 }

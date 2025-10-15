@@ -53,7 +53,7 @@ public class Kriging(float nugget, float sill, float range, List<GridPoint> know
         return k;
     }
 
-    private Matrix<float> AddUnbiasedConstraint(Matrix<float> k)
+    private static Matrix<float> AddUnbiasedConstraint(Matrix<float> k)
     {
         var n = k.RowCount;
         var a = Matrix<float>.Build.Dense(n + 1, n + 1);

@@ -1,5 +1,5 @@
 using CostMap.Infrastructure.Data;
-using Kernel.DataInterfaces.Navigation;
+using Kernel.Contract.Navigation;
 using Kernel.Utils;
 
 namespace CostMap.Infrastructure.Algorithm;
@@ -29,18 +29,18 @@ public static class InflationLayerBuilder
             }
     }
 
-    public static InflationMap Build(IGridMap2D map2D)
+    public static InflationMap Build<GridMapT>(GridMapT map,GridMap2DData data) where GridMapT : IGridMap2D
     {
-        InflationMap ret = InflationMap.New_IGridMap2DData(map2D.Data, _inflationDistance / 2 * map2D.Data.Resolution);
+        InflationMap ret = InflationMap.New_GridMap2DData(data, _inflationDistance / 2 * data.Resolution);
         if (_inflationDistance == 0)
             return ret;
         var grid2D = ret.GridMap;
-        int sizeX = (int)map2D.Data.Width;
-        int sizeY = (int)map2D.Data.Height;
+        int sizeX = (int)data.Width;
+        int sizeY = (int)data.Height;
         BlockParallel.For(sizeX, sizeY, _inflationDistance, _inflationDistance,
             (x, y) =>
             {
-                if (!map2D.IsMoveAble(x, y))
+                if (!map.IsMoveAble(x, y))
                     return;
                 grid2D.DataChangeable.Data[x + y * sizeX] = 100;
                 for (int i = -_i_s_2; i < _i_s_2; i++)

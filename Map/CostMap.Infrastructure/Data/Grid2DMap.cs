@@ -1,19 +1,19 @@
 ﻿using System.Numerics;
 using System.Runtime.CompilerServices;
 using CostMap.Infrastructure.Algorithm;
-using Kernel.DataInterfaces;
-using Kernel.DataInterfaces.Navigation;
+using Kernel.Contract;
+using Kernel.Contract.Navigation;
 
 namespace CostMap.Infrastructure.Data;
 
 public class Grid2DMap : IMap2D, IGridMap2D
 {
-    public required Grid2DMapData DataChangeable { get; init; }
-    public IGridMap2DData Data => DataChangeable;
+    public required GridMap2DData DataChangeable { get; init; }
+    public GridMap2DData Data => DataChangeable;
     public IMap2D Actions => this;
 
 
-    public IHeader Header => DataChangeable.Header;
+    public Header Header => DataChangeable.Header;
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -32,12 +32,12 @@ public class Grid2DMap : IMap2D, IGridMap2D
     private Grid2DMap() { }
 
 
-    public static Grid2DMap Build_IGridMap2DData(IGridMap2DData data) =>
+    public static Grid2DMap Build_GridMap2DData(GridMap2DData data) =>
         new()
         {
-            DataChangeable = new Grid2DMapData
+            DataChangeable = new GridMap2DData
             {
-                HeaderData = new Grid2DMapData.HeaderInner(data.Header.Identifier),
+                Header = new Header{ Identifier = data.Header.Identifier},
                 Origin = data.Origin,
                 Height = data.Height,
                 Width = data.Width,
@@ -47,12 +47,12 @@ public class Grid2DMap : IMap2D, IGridMap2D
                 Data = data.Data
             }
         };
-    public static Grid2DMap New_IGridMap2DData(IGridMap2DData data) =>
+    public static Grid2DMap New_GridMap2DData(GridMap2DData data) =>
     new()
     {
-        DataChangeable = new Grid2DMapData
+        DataChangeable = new GridMap2DData
         {
-            HeaderData = new Grid2DMapData.HeaderInner(data.Header.Identifier),
+            Header = new Header{ Identifier = data.Header.Identifier},
             Origin = data.Origin,
             Height = data.Height,
             Width = data.Width,

@@ -4,13 +4,13 @@ using Map;
 using Kernel.Core.EventBus;
 using Kernel.Core.Messages;
 using Kernel.Core.TransformTree;
-using Kernel.DataInterfaces.Geometry;
-using Kernel.DataInterfaces.Navigation;
-using Kernel.DataInterfaces.Sensor;
+using Kernel.Contract.Geometry;
+using Kernel.Contract.Navigation;
+using Kernel.Contract.Sensor;
 using TlarcRosBridge.Infrastructure.Messages.Geometry;
 using TlarcRosBridge.Infrastructure.Messages.Nav;
 using TlarcRosBridge.Infrastructure.Messages.Sensor;
-using Kernel.DataInterfaces.Tf;
+using Kernel.Contract.Tf;
 using TlarcRosBridge.Infrastructure.Messages.Tf2;
 using Quaternion = System.Numerics.Quaternion;
 using Vector3 = System.Numerics.Vector3;
@@ -91,21 +91,21 @@ public static class SaveMap
 
         var ros = TlarcRosBridge.Domain.RosBridge.Build(RosNodeName);
 
-        ros.Subscript<PointCloud2, IPointCloud>(
+        ros.Subscript<PointCloud2, Kernel.Contract.Sensor.PointCloud>(
             RosSubRegisteredPointCloudTopicName, EventPointCloudInputName,
             TlarcRosBridge.Infrastructure.DataProcess.Subscriber.FastLioRegistered);
-        ros.Subscript<PoseStamped, IPose>(
+        ros.Subscript<PoseStamped, Kernel.Contract.Geometry.Pose>(
             RosSubRobotPosTopicName, EventRobotPositionName,
             TlarcRosBridge.Infrastructure.DataProcess.Subscriber.RawPoseFromPoseStamped);
-        ros.Publish<IGridMap2DData, OccupancyGrid>(
+        ros.Publish<GridMap2DData, OccupancyGrid>(
             EventGridMapName,
             RosPubDebugTlarcGridMapTopicName,
             TlarcRosBridge.Infrastructure.DataProcess.Publisher.GridMap2dToOccupancyGridMap);
-        ros.Publish<ITfCollection, TFMessage>(
+        ros.Publish<TfCollection, TFMessage>(
             EventTfName,
             RosPubDebugTlarcTfTopicName,
             TlarcRosBridge.Infrastructure.DataProcess.Publisher.TfCollectionToTfMessage);
-        ros.Publish<IPointCloud, PointCloud2>(
+        ros.Publish<Kernel.Contract.Sensor.PointCloud, PointCloud2>(
             EventPointCloudOutputName,
             RosPubTlarcPointCloudTopicName,
             TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishPointCloud);
@@ -135,22 +135,22 @@ public static class SaveMap
 
         #region MainLogics
 
-        EventBus<IPose>.Instance.Subscribe(EventRobotPositionName,
+        EventBus<Kernel.Contract.Geometry.Pose>.Instance.Subscribe(EventRobotPositionName,
             data =>
             {
                 Tf.SetTfNode(RobotPositionInputTfId, data.Position, data.Orientation);
-                EventBus<ITfCollection>.Instance.Publish(EventTfName, Tf.GetTree());
+                EventBus<TfCollection>.Instance.Publish(EventTfName, Tf.GetTree());
             });
 
-        EventBus<IPointCloud>.Instance.Subscribe(EventPointCloudInputName,
+        EventBus<Kernel.Contract.Sensor.PointCloud>.Instance.Subscribe(EventPointCloudInputName,
             data =>
             {
-                Kernel.DataInterfaces.Sensor.PointCloud pointCloud = new()
+                Kernel.Contract.Sensor.PointCloud pointCloud = new()
                 {
                     Points = Tf.Cast(PointCloudInputId, PointCloudOutputId, data.Points, new Vector3[data.Points.Length]),
-                    Identifier = PointCloudOutputId
+                    Header = new(){ Identifier = PointCloudOutputId }
                 };
-                EventBus<IPointCloud>.Instance.Publish(EventPointCloudOutputName, pointCloud);
+                EventBus<Kernel.Contract.Sensor.PointCloud>.Instance.Publish(EventPointCloudOutputName, pointCloud);
             });
 
         #endregion

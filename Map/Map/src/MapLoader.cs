@@ -2,7 +2,7 @@ using CostMap.Infrastructure.Algorithm;
 using CostMap.Infrastructure.Data;
 using Kernel.Core.EventBus;
 using Kernel.Core.TransformTree;
-using Kernel.DataInterfaces.Navigation;
+using Kernel.Contract.Navigation;
 
 namespace Map;
 
@@ -11,7 +11,7 @@ public class MapLoader
     #region 成员变量与属性
 
     private string _mapPath = "";
-    private IGridMap2DData? _map;
+    private GridMap2DData? _map;
     private OccupancyHighGrid2DMap? _highMap;
     public string MapEventName { get; private set; } = "/map_server/static_map";
     public string MapFrame => (_map ?? throw new Exception("No map loaded")).Header.Identifier;
@@ -46,10 +46,10 @@ public class MapLoader
 
     public MapLoader LoadMap()
     {
-        _map = GridMapInner.LoadMap(_mapPath);
-        MapHeight = _map.Height;
-        MapWidth = _map.Width;
-        MapResolution = _map.Resolution;
+        _map            = GridMapInner.LoadMap(_mapPath);
+        MapHeight       = _map.Value.Height;
+        MapWidth        = _map.Value.Width;
+        MapResolution   = _map.Value.Resolution;
         return this;
     }
     public MapLoader LoadHighMap()
@@ -60,7 +60,7 @@ public class MapLoader
 
     public MapLoader MapPublish()
     {
-        EventBus<IGridMap2DData>.Instance.Publish(MapEventName, _map ??= GridMapInner.LoadMap(_mapPath));
+        EventBus<GridMap2DData>.Instance.Publish(MapEventName, _map ??= GridMapInner.LoadMap(_mapPath));
         return this;
     }
 
@@ -68,7 +68,7 @@ public class MapLoader
     {
         EventBus<OccupancyHighGrid2DMap>.Instance.Publish(MapEventName,
             _highMap ??= GridMapInner.LoadHighMap(_mapPath));
-        EventBus<IGridMap2DData>.Instance.Publish(MapEventName, _highMap.OccupancyData.GridMapData);
+        EventBus<GridMap2DData>.Instance.Publish(MapEventName, _highMap.Data.GridMapData);
         return this;
     }
 

@@ -3,8 +3,8 @@ using CostMap.Infrastructure.Data;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using g4;
-using Kernel.DataInterfaces.Navigation;
-using Kernel.DataInterfaces.Sensor;
+using Kernel.Contract.Navigation;
+using Kernel.Contract.Sensor;
 
 namespace CostMap.Infrastructure.Algorithm;
 
@@ -40,13 +40,13 @@ public static class OccupancyGridMapBuilder
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool CheckBound2D(in Vector3 pos, in IGridMap2DData map) =>
+    private static bool CheckBound2D(in Vector3 pos, in GridMap2DData map) =>
         pos is { X: > 0, Y: > 0 } &&
         pos.X < map.Width * map.Resolution &&
         pos.Y < map.Height * map.Resolution;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool CheckBound3D(in Vector3 pos, in Vector3 sensorInMap, in float TopZ, in float ButtonZ, in IGridMap2DData map) =>
+    private static bool CheckBound3D(in Vector3 pos, in Vector3 sensorInMap, in float TopZ, in float ButtonZ, in GridMap2DData map) =>
         (pos - sensorInMap).Z < TopZ &&
         (pos - sensorInMap).Z > ButtonZ && OccupancyGridMapBuilder.CheckBound2D(pos, map);
     #endregion
@@ -57,19 +57,19 @@ public static class OccupancyGridMapBuilder
                                                             in Vector3 chassisStep,
                                                             OccupancyHighGrid2DMap map)
     {
-        var data = map.OccupancyData.OccupancyRate.AsSpan();
+        var data = map.Data.OccupancyRate.AsSpan();
         var high = map.High.AsSpan();
 
         var begin =
             new Vector2i(
-                (int)Math.Clamp(point.X / map.OccupancyData.Resolution, 0, map.OccupancyData.Width - 1),
-                (int)Math.Clamp(point.Y / map.OccupancyData.Resolution, 0, map.OccupancyData.Height - 1));
+                (int)Math.Clamp(point.X / map.Data.GridMapData.Resolution, 0, map.Data.GridMapData.Width - 1),
+                (int)Math.Clamp(point.Y / map.Data.GridMapData.Resolution, 0, map.Data.GridMapData.Height - 1));
         var end =
             new Vector2i(
-                (int)Math.Clamp(form.X / map.OccupancyData.Resolution, 0, map.OccupancyData.Width - 1),
-                (int)Math.Clamp(form.Y / map.OccupancyData.Resolution, 0, map.OccupancyData.Height - 1));
+                (int)Math.Clamp(form.X / map.Data.GridMapData.Resolution, 0, map.Data.GridMapData.Width - 1),
+                (int)Math.Clamp(form.Y / map.Data.GridMapData.Resolution, 0, map.Data.GridMapData.Height - 1));
 
-        var beginIndex = (int)(begin.x + begin.y * map.OccupancyData.Width);
+        var beginIndex = (int)(begin.x + begin.y * map.Data.GridMapData.Width);
 
         //TODO: 直线裁剪
 
@@ -82,7 +82,7 @@ public static class OccupancyGridMapBuilder
             for (var i = 1; i < points.Count; i++)
             {
                 z += errZ;
-                var index = (int)(points[i].x + points[i].y * map.OccupancyData.Width);
+                var index = (int)(points[i].x + points[i].y * map.Data.GridMapData.Width);
                 if (high[index] is float.MaxValue || z < high[index])
                     Interlocked.Exchange(ref high[index], z);
             }
@@ -97,26 +97,27 @@ public static class OccupancyGridMapBuilder
                                                     Vector3 chassisStep,
                                                     OccupancyHighGrid2DMap map)
     {
-        if (!OccupancyGridMapBuilder.CheckBound2D(sensorInMap, map.OccupancyData.GridMapData))
+        if (!OccupancyGridMapBuilder.CheckBound2D(sensorInMap, map.Data.GridMapData))
             return;
-        points.Where(x => OccupancyGridMapBuilder.CheckBound3D(x, sensorInMap, map.TopZ, map.ButtonZ, map.OccupancyData.GridMapData)).AsParallel()
+        points.Where(x => OccupancyGridMapBuilder.CheckBound3D(x, sensorInMap, map.TopZ, map.ButtonZ, map.Data.GridMapData)).AsParallel()
             .WithDegreeOfParallelism(Environment.ProcessorCount)
             .ForAll(p =>
                 OccupancyGridMapBuilder.UpdateHighRateFromPointThreadSafety(p, sensorInMap, chassisStep, map));
         var data = map.High.AsSpan();
-        for (var i = 1; i < map.OccupancyData.Width - 1; i++)
-            for (var j = 1; j < map.OccupancyData.Height - 1; j++)
-                map.OccupancyData.GridMapData.Data.AsSpan()[(int)(i + j * map.OccupancyData.Width)] =
+        for (var i = 1; i < map.Data.GridMapData.Width - 1; i++)
+            for (var j = 1; j < map.Data.GridMapData.Height - 1; j++)
+                map.Data.GridMapData.Data.AsSpan()[(int)(i + j * map.Data.GridMapData.Width)] =
                     // sbyte.Clamp(
                     //     (sbyte)(1.0 /
-                    //             (Math.Exp(map.OccupancyData.OccupancyRate.AsSpan()[
-                    //                 (int)(i + j * map.OccupancyData.Width)]) + 1)
+                    //             (Math.Exp(map.Data.OccupancyRate.AsSpan()[
+                    //                 (int)(i + j * map.Data.Width)]) + 1)
                     //             * 100), 0, 100);
-                    map.OccupancyData.GridMapData.Data.AsSpan()[(int)(i + j * map.OccupancyData.Width)] =
-                        (sbyte)(Math.Abs(data[(int)(i + (j + 1) * map.OccupancyData.Width)] -
-                                         data[(int)(i + (j - 1) * map.OccupancyData.Width)]) +
-                            Math.Abs(data[(int)(i - 1 + j * map.OccupancyData.Width)] -
-                                     data[(int)(i + 1 + j * map.OccupancyData.Width)]) > map.OccupancyData.Resolution * 2
+                    map.Data.GridMapData.Data.AsSpan()[(int)(i + j * map.Data.GridMapData.Width)] =
+                        (sbyte)(Math.Abs(data[(int)(i + (j + 1) * map.Data.GridMapData.Width)] -
+                                         data[(int)(i + (j - 1) * map.Data.GridMapData.Width)]) +
+                                Math.Abs(data[(int)(i - 1 + j * map.Data.GridMapData.Width)] -
+                                         data[(int)(i + 1 + j * map.Data.GridMapData.Width)]) 
+                                > map.Data.GridMapData.Resolution * 2
                                 ? 100
                                 : 0);
 
@@ -126,43 +127,43 @@ public static class OccupancyGridMapBuilder
     #region 二维占据栅格地图生成
     public static void UpdateRateFromPointCloud(Vector3[] points, Vector3 sensorInMap, OccupancyGrid2DMap map)
     {
-        if (!OccupancyGridMapBuilder.CheckBound2D(sensorInMap, map.OccupancyData.GridMapData))
+        if (!OccupancyGridMapBuilder.CheckBound2D(sensorInMap, map.Data.GridMapData))
             return;
-        points.Where(x => OccupancyGridMapBuilder.CheckBound3D(x, sensorInMap, map.TopZ, map.ButtonZ, map.OccupancyData.GridMapData)).AsParallel()
+        points.Where(x => OccupancyGridMapBuilder.CheckBound3D(x, sensorInMap, map.TopZ, map.ButtonZ, map.Data.GridMapData)).AsParallel()
             .WithDegreeOfParallelism(Environment.ProcessorCount)
-            .ForAll(p => OccupancyGridMapBuilder.UpdateRateFromPointThreadSafety(p, sensorInMap, map.OccupancyData));
+            .ForAll(p => OccupancyGridMapBuilder.UpdateRateFromPointThreadSafety(p, sensorInMap, map.Data));
 
-        for (var i = 0; i < map.OccupancyData.Width; i++)
-            for (var j = 0; j < map.OccupancyData.Height; j++)
-                map.OccupancyData.GridMapData.Data.AsSpan()[(int)(i + j * map.OccupancyData.Width)] =
+        for (var i = 0; i < map.Data.GridMapData.Width; i++)
+            for (var j = 0; j < map.Data.GridMapData.Width; j++)
+                map.Data.GridMapData.Data.AsSpan()[(int)(i + j * map.Data.GridMapData.Width)] =
                     sbyte.Clamp(
                         (sbyte)(1.0 /
-                                (Math.Exp(map.OccupancyData.OccupancyRate.AsSpan()[
-                                    (int)(i + j * map.OccupancyData.Width)]) + 1)
+                                (Math.Exp(map.Data.OccupancyRate.AsSpan()[
+                                    (int)(i + j * map.Data.GridMapData.Width)]) + 1)
                                 * 100), 0, 100);
     }
 
 
-    private static void UpdateRateFromPointThreadSafety(in Vector3 point, in Vector3 form, IOccupancyGridMap2DData map)
+    private static void UpdateRateFromPointThreadSafety(in Vector3 point, in Vector3 form, OGMData map)
     {
         var data = map.OccupancyRate.AsSpan();
 
         var begin =
             new Vector2i(
-                (int)Math.Clamp(point.X / map.Resolution, 0, map.Width - 1),
-                (int)Math.Clamp(point.Y / map.Resolution, 0, map.Height - 1));
+                (int)Math.Clamp(point.X / map.GridMapData.Resolution, 0, map.GridMapData.Width - 1),
+                (int)Math.Clamp(point.Y / map.GridMapData.Resolution, 0, map.GridMapData.Height - 1));
         var end =
             new Vector2i(
-                (int)Math.Clamp(form.X / map.Resolution, 0, map.Width - 1),
-                (int)Math.Clamp(form.Y / map.Resolution, 0, map.Height - 1));
+                (int)Math.Clamp(form.X / map.GridMapData.Resolution, 0, map.GridMapData.Width - 1),
+                (int)Math.Clamp(form.Y / map.GridMapData.Resolution, 0, map.GridMapData.Height - 1));
         //TODO: 直线裁剪
         var points = Geometry.ThickLine(
             begin, end);
         foreach (var p in points)
-            OccupancyGridMapBuilder.AtomicAdd(ref data[(int)(p.x + p.y * map.Width)], map.LossFree);
+            OccupancyGridMapBuilder.AtomicAdd(ref data[(int)(p.x + p.y * map.GridMapData.Width)], map.LossFree);
 
         OccupancyGridMapBuilder.AtomicAdd(
-            ref data[(int)(begin.x + begin.y * map.Width)],
+            ref data[(int)(begin.x + begin.y * map.GridMapData.Width)],
             map.LossOccu - map.LossFree);
     }
     #endregion

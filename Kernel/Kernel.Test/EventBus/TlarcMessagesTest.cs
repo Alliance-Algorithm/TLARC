@@ -1,6 +1,6 @@
 ﻿using Kernel.Core.Messages;
-using Kernel.DataInterfaces;
-using Kernel.DataInterfaces.Navigation;
+using Kernel.Contract;
+using Kernel.Contract.Navigation;
 
 namespace Kernel.Test.EventBus;
 

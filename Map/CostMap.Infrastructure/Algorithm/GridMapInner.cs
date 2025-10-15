@@ -4,8 +4,8 @@ using System.Runtime.CompilerServices;
 using CommunityToolkit.HighPerformance;
 using CostMap.Infrastructure.Data;
 using g4;
-using Kernel.DataInterfaces;
-using Kernel.DataInterfaces.Navigation;
+using Kernel.Contract;
+using Kernel.Contract.Navigation;
 using Kernel.Utils;
 using SkiaSharp;
 using YamlDotNet.Serialization;
@@ -22,25 +22,6 @@ public static class GridMapInner
         GreaterEqual,
         LessEqual,
         Equal
-    }
-
-
-    private class Grid2DMapData : IGridMap2DData
-    {
-        public struct HeaderInner() : IHeader
-        {
-            public string Identifier { get; set; } = "";
-        }
-
-        public HeaderInner HeaderData { get; init; } = new();
-        public IHeader Header => HeaderData;
-        public Vector2 Origin { get; set; }
-        public uint Width { get; set; }
-        public uint Height { get; set; }
-        public double RotationRad { get; set; }
-        public Matrix3x2 RotationMatrix { get; set; }
-        public float Resolution { get; set; }
-        public sbyte[] Data { get; set; } = [];
     }
 
     private struct Header()
@@ -79,12 +60,12 @@ public static class GridMapInner
         path = DirectoryParser.ExpandTildePath(path);
         if (!Directory.Exists(path))
             Directory.CreateDirectory(path);
-        using var bitmap = new SKBitmap((int)map2d.OccupancyData.Width, (int)map2d.OccupancyData.Height,
+        using var bitmap = new SKBitmap((int)map2d.Data.GridMapData.Width, (int)map2d.Data.GridMapData.Height,
             SKColorType.Gray8,
             SKAlphaType.Opaque);
         unsafe
         {
-            fixed (sbyte* ptr = map2d.OccupancyData.Data)
+            fixed (sbyte* ptr = map2d.Data.GridMapData.Data)
             {
                 bitmap.SetPixels((nint)ptr);
             }
@@ -93,7 +74,7 @@ public static class GridMapInner
             bitmap.Encode(wStream, SKEncodedImageFormat.Png, 100);
         }
 
-        using var bitmap2 = new SKBitmap((int)map2d.OccupancyData.Width, (int)map2d.OccupancyData.Height,
+        using var bitmap2 = new SKBitmap((int)map2d.Data.GridMapData.Width, (int)map2d.Data.GridMapData.Height,
             SKColorType.Rgba8888,
             SKAlphaType.Unpremul);
         unsafe
@@ -109,20 +90,20 @@ public static class GridMapInner
 
         var header = new Header
         {
-            Identifier = map2d.OccupancyData.Header.Identifier,
-            RotationRad = map2d.OccupancyData.RotationRad,
+            Identifier = map2d.Data.GridMapData.Header.Identifier,
+            RotationRad = map2d.Data.GridMapData.RotationRad,
             Origin = new Header.HeVector2
-            { X = map2d.OccupancyData.Origin.X, Y = map2d.OccupancyData.Origin.Y },
+            { X = map2d.Data.GridMapData.Origin.X, Y = map2d.Data.GridMapData.Origin.Y },
             RotationMatrix = new Header.HeMatrix3x2
             {
-                M11 = map2d.OccupancyData.RotationMatrix.M11,
-                M12 = map2d.OccupancyData.RotationMatrix.M12,
-                M21 = map2d.OccupancyData.RotationMatrix.M21,
-                M22 = map2d.OccupancyData.RotationMatrix.M22,
-                M31 = map2d.OccupancyData.RotationMatrix.M31,
-                M32 = map2d.OccupancyData.RotationMatrix.M32
+                M11 = map2d.Data.GridMapData.RotationMatrix.M11,
+                M12 = map2d.Data.GridMapData.RotationMatrix.M12,
+                M21 = map2d.Data.GridMapData.RotationMatrix.M21,
+                M22 = map2d.Data.GridMapData.RotationMatrix.M22,
+                M31 = map2d.Data.GridMapData.RotationMatrix.M31,
+                M32 = map2d.Data.GridMapData.RotationMatrix.M32
             },
-            Resolution = map2d.OccupancyData.Resolution
+            Resolution = map2d.Data.GridMapData.Resolution
         };
         var serializer = new SerializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
@@ -136,7 +117,7 @@ public static class GridMapInner
     /// </summary>
     /// <param name="map2d">要保存的地图</param>
     /// <param name="path">地图文件夹</param>
-    public static void SaveMap(IGridMap2DData map2d, string path)
+    public static void SaveMap(GridMap2DData map2d, string path)
     {
         path = path.TrimEnd('/').TrimEnd('\\');
         path = DirectoryParser.ExpandTildePath(path);
@@ -197,10 +178,13 @@ public static class GridMapInner
             .Build();
         var yaml = File.ReadAllText(path + "/header.yaml");
         var header = serializer.Deserialize<Header>(yaml);
-        Grid2DMapData map2d = new() { HeaderData = new Grid2DMapData.HeaderInner { Identifier = header.Identifier } };
-        map2d.Width = (uint)bitmap.Width;
-        map2d.Height = (uint)bitmap.Height;
-        map2d.Data = new sbyte[bitmap.ByteCount];
+        GridMap2DData map2d = new()
+        {
+            Header  = new() { Identifier = header.Identifier },
+            Width   = (uint)bitmap.Width,
+            Height  = (uint)bitmap.Height,
+            Data    = new sbyte[bitmap.ByteCount]
+        };
         Buffer.BlockCopy(bitmap.Bytes, 0, map2d.Data, 0, bitmap.ByteCount);
         map2d.RotationMatrix = new Matrix3x2
         {
@@ -219,7 +203,7 @@ public static class GridMapInner
         map2d.RotationRad = header.RotationRad;
         map2d.Resolution = header.Resolution;
         map2d.Resolution = header.Resolution;
-        var map2dHigh = OccupancyHighGrid2DMap.Build_IGridMap2DData(map2d);
+        var map2dHigh = OccupancyHighGrid2DMap.Build_GridMap2DData(map2d);
         using var bitmap2 = SKBitmap.Decode(path + "/high.png",
             new SKImageInfo(bitmap.Width, bitmap.Height, SKColorType.Rgba8888, SKAlphaType.Unpremul));
         Buffer.BlockCopy(bitmap2.Bytes, 0, map2dHigh.High, 0, bitmap2.ByteCount);
@@ -233,7 +217,7 @@ public static class GridMapInner
     /// <param name="path">地图文件夹</param>
     /// <returns></returns>
     /// <exception cref="FileNotFoundException">地图信息</exception>
-    public static IGridMap2DData LoadMap(string path)
+    public static GridMap2DData LoadMap(string path)
     {
         path = path.TrimEnd('/').TrimEnd('\\');
         path = DirectoryParser.ExpandTildePath(path);
@@ -245,9 +229,9 @@ public static class GridMapInner
             .Build();
         var yaml = File.ReadAllText(path + "/header.yaml");
         var header = serializer.Deserialize<Header>(yaml);
-        Grid2DMapData map2d = new()
+        GridMap2DData map2d = new()
         {
-            HeaderData = new Grid2DMapData.HeaderInner { Identifier = header.Identifier },
+            Header = new() { Identifier = header.Identifier },
             Width = (uint)bitmap.Width,
             Height = (uint)bitmap.Height,
             Data = new sbyte[bitmap.ByteCount]
@@ -285,7 +269,7 @@ public static class GridMapInner
     /// </param>
     /// <returns>如果有障碍物：true</returns>
     internal static bool CheckMoveable(Vector2 target,
-                                       IGridMap2DData data,
+                                       GridMap2DData data,
                                        sbyte threshold,
                                        ThresholdType type)
     {
@@ -321,7 +305,7 @@ public static class GridMapInner
     /// <returns>如果有障碍物：true</returns>
     internal static bool CheckMoveable(Vector2 from,
                                        Vector2 to,
-                                       IGridMap2DData data,
+                                       GridMap2DData data,
                                        sbyte threshold,
                                        ThresholdType type)
     {
@@ -365,11 +349,11 @@ public static class GridMapInner
         {
             var end =
                 new Vector2i(
-                    (int)((p.X - map.OccupancyData.Origin.X) / map.OccupancyData.Resolution),
-                    (int)((p.Y - map.OccupancyData.Origin.Y) / map.OccupancyData.Resolution));
-            if (end.x < 0 || end.x >= map.OccupancyData.Width || end.y < 0 || end.y >= map.OccupancyData.Height)
+                    (int)((p.X - map.Data.GridMapData.Origin.X) / map.Data.GridMapData.Resolution),
+                    (int)((p.Y - map.Data.GridMapData.Origin.Y) / map.Data.GridMapData.Resolution));
+            if (end.x < 0 || end.x >= map.Data.GridMapData.Width || end.y < 0 || end.y >= map.Data.GridMapData.Height)
                 return false;
-            var index = end.x + end.y * map.OccupancyData.Width;
+            var index = end.x + end.y * map.Data.GridMapData.Width;
             return map.High[index] + carStep < p.Z && p.Z < map.High[index] + carHigh;
         };
         points = [..

@@ -4,9 +4,9 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Kernel.Core.SoFuckingFastAlgorithms;
-using Kernel.DataInterfaces;
-using Kernel.DataInterfaces.Geometry;
-using Kernel.DataInterfaces.Tf;
+using Kernel.Contract;
+using Kernel.Contract.Geometry;
+using Kernel.Contract.Tf;
 
 namespace Kernel.Core.TransformTree;
 
@@ -196,26 +196,9 @@ public static class Tf
         node.SetTransform(translation, rotation, timeStamp);
     }
 
-    private class TransformStamped : ITransformStamped, IHeader, IPose
-    {
-        public IHeader Header => this;
-        public string Identifier { get; set; } = "";
-
-        public string ParentFrameId { get; set; } = "";
-
-
-        public IPose Pose => this;
-        public Quaternion Orientation { get; set; } = Quaternion.Identity;
-        public Vector3 Position { get; set; } = Vector3.Zero;
-    }
-
-    private class TfCollection : ITfCollection
-    {
-        public ITransformStamped[] TransformStampeds { get; init; } = [];
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ITfCollection GetTree() => new TfCollection
+    public static TfCollection GetTree() => new()
     {
         TransformStampeds = [.. Nodes.Values
                                 .Where (n => n.ParentIds.Count > 1)
@@ -223,17 +206,19 @@ public static class Tf
     };
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ITransformStamped GetNode(string identifier)
+    public static TransformStamped GetNode(string identifier)
     {
         if (!Nodes.TryGetValue(identifier, out var node))
-            return new TransformStamped { Identifier = identifier };
+            return new TransformStamped { Header = new Header{Identifier = identifier} };
 
         return new TransformStamped
         {
-            Identifier      = identifier,
+            Header          = new Header{ Identifier = identifier},
             ParentFrameId   = node.ParentIds.Count > 1 ? node.ParentIds[^2] : "",
-            Orientation     = node.Orientation,
-            Position        = node.Translation
+            Pose            = new Pose{                
+                Orientation     = node.Orientation,
+                Position        = node.Translation
+            }
         };
     }
 }

@@ -2,8 +2,8 @@
 using Vectorf = NumFlat.Vec<double>;
 using Matrixf = NumFlat.Mat<double>;
 using System.Numerics;
-using Kernel.DataInterfaces.Visualization;
-using Kernel.DataInterfaces.Constraints;
+using Kernel.Contract.Visualization;
+using Kernel.Contract.Constraints;
 using CommunityToolkit.HighPerformance;
 using NumFlat;
 
@@ -44,9 +44,10 @@ unsafe internal readonly struct Diffeomorphism_AABB : IDiffeomorphism
     }
 
     static AABB2D CombineAABB(AABB2D a, AABB2D b) =>
-          new(
-             MinX: Math.Max(a.MinX, b.MinX), MinY: Math.Max(b.MinY, a.MinY),
-             MaxX: Math.Min(a.MaxX, b.MaxX), MaxY: Math.Min(a.MaxY, b.MaxY));
+          new()
+          {
+             MinX = Math.Max(a.MinX, b.MinX), MinY = Math.Max(b.MinY, a.MinY),
+             MaxX = Math.Min(a.MaxX, b.MaxX), MaxY = Math.Min(a.MaxY, b.MaxY)};
     public void KesiToQ(Vectorf kesi)
     {
         var K = N / obstacles.Length;

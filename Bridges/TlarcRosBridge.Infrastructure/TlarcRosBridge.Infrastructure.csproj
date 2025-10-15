@@ -16,7 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Kernel\Kernel.DataInterfaces\Kernel.DataInterfaces.csproj" />
+        <ProjectReference Include="..\..\Kernel\Kernel.Contract\Kernel.Contract.csproj" />
         <ProjectReference Include="..\..\..\rclnet\src\Rcl.NET\Rcl.NET.csproj" />
         <ProjectReference Include="..\..\..\rclnet\src\Rosidl.Runtime\Rosidl.Runtime.csproj" />
     </ItemGroup>

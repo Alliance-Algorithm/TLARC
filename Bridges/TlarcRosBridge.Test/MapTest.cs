@@ -1,7 +1,7 @@
 using System.Numerics;
 using Kernel.Core.EventBus;
-using Kernel.DataInterfaces;
-using Kernel.DataInterfaces.Navigation;
+using Kernel.Contract;
+using Kernel.Contract.Navigation;
 using TlarcRosBridge.Infrastructure.Messages.Nav;
 
 namespace TlarcRosBridge.Test;
@@ -9,25 +9,7 @@ namespace TlarcRosBridge.Test;
 [TestFixture]
 public class MapTest
 {
-    private class GridMap2DData : IGridMap2DData
-    {
-        public struct HeaderInner(string id = "tlarc_link") : IHeader
-        {
-            public string Identifier { get; set; } = id;
-        }
-
-        public IHeader Header { get; init; } = new HeaderInner();
-        public required uint Width { get; init; }
-        public required uint Height { get; init; }
-        public required sbyte[] Data { get; init; }
-
-        public double RotationRad { get; init; } = 0;
-        public Matrix3x2 RotationMatrix { get; init; } = Matrix3x2.Identity;
-        public Vector2 Origin { get; init; } = new();
-        public float Resolution { get; init; } = 0.1f;
-    }
-
-    private IGridMap2DData MapGenerator(uint width, uint height)
+    private GridMap2DData MapGenerator(uint width, uint height)
     {
         var data = new sbyte[width * height];
         for (var i = 0; i < width; i++)
@@ -52,14 +34,14 @@ public class MapTest
     public void Setup()
     {
         var ros = Domain.RosBridge.Build("map_test");
-        ros.Publish<IGridMap2DData, OccupancyGrid>("ros_test_map", "ros_test_map",
+        ros.Publish<GridMap2DData, OccupancyGrid>("ros_test_map", "ros_test_map",
             Infrastructure.DataProcess.Publisher.GridMap2dToOccupancyGridMap);
     }
 
     [Test]
     public void Test1()
     {
-        EventBus<IGridMap2DData>.Instance.Publish("ros_test_map", MapGenerator(1000, 500));
+        EventBus<GridMap2DData>.Instance.Publish("ros_test_map", MapGenerator(1000, 500));
         Thread.Sleep(1000);
         Environment.Exit(0);
     }

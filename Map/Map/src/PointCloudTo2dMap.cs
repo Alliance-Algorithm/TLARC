@@ -4,9 +4,9 @@ using System.Runtime.CompilerServices;
 using CostMap.Infrastructure.Data;
 using Kernel.Core.EventBus;
 using Kernel.Core.TransformTree;
-using Kernel.DataInterfaces;
-using Kernel.DataInterfaces.Navigation;
-using Kernel.DataInterfaces.Sensor;
+using Kernel.Contract;
+using Kernel.Contract.Navigation;
+using Kernel.Contract.Sensor;
 
 namespace Map;
 
@@ -14,30 +14,17 @@ public class PointCloudTo2dMap
 {
     #region 类型定义
 
-    private class InnerData : IOccupancyGridMap2DData, IHeader, IGridMap2DData
+    private class InnerData 
     {
-        public IHeader Header => this;
-        public IGridMap2DData GridMapData => this;
-        public string Identifier { get; set; } = "";
-        public Vector2 Origin { get; } = new();
-        public uint Width { get; set; } = 100;
-        public uint Height { get; set; } = 100;
-        public double RotationRad { get; set; } = 0;
-        public Matrix3x2 RotationMatrix { get; set; } = Matrix3x2.Identity;
-        public float Resolution { get; set; } = 0.02f;
-        public sbyte[] Data { get; set; } = [];
-        public float[] OccupancyRate { get; set; } = [];
-        public sbyte Threshold { get; set; } = 70;
-        public float LossFree { get; set; } = 0.7f;
-        public float LossOccu { get; set; } = -0.9f;
-        public float BottomZ { get; set; } = 0.01f;
-        public float TopZ { get; set; } = 0.08f;
-        public float BlindCircleRadius { get; set; } = 0.4f;
-        public int ForgetFrameCount { get; set; } = 6;
-        public float RogMapSlidingThreshold { get; set; } = 5;
-        public float InflationRadius { get; set; } = 0.2f;
-        public float HighError { get; set; } = 0.5f;
-        public float OccupyDensity { get; set; } = 0.5f;
+        public OGMData  OGM                                   = new();
+        public float    BottomZ                 { get; set; } = 0.01f;
+        public float    TopZ                    { get; set; } = 0.08f;
+        public float    BlindCircleRadius       { get; set; } = 0.4f;
+        public int      ForgetFrameCount        { get; set; } = 6;
+        public float    RogMapSlidingThreshold  { get; set; } = 5;
+        public float    InflationRadius         { get; set; } = 0.2f;
+        public float    HighError               { get; set; } = 0.5f;
+        public float    OccupyDensity           { get; set; } = 0.5f;
     }
 
     #endregion
@@ -96,33 +83,34 @@ public class PointCloudTo2dMap
     /// </summary>
     /// <remarks>
     /// <para>输入：</para>
-    /// <para>PointCloudInterface ->  Kernel.DataInterfaces.Sensor.IPointCloud</para>
+    /// <para>PointCloudInterface ->  Kernel.Contract.Sensor.IPointCloud</para>
     /// </remarks>
     /// <returns></returns>
     public PointCloudTo2dMap BuildOccupancyMapWithStaticHigh()
     {
-        _innerData.Data = new sbyte[_innerData.Width * _innerData.Height];
-        _innerData.OccupancyRate = new float[_innerData.Width * _innerData.Height];
-        Array.Fill(_innerData.OccupancyRate, 0);
-        _innerMap = OccupancyGrid2DMap.Build_IOccupancyGridMap2DData(_innerData);
-        _innerMap.TopZ = _innerData.TopZ;
-        _innerMap.ButtonZ = _innerData.BottomZ;
-        OccupancyHighGrid2DMap? staticHigh = null;
-        var staticHighId = "";
+        _innerData.OGM.GridMapData.Data     = new sbyte[_innerData.OGM.GridMapData.Width * _innerData.OGM.GridMapData.Height];
+        _innerData.OGM.OccupancyRate        = new float[_innerData.OGM.GridMapData.Width * _innerData.OGM.GridMapData.Height];
+        Array.Fill(_innerData.OGM.OccupancyRate, 0);
+        _innerMap           = OccupancyGrid2DMap.Build_IOccupancyGridMap2DData(_innerData.OGM);
+        _innerMap.TopZ      = _innerData.TopZ;
+        _innerMap.ButtonZ   = _innerData.BottomZ;
+
+        OccupancyHighGrid2DMap? staticHigh  = null;
+        var staticHighId                    = "";
+        
         EventBus<OccupancyHighGrid2DMap>.Instance.Subscribe(_staticMapTopicName, m =>
         {
             staticHigh = m;
             staticHighId = (staticHigh ?? throw new Exception("No static map"))
-                .OccupancyData.Header
-                .Identifier;
+                .Data.GridMapData.Header.Identifier;
         });
-        EventBus<IPointCloud>.Instance.Subscribe(_pointCloudTopicName,
+        EventBus<PointCloud>.Instance.Subscribe(_pointCloudTopicName,
             pointCloud =>
             {
                 if (staticHigh is null)
                     return;
-                Array.Fill(_innerMap.DataChangeable.OccupancyRate, 0);
-                _innerMap.DataChangeable.DataChangeable.HeaderData.Identifier = _costMapId;
+                Array.Fill(_innerMap.Data.OccupancyRate, 0);
+                _innerMap.Data.GridMapData.Header.Identifier = _costMapId;
                 var arr = ArrayPool<Vector3>.Shared.Rent(pointCloud.Points.Length);
                 var points = Tf.Cast(_pointCloudId, staticHighId, pointCloud.Points, arr);
                 CostMap.Infrastructure.Algorithm.GridMapInner.SelectPointsInHighMap(ref points, 0.4f, 0.15f,
@@ -133,7 +121,7 @@ public class PointCloudTo2dMap
                     _innerMap
                 );
                 ArrayPool<Vector3>.Shared.Return(arr);
-                EventBus<IGridMap2DData>.Instance.Publish(_costMapTopicName, _innerMap.OccupancyData.GridMapData);
+                EventBus<GridMap2DData>.Instance.Publish(_costMapTopicName, _innerMap.Data.GridMapData);
             });
         return this;
     }
@@ -143,22 +131,22 @@ public class PointCloudTo2dMap
     /// </summary>
     /// <remarks>
     /// <para>输入：</para>
-    /// <para>PointCloudInterface ->  Kernel.DataInterfaces.Sensor.IPointCloud</para>
+    /// <para>PointCloudInterface ->  Kernel.Contract.Sensor.IPointCloud</para>
     /// </remarks>
     /// <returns></returns>
     public PointCloudTo2dMap BuildOccupancyMap()
     {
-        _innerData.Data = new sbyte[_innerData.Width * _innerData.Height];
-        _innerData.OccupancyRate = new float[_innerData.Width * _innerData.Height];
-        Array.Fill(_innerData.OccupancyRate, 0);
-        _innerMap = OccupancyGrid2DMap.Build_IOccupancyGridMap2DData(_innerData);
-        _innerMap.TopZ = _innerData.TopZ;
-        _innerMap.ButtonZ = _innerData.BottomZ;
-        EventBus<IPointCloud>.Instance.Subscribe(_pointCloudTopicName,
+        _innerData.OGM.GridMapData.Data     = new sbyte[_innerData.OGM.GridMapData.Width * _innerData.OGM.GridMapData.Height];
+        _innerData.OGM.OccupancyRate        = new float[_innerData.OGM.GridMapData.Width * _innerData.OGM.GridMapData.Height];
+        Array.Fill(_innerData.OGM.OccupancyRate, 0);
+        _innerMap           = OccupancyGrid2DMap.Build_IOccupancyGridMap2DData(_innerData.OGM);
+        _innerMap.TopZ      = _innerData.TopZ;
+        _innerMap.ButtonZ   = _innerData.BottomZ;
+        EventBus<PointCloud>.Instance.Subscribe(_pointCloudTopicName,
             pointCloud =>
             {
-                Array.Fill(_innerMap.DataChangeable.OccupancyRate, 2);
-                _innerMap.DataChangeable.DataChangeable.HeaderData.Identifier = _costMapId;
+                Array.Fill(_innerMap.Data.OccupancyRate, 2);
+                _innerMap.Data.GridMapData.Header.Identifier = _costMapId;
 
                 var arr = ArrayPool<Vector3>.Shared.Rent(pointCloud.Points.Length);
                 CostMap.Infrastructure.Algorithm.OccupancyGridMapBuilder.UpdateRateFromPointCloud(
@@ -167,7 +155,7 @@ public class PointCloudTo2dMap
                     _innerMap
                 );
                 ArrayPool<Vector3>.Shared.Return(arr);
-                EventBus<IGridMap2DData>.Instance.Publish(_costMapTopicName, _innerMap.OccupancyData.GridMapData);
+                EventBus<GridMap2DData>.Instance.Publish(_costMapTopicName, _innerMap.Data.GridMapData);
             });
         return this;
     }
@@ -177,25 +165,25 @@ public class PointCloudTo2dMap
     /// </summary>
     /// <remarks>
     /// <para>输入：</para>
-    /// <para>PointCloudInterface ->  Kernel.DataInterfaces.Sensor.IPointCloud</para>
+    /// <para>PointCloudInterface ->  Kernel.Contract.Sensor.IPointCloud</para>
     /// </remarks>
     /// <returns></returns>
     public PointCloudTo2dMap BuildOccupancyHighMap()
     {
-        _innerData.Data = new sbyte[_innerData.Width * _innerData.Height];
-        _innerData.OccupancyRate = new float[_innerData.Width * _innerData.Height];
-        _inner25DMap = OccupancyHighGrid2DMap.Build_IOccupancyGridMap2DData(_innerData);
+        _innerData.OGM.GridMapData.Data     = new sbyte[_innerData.OGM.GridMapData.Width * _innerData.OGM.GridMapData.Height];
+        _innerData.OGM.OccupancyRate        = new float[_innerData.OGM.GridMapData.Width * _innerData.OGM.GridMapData.Height];
+        _inner25DMap = OccupancyHighGrid2DMap.Build_IOccupancyGridMap2DData(_innerData.OGM);
         _inner25DMap.TopZ = _innerData.TopZ;
         _inner25DMap.ButtonZ = _innerData.BottomZ;
-        Array.Fill(_innerData.OccupancyRate, 0);
+        Array.Fill(_innerData.OGM.OccupancyRate, 0);
         Array.Fill(_inner25DMap.High, float.MaxValue);
 
         var step = Vector3.UnitZ * 0.1f;
 
-        EventBus<IPointCloud>.Instance.Subscribe(_pointCloudTopicName,
+        EventBus<PointCloud>.Instance.Subscribe(_pointCloudTopicName,
             pointCloud =>
             {
-                _inner25DMap.DataChangeable.DataChangeable.HeaderData.Identifier = _costMapId;
+                _inner25DMap.Data.GridMapData.Header.Identifier = _costMapId;
 
                 var arr = ArrayPool<Vector3>.Shared.Rent(pointCloud.Points.Length);
                 CostMap.Infrastructure.Algorithm.OccupancyGridMapBuilder.UpdateHighRateWithPointCloud(
@@ -205,7 +193,7 @@ public class PointCloudTo2dMap
                     _inner25DMap
                 );
                 ArrayPool<Vector3>.Shared.Return(arr);
-                EventBus<IGridMap2DData>.Instance.Publish(_costMapTopicName, _inner25DMap.OccupancyData.GridMapData);
+                EventBus<GridMap2DData>.Instance.Publish(_costMapTopicName, _inner25DMap.Data.GridMapData);
                 EventBus<OccupancyHighGrid2DMap>.Instance.Publish(_costMapTopicName, _inner25DMap);
             });
         return this;
@@ -216,25 +204,31 @@ public class PointCloudTo2dMap
     /// </summary>
     /// <remarks>
     /// <para>输入：</para>
-    /// <para>PointCloudInterface ->  Kernel.DataInterfaces.Sensor.IPointCloud</para>
+    /// <para>PointCloudInterface ->  Kernel.Contract.Sensor.IPointCloud</para>
     /// </remarks>
     /// <returns></returns>
     public PointCloudTo2dMap BuildROGMap()
     {
-        _innerROGMap = new ROGMap(_innerData.Height, _innerData.Width, _innerData.InflationRadius, _innerData.Resolution, _innerData.TopZ, _innerData.BottomZ)
+        _innerROGMap = new ROGMap(
+                        _innerData.OGM.GridMapData.Height, 
+                        _innerData.OGM.GridMapData.Width, 
+                        _innerData.InflationRadius, 
+                        _innerData.OGM.GridMapData.Resolution, 
+                        _innerData.TopZ, 
+                        _innerData.BottomZ, 
+                        _costMapId)
         {
             ForgetFrameCount = _innerData.ForgetFrameCount,
-            SlidingThreshold = Math.Min(Math.Min(_innerData.Width, _innerData.Height) * _innerData.Resolution * 0.48f, _innerData.RogMapSlidingThreshold),
+            SlidingThreshold = Math.Min(Math.Min(_innerData.OGM.GridMapData.Width, _innerData.OGM.GridMapData.Height) * _innerData.OGM.GridMapData.Resolution * 0.48f, _innerData.RogMapSlidingThreshold),
             BlindCircleRadius = _innerData.BlindCircleRadius,
-            _lossHit = Math.Abs(_innerData.LossOccu),
-            _lossMiss = -Math.Abs(_innerData.LossFree),
-            Identifier = _costMapId,
+            _lossHit = Math.Abs(_innerData.OGM.LossOccu),
+            _lossMiss = -Math.Abs(_innerData.OGM.LossFree),
             HighError = _innerData.HighError,
             HighOccupyDensity = _innerData.OccupyDensity
         };
 
 
-        EventBus<IPointCloud>.Instance.Subscribe(_pointCloudTopicName,
+        EventBus<PointCloud>.Instance.Subscribe(_pointCloudTopicName,
             pointCloud =>
             {
                 // var a = DateTime.UtcNow;
@@ -335,12 +329,12 @@ public class PointCloudTo2dMap
                                                      float highError = 0.5f,
                                                      float OccupyDensity = 0.5f)
     {
-        _innerData.Width = width;
-        _innerData.Height = height;
-        _innerData.Threshold = threshold;
-        _innerData.Resolution = resolution;
-        _innerData.LossFree = lossFree;
-        _innerData.LossOccu = lossOccu;
+        _innerData.OGM.GridMapData.Width = width;
+        _innerData.OGM.GridMapData.Height = height;
+        _innerData.OGM.GridMapData.Resolution = resolution;
+        _innerData.OGM.Threshold = threshold;
+        _innerData.OGM.LossFree = lossFree;
+        _innerData.OGM.LossOccu = lossOccu;
         _innerData.BottomZ = bottomZ;
         _innerData.TopZ = topZ;
         _innerData.ForgetFrameCount = forgetFrameCount;

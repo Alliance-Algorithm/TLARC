@@ -1,6 +1,7 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Kernel.DataInterfaces.Sensor;
+using Kernel.Contract;
+using Kernel.Contract.Sensor;
 using Microsoft.Toolkit.HighPerformance;
 using Rcl;
 using TlarcRosBridge.Infrastructure.Messages.Sensor;
@@ -9,25 +10,23 @@ namespace TlarcRosBridge.Infrastructure.Decorators;
 
 internal static class Sensor
 {
-    private class PointCloud : IPointCloud
-    {
-        public string Identifier { get; set; } = "";
-        public Vector3[] Points { get; set; } = [];
-    }
-
-    public static IPointCloud RmcsSlamSegmentationPart(ref PointCloud2.Priv map)
+    public static Kernel.Contract.Sensor.PointCloud BuildPointCloud(ref Messages.Std.Header.Priv header, Vector3[] points) => new()
+        {
+            Header = new Kernel.Contract.Header{
+                        Identifier = header.FrameId.ToString(),
+                        Timestamp  = new(){
+                            Second      = header.Stamp.Sec,
+                            Nanosecond  = header.Stamp.Nanosec,
+                        }},
+            Points = points
+        };
+    public static Kernel.Contract.Sensor.PointCloud RmcsSlamSegmentationPart(ref PointCloud2.Priv map)
     {
         var data = map.Data.AsSpan().Cast<byte, Vector4>();
         var points = new Vector3[data.Length];
         for (var i = 0; i < data.Length; ++i)
             points[i] = new Vector3(data[i].X, data[i].Y, data[i].Z);
-
-        PointCloud pointCloud = new()
-        {
-            Identifier = map.Header.FrameId.ToString(),
-            Points = points
-        };
-        return pointCloud;
+        return BuildPointCloud(ref map.Header,points);
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 48, Pack = 1)]
@@ -38,23 +37,16 @@ internal static class Sensor
         [FieldOffset(8)] public float z;
     }
 
-    public static IPointCloud FastLioRegistered(ref PointCloud2.Priv map)
+    public static Kernel.Contract.Sensor.PointCloud FastLioRegistered(ref PointCloud2.Priv map)
     {
         var data = map.Data.AsSpan().Cast<byte, FastLioPointCloud>();
         var points = new Vector3[data.Length];
         for (var i = 0; i < data.Length; ++i)
             points[i] = new Vector3(data[i].x, data[i].y, data[i].z);
-
-
-        PointCloud pointCloud = new()
-        {
-            Identifier = map.Header.FrameId.ToString(),
-            Points = points
-        };
-        return pointCloud;
+        return BuildPointCloud(ref map.Header,points);
     }
 
-    public static void WriteIntoPointCloud(IPointCloud pointCloud, IRclNode node, ref PointCloud2.Priv map)
+    public static void WriteIntoPointCloud(Kernel.Contract.Sensor.PointCloud pointCloud, IRclNode node, ref PointCloud2.Priv map)
     {
         map.Fields = new PointField.PrivSequence(3);
         map.Fields.AsSpan()[0].Count = 1;
@@ -76,6 +68,6 @@ internal static class Sensor
         map.Width = (uint)pointCloud.Points.Length;
         map.RowStep = (uint)pointCloud.Points.Length * 12;
         map.Data.CopyFrom(pointCloud.Points.AsSpan().Cast<Vector3, byte>());
-        Std.FromData(pointCloud.Identifier, node, ref map.Header);
+        Std.FromData(pointCloud.Header.Identifier, node, ref map.Header);
     }
 }

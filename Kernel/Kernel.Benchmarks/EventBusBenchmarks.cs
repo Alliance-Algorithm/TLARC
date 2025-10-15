@@ -2,8 +2,8 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using BenchmarkDotNet.Attributes;
 using Kernel.Core.EventBus;
-using Kernel.DataInterfaces;
-using Kernel.DataInterfaces.Navigation;
+using Kernel.Contract;
+using Kernel.Contract.Navigation;
 
 namespace Kernel.Benchmarks;
 
@@ -17,29 +17,9 @@ public class EventBusBenchmarks
     private const string CrossEvent = "CrossEvent";
 
 
-    public class OccupancyGrid2DMap : IGridMap2DData
+    private GridMap2DData _data = new()
     {
-        public struct HeaderInner(string id) : IHeader
-        {
-            public string Identifier { get; set; } = id;
-        }
-
-        public required IHeader Header { get; init; }
-        public required Vector2 Origin { get; init; }
-
-        public required uint Width { get; init; }
-        public required uint Height { get; init; }
-        public required double RotationRad { get; init; }
-        public required Matrix3x2 RotationMatrix { get; init; }
-        public required float Resolution { get; init; }
-        public required sbyte[] Data { get; init; }
-
-        public OccupancyGrid2DMap() { }
-    }
-
-    private OccupancyGrid2DMap _data = new()
-    {
-        Header = new OccupancyGrid2DMap.HeaderInner(""),
+        Header = new Header{Identifier = ""},
         Height = 1000,
         Width = 1000,
         Origin = new Vector2(),
@@ -53,7 +33,7 @@ public class EventBusBenchmarks
     private void Process() { }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private void Process(IGridMap2DData data) { }
+    private void Process(GridMap2DData data) { }
 
     [GlobalSetup]
     public void GlobalSetup()
@@ -64,13 +44,13 @@ public class EventBusBenchmarks
             EventBus.Instance.Subscribe(HighEvent, Process);
 
         for (var i = 0; i < 5; i++)
-            EventBus<IGridMap2DData>.Instance.Subscribe(HeavyEvent, Process);
+            EventBus<GridMap2DData>.Instance.Subscribe(HeavyEvent, Process);
         for (var i = 0; i < 20; i++)
-            EventBus<IGridMap2DData>.Instance.Subscribe(HighHeavyEvent, Process);
+            EventBus<GridMap2DData>.Instance.Subscribe(HighHeavyEvent, Process);
         for (var i = 0; i < 5; i++)
         {
             EventBus.Instance.Subscribe(CrossEvent, Process);
-            EventBus<IGridMap2DData>.Instance.Subscribe(CrossEvent, Process);
+            EventBus<GridMap2DData>.Instance.Subscribe(CrossEvent, Process);
         }
     }
 
@@ -83,14 +63,14 @@ public class EventBusBenchmarks
     public void HighEvent_Test() => EventBus.Instance.Publish(HighEvent);
 
     [Benchmark]
-    public void HeavyEvent_Test() => EventBus<IGridMap2DData>.Instance.Publish(HeavyEvent, _data);
+    public void HeavyEvent_Test() => EventBus<GridMap2DData>.Instance.Publish(HeavyEvent, _data);
 
     [Benchmark]
-    public void HighHeavyEvent_Test() => EventBus<IGridMap2DData>.Instance.Publish(HighHeavyEvent, _data);
+    public void HighHeavyEvent_Test() => EventBus<GridMap2DData>.Instance.Publish(HighHeavyEvent, _data);
 
     [Benchmark]
     public void CrossEvent_Test1() => EventBus.Instance.Publish(CrossEvent);
 
     [Benchmark]
-    public void CrossEvent_Test2() => EventBus<IGridMap2DData>.Instance.Publish(CrossEvent, _data);
+    public void CrossEvent_Test2() => EventBus<GridMap2DData>.Instance.Publish(CrossEvent, _data);
 }

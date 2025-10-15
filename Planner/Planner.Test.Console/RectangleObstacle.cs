@@ -6,11 +6,11 @@ using CostMap.Infrastructure.Data;
 using Kernel.Core.EventBus;
 using Kernel.Core.Messages;
 using Kernel.Core.TransformTree;
-using Kernel.DataInterfaces.Constraints;
-using Kernel.DataInterfaces.Geometry;
-using Kernel.DataInterfaces.Navigation;
-using Kernel.DataInterfaces.Tf;
-using Kernel.DataInterfaces.Visualization;
+using Kernel.Contract.Constraints;
+using Kernel.Contract.Geometry;
+using Kernel.Contract.Navigation;
+using Kernel.Contract.Tf;
+using Kernel.Contract.Visualization;
 using Map;
 using TlarcRosBridge.Infrastructure.Messages.Geometry;
 using TlarcRosBridge.Infrastructure.Messages.Nav;
@@ -54,34 +54,35 @@ public static class RectAngleObstacle
 
         var ros = TlarcRosBridge.Domain.RosBridge.Build(RosNodeName);
 
-        ros.Publish<IGridMap2DData, OccupancyGrid>(
+        ros.Publish<GridMap2DData, OccupancyGrid>(
              loader.MapEventName, RosStaticMap,
             TlarcRosBridge.Infrastructure.DataProcess.Publisher.GridMap2dToOccupancyGridMap);
-        ros.Publish<IPath2D, TlarcRosBridge.Infrastructure.Messages.Nav.Path>(RosTrajectoryTopic, RosTrajectoryTopic
+        ros.Publish<Path2D, TlarcRosBridge.Infrastructure.Messages.Nav.Path>(RosTrajectoryTopic, RosTrajectoryTopic
                             , TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishPath);
-        ros.Publish<IGridMap2DData, OccupancyGrid>(
+        ros.Publish<GridMap2DData, OccupancyGrid>(
              RosStaticInflationMap, RosStaticInflationMap,
             TlarcRosBridge.Infrastructure.DataProcess.Publisher.GridMap2dToOccupancyGridMap);
-        ros.Publish<ISafeCorridor2DData<IRectangle>, MarkerArray>(
+        ros.Publish<SafeCorridor2DData<Rectangle>, MarkerArray>(
              RosSafeCorridorName, RosSafeCorridorName,
             TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishRectangleSafeCorridor);
-        ros.Publish<IPath2D, TlarcRosBridge.Infrastructure.Messages.Nav.Path>(
+        ros.Publish<Path2D, TlarcRosBridge.Infrastructure.Messages.Nav.Path>(
              RosPathTopic, RosPathTopic,
             TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishPath);
-        ros.Publish<ITfCollection, TlarcRosBridge.Infrastructure.Messages.Tf2.TFMessage>(
+        ros.Publish<TfCollection, TlarcRosBridge.Infrastructure.Messages.Tf2.TFMessage>(
              RosTfTopic, RosTfTopic,
             TlarcRosBridge.Infrastructure.DataProcess.Publisher.TfCollectionToTfMessage);
-        ros.Publish<IPose, TlarcRosBridge.Infrastructure.Messages.Geometry.PoseStamped>(
+        ros.Publish<Kernel.Contract.Geometry.Pose, TlarcRosBridge.Infrastructure.Messages.Geometry.PoseStamped>(
              RosTargetVelocityTopic, RosTargetVelocityTopic,
             TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishPoseStamped);
 #endif
         InflationLayerBuilder.SetPara(50);
 
-        EventBus<IGridMap2DData>.Instance.Subscribe(loader.MapEventName, x =>
+        EventBus<GridMap2DData>.Instance.Subscribe(loader.MapEventName, x =>
         {
-            var infmap = InflationLayerBuilder.Build(Grid2DMap.Build_IGridMap2DData(x));
+            var map = Grid2DMap.Build_GridMap2DData(x);
+            var infmap = InflationLayerBuilder.Build(map, map.Data);
             EventBus<ISdf2D>.Instance.Publish(loader.MapEventName, infmap);
-            EventBus<IGridMap2DData>.Instance.Publish(RosStaticInflationMap, infmap.GridMap.Data);
+            EventBus<GridMap2DData>.Instance.Publish(RosStaticInflationMap, infmap.GridMap.Data);
         }
         );
 
@@ -97,41 +98,41 @@ public static class RectAngleObstacle
         });
 
         ITrajectory2D? lasttraj = null;
-        EventBus<IPose>.Instance.Subscribe(RosPositionPoint, x =>
+        EventBus<Kernel.Contract.Geometry.Pose>.Instance.Subscribe(RosPositionPoint, x =>
         {
             if (lasttraj is not null)
             {
                 vel = lasttraj?.GetVelocity(DateTime.UtcNow) ?? Vector2.Zero;
-                EventBus<IPose>.Instance.Publish(RosTargetVelocityTopic, new PoseDecoratior(new(vel, 0), System.Numerics.Quaternion.Zero, lasttraj!.Header));
+                EventBus<Kernel.Contract.Geometry.Pose>.Instance.Publish(RosTargetVelocityTopic, new(){ Position = new(vel, 0),Orientation = System.Numerics.Quaternion.Zero, Header = lasttraj!.Data.Header});
             }
             if (!reload)
                 return;
             reload = false;
             from = new(x.Position.X, x.Position.Y);
             var astar = planner.SeachPath(from, to);
-            EventBus<IPath2D>.Instance.Publish(RosPathTopic, astar);
+            EventBus<Path2D>.Instance.Publish(RosPathTopic, astar);
             var safeCorridor = planner.SearchAABBSafeCorridor(astar);
-            EventBus<ISafeCorridor2DData<IRectangle>>.Instance.Publish(RosSafeCorridorName, new SafeCorridorDecorator<AABB2D, IRectangle>(safeCorridor));
 
 
             var trajectory = Planner.PlannerBuilder.OptimizePath(
                 safeCorridor!,
-                new(astar.GetPoints().First(), vel, Vector2.Zero),
-                new(astar.GetPoints().Last(), Vector2.Zero, Vector2.Zero));
-            if (trajectory is not null) EventBus<IPath2D>.Instance.Publish(RosTrajectoryTopic,
-             new PathDecorator<IEnumerable<Vector2>>(trajectory.GetPositions(trajectory.FromWhen, (trajectory.ToWhen - trajectory.FromWhen).TotalSeconds / 100f, 101), trajectory.Header));
+                new(astar.Points[0] , vel, Vector2.Zero),
+                new(astar.Points[^1], Vector2.Zero, Vector2.Zero));
+            if (trajectory is not null) EventBus<Path2D>.Instance.Publish(RosTrajectoryTopic,
+             new Path2D(){  Points = [.. trajectory.GetPositions(trajectory.Data.FromWhen, (trajectory.Data.ToWhen - trajectory.Data.FromWhen).TotalSeconds / 100f, 101)],
+                            Header = trajectory.Data.Header});
             lasttraj = trajectory ?? lasttraj;
 
         });
         loader.MapPublish();
-        EventBus<ITfCollection>.Instance.Publish(RosTfTopic, Tf.GetTree());
+        EventBus<TfCollection>.Instance.Publish(RosTfTopic, Tf.GetTree());
         Console.WriteLine("Map publish");
 
 
         ros.Subscript<PointStamped, StdMessage<Vector2>>(
              RosControlPoint, RosControlPoint,
             TlarcRosBridge.Infrastructure.DataProcess.Subscriber.PointToVector2);
-        ros.Subscript<PoseStamped, IPose>(
+        ros.Subscript<PoseStamped, Kernel.Contract.Geometry.Pose>(
              RosPositionPoint, RosPositionPoint,
             TlarcRosBridge.Infrastructure.DataProcess.Subscriber.RawPoseFromPoseStamped);
     }

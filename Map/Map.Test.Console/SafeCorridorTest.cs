@@ -3,13 +3,12 @@ using System.Numerics;
 using CostMap.Infrastructure.Algorithm;
 using CostMap.Infrastructure.Data;
 using Kernel.Core.EventBus;
-using Kernel.DataInterfaces;
-using Kernel.DataInterfaces.Constraints;
-using Kernel.DataInterfaces.Navigation;
-using Kernel.DataInterfaces.Visualization;
+using Kernel.Contract;
+using Kernel.Contract.Constraints;
+using Kernel.Contract.Navigation;
+using Kernel.Contract.Visualization;
 using Map;
 using SafetyCorridor.Infractructure.CircleSafecorridor;
-using SafetyCorridor.Infractructure.RectangleSafeCorridor;
 using TlarcRosBridge.Infrastructure.Messages.Nav;
 using TlarcRosBridge.Infrastructure.Messages.Visualization;
 
@@ -45,26 +44,27 @@ public static class SafeCorridorTest
 
         var ros = TlarcRosBridge.Domain.RosBridge.Build(RosNodeName);
 
-        ros.Publish<IGridMap2DData, OccupancyGrid>(
+        ros.Publish<GridMap2DData, OccupancyGrid>(
              loader.MapEventName, RosStaticMap,
             TlarcRosBridge.Infrastructure.DataProcess.Publisher.GridMap2dToOccupancyGridMap);
-        ros.Publish<IGridMap2DData, OccupancyGrid>(
+        ros.Publish<GridMap2DData, OccupancyGrid>(
              RosStaticInflationMap, RosStaticInflationMap,
             TlarcRosBridge.Infrastructure.DataProcess.Publisher.GridMap2dToOccupancyGridMap);
-        ros.Publish<ISafeCorridor2DData<ICircle>, MarkerArray>(
+        ros.Publish<SafeCorridor2DData<Circle>, MarkerArray>(
              $"{RosSafeCorridorName}_circle", $"{RosSafeCorridorName}_circle",
             TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishCircleSafeCorridor);
-        ros.Publish<ISafeCorridor2DData<IRectangle>, MarkerArray>(
+        ros.Publish<SafeCorridor2DData<Rectangle>, MarkerArray>(
              $"{RosSafeCorridorName}_rectangle", $"{RosSafeCorridorName}_rectangle",
             TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishRectangleSafeCorridor);
 #endif
         InflationLayerBuilder.SetPara(50);
 
-        EventBus<IGridMap2DData>.Instance.Subscribe(loader.MapEventName, x =>
+        EventBus<GridMap2DData>.Instance.Subscribe(loader.MapEventName, x =>
         {
-            var infmap = InflationLayerBuilder.Build(Grid2DMap.Build_IGridMap2DData(x));
+            var map = Grid2DMap.Build_GridMap2DData(x);
+            var infmap = InflationLayerBuilder.Build(map,map.Data);
             EventBus<ISdf2D>.Instance.Publish(loader.MapEventName, infmap);
-            EventBus<IGridMap2DData>.Instance.Publish(RosStaticInflationMap, infmap.GridMap.Data);
+            EventBus<GridMap2DData>.Instance.Publish(RosStaticInflationMap, infmap.GridMap.Data);
         }
             );
 
@@ -73,11 +73,10 @@ public static class SafeCorridorTest
             float dis = -1;
             var arr = (from p in DebugPath
                        where obs.Obstacle!.FindNearestObstacleDistance(p, 2, out dis)
-                       select new Circle2D(dis, p) as ICircle).ToArray();
-            EventBus<ISafeCorridor2DData<ICircle>>.Instance.Publish($"{RosSafeCorridorName}_circle",
-                   new CircleSafecorridorImpl()
+                       select new Circle(){R = dis,Origin = p}).ToArray();
+            EventBus<SafeCorridor2DData<Circle>>.Instance.Publish($"{RosSafeCorridorName}_circle",
+                   new SafeCorridor2DData<Circle>()
                    {
-                       Header = obs.Obstacle!.Header,
                        Length = arr.Length,
                        Corridors = arr,
                    }
@@ -87,16 +86,11 @@ public static class SafeCorridorTest
         EventBus<IObstacle>.Instance.Subscribe(obs.EventObstacleName, x =>
         {
             var arr = (from p in DebugPath
-                       select new AABB2D(p.X - 0.1f, p.Y - 0.1f,
-                                         p.X + 0.1f, p.Y + 0.1f) as IRectangle).ToArray();
-            EventBus<ISafeCorridor2DData<IRectangle>>.Instance.Publish($"{RosSafeCorridorName}_rectangle",
-                   new RectangleSafecorridorImpl()
-                   {
-                       Header = obs.Obstacle!.Header,
-                       Length = arr.Length,
-                       Corridors = arr,
-                   }
-            );
+                       select new AABB2D(){
+                                        MinX = p.X - 0.1f, 
+                                        MinY = p.Y - 0.1f,
+                                        MaxX = p.X + 0.1f, 
+                                        MaxY = p.Y + 0.1f}).ToArray();
         });
 
 

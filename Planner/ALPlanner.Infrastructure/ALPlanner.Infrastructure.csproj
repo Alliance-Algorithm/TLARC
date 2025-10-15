@@ -10,7 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Kernel\Kernel.DataInterfaces\Kernel.DataInterfaces.csproj" />
+        <ProjectReference Include="..\..\Kernel\Kernel.Contract\Kernel.Contract.csproj" />
         <ProjectReference Include="..\..\Bridges\TlarcRosBridge.Domain\TlarcRosBridge.Domain.csproj" />
     </ItemGroup>
 

@@ -1,8 +1,7 @@
 
 
 using Kernel.Core.EventBus;
-using Kernel.DataInterfaces.Navigation;
-using SafetyCorridor.Infractructure;
+using Kernel.Contract.Navigation;
 using SafetyCorridor.Infractructure.CircleSafecorridor;
 
 namespace Map;
@@ -33,7 +32,6 @@ public class ObstacleMap
         {
             Obstacle = new Sdf2DRelated()
             {
-                Header = map.Header,
                 MapData = map
             };
             EventBus<IObstacle>.Instance.Publish(EventObstacleName, Obstacle);

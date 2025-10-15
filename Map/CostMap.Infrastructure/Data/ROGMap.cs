@@ -4,12 +4,12 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using CostMap.Infrastructure.Algorithm;
 using g4;
-using Kernel.DataInterfaces;
-using Kernel.DataInterfaces.Navigation;
+using Kernel.Contract;
+using Kernel.Contract.Navigation;
 
 namespace CostMap.Infrastructure.Data;
 
-public class ROGMap : IMap2D, IHeader, IGridMap2DData, IGridMap2D
+public class ROGMap : IMap2D, IGridMap2D
 {
 
     public int CenterX => _center.x;
@@ -49,7 +49,6 @@ public class ROGMap : IMap2D, IHeader, IGridMap2DData, IGridMap2D
 
     public float _lossHit { internal get; init; } = 0.9f;
     public float _lossMiss { internal get; init; } = -0.7f;
-    public required string Identifier { get; init; }
 
     /// <summary>
     ///  as p_max = 99.99%
@@ -67,9 +66,7 @@ public class ROGMap : IMap2D, IHeader, IGridMap2DData, IGridMap2D
     public float[] Memory => _memory;
 
     public sbyte[] UpdateFrameCount => _updateFrameCount;
-    public IMap2D Actions => this;
 
-    public IHeader Header => this;
 
     public Vector3 CenterInWorld
     {
@@ -79,14 +76,11 @@ public class ROGMap : IMap2D, IHeader, IGridMap2DData, IGridMap2D
     }
     public Vector2 Origin { get; }
 
-    public double RotationRad => 0;
 
-    public Matrix3x2 RotationMatrix => Matrix3x2.Identity;
+    public sbyte[] Data => _data.Data;
 
-    internal readonly sbyte[] _data;
-    public sbyte[] Data => _data;
-
-    IGridMap2DData IGridMap2D.Data => this;
+    public Header Header => _data.Header;
+    private GridMap2DData _data;
 
     public bool IsMoveAble(Vector2 from, Vector2 to)
     {
@@ -120,7 +114,7 @@ public class ROGMap : IMap2D, IHeader, IGridMap2DData, IGridMap2D
     }
 
 
-    public ROGMap(uint height, uint width, float inflationDistance, float resolution, float topZ, float buttonZ)
+    public ROGMap(uint height, uint width, float inflationDistance, float resolution, float topZ, float buttonZ,string identifier)
     {
         TopZ = topZ;
         ButtonZ = buttonZ;
@@ -149,7 +143,18 @@ public class ROGMap : IMap2D, IHeader, IGridMap2DData, IGridMap2D
         Array.Fill(_upper, -1e6f);
         Array.Fill(_lower, 1e6f);
         _updateFrameCount = new sbyte[SizeX * SizeY];
-        _data = new sbyte[SizeX * SizeY];
+        
+        _data = new GridMap2DData()
+        {
+            Header          = new(){Identifier = identifier},
+            Data            = new sbyte[SizeX * SizeY],
+            Height          = Height,
+            Width           = Width,
+            Origin          = Origin,
+            Resolution      = resolution,
+            RotationMatrix  = Matrix3x2.Identity,
+            RotationRad     = 0
+        };
     }
 
 

@@ -1,8 +1,8 @@
 using System.Numerics;
 using ALPlanner.Domain.Trajectorys;
-using Kernel.DataInterfaces.Constraints;
-using Kernel.DataInterfaces.Navigation;
-using Kernel.DataInterfaces.Visualization;
+using Kernel.Contract.Constraints;
+using Kernel.Contract.Navigation;
+using Kernel.Contract.Visualization;
 using MathNet.Numerics.Optimization;
 using NumFlat;
 
@@ -14,7 +14,7 @@ public static class MincoOptimizer
     public record Status(Vector2 Pos, Vector2 Vel, Vector2 Acc);
     static readonly int K = 1;
 
-    public static ITrajectory2D? Optimize<T>(ISafeCorridor2DData<T> path, Status head, Status tail) where T : IConstraint
+    public static ITrajectory2D? Optimize<T>(SafeCorridor2DData<T> path, Status head, Status tail) where T : IConstraint
     {
         try
         {

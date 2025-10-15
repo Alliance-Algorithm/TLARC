@@ -2,7 +2,7 @@
 using System.Collections.Frozen;
 using System.Runtime.CompilerServices;
 using Kernel.Core.SoFuckingFastAlgorithms;
-using Kernel.DataInterfaces;
+using Kernel.Contract;
 
 namespace Kernel.Core.EventBus;
 
@@ -24,7 +24,7 @@ public unsafe class EventBus<T> where T : ITlarcData
     /// 防止外部实例化
     private EventBus()
     {
-        if (!typeof(T).IsInterface) Console.WriteLine($"EventBus<T> better use a interface in Project:Kernel.DataInterfaces as T, where T is {typeof(T).FullName}");
+        if (!typeof(T).IsInterface) Console.WriteLine($"EventBus<T> better use a interface in Project:Kernel.Contract as T, where T is {typeof(T).FullName}");
     }
 
     /// <summary>

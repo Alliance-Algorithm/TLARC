@@ -1,12 +1,13 @@
 using System.Numerics;
 using ALPlanner.Infrastructure.Optimizer;
 using Kernel.Core.EventBus;
-using Kernel.DataInterfaces;
-using Kernel.DataInterfaces.Constraints;
-using Kernel.DataInterfaces.Navigation;
-using Kernel.DataInterfaces.Visualization;
+using Kernel.Contract;
+using Kernel.Contract.Constraints;
+using Kernel.Contract.Navigation;
+using Kernel.Contract.Visualization;
 using MathNet.Numerics.Optimization;
 using NumFlat;
+using ALPlanner.Infrastructure.SafeCorridorConstruct;
 
 static class AABBObstacle
 {
@@ -18,45 +19,23 @@ static class AABBObstacle
         for (int i = 0; i < 5; i++)
         {
             float x = i * 2;
-            corridor.Add(new AABB2D(x, x - 1, x + 3, x + 2));
+            corridor.Add(new AABB2D{MaxX = x,MinX = x - 1,MaxY = x + 3, MinY = x + 2});
         }
 
         // 转弯段：连接水平和垂直段的拐角
-        corridor.Add(new AABB2D(10, 9, 13, 13)); // 拐角段
+        corridor.Add(new AABB2D{MaxX = 10,MinX = 9,MaxY = 13, MinY = 13}); // 拐角段
 
         // 垂直段：从 (120,0) 向上延伸到 (120,100)，每段高度为20
         for (int i = 1; i <= 5; i++)
         {
             float y = i * 2;
-            corridor.Add(new AABB2D(10 - y, 10 + y, 13 - y, y + 14));
+            corridor.Add(new AABB2D{MaxX = 10 - y,MinX = 10 + y,MaxY = 13 - y,MinY = y + 14});
         }
 
         return corridor;
     }
 
     static AABB2D[] path = [.. GenerateCorridor()];
-    class PathDecorator<T>(T path) : IPath2D, IHeader where T : IEnumerable<Vector2>
-    {
-        public IHeader Header => this;
-
-        public int Length => path.Count();
-
-        public string Identifier => "Test";
-
-        public IEnumerable<Vector2> GetPoints() => path;
-    }
-    class CorridorDecorator(AABB2D[] path) : ISafeCorridor2DData<IRectangle>, IHeader
-    {
-        public IHeader Header => this;
-
-        public int Length => path.Length;
-
-        public string Identifier => "Test";
-
-        public IRectangle[] Corridors => [.. from a in path select a as IRectangle];
-
-    }
-
 
     public static void Build()
     {
@@ -64,11 +43,11 @@ static class AABBObstacle
         Console.WriteLine(2 * 3 * path.Length * K);
 
         var ros = TlarcRosBridge.Domain.RosBridge.Build("MincoTest");
-        ros.Publish<IPath2D, TlarcRosBridge.Infrastructure.Messages.Nav.Path>("/traj", "/traj"
+        ros.Publish<Path2D, TlarcRosBridge.Infrastructure.Messages.Nav.Path>("/traj", "/traj"
                             , TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishPath);
-        ros.Publish<IPath2D, TlarcRosBridge.Infrastructure.Messages.Nav.Path>("/path", "/path"
+        ros.Publish<Path2D, TlarcRosBridge.Infrastructure.Messages.Nav.Path>("/path", "/path"
         , TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishPath);
-        ros.Publish<ISafeCorridor2DData<IRectangle>, TlarcRosBridge.Infrastructure.Messages.Visualization.MarkerArray>("/safeCorridor", "/safeCorridor"
+        ros.Publish<SafeCorridor2DData<Rectangle>, TlarcRosBridge.Infrastructure.Messages.Visualization.MarkerArray>("/safeCorridor", "/safeCorridor"
         , TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishRectangleSafeCorridor);
 
         Vector2 head = new(1, 1);
@@ -115,9 +94,9 @@ static class AABBObstacle
             }
             ts = (float)(DateTime.UtcNow - now).TotalSeconds;
             var recordMinco = minco.Record;
-            EventBus<IPath2D>.Instance.Publish("/traj", new PathDecorator<IEnumerable<Vector2>>(recordMinco.GetPositions(ts, (minco.TotalSecond - ts) / 100, 101)));
-            EventBus<IPath2D>.Instance.Publish("/path", new PathDecorator<IEnumerable<Vector2>>(recordMinco.GetControlPoints()));
-            EventBus<ISafeCorridor2DData<IRectangle>>.Instance.Publish("/safeCorridor", new CorridorDecorator(path));
+            EventBus<Path2D>.Instance.Publish("/traj", new Path2D{Points = [.. recordMinco.GetPositions(ts, (minco.TotalSecond - ts) / 100, 101)], Header = new Header{Identifier = "test"}});
+            EventBus<Path2D>.Instance.Publish("/path", new Path2D{Points = [.. recordMinco.GetControlPoints()], Header = new Header{Identifier = "test"}});
+            // EventBus<SafeCorridor2DData<Rectangle>>.Instance.Publish("/safeCorridor", new SafeCorridorDecorator(path));
 
             Thread.Sleep(50);
             head = recordMinco.GetPosition(ts);

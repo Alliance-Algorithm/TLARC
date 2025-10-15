@@ -4,7 +4,7 @@ using CostMap.Infrastructure.Data;
 using Kernel.Core.EventBus;
 using Kernel.Core.Messages;
 using Kernel.Core.TransformTree;
-using Kernel.DataInterfaces.Navigation;
+using Kernel.Contract.Navigation;
 
 namespace Map;
 
@@ -53,8 +53,8 @@ public class MapSaver
     /// </summary>
     /// <remarks>
     /// <para>输入：</para>
-    /// <para>GridMap2DData ->  Kernel.DataInterfaces.Navigation.IGridMap2DData</para>
-    /// <para>SaveMap ->  Kernel.DataInterfaces.StringMessage</para>
+    /// <para>GridMap2DData ->  Kernel.Contract.Navigation.GridMap2DData</para>
+    /// <para>SaveMap ->  Kernel.Contract.StringMessage</para>
     /// </remarks>
     public MapSaver Build()
     {
@@ -65,10 +65,10 @@ public class MapSaver
                 if (_data is not null)
                 {
                     var map = MapType.Build_Clone(_data);
-                    map.DataChangeable.DataChangeable.HeaderData.Identifier = _saveTargetLink;
-                    var xyz = Tf.Cast(_data.DataChangeable.DataChangeable.Header.Identifier, _saveTargetLink,
-                        new Vector3(_data.DataChangeable.DataChangeable.Origin, 0));
-                    map.DataChangeable.DataChangeable.Origin = new Vector2(xyz.X, xyz.Y);
+                    map.Data.GridMapData.Header.Identifier = _saveTargetLink;
+                    var xyz = Tf.Cast(_data.Data.GridMapData.Header.Identifier, _saveTargetLink,
+                        new Vector3(_data.Data.GridMapData.Origin, 0));
+                    map.Data.GridMapData.Origin = new Vector2(xyz.X, xyz.Y);
                     CostMap.Infrastructure.Algorithm.GridMapInner.SaveHighMap(map, str.Instance);
                 }
             });

@@ -1,6 +1,6 @@
 ﻿using Kernel.Core.EventBus;
 using Kernel.Core.Messages;
-using Kernel.DataInterfaces;
+using Kernel.Contract;
 using Rcl;
 using Rosidl.Runtime;
 

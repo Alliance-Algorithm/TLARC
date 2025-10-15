@@ -17,8 +17,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Kernel.DataInterfaces\Kernel.DataInterfaces.csproj" />
         <ProjectReference Include="..\Kernel.Utils\Kernel.Utils.csproj" />
+        <ProjectReference Include="..\Kernel.Contract\Kernel.Contract.csproj" />
     </ItemGroup>
 
     <ItemGroup>

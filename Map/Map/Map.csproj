@@ -11,7 +11,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\Kernel\Kernel.Core\Kernel.Core.csproj" />
         <ProjectReference Include="..\CostMap.Infrastructure\CostMap.Infrastructure.csproj" />
-        <ProjectReference Include="..\SafetyCorridor.Infractructure\SafetyCorridor.Infractructure.csproj" />
+        <ProjectReference Include="..\SafeCorridor.Infractructure\SafeCorridor.Infractructure.csproj" />
     </ItemGroup>
 
 </Project>

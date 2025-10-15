@@ -5,23 +5,17 @@ using System.Buffers;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using CommunityToolkit.HighPerformance;
-using Kernel.DataInterfaces.Navigation;
+using Kernel.Contract.Navigation;
 using Vectorf = NumFlat.Vec<double>;
 using Matrixf = NumFlat.Mat<double>;
-using Kernel.DataInterfaces.Constraints;
+using Kernel.Contract.Constraints;
 using NumFlat;
-using Kernel.DataInterfaces.Visualization;
+using Kernel.Contract.Visualization;
 
 namespace ALPlanner.Infrastructure.Optimizer;
 
 public unsafe class Minco<T> where T : IConstraint
 {
-    internal readonly int InitData = typeof(T) switch
-    {
-        ICircle => 0,
-        IRectangle => 1,
-        _ => 0
-    };
     internal readonly int N;
     internal readonly Matrixf A;
     internal readonly Vectorf T1;
@@ -42,7 +36,6 @@ public unsafe class Minco<T> where T : IConstraint
     readonly public int XSize;
     readonly static public int Init = typeof(T) switch
     {
-        ICircle => 0,
         _ =>
         typeof(T) == typeof(AABB2D) ? 1 :
         throw new NotImplementedException()
