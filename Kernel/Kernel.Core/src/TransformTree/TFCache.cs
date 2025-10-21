@@ -136,7 +136,6 @@ internal class TransformCache
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal ref Matrix4x4 GetTransform(long time)
     {
-
         if (!_cache.Find(time, out var node))
             return ref _default;
         if(node!.Dirty)

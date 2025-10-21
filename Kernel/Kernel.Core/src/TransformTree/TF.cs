@@ -3,7 +3,6 @@ using System.Collections.Frozen;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Kernel.Core.SoFuckingFastAlgorithms;
 using Kernel.Contract;
 using Kernel.Contract.Geometry;
 using Kernel.Contract.Tf;
@@ -96,7 +95,7 @@ public static class Tf
 
             foreach (var node in
                      Nodes.Where(x => rootTo.Contains(x.Key) || rootToFrom.Contains(x.Key))){
-                Console.WriteLine("Fuck"); 
+                // Console.WriteLine("Fuck"); 
                 node.Value.AddCallBack(cache.CallBack);
             }
         }
@@ -141,11 +140,12 @@ public static class Tf
         if (identifierFrom  == identifierTo && 
             position        != outPositions) 
         {
-            Buffer.BlockCopy(
-                position, 
-                0, 
-                outPositions, 
-                0, 
+            fixed (void* p1 = position)
+            fixed (void* p2 = outPositions)
+            Buffer.MemoryCopy(
+                p1, 
+                p2,  
+                position.Length * sizeof(Vector3),
                 position.Length * sizeof(Vector3));
             
             return outPositions;

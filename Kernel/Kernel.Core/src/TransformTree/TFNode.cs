@@ -22,8 +22,7 @@ internal class TransformTreeNode(string identifier)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void SetTransform(Vector3 translate, Quaternion rotation, long timeStamp)
     {
-        Changed(timeStamp);
-        _cache.SetNode(translate,rotation,timeStamp);
+        _cache.SetNode(translate,rotation,timeStamp,Changed);
     }
 
     internal void SetParent(TransformTreeNode parent)

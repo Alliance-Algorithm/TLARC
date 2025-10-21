@@ -1,6 +1,7 @@
 
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using Kernel.Contract;
 using Microsoft.Extensions.ObjectPool;
 using Microsoft.VisualBasic;
 
@@ -29,7 +30,7 @@ internal unsafe class TFNodeCacheListNode
                             TFNodeCacheListNode to, 
                             long                timeStamp)
     {
-        var ament = Math.Clamp(timeStamp, from.Time, to.Time);
+        var ament = (Math.Clamp(timeStamp, from.Time, to.Time) - from.Time) / (to.Time - from.Time);
         var orien = Quaternion.Normalize(Quaternion.Lerp(from.Orientation,to.Orientation,ament));
         var trans = Vector3.Lerp(from.Translation,to.Translation,ament);
         
@@ -64,9 +65,9 @@ internal struct TFNodeCacheListNodePolicy : IPooledObjectPolicy<TFNodeCacheListN
 
 
 internal unsafe class TFNodeCacheList
-{
-    private  TFNodeCacheListNode?                    _head       = null;
-    private  TFNodeCacheListNode?                    _tail       = null;
+{    
+    private     TFNodeCacheListNode?    _head       = null;
+    private     TFNodeCacheListNode?    _tail       = null;
     
     readonly DefaultObjectPool<TFNodeCacheListNode>  _objectPool = new(new TFNodeCacheListNodePolicy()); 
 
@@ -84,69 +85,76 @@ internal unsafe class TFNodeCacheList
     public TFNodeCacheListNode GetNode(long timeStamp)
     {
         if(_head == null)           return TFNodeCacheListNode.Default;
-        if(timeStamp < 0)           return _head;
-        if(_tail!.Time > timeStamp) return TFNodeCacheListNode.Default;
-        if(_head!.Time < timeStamp) return _head;
+        if(timeStamp <= 0)          return _head;
+        if(_tail!.Time > timeStamp) 
+        return _tail;
+        if(_head!.Time < timeStamp) 
+        return _head;
 
         var node = _head;
-        while(node != null && node.Time > timeStamp) node = node.Next;
+        while(node!.Time > timeStamp) node = node.Next;
 
-        if(node == null)            return TFNodeCacheListNode.Default;
         if(node.Time == timeStamp)  return node;
 
+        // return node;
         return TFNodeCacheListNode.Lerp(node, node.Prev!, timeStamp);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetNode(Vector3 translation, Quaternion orientation,long timeStamp)
+    public void SetNode(Vector3 translation, Quaternion orientation,long timeStamp,  Action<long> action)
     {
-        bool changed(TFNodeCacheListNode node) =>   node.Translation == translation &&
-                                                    node.Orientation == orientation;
-        void update (TFNodeCacheListNode node) =>   TFNodeCacheListNode.UpdateNode(node,orientation,translation);
+        bool changed(TFNodeCacheListNode node) =>   node.Translation != translation ||
+                                                    node.Orientation != orientation;
+        void update (TFNodeCacheListNode node){
+            action(timeStamp);
+            node.Time = timeStamp;
+            TFNodeCacheListNode.UpdateNode(node,orientation,translation);
+        }
         
         if( _head == null)
         {
             _head = _objectPool.Get();
             _tail = _head;
-            _head.Time = timeStamp;
             update(_head);
             return;
         }
+        var node = _head;
+        if(timeStamp <= 0 && changed(node))
+        {
+            update(node);   
+            return;
+        }
         
-        while(_tail!.Time < timeStamp)
+        while(_tail != null && _tail!.Time < timeStamp - ((long)10 << 32))
         {
             var tail    = _tail;
             _tail       = _tail.Prev;
             _objectPool.Return(tail);
         }
 
-        if(timeStamp <= 0 && changed(_head))
-        {
-            update(_head);   
+        if (_tail == null){
+            _head = _objectPool.Get();
+            _tail = _head;
+            update(_head);
             return;
         }
 
-        if(_tail!.Time < timeStamp && changed(_tail))
-        {
-            update(_tail);
-            return;
-        }
 
-        var node = _head;
+        if(_tail!.Time > timeStamp)
+            return;
 
         while(node!.Time > timeStamp) node = node.Next;
-        
-        if(node.Time == timeStamp && changed(node)) 
+        if(node.Time == timeStamp)
         {
-            update(node);
+            if(changed(node)) 
+                update(node);
             return;
-        };
-
+        }
         var newNode = _objectPool.Get();
-        newNode.Time = timeStamp;
         update(newNode);
         newNode.Next = node;
         newNode.Prev = node.Prev;
         node.Prev = newNode;
+        if(node == _head) _head = newNode;
     }
 }

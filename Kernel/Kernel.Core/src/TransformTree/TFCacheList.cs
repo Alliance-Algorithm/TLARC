@@ -35,31 +35,25 @@ internal unsafe class TFCacheList
     TFCacheListNode? _tail = null;
     public bool Find(long time, out TFCacheListNode? node)
     {
-        node = null;
-        if (_head == null)
-            return false;
-        if(time < 0)
+        if(time <= 0) 
         {
             node = _head;
             return true;
-        }
+        };
+        node = null;
+        if (_head == null)
+            return false;
+
         if (time < _tail!.Time)
             return false;
 
         node = _head;
-        while (node!.Time >= time) node = node!.Next;
+        while (node.Next != null && node!.Time > time) node = node!.Next;
         return true;
     }
 
     public void SetDirty(long time)
     {
-        while(_tail != null && time > _tail.Time)
-        {
-            var tail    = _tail;
-            _tail       = _tail.Prev;
-            _objectPool.Return(tail);
-        }
-
         if (_head == null)
         {
             _head           = _objectPool.Get();
@@ -69,6 +63,17 @@ internal unsafe class TFCacheList
             _head.Prev      = null;
             _head.Next      = null;
             return;
+        }
+        if(time <= 0)
+        {
+            _head!.Dirty = true;
+            return;
+        }
+        while(_tail!.Prev != null && time - ((long)10 << 32) > _tail.Time)
+        {
+            var tail    = _tail;
+            _tail       = _tail.Prev;
+            _objectPool.Return(tail);
         }
         if (time <= 0) 
         {
@@ -84,6 +89,7 @@ internal unsafe class TFCacheList
             _tail.Dirty     = true;
             _tail.Prev      = tail;
             tail.Next       = _tail;
+            _tail.Next      = null;
             return;
         }
         var node = _head;
@@ -93,13 +99,15 @@ internal unsafe class TFCacheList
             Volatile.Write(ref node.Dirty, true);
             return;
         }
-
         var newNode = _objectPool.Get();
         newNode.Time = time;
         newNode.Dirty = true;
-        newNode.Next = node.Next;
+        newNode.Next = node;
         newNode.Prev = node.Prev;
         node.Prev = newNode;
+        if(node == _head)
+            _head = newNode;
+        
     }
 
 
