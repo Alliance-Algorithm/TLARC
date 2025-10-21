@@ -22,16 +22,19 @@ public static class RogMapTest
                 Quaternion.CreateFromAxisAngle(Vector3.UnitY, (float)(pitch / 180 * Math.PI)) *
                 Quaternion.CreateFromAxisAngle(Vector3.UnitX, (float)(roll / 180 * Math.PI));
 
-        const string TfCostMapLinkName = "cost_map_link";
-        const string TfCarLinkName = "car_link";
-        const string TfCarInitName = "car_init";
-        const string TfLidarLinkName = "lidar_link";
-        const string TfLidarInitName = "lidar_init";
+        const string TfCostMapLinkName  = "cost_map_link";
+        const string TfCarLinkName      = "car_link";
+        const string TfCarInitName      = "car_init";
+        const string TfLidarLinkName    = "lidar_link";
+        const string TfLidarInitName    = "lidar_init";
 
-        Vector3 TfCostMapLinkTranslate = new(-5, -10, 0);
+        // Vector3 TfCostMapLinkTranslate = new(-5, -10, 0);
+        Vector3 TfCostMapLinkTranslate = new(0, 0, 0);
         Quaternion TfCostMapLinkRotation = Quaternion.Identity;
-        Vector3 TfLidarLinkTranslate = new(0.14f, 0.12f, 0.27f);
-        Quaternion TfLidarLinkRotation = QuaternionFromYawPitchRoll(-49.7f, roll: -50.0f);
+        // Vector3 TfLidarLinkTranslate = new(0.14f, 0.12f, 0.27f);
+        // Quaternion TfLidarLinkRotation = QuaternionFromYawPitchRoll(-49.7f, roll: -50.0f);
+        Vector3 TfLidarLinkTranslate = new(0.233f, 0, 0.201f);
+        Quaternion TfLidarLinkRotation = QuaternionFromYawPitchRoll(0,10,0);
 
         // Events
         const string EventPointCloudInputName = "/tlarc/map_server/point_cloud";
@@ -43,7 +46,7 @@ public static class RogMapTest
 
         // Others
         const string PointCloudInputId = TfCarInitName;
-        const string PointCloudOutputId = TfLidarLinkName;
+        const string PointCloudOutputId = TfCostMapLinkName;
         const string PointCloudCostMapSensorId = TfLidarLinkName;
         const string RobotPositionInputTfId = TfCarLinkName;
         #endregion
@@ -64,7 +67,7 @@ public static class RogMapTest
             TlarcRosBridge.Infrastructure.DataProcess.Subscriber.FastLioRegistered);
         ros.Subscript<PoseStamped, Kernel.Contract.Geometry.Pose>(
             RosSubRobotPosTopicName, EventRobotPositionName,
-            TlarcRosBridge.Infrastructure.DataProcess.Subscriber.RawPoseFromPoseStamped);
+            TlarcRosBridge.Infrastructure.DataProcess.Subscriber.PoseFromPoseStamped);
         ros.Publish<GridMap2DData, OccupancyGrid>(
             EventGridMapName,
             RosPubDebugTlarcGridMapTopicName,
@@ -87,7 +90,7 @@ public static class RogMapTest
         Tf.AddTfNode(TfLidarInitName, TfCarInitName);
         Tf.AddTfNode(TfLidarLinkName, TfCarLinkName);
         Tf.SetTfNode(TfCostMapLinkName, TfCostMapLinkTranslate, TfCostMapLinkRotation);
-        Tf.SetTfNode(TfLidarLinkName, TfLidarLinkTranslate, Quaternion.Identity);
+        Tf.SetTfNode(TfLidarLinkName, TfLidarLinkTranslate, TfLidarLinkRotation);
         EventBus<TfCollection>.Instance.Publish(EventTfName, Tf.GetTree());
 
         #endregion
@@ -96,7 +99,7 @@ public static class RogMapTest
         EventBus<Kernel.Contract.Geometry.Pose>.Instance.Subscribe(EventRobotPositionName,
             data =>
             {
-                Tf.SetTfNode(RobotPositionInputTfId, data.Position, data.Orientation);
+                Tf.SetTfNode(RobotPositionInputTfId, data.Position, data.Orientation, data.Header.Timestamp.ToStamp);
                 EventBus<TfCollection>.Instance.Publish(EventTfName, Tf.GetTree());
             });
 
@@ -105,7 +108,7 @@ public static class RogMapTest
             {
                 Kernel.Contract.Sensor.PointCloud pointCloud = new()
                 {
-                    Points = Tf.Cast(PointCloudInputId, PointCloudOutputId, data.Points, new Vector3[data.Points.Length]),
+                    Points = Tf.Cast(PointCloudInputId, PointCloudOutputId, data.Points, new Vector3[data.Points.Length], data.Header.Timestamp.ToStamp),
                     Header = new() { Identifier = PointCloudOutputId }
                 };
                 EventBus<Kernel.Contract.Sensor.PointCloud>.Instance.Publish(EventPointCloudOutputName, pointCloud);
@@ -114,8 +117,8 @@ public static class RogMapTest
         GC.KeepAlive(
             PointCloudTo2dMap.DefaultNew
                 .SetInput_PointCloudTopicName(EventPointCloudInputName)
-                .SetOutput_DataStructure(width: 600, height: 600, resolution: 0.02f, topZ: 0.7f, bottomZ: -0.1f, lossFree: 0.7f, lossOccu: -4.7f,
-                                            blindCircleRadius: 0.4f, slidingThreshold: 1, forgetFrameCount: 60, highError: 0.1f, OccupyDensity: 0.5f, inflationRadius: 0.1f)
+                .SetOutput_DataStructure(width: 600, height: 600, resolution: 0.02f, topZ: 0.7f, bottomZ: -0.1f, lossFree: 0.7f, lossOccu: -4.9f,
+                                            blindCircleRadius: 0.4f, slidingThreshold: 1, forgetFrameCount: 10, highError: 0.1f, OccupyDensity: 0.5f, inflationRadius: 0.1f)
                 .SetOutput_CostMapTopicName(EventGridMapName)
                 .SetOutput_Inflation(radius: 20)
                 .SetId_PointCloud(PointCloudInputId)

@@ -232,15 +232,25 @@ public class PointCloudTo2dMap
             pointCloud =>
             {
                 // var a = DateTime.UtcNow;
-                CostMap.Infrastructure.Algorithm.ROGMap.MapSliding(_innerROGMap, Tf.Cast(_chassisId, _odomId, Vector3.Zero));
-                Tf.SetTfNode(_costMapId, _innerROGMap.CenterInWorld, Quaternion.Identity);
+                var stamp = pointCloud.Header.Timestamp.ToStamp;
+                CostMap.Infrastructure.Algorithm.ROGMap.MapSliding(_innerROGMap, Tf.Cast(_chassisId, _odomId, Vector3.Zero, stamp));
+
+                Tf.SetTfNode(_costMapId, _innerROGMap.CenterInWorld, Quaternion.Identity , stamp);
+                // var arr = new Vector3[pointCloud.Points.Length];
+                // FUCK POOL
                 var arr = ArrayPool<Vector3>.Shared.Rent(pointCloud.Points.Length);
-                CostMap.Infrastructure.Algorithm.ROGMap.MapUpdate(_innerROGMap, Tf.Cast(_chassisId, _costMapId, Vector3.Zero), Tf.Cast(_pointCloudId, _costMapId, pointCloud.Points, arr));
+                CostMap.Infrastructure.Algorithm.ROGMap.MapUpdate(
+                                    _innerROGMap, 
+                                    Tf.Cast(_sensorId,      _costMapId, Vector3.Zero,             stamp),
+                                    Tf.Cast(_pointCloudId,  _costMapId, pointCloud.Points,   arr, stamp),
+                                    pointCloud.Points.Length);
                 ArrayPool<Vector3>.Shared.Return(arr);
                 // Console.WriteLine((DateTime.UtcNow - a).TotalMilliseconds);
                 // #warning 实际项目中不应该使用
                 //                 var inflationMap = CostMap.Infrastructure.Algorithm.InflationLayerBuilder.Build(_innerROGMap);
-                EventBus<IGridMap2D>.Instance.Publish(_costMapTopicName, _innerROGMap);
+                CostMap.Infrastructure.Algorithm.ROGMap.UpdateGridMap(_innerROGMap);
+                EventBus<GridMap2DData>.Instance.Publish(_costMapTopicName, _innerROGMap.GridMap);
+
             });
         return this;
     }

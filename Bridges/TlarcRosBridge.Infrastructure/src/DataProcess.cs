@@ -47,6 +47,11 @@ public static class DataProcess
             item =>
                 Geometry.ReadDataWithoutTransform(
                     ref item.AsRef<PoseStamped.Priv>());
+
+        public static readonly Func<RosMessageBuffer, Kernel.Contract.Geometry.Pose> PoseFromPoseStamped =
+            item =>
+                Geometry.ReadData(
+                    ref item.AsRef<PoseStamped.Priv>());
     }
 
     public static class Publisher

@@ -4,6 +4,7 @@ using Vector3 = System.Numerics.Vector3;
 using Quaternion = System.Numerics.Quaternion;
 using TlarcRosBridge.Infrastructure.Messages.Std;
 using Kernel.Contract.Geometry;
+using System.Runtime.CompilerServices;
 
 namespace TlarcRosBridge.Infrastructure.Decorators;
 
@@ -13,6 +14,23 @@ internal static class Geometry
     public static Kernel.Contract.Geometry.Pose ReadDataWithoutTransform(ref PoseStamped.Priv data) =>
         new()
         {
+            Position = new System.Numerics.Vector3((float)data.Pose.Position.X, (float)data.Pose.Position.Y,
+                (float)data.Pose.Position.Z),
+            Orientation = new System.Numerics.Quaternion(
+                (float)data.Pose.Orientation.X,
+                (float)data.Pose.Orientation.Y,
+                (float)data.Pose.Orientation.Z,
+                (float)data.Pose.Orientation.W
+            )
+        };
+    public static Kernel.Contract.Geometry.Pose ReadData(ref PoseStamped.Priv data) =>
+        new()
+        {
+            Header = new Kernel.Contract.Header()
+            {
+                Identifier = data.Header.FrameId.ToString(),
+                Timestamp = Unsafe.BitCast<Messages.Builtin.Time.Priv,Kernel.Contract.Timestamp>(data.Header.Stamp)
+            },
             Position = new System.Numerics.Vector3((float)data.Pose.Position.X, (float)data.Pose.Position.Y,
                 (float)data.Pose.Position.Z),
             Orientation = new System.Numerics.Quaternion(

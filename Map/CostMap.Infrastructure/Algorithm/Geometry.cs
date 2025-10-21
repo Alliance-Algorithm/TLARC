@@ -69,82 +69,104 @@ internal static class Geometry
                 if (x * x + y * y <= radius * radius)
                     points.Add(new Vector2i(center.x + x, center.y + y));
     }
+public static List<Vector3i> Bresenham3D(Vector3i from, Vector3i to)
+{
+    var voxels = new List<Vector3i>();
 
-    public static List<Vector3i> Bresenham3D(Vector3i from, Vector3i to)
+    int dx = Math.Abs(to.x - from.x);
+    int dy = Math.Abs(to.y - from.y);
+    int dz = Math.Abs(to.z - from.z);
+
+    int sx = from.x < to.x ? 1 : -1;
+    int sy = from.y < to.y ? 1 : -1;
+    int sz = from.z < to.z ? 1 : -1;
+
+    int x = from.x;
+    int y = from.y;
+    int z = from.z;
+
+    // X-dominant
+    if (dx >= dy && dx >= dz)
     {
-        var voxels = new List<Vector3i>();
+        int err_y = 2 * dy - dx;
+        int err_z = 2 * dz - dx;
 
-
-        var dx = Math.Abs(to.x - from.x);
-        var dy = Math.Abs(to.y - from.y);
-        var dz = Math.Abs(to.z - from.z);
-
-        var sx = from.x < to.x ? 1 : -1;
-        var sy = from.y < to.y ? 1 : -1;
-        var sz = from.z < to.z ? 1 : -1;
-
-        var x0 = from.x;
-        var y0 = from.y;
-        var z0 = from.z;
-
-        // 确定主导方向
-        if (dx > dy)
+        for (int i = 0; i <= dx; i++)
         {
-            // X 主导
-            var err1 = 2 * dy - dx;
-            var err2 = 2 * dz - dx;
+            voxels.Add(new Vector3i(x, y, z));
 
-            for (var i = 0; i <= dx; i++)
+            if (err_y > 0)
             {
-                voxels.Add(new Vector3i(x0, y0, z0));
-
-                if (err1 > 0)
-                {
-                    y0 += sy;
-                    err1 -= 2 * dx;
-                }
-
-                if (err2 > 0)
-                {
-                    z0 += sz;
-                    err2 -= 2 * dx;
-                }
-
-                err1 += 2 * dy;
-                err2 += 2 * dz;
-                x0 += sx;
+                y += sy;
+                err_y -= 2 * dx;
             }
-        }
-        else if (dy >= dx)
-        {
-            // Y 主导
-            var err1 = 2 * dz - dy;
-            var err2 = 2 * dx - dy;
-
-            for (var i = 0; i <= dy; i++)
+            if (err_z > 0)
             {
-                voxels.Add(new Vector3i(x0, y0, z0));
-
-                if (err1 > 0)
-                {
-                    z0 += sz;
-                    err1 -= 2 * dy;
-                }
-
-                if (err2 > 0)
-                {
-                    x0 += sx;
-                    err2 -= 2 * dy;
-                }
-
-                err1 += 2 * dz;
-                err2 += 2 * dx;
-                y0 += sy;
+                z += sz;
+                err_z -= 2 * dx;
             }
-        }
 
-        return voxels;
+            err_y += 2 * dy;
+            err_z += 2 * dz;
+            x += sx;
+        }
     }
+    // Y-dominant
+    else if (dy >= dx && dy >= dz)
+    {
+        int err_x = 2 * dx - dy;
+        int err_z = 2 * dz - dy;
+
+        for (int i = 0; i <= dy; i++)
+        {
+            voxels.Add(new Vector3i(x, y, z));
+
+            if (err_x > 0)
+            {
+                x += sx;
+                err_x -= 2 * dy;
+            }
+            if (err_z > 0)
+            {
+                z += sz;
+                err_z -= 2 * dy;
+            }
+
+            err_x += 2 * dx;
+            err_z += 2 * dz;
+            y += sy;
+        }
+    }
+    // Z-dominant
+    else
+    {
+        int err_x = 2 * dx - dz;
+        int err_y = 2 * dy - dz;
+
+        for (int i = 0; i <= dz; i++)
+        {
+            voxels.Add(new Vector3i(x, y, z));
+
+            if (err_x > 0)
+            {
+                x += sx;
+                err_x -= 2 * dz;
+            }
+            if (err_y > 0)
+            {
+                y += sy;
+                err_y -= 2 * dz;
+            }
+
+            err_x += 2 * dx;
+            err_y += 2 * dy;
+            z += sz;
+        }
+    }
+
+    return voxels;
+}
+
 
     /// <summary>
     /// 带厚度参数的直线栅格采样（适用于画线等场景）

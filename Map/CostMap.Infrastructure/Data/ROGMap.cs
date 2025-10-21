@@ -77,10 +77,10 @@ public class ROGMap : IMap2D, IGridMap2D
     public Vector2 Origin { get; }
 
 
-    public sbyte[] Data => _data.Data;
+    public sbyte[] Data => GridMap.Data;
 
-    public Header Header => _data.Header;
-    private GridMap2DData _data;
+    public Header Header => GridMap.Header;
+    public GridMap2DData GridMap;
 
     public bool IsMoveAble(Vector2 from, Vector2 to)
     {
@@ -142,9 +142,9 @@ public class ROGMap : IMap2D, IGridMap2D
         _lower = new float[SizeX * SizeY];
         Array.Fill(_upper, -1e6f);
         Array.Fill(_lower, 1e6f);
-        _updateFrameCount = new sbyte[SizeX * SizeY];
+        _updateFrameCount = new sbyte[SizeX * SizeY * SizeZ];
         
-        _data = new GridMap2DData()
+        GridMap = new GridMap2DData()
         {
             Header          = new(){Identifier = identifier},
             Data            = new sbyte[SizeX * SizeY],

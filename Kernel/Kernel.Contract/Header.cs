@@ -3,8 +3,9 @@ namespace Kernel.Contract;
 
 public struct Timestamp
 {
-    public int  Second;
-    public uint Nanosecond;
+    public int              Second;
+    public uint             Nanosecond;
+    public readonly long    ToStamp => (((long)Second)<<32) | Nanosecond;
 }
 
 public struct Header
