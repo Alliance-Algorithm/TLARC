@@ -86,10 +86,8 @@ internal unsafe class TFNodeCacheList
     {
         if(_head == null)           return TFNodeCacheListNode.Default;
         if(timeStamp <= 0)          return _head;
-        if(_tail!.Time > timeStamp) 
-        return _tail;
-        if(_head!.Time < timeStamp) 
-        return _head;
+        if(_tail!.Time > timeStamp) return _tail;
+        if(_head!.Time < timeStamp) return _head;
 
         var node = _head;
         while(node!.Time > timeStamp) node = node.Next;
@@ -106,9 +104,9 @@ internal unsafe class TFNodeCacheList
         bool changed(TFNodeCacheListNode node) =>   node.Translation != translation ||
                                                     node.Orientation != orientation;
         void update (TFNodeCacheListNode node){
-            action(timeStamp);
             node.Time = timeStamp;
             TFNodeCacheListNode.UpdateNode(node,orientation,translation);
+            action(timeStamp);
         }
         
         if( _head == null)
@@ -116,6 +114,8 @@ internal unsafe class TFNodeCacheList
             _head = _objectPool.Get();
             _tail = _head;
             update(_head);
+            _head.Prev      = null;
+            _head.Next      = null;
             return;
         }
         var node = _head;
@@ -125,18 +125,11 @@ internal unsafe class TFNodeCacheList
             return;
         }
         
-        while(_tail != null && _tail!.Time < timeStamp - ((long)10 << 32))
+        while(_tail!.Prev != null && _tail!.Time < timeStamp - ((long)10 << 32))
         {
             var tail    = _tail;
             _tail       = _tail.Prev;
             _objectPool.Return(tail);
-        }
-
-        if (_tail == null){
-            _head = _objectPool.Get();
-            _tail = _head;
-            update(_head);
-            return;
         }
 
 
@@ -151,10 +144,12 @@ internal unsafe class TFNodeCacheList
             return;
         }
         var newNode = _objectPool.Get();
+        newNode.Time = timeStamp;
         update(newNode);
-        newNode.Next = node;
-        newNode.Prev = node.Prev;
-        node.Prev = newNode;
+        newNode.Next        = node;
+        newNode.Prev        = node.Prev;
+        node.Prev           = newNode;
         if(node == _head) _head = newNode;
+        else newNode.Prev!.Next  = newNode;
     }
 }

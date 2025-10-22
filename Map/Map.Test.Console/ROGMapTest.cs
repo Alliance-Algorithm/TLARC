@@ -45,7 +45,7 @@ public static class RogMapTest
 
 
         // Others
-        const string PointCloudInputId = TfCarInitName;
+        const string PointCloudInputId = TfLidarLinkName;
         const string PointCloudOutputId = TfCostMapLinkName;
         const string PointCloudCostMapSensorId = TfLidarLinkName;
         const string RobotPositionInputTfId = TfCarLinkName;
@@ -64,7 +64,7 @@ public static class RogMapTest
 
         ros.Subscript<PointCloud2, Kernel.Contract.Sensor.PointCloud>(
             RosSubRegisteredPointCloudTopicName, EventPointCloudInputName,
-            TlarcRosBridge.Infrastructure.DataProcess.Subscriber.FastLioRegistered);
+            TlarcRosBridge.Infrastructure.DataProcess.Subscriber.XYZPointCloud);
         ros.Subscript<PoseStamped, Kernel.Contract.Geometry.Pose>(
             RosSubRobotPosTopicName, EventRobotPositionName,
             TlarcRosBridge.Infrastructure.DataProcess.Subscriber.PoseFromPoseStamped);
@@ -117,8 +117,8 @@ public static class RogMapTest
         GC.KeepAlive(
             PointCloudTo2dMap.DefaultNew
                 .SetInput_PointCloudTopicName(EventPointCloudInputName)
-                .SetOutput_DataStructure(width: 600, height: 600, resolution: 0.02f, topZ: 0.7f, bottomZ: -0.1f, lossFree: 0.7f, lossOccu: -4.9f,
-                                            blindCircleRadius: 0.4f, slidingThreshold: 1, forgetFrameCount: 10, highError: 0.1f, OccupyDensity: 0.5f, inflationRadius: 0.1f)
+                .SetOutput_DataStructure(width: 600, height: 600, resolution: 0.02f, topZ: 0.7f, bottomZ: -0.1f, lossFree: 0.7f, lossOccu: -1.5f,
+                                            blindCircleRadius: 0.4f, slidingThreshold: 1, forgetFrameCount: 10, highError: 0.1f, OccupyDensity: 0.3f, inflationRadius: 0.1f)
                 .SetOutput_CostMapTopicName(EventGridMapName)
                 .SetOutput_Inflation(radius: 20)
                 .SetId_PointCloud(PointCloudInputId)

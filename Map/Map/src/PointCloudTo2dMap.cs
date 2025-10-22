@@ -218,10 +218,10 @@ public class PointCloudTo2dMap
                         _innerData.BottomZ, 
                         _costMapId)
         {
-            ForgetFrameCount = _innerData.ForgetFrameCount,
-            SlidingThreshold = Math.Min(Math.Min(_innerData.OGM.GridMapData.Width, _innerData.OGM.GridMapData.Height) * _innerData.OGM.GridMapData.Resolution * 0.48f, _innerData.RogMapSlidingThreshold),
+            ForgetFrameCount  = _innerData.ForgetFrameCount,
+            SlidingThreshold  = Math.Min(Math.Min(_innerData.OGM.GridMapData.Width, _innerData.OGM.GridMapData.Height) * _innerData.OGM.GridMapData.Resolution * 0.48f, _innerData.RogMapSlidingThreshold),
             BlindCircleRadius = _innerData.BlindCircleRadius,
-            _lossHit = Math.Abs(_innerData.OGM.LossOccu),
+            _lossHit  =  Math.Abs(_innerData.OGM.LossOccu),
             _lossMiss = -Math.Abs(_innerData.OGM.LossFree),
             HighError = _innerData.HighError,
             HighOccupyDensity = _innerData.OccupyDensity
@@ -241,8 +241,8 @@ public class PointCloudTo2dMap
                 var arr = ArrayPool<Vector3>.Shared.Rent(pointCloud.Points.Length);
                 CostMap.Infrastructure.Algorithm.ROGMap.MapUpdate(
                                     _innerROGMap, 
-                                    Tf.Cast(_sensorId,      _costMapId, Vector3.Zero,             stamp),
-                                    Tf.Cast(_pointCloudId,  _costMapId, pointCloud.Points,   arr, stamp),
+                                    Tf.Cast(_sensorId,      _costMapId, Vector3.Zero,             stamp + 1),
+                                    Tf.Cast(_pointCloudId,  _costMapId, pointCloud.Points,   arr, stamp + 1),
                                     pointCloud.Points.Length);
                 ArrayPool<Vector3>.Shared.Return(arr);
                 // Console.WriteLine((DateTime.UtcNow - a).TotalMilliseconds);

@@ -26,9 +26,9 @@ public static class DataProcess
                 Navigation.GridMap.ConvertToGridMap2DData(
                     ref item.AsRef<OccupancyGrid.Priv>());
 
-        public static readonly Func<RosMessageBuffer, PointCloud> RmcsSlamSegmentationPart =
+        public static readonly Func<RosMessageBuffer, PointCloud> XYZPointCloud =
             item =>
-                Sensor.RmcsSlamSegmentationPart(
+                Sensor.XYZPointCloud(
                     ref item.AsRef<PointCloud2.Priv>());
 
         public static readonly Func<RosMessageBuffer, PointCloud> FastLioRegistered =

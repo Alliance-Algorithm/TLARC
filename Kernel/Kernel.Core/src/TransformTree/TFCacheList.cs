@@ -1,5 +1,3 @@
-
-using System.Diagnostics;
 using System.Numerics;
 using Microsoft.Extensions.ObjectPool;
 
@@ -14,7 +12,13 @@ internal unsafe class TFCacheListNode
 
     public Matrix4x4 Transfrom;
 
-    public bool Dirty;
+    private bool _dirty;
+    
+    public bool Dirty
+    {
+        get => Volatile.Read(ref _dirty);
+        set => Volatile.Write(ref _dirty, value);
+    }
 }
 
 internal struct TFCacheListNodePolicy : IPooledObjectPolicy<TFCacheListNode>
@@ -27,14 +31,12 @@ internal struct TFCacheListNodePolicy : IPooledObjectPolicy<TFCacheListNode>
 
 internal unsafe class TFCacheList
 {
-
-
     DefaultObjectPool<TFCacheListNode> _objectPool = new(new TFCacheListNodePolicy());
 
     TFCacheListNode? _head = null;
     TFCacheListNode? _tail = null;
     public bool Find(long time, out TFCacheListNode? node)
-    {
+    {   
         if(time <= 0) 
         {
             node = _head;
@@ -75,11 +77,6 @@ internal unsafe class TFCacheList
             _tail       = _tail.Prev;
             _objectPool.Return(tail);
         }
-        if (time <= 0) 
-        {
-            _head.Dirty = true;
-            return;
-        }
 
         if (_tail!.Time > time)
         {
@@ -96,19 +93,16 @@ internal unsafe class TFCacheList
         while (node!.Time > time) node = node!.Next;
         if (node!.Time == time)
         {
-            Volatile.Write(ref node.Dirty, true);
+            node.Dirty = true;
             return;
         }
         var newNode = _objectPool.Get();
         newNode.Time = time;
         newNode.Dirty = true;
-        newNode.Next = node;
-        newNode.Prev = node.Prev;
-        node.Prev = newNode;
-        if(node == _head)
-            _head = newNode;
-        
+        newNode.Next        = node;
+        newNode.Prev        = node.Prev;
+        node.Prev           = newNode;
+        if (node == _head) _head = newNode;
+        else newNode.Prev!.Next  = newNode;
     }
-
-
 }

@@ -20,9 +20,9 @@ internal static class Sensor
                         }},
             Points = points
         };
-    public static Kernel.Contract.Sensor.PointCloud RmcsSlamSegmentationPart(ref PointCloud2.Priv map)
+    public static Kernel.Contract.Sensor.PointCloud XYZPointCloud(ref PointCloud2.Priv map)
     {
-        var data = map.Data.AsSpan().Cast<byte, Vector4>();
+        var data = map.Data.AsSpan().Cast<byte, Vector3>();
         var points = new Vector3[data.Length];
         for (var i = 0; i < data.Length; ++i)
             points[i] = new Vector3(data[i].X, data[i].Y, data[i].Z);

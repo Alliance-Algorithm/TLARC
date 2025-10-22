@@ -114,7 +114,7 @@ internal class TransformCache
                 2 => mat * ToToRoot[0].GetAffineRef(timeStamp) * ToToRoot[1].GetAffineRef(timeStamp),
                 3 => mat * ToToRoot[0].GetAffineRef(timeStamp) * ToToRoot[1].GetAffineRef(timeStamp) * ToToRoot[2].GetAffineRef(timeStamp),
                 4 => mat * ToToRoot[0].GetAffineRef(timeStamp) * ToToRoot[1].GetAffineRef(timeStamp) * ToToRoot[2].GetAffineRef(timeStamp) *
-                     ToToRoot[3].GetAffineRef(timeStamp),
+                           ToToRoot[3].GetAffineRef(timeStamp),
                 _ => MultiMatrixLine(ToToRoot, mat, timeStamp)
             };
         }
@@ -131,6 +131,7 @@ internal class TransformCache
                 _ => MultiMatrixLine(ToToRoot,timeStamp)
             };
         }
+        node.Dirty = false;
     }
     Matrix4x4 _default = Matrix4x4.Identity;
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -141,7 +142,6 @@ internal class TransformCache
         if(node!.Dirty)
         {
             TransformUpdate(node,time);
-            node!.Dirty = false;
         }
         return ref node.Transfrom;
     }
