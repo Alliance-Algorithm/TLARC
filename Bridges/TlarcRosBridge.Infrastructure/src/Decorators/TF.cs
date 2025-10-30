@@ -34,8 +34,8 @@ internal static class Tf
         transform.Rotation.Y = pose.Orientation.Y;
         transform.Rotation.Z = pose.Orientation.Z;
         transform.Rotation.W = pose.Orientation.W;
-        transform.Translation.X = pose.Position.X;
-        transform.Translation.Y = pose.Position.Y;
-        transform.Translation.Z = pose.Position.Z;
+        transform.Translation.X = pose.Translation.X;
+        transform.Translation.Y = pose.Translation.Y;
+        transform.Translation.Z = pose.Translation.Z;
     }
 }

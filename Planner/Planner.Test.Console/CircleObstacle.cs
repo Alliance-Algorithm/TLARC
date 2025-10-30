@@ -38,13 +38,13 @@ public static class CircleObstacle
 
         Tf.AddTfNode(loader.MapFrame, "car_init");
 
-        var obs = ObstacleMap.Default.SetEventSdfMapName(loader.MapEventName).BuildMapRelatedMap();
-        var planner = new Planner.PlannerBuilder()
+        var obs = ObstacleMap.Default.SetEventGridMapName(loader.MapEventName).BuildMapRelatedMap();
+        var planner = new Planner.PlannerBuilder<CostMap.Infrastructure.Data.ROGMap>()
                             .SetMapHeight((int)loader.MapHeight)
                             .SetMapWidth((int)loader.MapWidth)
                             .SetMapResolution(loader.MapResolution)
                             .SetPathSearchIteratorStep(0.3f)
-                            .SetSdfMapEventName(loader.MapEventName)
+                            .SetGridMapEventName(loader.MapEventName)
                             .SetObstacleMapEventName(obs.EventObstacleName)
                             .BuildALPlanner();
 
@@ -80,18 +80,17 @@ public static class CircleObstacle
         EventBus<GridMap2DData>.Instance.Subscribe(loader.MapEventName, x =>
         {
             var infmap = InflationLayerBuilder.Build(Grid2DMap.Build_GridMap2DData(x), x);
-            EventBus<ISdf2D>.Instance.Publish(loader.MapEventName, infmap);
             EventBus<GridMap2DData>.Instance.Publish(RosStaticInflationMap, infmap.GridMap.Data);
         }
         );
 
         Vector2 vel = Vector2.Zero;
         bool reload = true;
-        Vector2 from = new();
-        Vector2 to = new();
-        EventBus<StdMessage<Vector2>>.Instance.Subscribe(RosControlPoint, x =>
+        Kernel.Contract.Geometry.Pose2D from = new();
+        Kernel.Contract.Geometry.Pose2D to = new();
+        EventBus<Kernel.Contract.Geometry.Pose2D>.Instance.Subscribe(RosControlPoint, x =>
         {
-            to = x.Instance;
+            to = x;
 
             reload = true;
         });
@@ -103,14 +102,14 @@ public static class CircleObstacle
             {
                 vel = lasttraj?.GetVelocity(DateTime.UtcNow) ?? Vector2.Zero;
                 EventBus<Kernel.Contract.Geometry.Pose>.Instance.Publish(RosTargetVelocityTopic, new Kernel.Contract.Geometry.Pose(){ 
-                        Position = new(vel, 0), 
+                        Translation = new(vel, 0), 
                         Orientation = System.Numerics.Quaternion.Zero, 
                         Header = lasttraj!.Data.Header});
             }
             if (!reload)
                 return;
             reload = false;
-            from = new(x.Position.X, x.Position.Y);
+            from = new  (){Header = x.Header, Orientation = 0,Translation = new(x.Translation.X,x.Translation.Y)};
             var astar = planner.SeachPath(from, to);
             EventBus<Path2D>.Instance.Publish(RosPathTopic, astar);
             var safeCorridor = planner.SearchCircleSafeCorridor(astar);
@@ -119,7 +118,7 @@ public static class CircleObstacle
 
 
             var trajectory =
-                PlannerBuilder.OptimizePath
+                PlannerBuilder<CostMap.Infrastructure.Data.ROGMap>.OptimizePath
                 (
                     safeCorridor!,
                     new(safeCorridor!.Corridors[0].Origin, vel, Vector2.Zero),

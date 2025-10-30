@@ -42,7 +42,6 @@ public static class DataProcess
                 Geometry.WriteData(item.AsRef<PointStamped.Priv>()));
 
 
-
         public static readonly Func<RosMessageBuffer, Kernel.Contract.Geometry.Pose> RawPoseFromPoseStamped =
             item =>
                 Geometry.ReadDataWithoutTransform(

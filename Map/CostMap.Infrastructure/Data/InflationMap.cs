@@ -6,7 +6,7 @@ using Kernel.Contract.Navigation;
 
 namespace CostMap.Infrastructure.Data;
 
-public class InflationMap : IMap2D, ISdf2D
+public class InflationMap : IMap2D, IGridMap2D
 {
 
     public required Grid2DMap GridMap { get; init; }
@@ -36,4 +36,14 @@ public class InflationMap : IMap2D, ISdf2D
 
     public static InflationMap New_GridMap2DData(in GridMap2DData data, in float distance) =>
     new(distance) { GridMap = Grid2DMap.New_GridMap2DData(data) };
+
+    public bool IsMoveAble(in int fromX, in int fromY, in int toX, in int toY)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool IsMoveAble(in int positionX, in int positionY)
+    {
+        throw new NotImplementedException();
+    }
 }

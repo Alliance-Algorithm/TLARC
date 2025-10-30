@@ -20,14 +20,14 @@ public struct OGMData : ITlarcData
     /// <summary>
     ///  空闲栅格增量
     /// </summary>
-    public float LossFree;
+    public float LMiss;
     /// <summary>
     ///  占据栅格增量
     /// </summary>
-    public float LossOccu;
+    public float LHit;
 
     /// <summary>
     /// 
     /// </summary>
-    public float[] OccupancyRate ;
+    public float[] LG ;
 }

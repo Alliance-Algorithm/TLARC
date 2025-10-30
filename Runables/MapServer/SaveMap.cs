@@ -115,11 +115,9 @@ public static class SaveMap
         #region Domain Setup Here
 
         var _pcdStaticMap =
-             PointCloudTo2dMap.DefaultNew
-                 .SetInput_PointCloudTopicName(EventPointCloudInputName)
-                 .SetOutput_DataStructure(750, 450, resolution: 0.04f, topZ: 0.4f, bottomZ: -0.5f, lossFree: 0.7f,
-                     lossOccu: -0.9f)
-                 .SetId_PointCloud(PointCloudInputId)
+             PointCloudTo2dMap.ROGMapDefault
+                 .SetOutput_DataStructure(750, 450, resolution: 0.04f, topZ: 0.4f, bottomZ: -0.5f, lossMiss: 0.7f,
+                     lossHit: -0.9f)
                  .SetId_Sensor(PointCloudCostMapSensorId)
                  .BuildOccupancyHighMap();
         var _saver =
@@ -138,7 +136,7 @@ public static class SaveMap
         EventBus<Kernel.Contract.Geometry.Pose>.Instance.Subscribe(EventRobotPositionName,
             data =>
             {
-                Tf.SetTfNode(RobotPositionInputTfId, data.Position, data.Orientation);
+                Tf.SetTfNode(RobotPositionInputTfId, data.Translation, data.Orientation);
                 EventBus<TfCollection>.Instance.Publish(EventTfName, Tf.GetTree());
             });
 

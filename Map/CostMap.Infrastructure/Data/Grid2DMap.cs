@@ -52,7 +52,7 @@ public class Grid2DMap : IMap2D, IGridMap2D
     {
         DataChangeable = new GridMap2DData
         {
-            Header = new Header{ Identifier = data.Header.Identifier},
+            Header = data.Header,
             Origin = data.Origin,
             Height = data.Height,
             Width = data.Width,

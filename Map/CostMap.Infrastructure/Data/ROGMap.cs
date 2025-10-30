@@ -9,27 +9,35 @@ using Kernel.Contract.Navigation;
 
 namespace CostMap.Infrastructure.Data;
 
-public class ROGMap : IMap2D, IGridMap2D
+using System.Runtime.InteropServices;
+
+[StructLayout(LayoutKind.Explicit, Size = 4)]
+public struct ROGMapCell
+{
+    [FieldOffset(0)] public bool  OccupyState;       // bool 显式为 byte
+    [FieldOffset(1)] public short OccupyCount;      // 2 bytes
+    [FieldOffset(3)] public sbyte OccupyDistance;   // 1 byte
+}
+
+public class ROGMap : IMap2D, IGridMap2D, IObstacle
 {
 
-    public int CenterX => _center.x;
-    public int CenterY => _center.y;
-    public uint Width { get; }
-    public uint Height { get; }
 
-    public float TopZ { get; private set; }
-    public float ButtonZ { get; private set; }
-    public float Resolution { get; }
-    public required int ForgetFrameCount { get; init; }
+    public readonly float TopZ;
+    public readonly float ButtonZ;
+    public readonly uint  Width;
+    public readonly uint  Height;
+    public readonly float Resolution;
+    public required int   ForgetFrameCount { get; init; }
     public required float HighOccupyDensity { init { _occuDensity = value; } }
     public required float HighError { init => _highError = Math.Abs(value) / Resolution; }
-    public readonly int SizeX;
-    public readonly int SizeY;
-    public readonly int Size2D;
-    public readonly int SizeZ;
+    public readonly int   SizeX;
+    public readonly int   SizeY;
+    public readonly int   Size2D;
+    public readonly int   SizeZ;
 
-    internal readonly int s_x_2;
-    internal readonly int s_y_2;
+    internal readonly int   s_x_2;
+    internal readonly int   s_y_2;
     internal readonly float _highError;
     internal readonly float _occuDensity;
 
@@ -39,11 +47,11 @@ public class ROGMap : IMap2D, IGridMap2D
 
     public float InflationDistance { get; }
 
-    internal readonly float[] _memory;
-    internal readonly sbyte[] _updateFrameCount;
-    internal uint[] _gridData = [];
-    internal float[] _upper = [];
-    internal float[] _lower = [];
+    internal readonly float[]       _memory;
+    internal readonly sbyte[]       _updateFrameCount;
+    internal readonly ROGMapCell[]  _gridData = [];
+    internal readonly float[]       _upper = [];
+    internal readonly float[]       _lower = [];
 
     internal Vector2i _center;
 
@@ -60,10 +68,10 @@ public class ROGMap : IMap2D, IGridMap2D
     internal readonly float _lossOccu = 2.0f;
     internal readonly float _lossFree = -2.0f;
 
-    internal readonly int _inflationDistance;
-    internal readonly int _inflationDistanceHalf;
+    internal readonly int   _inflationDistance;
+    internal readonly int   _inflationDistanceHalf;
+    internal readonly float _inflationDistanceSquare;
 
-    public float[] Memory => _memory;
 
     public sbyte[] UpdateFrameCount => _updateFrameCount;
 
@@ -72,7 +80,7 @@ public class ROGMap : IMap2D, IGridMap2D
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get =>
-        new((CenterX) * Resolution, (CenterY) * Resolution, 0);
+        new(_center.x * Resolution, _center.y * Resolution, 0);
     }
     public Vector2 Origin { get; }
 
@@ -80,6 +88,9 @@ public class ROGMap : IMap2D, IGridMap2D
     public sbyte[] Data => GridMap.Data;
 
     public Header Header => GridMap.Header;
+
+    public bool Visualize = false;
+
     public GridMap2DData GridMap;
 
     public bool IsMoveAble(Vector2 from, Vector2 to)
@@ -89,7 +100,11 @@ public class ROGMap : IMap2D, IGridMap2D
 
     public bool IsMoveAble(Vector2 position)
     {
-        throw new NotImplementedException();
+        Vector2i p = Algorithm.ROGMap.Index(new Vector3(position,0),this);
+        if (p.x < _center.x - s_x_2 || p.y < _center.y - s_y_2 || p.x >= _center.x + s_x_2 || p.y >= _center.y + s_y_2)
+            return true;
+        var k = p.Normalize(this);
+        return _gridData[k.x + k.y * SizeX].OccupyCount != 0;
     }
 
 
@@ -100,7 +115,7 @@ public class ROGMap : IMap2D, IGridMap2D
             if (p.x < 0 || p.y < 0 || p.x >= SizeX || p.y >= SizeY)
                 return true;
             var k = p.LocalToGlobalNormalize(this);
-            return _gridData[k.x + k.y * SizeX] == 0;
+            return _gridData[k.x + k.y * SizeX].OccupyCount != 0;
         });
     }
 
@@ -110,9 +125,13 @@ public class ROGMap : IMap2D, IGridMap2D
         if (p.x < 0 || p.y < 0 || p.x >= SizeX || p.y >= SizeY)
             return true;
         var k = p.LocalToGlobalNormalize(this);
-        return _gridData[k.x + k.y * SizeX] == 0;
+        return _gridData[k.x + k.y * SizeX].OccupyCount != 0;
     }
 
+    public bool SearchNearest(Vector2 from, float radius, out float distance)
+    {
+        throw new NotImplementedException();
+    }
 
     public ROGMap(uint height, uint width, float inflationDistance, float resolution, float topZ, float buttonZ,string identifier)
     {
@@ -136,7 +155,8 @@ public class ROGMap : IMap2D, IGridMap2D
         _inflationDistance = (int)Math.Round(InflationDistance / Resolution);
         _inflationDistance = _inflationDistance * 2 + 1;
         _inflationDistanceHalf = _inflationDistance / 2;
-        _gridData = new uint[SizeX * SizeY];
+        _inflationDistanceSquare = _inflationDistanceHalf * _inflationDistanceHalf;
+        _gridData = new ROGMapCell[SizeX * SizeY];
         _memory = new float[SizeX * SizeY * SizeZ];
         _upper = new float[SizeX * SizeY];
         _lower = new float[SizeX * SizeY];
@@ -156,6 +176,4 @@ public class ROGMap : IMap2D, IGridMap2D
             RotationRad     = 0
         };
     }
-
-
 }

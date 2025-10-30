@@ -5,6 +5,7 @@ using Quaternion = System.Numerics.Quaternion;
 using TlarcRosBridge.Infrastructure.Messages.Std;
 using Kernel.Contract.Geometry;
 using System.Runtime.CompilerServices;
+using TlarcRosBridge.Infrastructure.Messages.Builtin;
 
 namespace TlarcRosBridge.Infrastructure.Decorators;
 
@@ -14,7 +15,7 @@ internal static class Geometry
     public static Kernel.Contract.Geometry.Pose ReadDataWithoutTransform(ref PoseStamped.Priv data) =>
         new()
         {
-            Position = new System.Numerics.Vector3((float)data.Pose.Position.X, (float)data.Pose.Position.Y,
+            Translation = new System.Numerics.Vector3((float)data.Pose.Position.X, (float)data.Pose.Position.Y,
                 (float)data.Pose.Position.Z),
             Orientation = new System.Numerics.Quaternion(
                 (float)data.Pose.Orientation.X,
@@ -31,7 +32,7 @@ internal static class Geometry
                 Identifier = data.Header.FrameId.ToString(),
                 Timestamp = Unsafe.BitCast<Messages.Builtin.Time.Priv,Kernel.Contract.Timestamp>(data.Header.Stamp)
             },
-            Position = new System.Numerics.Vector3((float)data.Pose.Position.X, (float)data.Pose.Position.Y,
+            Translation = new System.Numerics.Vector3((float)data.Pose.Position.X, (float)data.Pose.Position.Y,
                 (float)data.Pose.Position.Z),
             Orientation = new System.Numerics.Quaternion(
                 (float)data.Pose.Orientation.X,
@@ -63,7 +64,7 @@ internal static class Geometry
                                  ref PoseStamped.Priv dataOut)
     {
         Std.FromData(frameId, node, ref dataOut.Header);
-        Geometry.WriteData(dataIn.Position, dataIn.Orientation, ref dataOut.Pose);
+        Geometry.WriteData(dataIn.Translation, dataIn.Orientation, ref dataOut.Pose);
     }
 
     public static void WriteData(Vector3 dataIn,
@@ -116,4 +117,5 @@ internal static class Geometry
     {
         return new((float)dataIn.Point.X, (float)dataIn.Point.Y);
     }
+
 }

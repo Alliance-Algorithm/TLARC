@@ -57,7 +57,7 @@ public static class OccupancyGridMapBuilder
                                                             in Vector3 chassisStep,
                                                             OccupancyHighGrid2DMap map)
     {
-        var data = map.Data.OccupancyRate.AsSpan();
+        var data = map.Data.LG.AsSpan();
         var high = map.High.AsSpan();
 
         var begin =
@@ -138,7 +138,7 @@ public static class OccupancyGridMapBuilder
                 map.Data.GridMapData.Data.AsSpan()[(int)(i + j * map.Data.GridMapData.Width)] =
                     sbyte.Clamp(
                         (sbyte)(1.0 /
-                                (Math.Exp(map.Data.OccupancyRate.AsSpan()[
+                                (Math.Exp(map.Data.LG.AsSpan()[
                                     (int)(i + j * map.Data.GridMapData.Width)]) + 1)
                                 * 100), 0, 100);
     }
@@ -146,7 +146,7 @@ public static class OccupancyGridMapBuilder
 
     private static void UpdateRateFromPointThreadSafety(in Vector3 point, in Vector3 form, OGMData map)
     {
-        var data = map.OccupancyRate.AsSpan();
+        var data = map.LG.AsSpan();
 
         var begin =
             new Vector2i(
@@ -160,11 +160,11 @@ public static class OccupancyGridMapBuilder
         var points = Geometry.ThickLine(
             begin, end);
         foreach (var p in points)
-            OccupancyGridMapBuilder.AtomicAdd(ref data[(int)(p.x + p.y * map.GridMapData.Width)], map.LossFree);
+            OccupancyGridMapBuilder.AtomicAdd(ref data[(int)(p.x + p.y * map.GridMapData.Width)], map.LMiss);
 
         OccupancyGridMapBuilder.AtomicAdd(
             ref data[(int)(begin.x + begin.y * map.GridMapData.Width)],
-            map.LossOccu - map.LossFree);
+            map.LHit - map.LMiss);
     }
     #endregion
 

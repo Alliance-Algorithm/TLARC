@@ -2,6 +2,7 @@ using System.Buffers;
 using System.Collections.Concurrent;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using CostMap.Infrastructure.Data;
 using g4;
 using Kernel.Contract;
 using Kernel.Utils;
@@ -52,8 +53,8 @@ public static class ROGMap
     }
     internal static Vector3i LocalToGlobalNormalize(this Vector3i vec, in Infrastructure.Data.ROGMap rogMap)
     {
-        vec.x += rogMap.CenterX - rogMap.s_x_2;
-        vec.y += rogMap.CenterY - rogMap.s_y_2;
+        vec.x += rogMap._center.x - rogMap.s_x_2;
+        vec.y += rogMap._center.y - rogMap.s_y_2;
         return vec.Normalize(rogMap);
     }
 
@@ -103,7 +104,7 @@ public static class ROGMap
                     var point = new Vector2i(i, j).Normalize(rogMap);
                     var pointIndex = point.x + point.y * rogMap.SizeX;
 
-                    rogMap._gridData[pointIndex] = 0;
+                    rogMap._gridData[pointIndex] = Unsafe.BitCast<int,ROGMapCell>(0);
                     for (int k = 0; k < rogMap.SizeZ; k++)
                         rogMap._memory[pointIndex + k * rogMap.Size2D] = 0;
                     rogMap.Data[pointIndex] = 0;
@@ -113,8 +114,8 @@ public static class ROGMap
                 }
         }
 
-        var centerX = err.x > 0 ? rogMap.CenterX - s_x_2 : rogMap.CenterX + s_x_2;
-        var centerY = err.y > 0 ? rogMap.CenterY - s_y_2 : rogMap.CenterY + s_y_2;
+        var centerX = err.x > 0 ? rogMap._center.x - s_x_2 : rogMap._center.x + s_x_2;
+        var centerY = err.y > 0 ? rogMap._center.y - s_y_2 : rogMap._center.y + s_y_2;
         var originX = c_last.x - s_x_2;
         var originY = c_last.y - s_y_2;
         var endX = c_last.x + s_x_2 + 1;
@@ -142,7 +143,7 @@ public static class ROGMap
 
         if (flag.x == 2 || flag.y == 2)
         {
-            Array.Clear(rogMap.Memory);
+            Array.Clear(rogMap._memory);
             Array.Clear(rogMap._gridData);
         }
         else if (flag == Vector2i.Zero)
@@ -213,28 +214,28 @@ public static class ROGMap
                 Geometry.Bresenham3D(Index3(p, rogMap), Index3(x_k, rogMap)).ForEach(
                     i =>
                     {
-                        i.x += rogMap.CenterX;
-                        i.y += rogMap.CenterY;
+                        i.x += rogMap._center.x;
+                        i.y += rogMap._center.y;
                         var index = i.Normalize(rogMap);
                         var idx = index.x + index.y * rogMap.SizeX;
                         var x = idx + index.z * rogMap.Size2D;
                         rogMap.UpdateFrameCount[x] = 0;
-                        float curr; do curr = rogMap.Memory[x];
-                        while (Interlocked.CompareExchange(ref rogMap.Memory[x],
-                            Math.Clamp(rogMap.Memory[x] + rogMap._lossMiss, -rogMap._lossMax, rogMap._lossMax), curr) != curr);
+                        float curr; do curr = rogMap._memory[x];
+                        while (Interlocked.CompareExchange(ref rogMap._memory[x],
+                            Math.Clamp(rogMap._memory[x] + rogMap._lossMiss, -rogMap._lossMax, rogMap._lossMax), curr) != curr);
                         
                     }
                     );
 
                 var point = Index3(p, rogMap);
-                point.x += rogMap.CenterX;
-                point.y += rogMap.CenterY;
+                point.x += rogMap._center.x;
+                point.y += rogMap._center.y;
                 point = point.Normalize(rogMap);
                 var idx = point.x + point.y * rogMap.SizeX;
                 var pointIndex = idx + point.z * rogMap.Size2D;
-                float curr; do curr = rogMap.Memory[pointIndex];
-                while (Interlocked.CompareExchange(ref rogMap.Memory[pointIndex],
-                    Math.Clamp(rogMap.Memory[pointIndex] + rogMap._lossHit - rogMap._lossMiss, -rogMap._lossMax, rogMap._lossMax), curr) != curr);
+                float curr; do curr = rogMap._memory[pointIndex];
+                while (Interlocked.CompareExchange(ref rogMap._memory[pointIndex],
+                    Math.Clamp(rogMap._memory[pointIndex] + rogMap._lossHit - rogMap._lossMiss, -rogMap._lossMax, rogMap._lossMax), curr) != curr);
                 rogMap.UpdateFrameCount[pointIndex] = 0;
             
             });
@@ -253,10 +254,10 @@ public static class ROGMap
                     var z = i;
                     var pointIndex = index + i * rogMap.Size2D;
 
-                    if (rogMap.Memory[pointIndex] >= rogMap._lossFree && rogMap.Memory[pointIndex] <= rogMap._lossOccu)
+                    if (rogMap._memory[pointIndex] >= rogMap._lossFree && rogMap._memory[pointIndex] <= rogMap._lossOccu)
                         continue;
 
-                    if (rogMap.Memory[pointIndex] < rogMap._lossFree)
+                    if (rogMap._memory[pointIndex] < rogMap._lossFree)
                     {
                         rogMap._lower[index] = Math.Min(rogMap._lower[index], z);
                         continue;
@@ -267,18 +268,18 @@ public static class ROGMap
                     rogMap._lower[index] = Math.Min(rogMap._lower[index], z);
                 }
 
-                if ((   rogMap._gridData[index] & 0x80000000) == 0 && 
+                if (    !rogMap._gridData[index].OccupyState && 
                         cnt / (rogMap._upper[index] - rogMap._lower[index]) > rogMap._occuDensity && 
                         (rogMap._upper[index] - rogMap._lower[index]) > rogMap._highError)
                 {
-                    rogMap._gridData[index] |= 0x80000000;
+                    rogMap._gridData[index].OccupyState = true;
                     *(cPtr + index) = 1;
                 }
-                else if ((  rogMap._gridData[index] & 0x80000000) != 0 &&
+                else if ( rogMap._gridData[index].OccupyState &&
                          (cnt / (rogMap._upper[index] - rogMap._lower[index]) <= rogMap._occuDensity ||
                          (rogMap._upper[index] - rogMap._lower[index]) <= rogMap._highError))
                 {
-                    rogMap._gridData[index] &= 0x7fffffff;
+                    rogMap._gridData[index].OccupyState = false;
                     *(cPtr + index) = -1;
                 }
             });
@@ -288,10 +289,17 @@ public static class ROGMap
                 if (rogMap.UpdateFrameCount[i] < rogMap.ForgetFrameCount)
                     rogMap.UpdateFrameCount[i]++;
                 else
-                    rogMap.Memory[i] = 0;
+                    rogMap._memory[i] = 0;
             });
         }
 
+    }
+    struct NearestTarget
+    {
+        public int CellX;
+        public int CellY;
+        public int NearestX;
+        public int NearestY;
     }
 
     private static void IncrementalInflation(this Data.ROGMap rogMap, in Memory<sbyte> c)
@@ -310,16 +318,18 @@ public static class ROGMap
                 for (int i = 0; i < rogMap._inflationDistance; i++)
                     for (int j = 0; j < rogMap._inflationDistance; j++)
                     {
+                        var ci = i - rogMap._inflationDistanceHalf;
+                        var cj = j - rogMap._inflationDistanceHalf;
                         var cx = i + x - rogMap._inflationDistanceHalf;
                         var cy = j + y - rogMap._inflationDistanceHalf;
 
-                        if (cx < 0 || cy < 0 || cx >= rogMap.SizeX || cy >= rogMap.SizeY) continue;
-
+                        var value = Math.Sqrt(ci * ci + cj * cj);
+                        if (cx < 0 || cy < 0 || cx >= rogMap.SizeX || cy >= rogMap.SizeY || value > rogMap._inflationDistanceHalf) continue;
+                        value = value / rogMap._inflationDistanceHalf * 100;
                         Vector2i c = new Vector2i(cx, cy).LocalToGlobalNormalize(rogMap);
                         var index = c.x + c.y * rogMap.SizeX;
-                        int tmp = Unsafe.BitCast<uint, int>(rogMap._gridData[index] & 0x7fffffff);
-                        tmp = Math.Clamp(tmp + flag, 0, 0x0fffffff);
-                        rogMap._gridData[index] = Unsafe.BitCast<int, uint>(tmp) | (rogMap._gridData[index] & 0x80000000);
+                        rogMap._gridData[index].OccupyCount += flag;
+                        ref var grid = ref rogMap._gridData[index];
                     }
             }
             BlockParallel.For(
@@ -337,7 +347,7 @@ public static class ROGMap
     public static void MapSliding(in Data.ROGMap rogMap, in Vector3 robotPositionInGlobal)
     {
         var x = new Vector3(robotPositionInGlobal.X, robotPositionInGlobal.Y, 0);
-        var o = new Vector3(rogMap.CenterX * rogMap.Resolution, rogMap.CenterY * rogMap.Resolution, 0);
+        var o = new Vector3(rogMap._center.x * rogMap.Resolution, rogMap._center.y * rogMap.Resolution, 0);
         var d = rogMap._slidingThreshold;
 
         if ((x - o).Length() > d)
@@ -381,7 +391,7 @@ public static class ROGMap
                 var index = c.x + c.y * rogMap.SizeX;
                 var step = rogMap.TopZ - rogMap.ButtonZ;
                 rogMap.Data[x + y * rogMap.SizeX] = (sbyte)((
-                    rogMap._gridData[index] != 0
+                    rogMap._gridData[index].OccupyCount > 0
                         ) ? 100 : (rogMap._lower[index] == 1e6 ? 0 : Math.Clamp(rogMap._lower[index] * rogMap.Resolution / step, -0.25, 1) * 15 + 20));
             });
     }

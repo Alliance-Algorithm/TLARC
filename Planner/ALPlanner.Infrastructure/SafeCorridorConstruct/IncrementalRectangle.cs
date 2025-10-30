@@ -40,7 +40,7 @@ public static class IncrementalRectangle
             tmpY = MinY;
             while (true)
             {
-                var tag = obs.FindNearestObstacleDistance(new Vector2(tmpX, tmpY), step, out var dis);
+                var tag = obs.SearchNearest(new Vector2(tmpX, tmpY), step, out var dis);
 
                 minEplison = Math.Min(minEplison, dis);
 
@@ -63,7 +63,7 @@ public static class IncrementalRectangle
             tmpY = MinY;
             while (true)
             {
-                var tag = obs.FindNearestObstacleDistance(new Vector2(tmpX, tmpY), step, out var dis);
+                var tag = obs.SearchNearest(new Vector2(tmpX, tmpY), step, out var dis);
 
                 minEplison = Math.Min(minEplison, dis);
 
@@ -85,7 +85,7 @@ public static class IncrementalRectangle
             tmpY = MinY;
             while (true)
             {
-                var tag = obs.FindNearestObstacleDistance(new Vector2(tmpX, tmpY), step, out var dis);
+                var tag = obs.SearchNearest(new Vector2(tmpX, tmpY), step, out var dis);
 
                 minEplison = Math.Min(minEplison, dis);
 
@@ -107,7 +107,7 @@ public static class IncrementalRectangle
             tmpY = MaxY;
             while (true)
             {
-                var tag = obs.FindNearestObstacleDistance(new Vector2(tmpX, tmpY), step, out var dis);
+                var tag = obs.SearchNearest(new Vector2(tmpX, tmpY), step, out var dis);
 
                 minEplison = Math.Min(minEplison, dis);
 
@@ -159,7 +159,7 @@ public static class IncrementalRectangle
             while (!CheckInside(corridor.Last!.Value, p))
             {
                 var l = (last - p).Length();
-                obstacle.FindNearestObstacleDistance(last, l, out var dis);
+                obstacle.SearchNearest(last, l, out var dis);
                 if (dis <= 0) break;
                 last += (p - last) / l * dis;
                 Update(last, obstacle, ref corridor);

@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using CostMap.Infrastructure.Data;
 using Kernel.Contract.Navigation;
 using Kernel.Utils;
@@ -29,6 +30,7 @@ public static class InflationLayerBuilder
             }
     }
 
+    
     public static InflationMap Build<GridMapT>(GridMapT map,GridMap2DData data) where GridMapT : IGridMap2D
     {
         InflationMap ret = InflationMap.New_GridMap2DData(data, _inflationDistance / 2 * data.Resolution);

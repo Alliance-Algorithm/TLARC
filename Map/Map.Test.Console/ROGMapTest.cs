@@ -11,6 +11,7 @@ using TlarcRosBridge.Infrastructure.Messages.Sensor;
 using TlarcRosBridge.Infrastructure.Messages.Tf2;
 using Quaternion = System.Numerics.Quaternion;
 using Vector3 = System.Numerics.Vector3;
+using CostMap.Infrastructure.Data;
 
 public static class RogMapTest
 {
@@ -37,28 +38,27 @@ public static class RogMapTest
         Quaternion TfLidarLinkRotation = QuaternionFromYawPitchRoll(0,10,0);
 
         // Events
-        const string EventPointCloudInputName = "/tlarc/map_server/point_cloud";
-        const string EventRobotPositionName = "/tlarc/map_server/sensor_pose";
-        const string EventGridMapName = "/tlarc/map/cost_map_with_pcd";
-        const string EventTfName = "/tlarc/tf/publish";
-        const string EventPointCloudOutputName = "/tlarc/point_cloud";
+        const string EventPointCloudInputName   = "/tlarc/map_server/point_cloud";
+        const string EventRobotPositionName     = "/tlarc/map_server/sensor_pose";
+        const string EventGridMapName           = "/tlarc/map/cost_map_with_pcd";
+        const string EventTfName                = "/tlarc/tf/publish";
+        const string EventPointCloudOutputName  = "/tlarc/point_cloud";
 
 
         // Others
-        const string PointCloudInputId = TfLidarLinkName;
-        const string PointCloudOutputId = TfCostMapLinkName;
-        const string PointCloudCostMapSensorId = TfLidarLinkName;
-        const string RobotPositionInputTfId = TfCarLinkName;
+        const string PointCloudInputId          = PointCloudTo2dMap.ROGMapDefaultConfig.TfLidarLink;
+        const string PointCloudOutputId         = PointCloudTo2dMap.ROGMapDefaultConfig.TfMapLink;
+        const string RobotPositionInputTfId     = PointCloudTo2dMap.ROGMapDefaultConfig.TfCarLink;
         #endregion
 
         #region //ROS
 #if true
-        const string RosNodeName = "TlarcMapServer";
-        const string RosSubRegisteredPointCloudTopicName = "/rmcs_slam/cloud_registered_world";
-        const string RosSubRobotPosTopicName = "/rmcs_slam/pose";
-        const string RosPubDebugTlarcGridMapTopicName = "/tlarc/map/cost_map_with_pcd";
-        const string RosPubDebugTlarcTfTopicName = "/tlarc_tf";
-        const string RosPubTlarcPointCloudTopicName = "/tlarc/point_cloud";
+        const string RosNodeName                            = "TlarcMapServer";
+        const string RosSubRegisteredPointCloudTopicName    = "/rmcs_slam/cloud_registered_world";
+        const string RosSubRobotPosTopicName                = "/rmcs_slam/pose";
+        const string RosPubDebugTlarcGridMapTopicName       = "/tlarc/map/cost_map_with_pcd";
+        const string RosPubDebugTlarcTfTopicName            = "/tlarc_tf";
+        const string RosPubTlarcPointCloudTopicName         = "/tlarc/point_cloud";
 
         var ros = TlarcRosBridge.Domain.RosBridge.Build(RosNodeName);
 
@@ -99,7 +99,7 @@ public static class RogMapTest
         EventBus<Kernel.Contract.Geometry.Pose>.Instance.Subscribe(EventRobotPositionName,
             data =>
             {
-                Tf.SetTfNode(RobotPositionInputTfId, data.Position, data.Orientation, data.Header.Timestamp.ToStamp);
+                Tf.SetTfNode(RobotPositionInputTfId, data.Translation, data.Orientation, data.Header.Timestamp.ToStamp);
                 EventBus<TfCollection>.Instance.Publish(EventTfName, Tf.GetTree());
             });
 
@@ -113,21 +113,9 @@ public static class RogMapTest
                 };
                 EventBus<Kernel.Contract.Sensor.PointCloud>.Instance.Publish(EventPointCloudOutputName, pointCloud);
             });
-
-        GC.KeepAlive(
-            PointCloudTo2dMap.DefaultNew
-                .SetInput_PointCloudTopicName(EventPointCloudInputName)
-                .SetOutput_DataStructure(width: 600, height: 600, resolution: 0.02f, topZ: 0.7f, bottomZ: -0.1f, lossFree: 0.7f, lossOccu: -1.5f,
-                                            blindCircleRadius: 0.4f, slidingThreshold: 1, forgetFrameCount: 10, highError: 0.1f, OccupyDensity: 0.3f, inflationRadius: 0.1f)
-                .SetOutput_CostMapTopicName(EventGridMapName)
-                .SetOutput_Inflation(radius: 20)
-                .SetId_PointCloud(PointCloudInputId)
-                .SetId_Sensor(PointCloudCostMapSensorId)
-                .SetId_Map(TfCostMapLinkName)
-                .SetId_Chassis(TfCarLinkName)
-                .SetId_Odom(TfCarInitName)
-                .BuildROGMap()
-        );
+        var rog = PointCloudTo2dMap.ROGMapDefault.BuildROGMap();
+        rog.Visualize = true;
+    
         Console.WriteLine("Launch up");
     }
 }

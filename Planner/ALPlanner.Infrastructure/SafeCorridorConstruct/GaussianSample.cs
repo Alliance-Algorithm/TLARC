@@ -34,14 +34,14 @@ public static class GaussianSample
         new (0.05f,-0.05f),
         new (-0.05f,-0.05f),
         ];
-    public static SafeCorridor2DData<Circle> RadiusWithDistance(Path2D astarPath, IObstacle obstacle)
+    public static SafeCorridor2DData<Circle> RadiusWithDistance<MapT>(Path2D astarPath,MapT obstacle) where MapT : IObstacle
     {
         LinkedList<Circle> corridor = [];
         foreach (var path in astarPath.Points)
         {
             if (corridor.Count == 0)
             {
-                obstacle.FindNearestObstacleDistance(path, 2, out var dist);
+                obstacle.SearchNearest(path, 2, out var dist);
                 corridor.AddLast(new Circle(){R = dist,Origin = path});
                 continue;
             }
@@ -51,7 +51,7 @@ public static class GaussianSample
 
             float dis = 0;
             corridor.AddLast((from offset in GaussianOffset
-                              where obstacle.FindNearestObstacleDistance(path + offset, 2, out dis)
+                              where obstacle.SearchNearest(path + offset, 2, out dis)
                                     && corridor.Last!.Value.R < (path + offset - corridor.Last!.Value.Origin).Length()
                               select new Circle{
                                 R = Math.Clamp( dis, 

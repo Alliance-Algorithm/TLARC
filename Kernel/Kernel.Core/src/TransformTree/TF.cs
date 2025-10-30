@@ -217,7 +217,7 @@ public static class Tf
             ParentFrameId   = node.ParentIds.Count > 1 ? node.ParentIds[^2] : "",
             Pose            = new Pose{                
                 Orientation     = node.Orientation,
-                Position        = node.Translation
+                Translation        = node.Translation
             }
         };
     }

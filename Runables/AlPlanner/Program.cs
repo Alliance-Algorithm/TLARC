@@ -111,14 +111,12 @@ ros.Publish<Kernel.Contract.Sensor.PointCloud, PointCloud2>(
 #region Main
 
 var pcdStaticMap =
-    PointCloudTo2dMap.DefaultNew
-        .SetInput_PointCloudTopicName(EventPointCloudInputName)
+    PointCloudTo2dMap.ROGMapDefault
         .SetInput_StaticMapTopicName(staticMapEventName)
         .SetOutput_DataStructure(
             250, 250,
             resolution: 0.04f, topZ: 0.3f, bottomZ: -0.3f,
-            lossFree: 0.7f, lossOccu: -0.9f)
-        .SetId_PointCloud(PointCloudInputId)
+            lossMiss: 0.7f, lossHit: -0.9f)
         .SetId_Sensor(PointCloudCostMapSensorId)
         .BuildOccupancyMapWithStaticHigh();
 var loader = MapLoader.Default
@@ -129,7 +127,7 @@ var loader = MapLoader.Default
 EventBus<Kernel.Contract.Geometry.Pose>.Instance.Subscribe(EventRobotPositionName,
     data =>
     {
-        Tf.SetTfNode(RobotPositionInputTfId, data.Position, data.Orientation);
+        Tf.SetTfNode(RobotPositionInputTfId, data.Translation, data.Orientation);
         EventBus<TfCollection>.Instance.Publish(EventTfName, Tf.GetTree());
     });
 

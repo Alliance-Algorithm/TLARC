@@ -7,46 +7,45 @@ using Kernel.Contract;
 using Kernel.Contract.Constraints;
 using Kernel.Contract.Navigation;
 using Kernel.Contract.Visualization;
+using Kernel.Contract.Geometry;
+using Kernel.Core.TransformTree;
 
 namespace Planner;
 
-public class PlannerBuilder
+public class PlannerBuilder<MapT> where MapT : IMap2D
 {
 
-    ALPlanner.Infrastructure.PathSearcher.AStar? _aStar;
-    ISdf2D? _sdf2d;
+    AStar? _aStar;
+    MapT? _map;
     IObstacle? obstacle;
 
     public string SdfMapTopicName { get; private set; } = "/tlarc/map";
     public string ObstacleMapTopicName { get; private set; } = "/tlarc/obstacle";
-    public float PathSearchIteratorStep { get; private set; } = 0.2f;
+    public float PathSearchIteratorStep { get; private set; } = 0.1f;
     public float MapResolution { get; private set; }
     public int MapWidth { get; private set; }
     public int MapHight { get; private set; }
 
-    public string Identifier { get; private set; } = "map_link";
+    public string Identifier { get; set; } = "cost_map_link";
 
-    public
-    Path2D
-        SeachPath
-        (Vector2 from, Vector2 to)
-        => new() { Points = _aStar!.Search(from, to, _sdf2d!),Header = new Header{Identifier = Identifier}};
-
-    public
-    SafeCorridor2DData<Circle>
+    public Path2D SeachPath(Pose2D from, Pose2D to){ 
+            Vector3 fromPos = Tf.Cast(from.Header.Identifier, Identifier    , new(from.Translation,0)   , from.Header.Timestamp.ToStamp);
+            Vector3 toPos   = Tf.Cast(to.Header.Identifier, Identifier      , new(to.Translation,0)     , from.Header.Timestamp.ToStamp);
+            return new() { 
+                Points = _map is not null ? _aStar!.Search(new(fromPos.X,fromPos.Y), new(toPos.X,toPos.Y), _map!) : [],
+                Header = new Header{Identifier = Identifier}};
+        }
+    public SafeCorridor2DData<Circle>
         SearchCircleSafeCorridor
         (Path2D path)
         => ALPlanner.Infrastructure.SafeCorridorConstruct.GaussianSample.RadiusWithDistance(path, obstacle!);
 
-    public
-    SafeCorridor2DData<AABB2D>
+    public SafeCorridor2DData<AABB2D>
         SearchAABBSafeCorridor
         (Path2D path)
         => ALPlanner.Infrastructure.SafeCorridorConstruct.IncrementalRectangle.AABBGenerate(path, obstacle!);
 
-    public static
-    ITrajectory2D?
-        OptimizePath<T>
+    public static ITrajectory2D? OptimizePath<T>
         (SafeCorridor2DData<T> corridor,
          MincoOptimizer.Status header,
          MincoOptimizer.Status tail)
@@ -62,50 +61,49 @@ public class PlannerBuilder
     //     => MincoOptimizer.Optimize(corridor, header, tail);
 
 
-    public PlannerBuilder BuildALPlanner()
+    public PlannerBuilder<MapT> BuildALPlanner()
     {
         _aStar = new(MapWidth, MapHight, PathSearchIteratorStep, MapResolution);
-        EventBus<ISdf2D>
-            .Instance.Subscribe(
-                SdfMapTopicName,
-                map => _sdf2d = map);
-
-        EventBus<IObstacle>
-            .Instance.Subscribe(
-                ObstacleMapTopicName,
-                map => obstacle = map);
+        // EventBus<MapT>
+        //     .Instance.Subscribe(
+        //         SdfMapTopicName,
+        //         map => _gridmap = map);
 
         return this;
     }
-    public PlannerBuilder SetSdfMapEventName(string name)
+    public PlannerBuilder<MapT> SetGridMapEventName(string name)
     {
         SdfMapTopicName = name;
         return this;
     }
-    public PlannerBuilder SetObstacleMapEventName(string name)
+    public PlannerBuilder<MapT> SetObstacleMapEventName(string name)
     {
         ObstacleMapTopicName = name;
         return this;
     }
-    public PlannerBuilder SetMapWidth(int width)
+    public PlannerBuilder<MapT> SetMapWidth(int width)
     {
         MapWidth = width;
         return this;
     }
-    public PlannerBuilder SetMapHeight(int height)
+    public PlannerBuilder<MapT> SetMapHeight(int height)
     {
         MapHight = height;
         return this;
     }
-    public PlannerBuilder SetMapResolution(float resolution)
+    public PlannerBuilder<MapT> SetMapResolution(float resolution)
     {
         MapResolution = resolution;
         return this;
     }
-    public PlannerBuilder SetPathSearchIteratorStep(float step)
+    public PlannerBuilder<MapT> SetPathSearchIteratorStep(float step)
     {
         PathSearchIteratorStep = step;
         return this;
     }
-
+    public PlannerBuilder<MapT> SetMap(MapT map) 
+    { 
+        _map = map;
+        return this;
+    }
 }

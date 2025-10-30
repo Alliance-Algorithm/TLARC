@@ -37,7 +37,7 @@ public class OccupancyGrid2DMap : IMap2D
             Data = new OGMData
             {
                 GridMapData = data,
-                OccupancyRate = new float[data.Width * data.Height]
+                LG = new float[data.Width * data.Height]
             }
         };
 }

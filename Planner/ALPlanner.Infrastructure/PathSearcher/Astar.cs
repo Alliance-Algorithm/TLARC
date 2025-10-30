@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using Kernel.Contract.Geometry;
 using Kernel.Contract.Navigation;
 
 namespace ALPlanner.Infrastructure.PathSearcher;
@@ -49,7 +50,7 @@ public class AStar(int sizeX, int sizeY, float step, float mapResolution)
     /// <param name="to">to in mapOriginTfNode</param>
     /// <param name="map"></param>
     /// <returns></returns>
-    public Vector2[] Search(Vector2 from, Vector2 to, ISdf2D map)
+    public Vector2[] Search<T>(Vector2 from, Vector2 to, T map) where T : IMap2D
     {
         var closeSpan = _closeMap.AsSpan();
         closeSpan.Clear();
@@ -57,7 +58,7 @@ public class AStar(int sizeX, int sizeY, float step, float mapResolution)
 
         AStarNode begin = new(0, 0, from, null);
         AStarNode end = new(0, 0, to, null);
-
+  
         _openList.Enqueue(begin, 0);
         while (_openList.Count > 0)
         {
@@ -75,10 +76,9 @@ public class AStar(int sizeX, int sizeY, float step, float mapResolution)
             closeSpan[index] = -1;
 
             var points = from p in _steps select p + current.point;
-            float f = 0;
             var children = from p in points
-                           where !map.IsMoveAble(p, out f)
-                           select new AStarNode((end.point - p).Length() - f * 2,
+                           where !map.IsMoveAble(p)
+                           select new AStarNode((end.point - p).Length(),
                                                 current.G + _step,
                                                 p, current);
 
