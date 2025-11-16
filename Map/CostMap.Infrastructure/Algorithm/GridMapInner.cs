@@ -60,7 +60,7 @@ public static class GridMapInner
         path = DirectoryParser.ExpandTildePath(path);
         if (!Directory.Exists(path))
             Directory.CreateDirectory(path);
-        using var bitmap = new SKBitmap((int)map2d.Data.GridMapData.Width, (int)map2d.Data.GridMapData.Height,
+        using var bitmap = new SKBitmap((int)map2d.Data.GridMapData.Header.Width, (int)map2d.Data.GridMapData.Header.Height,
             SKColorType.Gray8,
             SKAlphaType.Opaque);
         unsafe
@@ -74,7 +74,7 @@ public static class GridMapInner
             bitmap.Encode(wStream, SKEncodedImageFormat.Png, 100);
         }
 
-        using var bitmap2 = new SKBitmap((int)map2d.Data.GridMapData.Width, (int)map2d.Data.GridMapData.Height,
+        using var bitmap2 = new SKBitmap((int)map2d.Data.GridMapData.Header.Width, (int)map2d.Data.GridMapData.Header.Height,
             SKColorType.Rgba8888,
             SKAlphaType.Unpremul);
         unsafe
@@ -90,20 +90,20 @@ public static class GridMapInner
 
         var header = new Header
         {
-            Identifier = map2d.Data.GridMapData.Header.Identifier,
-            RotationRad = map2d.Data.GridMapData.RotationRad,
+            Identifier = map2d.Data.GridMapData.Header.Header.Identifier,
+            RotationRad = map2d.Data.GridMapData.Header.RotationRad,
             Origin = new Header.HeVector2
-            { X = map2d.Data.GridMapData.Origin.X, Y = map2d.Data.GridMapData.Origin.Y },
+            { X = map2d.Data.GridMapData.Header.Origin.X, Y = map2d.Data.GridMapData.Header.Origin.Y },
             RotationMatrix = new Header.HeMatrix3x2
             {
-                M11 = map2d.Data.GridMapData.RotationMatrix.M11,
-                M12 = map2d.Data.GridMapData.RotationMatrix.M12,
-                M21 = map2d.Data.GridMapData.RotationMatrix.M21,
-                M22 = map2d.Data.GridMapData.RotationMatrix.M22,
-                M31 = map2d.Data.GridMapData.RotationMatrix.M31,
-                M32 = map2d.Data.GridMapData.RotationMatrix.M32
+                M11 = map2d.Data.GridMapData.Header.RotationMatrix.M11,
+                M12 = map2d.Data.GridMapData.Header.RotationMatrix.M12,
+                M21 = map2d.Data.GridMapData.Header.RotationMatrix.M21,
+                M22 = map2d.Data.GridMapData.Header.RotationMatrix.M22,
+                M31 = map2d.Data.GridMapData.Header.RotationMatrix.M31,
+                M32 = map2d.Data.GridMapData.Header.RotationMatrix.M32
             },
-            Resolution = map2d.Data.GridMapData.Resolution
+            Resolution = map2d.Data.GridMapData.Header.Resolution
         };
         var serializer = new SerializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
@@ -123,7 +123,7 @@ public static class GridMapInner
         path = DirectoryParser.ExpandTildePath(path);
         if (!Directory.Exists(path))
             Directory.CreateDirectory(path);
-        using var bitmap = new SKBitmap((int)map2d.Width, (int)map2d.Height, SKColorType.Gray8, SKAlphaType.Opaque);
+        using var bitmap = new SKBitmap((int)map2d.Header.Width, (int)map2d.Header.Height, SKColorType.Gray8, SKAlphaType.Opaque);
         unsafe
         {
             fixed (sbyte* ptr = map2d.Data)
@@ -137,19 +137,19 @@ public static class GridMapInner
 
         var header = new Header
         {
-            Identifier = map2d.Header.Identifier,
-            RotationRad = map2d.RotationRad,
-            Origin = new Header.HeVector2 { X = map2d.Origin.X, Y = map2d.Origin.Y },
+            Identifier = map2d.Header.Header.Identifier,
+            RotationRad = map2d.Header.RotationRad,
+            Origin = new Header.HeVector2 { X = map2d.Header.Origin.X, Y = map2d.Header.Origin.Y },
             RotationMatrix = new Header.HeMatrix3x2
             {
-                M11 = map2d.RotationMatrix.M11,
-                M12 = map2d.RotationMatrix.M12,
-                M21 = map2d.RotationMatrix.M21,
-                M22 = map2d.RotationMatrix.M22,
-                M31 = map2d.RotationMatrix.M31,
-                M32 = map2d.RotationMatrix.M32
+                M11 = map2d.Header.RotationMatrix.M11,
+                M12 = map2d.Header.RotationMatrix.M12,
+                M21 = map2d.Header.RotationMatrix.M21,
+                M22 = map2d.Header.RotationMatrix.M22,
+                M31 = map2d.Header.RotationMatrix.M31,
+                M32 = map2d.Header.RotationMatrix.M32
             },
-            Resolution = map2d.Resolution
+            Resolution = map2d.Header.Resolution
         };
         var serializer = new SerializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
@@ -180,13 +180,15 @@ public static class GridMapInner
         var header = serializer.Deserialize<Header>(yaml);
         GridMap2DData map2d = new()
         {
-            Header  = new() { Identifier = header.Identifier },
-            Width   = (uint)bitmap.Width,
-            Height  = (uint)bitmap.Height,
+            Header  = new() {
+                Header  = new() {Identifier = header.Identifier},
+                Width   = (uint)bitmap.Width,
+                Height  = (uint)bitmap.Height
+            },
             Data    = new sbyte[bitmap.ByteCount]
         };
         Buffer.BlockCopy(bitmap.Bytes, 0, map2d.Data, 0, bitmap.ByteCount);
-        map2d.RotationMatrix = new Matrix3x2
+        map2d.Header.RotationMatrix = new Matrix3x2
         {
             M11 = header.RotationMatrix.M11,
             M12 = header.RotationMatrix.M12,
@@ -195,14 +197,14 @@ public static class GridMapInner
             M31 = header.RotationMatrix.M31,
             M32 = header.RotationMatrix.M32
         };
-        map2d.Origin = new Vector2
+        map2d.Header.Origin = new Vector2
         {
             X = header.Origin.X,
             Y = header.Origin.Y
         };
-        map2d.RotationRad = header.RotationRad;
-        map2d.Resolution = header.Resolution;
-        map2d.Resolution = header.Resolution;
+        map2d.Header.RotationRad = header.RotationRad;
+        map2d.Header.Resolution = header.Resolution;
+        map2d.Header.Resolution = header.Resolution;
         var map2dHigh = OccupancyHighGrid2DMap.Build_GridMap2DData(map2d);
         using var bitmap2 = SKBitmap.Decode(path + "/high.png",
             new SKImageInfo(bitmap.Width, bitmap.Height, SKColorType.Rgba8888, SKAlphaType.Unpremul));
@@ -231,14 +233,16 @@ public static class GridMapInner
         var header = serializer.Deserialize<Header>(yaml);
         GridMap2DData map2d = new()
         {
-            Header = new() { Identifier = header.Identifier },
-            Width = (uint)bitmap.Width,
-            Height = (uint)bitmap.Height,
+            Header = new() { 
+                Header = new(){Identifier = header.Identifier},
+                Width = (uint)bitmap.Width,
+                Height = (uint)bitmap.Height,
+            },
             Data = new sbyte[bitmap.ByteCount]
         };
         Buffer.BlockCopy(bitmap.Bytes, 0, map2d.Data, 0, bitmap.ByteCount);
 
-        map2d.RotationMatrix = new Matrix3x2
+        map2d.Header.RotationMatrix = new Matrix3x2
         {
             M11 = header.RotationMatrix.M11,
             M12 = header.RotationMatrix.M12,
@@ -247,14 +251,14 @@ public static class GridMapInner
             M31 = header.RotationMatrix.M31,
             M32 = header.RotationMatrix.M32
         };
-        map2d.Origin = new Vector2
+        map2d.Header.Origin = new Vector2
         {
             X = header.Origin.X,
             Y = header.Origin.Y
         };
-        map2d.RotationRad = header.RotationRad;
-        map2d.Resolution = header.Resolution;
-        map2d.Resolution = header.Resolution;
+        map2d.Header.RotationRad = header.RotationRad;
+        map2d.Header.Resolution = header.Resolution;
+        map2d.Header.Resolution = header.Resolution;
         return map2d;
     }
 
@@ -273,20 +277,20 @@ public static class GridMapInner
                                        sbyte threshold,
                                        ThresholdType type)
     {
-        var vecInWorld = target - data.Origin;
-        var vecInMap = (data.RotationMatrix * Matrix3x2.CreateTranslation(vecInWorld / data.Resolution)).Translation;
-        if (vecInMap.X < 0 || vecInMap.X >= data.Width || vecInMap.Y < 0 || vecInMap.Y >= data.Height)
+        var vecInWorld = target - data.Header.Origin;
+        var vecInMap = (data.Header.RotationMatrix * Matrix3x2.CreateTranslation(vecInWorld / data.Header.Resolution)).Translation;
+        if (vecInMap.X < 0 || vecInMap.X >= data.Header.Width || vecInMap.Y < 0 || vecInMap.Y >= data.Header.Height)
             return true;
 
         int xIndexInMap = (int)vecInMap.X,
             yIndexInMap = (int)vecInMap.Y;
         return type switch
         {
-            ThresholdType.Equal => data.Data[xIndexInMap + yIndexInMap * data.Width] == threshold,
-            ThresholdType.GreaterEqual => data.Data[xIndexInMap + yIndexInMap * data.Width] >= threshold,
-            ThresholdType.LessEqual => data.Data[xIndexInMap + yIndexInMap * data.Width] <= threshold,
-            ThresholdType.Less => data.Data[xIndexInMap + yIndexInMap * data.Width] < threshold,
-            ThresholdType.Greater => data.Data[xIndexInMap + yIndexInMap * data.Width] > threshold,
+            ThresholdType.Equal => data.Data[xIndexInMap + yIndexInMap * data.Header.Width] == threshold,
+            ThresholdType.GreaterEqual => data.Data[xIndexInMap + yIndexInMap * data.Header.Width] >= threshold,
+            ThresholdType.LessEqual => data.Data[xIndexInMap + yIndexInMap * data.Header.Width] <= threshold,
+            ThresholdType.Less => data.Data[xIndexInMap + yIndexInMap * data.Header.Width] < threshold,
+            ThresholdType.Greater => data.Data[xIndexInMap + yIndexInMap * data.Header.Width] > threshold,
             _ => true
         };
     }
@@ -309,17 +313,17 @@ public static class GridMapInner
                                        sbyte threshold,
                                        ThresholdType type)
     {
-        var fromVecInWorld = from - data.Origin;
-        var fromVecInMap = (data.RotationMatrix *
-                            Matrix3x2.CreateTranslation(fromVecInWorld / data.Resolution))
+        var fromVecInWorld = from - data.Header.Origin;
+        var fromVecInMap = (data.Header.RotationMatrix *
+                            Matrix3x2.CreateTranslation(fromVecInWorld / data.Header.Resolution))
             .Translation;
-        if (fromVecInMap.X < 0 || fromVecInMap.X >= data.Width || fromVecInMap.Y < 0 || fromVecInMap.Y >= data.Height)
+        if (fromVecInMap.X < 0 || fromVecInMap.X >= data.Header.Width || fromVecInMap.Y < 0 || fromVecInMap.Y >= data.Header.Height)
             return false;
-        var toVecInWorld = to - data.Origin;
-        var toVecInMap = (data.RotationMatrix *
-                          Matrix3x2.CreateTranslation(toVecInWorld / data.Resolution))
+        var toVecInWorld = to - data.Header.Origin;
+        var toVecInMap = (data.Header.RotationMatrix *
+                          Matrix3x2.CreateTranslation(toVecInWorld / data.Header.Resolution))
             .Translation;
-        if (toVecInMap.X < 0 || toVecInMap.X >= data.Width || toVecInMap.Y < 0 || toVecInMap.Y >= data.Height)
+        if (toVecInMap.X < 0 || toVecInMap.X >= data.Header.Width || toVecInMap.Y < 0 || toVecInMap.Y >= data.Header.Height)
             return false;
 
         Vector2i
@@ -331,11 +335,11 @@ public static class GridMapInner
 
         return indexes.All(predicate: indexInMap => type switch
         {
-            ThresholdType.Equal => data.Data[indexInMap.x + indexInMap.y * data.Width] == threshold,
-            ThresholdType.GreaterEqual => data.Data[indexInMap.x + indexInMap.y * data.Width] >= threshold,
-            ThresholdType.LessEqual => data.Data[indexInMap.x + indexInMap.y * data.Width] <= threshold,
-            ThresholdType.Less => data.Data[indexInMap.x + indexInMap.y * data.Width] < threshold,
-            ThresholdType.Greater => data.Data[indexInMap.x + indexInMap.y * data.Width] > threshold,
+            ThresholdType.Equal => data.Data[indexInMap.x + indexInMap.y * data.Header.Width] == threshold,
+            ThresholdType.GreaterEqual => data.Data[indexInMap.x + indexInMap.y * data.Header.Width] >= threshold,
+            ThresholdType.LessEqual => data.Data[indexInMap.x + indexInMap.y * data.Header.Width] <= threshold,
+            ThresholdType.Less => data.Data[indexInMap.x + indexInMap.y * data.Header.Width] < threshold,
+            ThresholdType.Greater => data.Data[indexInMap.x + indexInMap.y * data.Header.Width] > threshold,
             _ => false
         });
     }
@@ -349,11 +353,11 @@ public static class GridMapInner
         {
             var end =
                 new Vector2i(
-                    (int)((p.X - map.Data.GridMapData.Origin.X) / map.Data.GridMapData.Resolution),
-                    (int)((p.Y - map.Data.GridMapData.Origin.Y) / map.Data.GridMapData.Resolution));
-            if (end.x < 0 || end.x >= map.Data.GridMapData.Width || end.y < 0 || end.y >= map.Data.GridMapData.Height)
+                    (int)((p.X - map.Data.GridMapData.Header.Origin.X) / map.Data.GridMapData.Header.Resolution),
+                    (int)((p.Y - map.Data.GridMapData.Header.Origin.Y) / map.Data.GridMapData.Header.Resolution));
+            if (end.x < 0 || end.x >= map.Data.GridMapData.Header.Width || end.y < 0 || end.y >= map.Data.GridMapData.Header.Height)
                 return false;
-            var index = end.x + end.y * map.Data.GridMapData.Width;
+            var index = end.x + end.y * map.Data.GridMapData.Header.Width;
             return map.High[index] + carStep < p.Z && p.Z < map.High[index] + carHigh;
         };
         points = [..

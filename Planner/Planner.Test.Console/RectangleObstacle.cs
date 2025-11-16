@@ -79,6 +79,8 @@ public static class RectAngleObstacle
         const string RosPubDebugTlarcTfTopicName            = "/tlarc_tf";
         const string RosPubTlarcPointCloudTopicName         = "/tlarc/point_cloud";
         const string RosPathTopic                           = "/tlarc/path";
+        const string RosCorridor                            = "/tlarc/safe_corridor";
+        const string RosTrajectory                          = "/tlarc/trajectory";
         const string RosControlPoint                        = "/tlarc/point/contorl";
 
         var ros = TlarcRosBridge.Domain.RosBridge.Build(RosNodeName);
@@ -99,6 +101,14 @@ public static class RectAngleObstacle
             RosPathTopic,
             RosPathTopic,
             TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishPath);
+        ros.Publish<Kernel.Contract.Navigation.Path2D, TlarcRosBridge.Infrastructure.Messages.Nav.Path>(
+            RosTrajectory,
+            RosTrajectory,
+            TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishPath);
+        ros.Publish<SafeCorridor2DData<AABB2D>, TlarcRosBridge.Infrastructure.Messages.Visualization.MarkerArray>(
+            RosCorridor,
+            RosCorridor,
+            TlarcRosBridge.Infrastructure.DataProcess.Publisher.PublishAABBSafeCorridor);
 #endif
         #endregion
 
@@ -126,11 +136,11 @@ public static class RectAngleObstacle
             .SetMapHeight(600)
             .SetMapWidth(600)
             .SetMapResolution(0.02f)
-            .SetPathSearchIteratorStep(0.3f)
+            .SetPathSearchIteratorStep(0.1f)
             .SetGridMapEventName(EventGridMapName)
             .SetMap(map) 
             .BuildALPlanner();
-        planner.Identifier = PointCloudTo2dMap.ROGMapDefaultConfig.TfOdomLink; 
+        planner.Identifier = PointCloudTo2dMap.ROGMapDefaultConfig.TfMapLink; 
         // InflationLayerBuilder.SetPara(50);
 
         Vector2 vel = Vector2.Zero;
@@ -160,17 +170,18 @@ public static class RectAngleObstacle
             from = new(){Header = x.Header, Orientation = 0,Translation = new(x.Translation.X,x.Translation.Y)};
             var astar = planner.SeachPath(from, to);
             EventBus<Path2D>.Instance.Publish(RosPathTopic, astar);
-            // var safeCorridor = planner.SearchAABBSafeCorridor(astar);
+            var safeCorridor = planner.SearchAABBSafeCorridor(astar);
+            EventBus<SafeCorridor2DData<AABB2D>>.Instance.Publish(RosCorridor, safeCorridor);
 
 
-            // var trajectory = Planner.PlannerBuilder<ROGMap>.OptimizePath(
-            //     safeCorridor!,
-            //     new(astar.Points[0] , vel, Vector2.Zero),
-            //     new(astar.Points[^1], Vector2.Zero, Vector2.Zero));
-            // if (trajectory is not null) EventBus<Path2D>.Instance.Publish(RosTrajectoryTopic,
-            //  new Path2D(){  Points = [.. trajectory.GetPositions(trajectory.Data.FromWhen, (trajectory.Data.ToWhen - trajectory.Data.FromWhen).TotalSeconds / 100f, 101)],
-            //                 Header = trajectory.Data.Header});
-            // lasttraj = trajectory ?? lasttraj;
+            var trajectory = Planner.PlannerBuilder<CostMap.Infrastructure.Data.ROGMap>.OptimizePath(
+                safeCorridor!,
+                new(astar.Points[0] , vel, Vector2.Zero),
+                new(astar.Points[^1], Vector2.Zero, Vector2.Zero));
+            if (trajectory is not null) EventBus<Path2D>.Instance.Publish(RosTrajectory,
+             new Path2D(){  Points = [.. trajectory.GetPositions(trajectory.Data.FromWhen, (trajectory.Data.ToWhen - trajectory.Data.FromWhen).TotalSeconds / 100f, 101)],
+                            Header = trajectory.Data.Header});
+            lasttraj = trajectory ?? lasttraj;
 
         });
         Console.WriteLine("Map publish");

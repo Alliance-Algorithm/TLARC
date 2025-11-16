@@ -35,8 +35,8 @@ public class PointCloudTo2dMap
     public static PointCloudTo2dMap ROGMapDefault => 
         new PointCloudTo2dMap()
         .SetInput_PointCloudTopicName(ROGMapDefaultConfig.EventPointCloudInputName)
-        .SetOutput_DataStructure     (width: 600, height: 600, resolution: 0.02f, topZ: 0.7f, bottomZ: -0.1f, lossMiss: 0.7f, lossHit: -1.5f,
-                                      blindCircleRadius: 0.4f, slidingThreshold: 1, forgetFrameCount: 10, highError: 0.1f, OccupyDensity: 0.3f, inflationRadius: 0.2f)
+        .SetOutput_DataStructure     (width: 600, height: 600, resolution: 0.02f, topZ: 0.7f, bottomZ: -0.1f, lossMiss: 0.7f, lossHit: -2.0f,
+                                      blindCircleRadius: 0.4f, slidingThreshold: 1, forgetFrameCount: 15, highError: 0.1f, OccupyDensity: 0.3f, inflationRadius: 0.2f)
         .SetOutput_CostMapTopicName  (ROGMapDefaultConfig.EventGridMapName)
         .SetOutput_Inflation         (radius: 10)
         .SetId_Chassis               (ROGMapDefaultConfig.TfCarLink)
@@ -55,9 +55,11 @@ public class PointCloudTo2dMap
             Threshold = 70,
             GridMapData = new GridMap2DData
             {
-                Width      = 300,
-                Height     = 300,
-                Resolution = 0.02f,
+                Header = new(){
+                    Width      = 300,
+                    Height     = 300,
+                    Resolution = 0.02f,
+                }
             }
         };
         public float    BottomZ                 { get; set; } = 0.01f;
@@ -104,8 +106,8 @@ public class PointCloudTo2dMap
     /// <returns></returns>
     public PointCloudTo2dMap BuildOccupancyMapWithStaticHigh()
     {
-        MapData.OGM.GridMapData.Data     = new sbyte[MapData.OGM.GridMapData.Width * MapData.OGM.GridMapData.Height];
-        MapData.OGM.LG        = new float[MapData.OGM.GridMapData.Width * MapData.OGM.GridMapData.Height];
+        MapData.OGM.GridMapData.Data     = new sbyte[MapData.OGM.GridMapData.Header.Width * MapData.OGM.GridMapData.Header.Height];
+        MapData.OGM.LG        = new float[MapData.OGM.GridMapData.Header.Width * MapData.OGM.GridMapData.Header.Height];
         Array.Fill(MapData.OGM.LG, 0);
         _innerMap           = OccupancyGrid2DMap.Build_IOccupancyGridMap2DData(MapData.OGM);
         _innerMap.TopZ      = MapData.TopZ;
@@ -118,7 +120,7 @@ public class PointCloudTo2dMap
         {
             staticHigh = m;
             staticHighId = (staticHigh ?? throw new Exception("No static map"))
-                .Data.GridMapData.Header.Identifier;
+                .Data.GridMapData.Header.Header.Identifier;
         });
         EventBus<PointCloud>.Instance.Subscribe(_pointCloudTopicName,
             pointCloud =>
@@ -126,7 +128,7 @@ public class PointCloudTo2dMap
                 if (staticHigh is null)
                     return;
                 Array.Fill(_innerMap.Data.LG, 0);
-                _innerMap.Data.GridMapData.Header.Identifier = _costMapId;
+                _innerMap.Data.GridMapData.Header.Header.Identifier = _costMapId;
                 var arr = ArrayPool<Vector3>.Shared.Rent(pointCloud.Points.Length);
                 var points = Tf.Cast(pointCloud.Header.Identifier, staticHighId, pointCloud.Points, arr);
                 CostMap.Infrastructure.Algorithm.GridMapInner.SelectPointsInHighMap(ref points, 0.4f, 0.15f,
@@ -152,8 +154,8 @@ public class PointCloudTo2dMap
     /// <returns></returns>
     public PointCloudTo2dMap BuildOccupancyMap()
     {
-        MapData.OGM.GridMapData.Data     = new sbyte[MapData.OGM.GridMapData.Width * MapData.OGM.GridMapData.Height];
-        MapData.OGM.LG        = new float[MapData.OGM.GridMapData.Width * MapData.OGM.GridMapData.Height];
+        MapData.OGM.GridMapData.Data     = new sbyte[MapData.OGM.GridMapData.Header.Width * MapData.OGM.GridMapData.Header.Height];
+        MapData.OGM.LG        = new float[MapData.OGM.GridMapData.Header.Width * MapData.OGM.GridMapData.Header.Height];
         Array.Fill(MapData.OGM.LG, 0);
         _innerMap           = OccupancyGrid2DMap.Build_IOccupancyGridMap2DData(MapData.OGM);
         _innerMap.TopZ      = MapData.TopZ;
@@ -162,7 +164,7 @@ public class PointCloudTo2dMap
             pointCloud =>
             {
                 Array.Fill(_innerMap.Data.LG, 0);
-                _innerMap.Data.GridMapData.Header.Identifier = _costMapId;
+                _innerMap.Data.GridMapData.Header.Header.Identifier = _costMapId;
 
                 var arr = ArrayPool<Vector3>.Shared.Rent(pointCloud.Points.Length);
                 CostMap.Infrastructure.Algorithm.OccupancyGridMapBuilder.UpdateRateFromPointCloud(
@@ -186,8 +188,8 @@ public class PointCloudTo2dMap
     /// <returns></returns>
     public PointCloudTo2dMap BuildOccupancyHighMap()
     {
-        MapData.OGM.GridMapData.Data     = new sbyte[MapData.OGM.GridMapData.Width * MapData.OGM.GridMapData.Height];
-        MapData.OGM.LG        = new float[MapData.OGM.GridMapData.Width * MapData.OGM.GridMapData.Height];
+        MapData.OGM.GridMapData.Data     = new sbyte[MapData.OGM.GridMapData.Header.Width * MapData.OGM.GridMapData.Header.Height];
+        MapData.OGM.LG        = new float[MapData.OGM.GridMapData.Header.Width * MapData.OGM.GridMapData.Header.Height];
         _inner25DMap = OccupancyHighGrid2DMap.Build_IOccupancyGridMap2DData(MapData.OGM);
         _inner25DMap.TopZ = MapData.TopZ;
         _inner25DMap.ButtonZ = MapData.BottomZ;
@@ -199,7 +201,7 @@ public class PointCloudTo2dMap
         EventBus<PointCloud>.Instance.Subscribe(_pointCloudTopicName,
             pointCloud =>
             {
-                _inner25DMap.Data.GridMapData.Header.Identifier = _costMapId;
+                _inner25DMap.Data.GridMapData.Header.Header.Identifier = _costMapId;
 
                 var arr = ArrayPool<Vector3>.Shared.Rent(pointCloud.Points.Length);
                 CostMap.Infrastructure.Algorithm.OccupancyGridMapBuilder.UpdateHighRateWithPointCloud(
@@ -226,16 +228,16 @@ public class PointCloudTo2dMap
     public ROGMap BuildROGMap()
     {
         _innerROGMap = new ROGMap(
-                        MapData.OGM.GridMapData.Height, 
-                        MapData.OGM.GridMapData.Width, 
+                        MapData.OGM.GridMapData.Header.Height, 
+                        MapData.OGM.GridMapData.Header.Width, 
                         MapData.InflationRadius, 
-                        MapData.OGM.GridMapData.Resolution, 
+                        MapData.OGM.GridMapData.Header.Resolution, 
                         MapData.TopZ, 
                         MapData.BottomZ, 
                         _costMapId)
         {
             ForgetFrameCount  = MapData.ForgetFrameCount,
-            SlidingThreshold  = Math.Min(Math.Min(MapData.OGM.GridMapData.Width, MapData.OGM.GridMapData.Height) * MapData.OGM.GridMapData.Resolution * 0.48f, MapData.RogMapSlidingThreshold),
+            SlidingThreshold  = Math.Min(Math.Min(MapData.OGM.GridMapData.Header.Width, MapData.OGM.GridMapData.Header.Height) * MapData.OGM.GridMapData.Header.Resolution * 0.48f, MapData.RogMapSlidingThreshold),
             BlindCircleRadius = MapData.BlindCircleRadius,
             _lossHit  =  Math.Abs(MapData.OGM.LHit),
             _lossMiss = -Math.Abs(MapData.OGM.LMiss),
@@ -258,11 +260,11 @@ public class PointCloudTo2dMap
                                     Tf.Cast(pointCloud.Header.Identifier,  _innerROGMap.Header.Identifier, pointCloud.Points,   arr, stamp + 1),
                                     pointCloud.Points.Length);
                 ArrayPool<Vector3>.Shared.Return(arr);
+                EventBus<ROGMap>.Instance.Publish(_costMapTopicName, _innerROGMap);
                 if(_innerROGMap.Visualize)
                 {
                     CostMap.Infrastructure.Algorithm.ROGMap.UpdateGridMap(_innerROGMap);
-                    var map = InflationLayerBuilder.Build(_innerROGMap,_innerROGMap.GridMap);
-                    EventBus<GridMap2DData>.Instance.Publish(_costMapTopicName, map.GridMap.Data);
+                    EventBus<GridMap2DData>.Instance.Publish(_costMapTopicName, _innerROGMap.GridMap);
                 }
             });
 
@@ -345,20 +347,20 @@ public class PointCloudTo2dMap
                                                      float highError            = 0.5f,
                                                      float OccupyDensity        = 0.5f   )
     {
-        MapData.OGM.GridMapData.Width        = width == 300              ? MapData.OGM.GridMapData.Width      : width;
-        MapData.OGM.GridMapData.Height       = height == 300             ? MapData.OGM.GridMapData.Height     : height;
-        MapData.OGM.GridMapData.Resolution   = resolution == 0.02f       ? MapData.OGM.GridMapData.Resolution : resolution;
-        MapData.OGM.Threshold                = threshold == 70           ? MapData.OGM.Threshold              : threshold;
-        MapData.OGM.LMiss                    = lossMiss == 0.7f          ? MapData.OGM.LMiss                  : lossMiss;
-        MapData.OGM.LHit                     = lossHit == -0.9f          ? MapData.OGM.LHit                   : lossHit;
-        MapData.BottomZ                      = bottomZ == 0.1f           ? MapData.BottomZ                    : bottomZ;
-        MapData.TopZ                         = topZ == 0.2f              ? MapData.TopZ                       : topZ;
-        MapData.ForgetFrameCount             = forgetFrameCount == 10    ? MapData.ForgetFrameCount           : forgetFrameCount;
-        MapData.BlindCircleRadius            = blindCircleRadius == 0.4f ? MapData.BlindCircleRadius          : blindCircleRadius;
-        MapData.RogMapSlidingThreshold       = slidingThreshold == 4     ? MapData.RogMapSlidingThreshold     : slidingThreshold;
-        MapData.InflationRadius              = inflationRadius == 0.2f   ? MapData.InflationRadius            : inflationRadius;
-        MapData.HighError                    = highError == 0.5f         ? MapData.HighError                  : highError;
-        MapData.OccupyDensity                = OccupyDensity == 0.5f     ? MapData.OccupyDensity              : OccupyDensity;
+        MapData.OGM.GridMapData.Header.Width        = width == 300              ? MapData.OGM.GridMapData.Header.Width      : width;
+        MapData.OGM.GridMapData.Header.Height       = height == 300             ? MapData.OGM.GridMapData.Header.Height     : height;
+        MapData.OGM.GridMapData.Header.Resolution   = resolution == 0.02f       ? MapData.OGM.GridMapData.Header.Resolution : resolution;
+        MapData.OGM.Threshold                       = threshold == 70           ? MapData.OGM.Threshold                     : threshold;
+        MapData.OGM.LMiss                           = lossMiss == 0.7f          ? MapData.OGM.LMiss                         : lossMiss;
+        MapData.OGM.LHit                            = lossHit == -0.9f          ? MapData.OGM.LHit                          : lossHit;
+        MapData.BottomZ                             = bottomZ == 0.1f           ? MapData.BottomZ                           : bottomZ;
+        MapData.TopZ                                = topZ == 0.2f              ? MapData.TopZ                              : topZ;
+        MapData.ForgetFrameCount                    = forgetFrameCount == 10    ? MapData.ForgetFrameCount                  : forgetFrameCount;
+        MapData.BlindCircleRadius                   = blindCircleRadius == 0.4f ? MapData.BlindCircleRadius                 : blindCircleRadius;
+        MapData.RogMapSlidingThreshold              = slidingThreshold == 4     ? MapData.RogMapSlidingThreshold            : slidingThreshold;
+        MapData.InflationRadius                     = inflationRadius == 0.2f   ? MapData.InflationRadius                   : inflationRadius;
+        MapData.HighError                           = highError == 0.5f         ? MapData.HighError                         : highError;
+        MapData.OccupyDensity                       = OccupyDensity == 0.5f     ? MapData.OccupyDensity                     : OccupyDensity;
         return this;
     }
 

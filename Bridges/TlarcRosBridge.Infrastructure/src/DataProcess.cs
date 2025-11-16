@@ -58,7 +58,7 @@ public static class DataProcess
         public static readonly RefAction<GridMap2DData, IRclNode, RosMessageBuffer> GridMap2dToOccupancyGridMap =
             (in GridMap2DData item1, in IRclNode node, ref RosMessageBuffer item2) =>
             {
-                Navigation.GridMap.WriteInto(item1, item1.Header.Identifier, node,
+                Navigation.GridMap.WriteInto(item1, item1.Header.Header.Identifier, node,
                     ref item2.AsRef<OccupancyGrid.Priv>());
             };
 
@@ -91,6 +91,11 @@ public static class DataProcess
             };
         public static readonly RefAction<SafeCorridor2DData<Rectangle>, IRclNode, RosMessageBuffer> PublishRectangleSafeCorridor =
             (in SafeCorridor2DData<Rectangle> item1, in IRclNode node, ref RosMessageBuffer item2) =>
+            {
+                Visualization.Draw(item1.Header.Identifier, node, item1, ref item2.AsRef<Messages.Visualization.MarkerArray.Priv>());
+            };
+        public static readonly RefAction<SafeCorridor2DData<AABB2D>, IRclNode, RosMessageBuffer> PublishAABBSafeCorridor =
+            (in SafeCorridor2DData<AABB2D> item1, in IRclNode node, ref RosMessageBuffer item2) =>
             {
                 Visualization.Draw(item1.Header.Identifier, node, item1, ref item2.AsRef<Messages.Visualization.MarkerArray.Priv>());
             };

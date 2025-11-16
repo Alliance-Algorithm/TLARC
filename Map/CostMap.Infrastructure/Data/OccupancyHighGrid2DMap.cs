@@ -26,7 +26,7 @@ public class OccupancyHighGrid2DMap : IMap2D
         new()
         {
             Data = data,
-            High = new float[data.GridMapData.Width * data.GridMapData.Height]
+            High = new float[data.GridMapData.Header.Width * data.GridMapData.Header.Height]
         };
 
     public static OccupancyHighGrid2DMap Build_GridMap2DData(GridMap2DData data) =>
@@ -35,9 +35,9 @@ public class OccupancyHighGrid2DMap : IMap2D
             Data = new OGMData
             {
                 GridMapData = data,
-                LG = new float[data.Width * data.Height]
+                LG = new float[data.Header.Width * data.Header.Height]
             },
-            High = new float[data.Width * data.Height]
+            High = new float[data.Header.Width * data.Header.Height]
         };
 
     public static OccupancyHighGrid2DMap Build_Clone(OccupancyHighGrid2DMap map) =>
@@ -49,12 +49,6 @@ public class OccupancyHighGrid2DMap : IMap2D
                 {
                     Header = map.Data.GridMapData.Header,
                     Data = map.Data.GridMapData.Data[..],
-                    Height = map.Data.GridMapData.Height,
-                    Width = map.Data.GridMapData.Width,
-                    RotationRad = map.Data.GridMapData.RotationRad,
-                    RotationMatrix = map.Data.GridMapData.RotationMatrix,
-                    Origin = map.Data.GridMapData.Origin,
-                    Resolution = map.Data.GridMapData.Resolution
                 },
                 LG = map.Data.LG[..]
             },

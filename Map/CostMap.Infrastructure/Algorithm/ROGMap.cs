@@ -275,12 +275,15 @@ public static class ROGMap
                     rogMap._gridData[index].OccupyState = true;
                     *(cPtr + index) = 1;
                 }
-                else if ( rogMap._gridData[index].OccupyState &&
-                         (cnt / (rogMap._upper[index] - rogMap._lower[index]) <= rogMap._occuDensity ||
-                         (rogMap._upper[index] - rogMap._lower[index]) <= rogMap._highError))
+                else if (cnt / (rogMap._upper[index] - rogMap._lower[index]) <= rogMap._occuDensity ||
+                         (rogMap._upper[index] - rogMap._lower[index]) <= rogMap._highError)
                 {
-                    rogMap._gridData[index].OccupyState = false;
-                    *(cPtr + index) = -1;
+                    if(rogMap._gridData[index].OccupyState)
+                        *(cPtr + index) = -1;
+                    if(rogMap._lower[index] != 1e6f)
+                        rogMap._gridData[index].OccupyState = ROGMapCell.StateEnum.Free;
+                    else
+                        rogMap._gridData[index].OccupyState = ROGMapCell.StateEnum.Unknow;
                 }
             });
 
@@ -293,13 +296,6 @@ public static class ROGMap
             });
         }
 
-    }
-    struct NearestTarget
-    {
-        public int CellX;
-        public int CellY;
-        public int NearestX;
-        public int NearestY;
     }
 
     private static void IncrementalInflation(this Data.ROGMap rogMap, in Memory<sbyte> c)
@@ -383,16 +379,19 @@ public static class ROGMap
     /// <param name="rogMap"></param>
     public static void UpdateGridMap(Data.ROGMap rogMap)
     {
-        BlockParallel.For(
-            rogMap.SizeX, rogMap.SizeY, 0, 0,
-            (x, y) =>
-            {
-                var c = new Vector2i(x, y).LocalToGlobalNormalize(rogMap);
-                var index = c.x + c.y * rogMap.SizeX;
-                var step = rogMap.TopZ - rogMap.ButtonZ;
-                rogMap.Data[x + y * rogMap.SizeX] = (sbyte)((
-                    rogMap._gridData[index].OccupyCount > 0
-                        ) ? 100 : (rogMap._lower[index] == 1e6 ? 0 : Math.Clamp(rogMap._lower[index] * rogMap.Resolution / step, -0.25, 1) * 15 + 20));
-            });
+        void process(int x,int y)
+        {
+            var c = new Vector2i(x, y).LocalToGlobalNormalize(rogMap);
+            var index = c.x + c.y * rogMap.SizeX;
+            var step = rogMap.TopZ - rogMap.ButtonZ;
+            rogMap.Data[x + y * rogMap.SizeX] = 
+                (sbyte)((rogMap._gridData[index].OccupyCount > 0) 
+                ? 100 
+                : ( rogMap._gridData[index].OccupyState == ROGMapCell.StateEnum.Unknow 
+                    ? -1 
+                    : Math.Clamp(rogMap._lower[index] * rogMap.Resolution / step, -0.25, 1) * 15 + 20));
+        }
+
+        BlockParallel.For(rogMap.SizeX, rogMap.SizeY, 0, 0, process);
     }
 }

@@ -37,6 +37,15 @@ public class OccupancyGrid2DMap : IMap2D
             Data = new OGMData
             {
                 GridMapData = data,
+                LG = new float[data.Header.Width * data.Header.Height]
+            }
+        };
+    public static OccupancyGrid2DMap Build_GridMap2DData(GridMap2DDescription data) =>
+        new()
+        {
+            Data = new OGMData
+            {
+                GridMapData = new(){Header = data, Data = new sbyte[data.Width * data.Height]},
                 LG = new float[data.Width * data.Height]
             }
         };

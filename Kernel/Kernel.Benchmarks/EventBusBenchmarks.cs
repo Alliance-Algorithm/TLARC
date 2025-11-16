@@ -19,14 +19,16 @@ public class EventBusBenchmarks
 
     private GridMap2DData _data = new()
     {
-        Header = new Header{Identifier = ""},
-        Height = 1000,
-        Width = 1000,
-        Origin = new Vector2(),
-        RotationMatrix = Matrix3x2.Identity,
-        Resolution = 1,
+        Header = new(){
+            Header = new(){ Identifier = ""},
+            Height = 1000,
+            Width = 1000,
+            Origin = new Vector2(),
+            RotationMatrix = Matrix3x2.Identity,
+            Resolution = 1,
+            RotationRad = 0
+        },
         Data = new sbyte[1000 * 1000],
-        RotationRad = 0
     };
 
     [MethodImpl(MethodImplOptions.NoInlining)]

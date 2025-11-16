@@ -33,12 +33,12 @@ public static class InflationLayerBuilder
     
     public static InflationMap Build<GridMapT>(GridMapT map,GridMap2DData data) where GridMapT : IGridMap2D
     {
-        InflationMap ret = InflationMap.New_GridMap2DData(data, _inflationDistance / 2 * data.Resolution);
+        InflationMap ret = InflationMap.New_GridMap2DData(data, _inflationDistance / 2 * data.Header.Resolution);
         if (_inflationDistance == 0)
             return ret;
         var grid2D = ret.GridMap;
-        int sizeX = (int)data.Width;
-        int sizeY = (int)data.Height;
+        int sizeX = (int)data.Header.Width;
+        int sizeY = (int)data.Header.Height;
         BlockParallel.For(sizeX, sizeY, _inflationDistance, _inflationDistance,
             (x, y) =>
             {

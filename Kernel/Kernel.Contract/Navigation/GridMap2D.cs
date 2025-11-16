@@ -2,8 +2,7 @@ using System.Numerics;
 
 namespace Kernel.Contract.Navigation;
 
-
-public struct GridMap2DData : ITlarcData
+public struct GridMap2DDescription : ITlarcData
 {
     public Header Header ;
     /// <summary>
@@ -39,8 +38,12 @@ public struct GridMap2DData : ITlarcData
     /// 像素宽在真实世界中的大小
     /// <para>单位：m</para>
     /// </summary>
-    public float Resolution ;
+    public float Resolution ;    
+}
 
+public struct GridMap2DData : ITlarcData
+{
+    public GridMap2DDescription Header; 
     /// <summary>
     /// 真实数据
     /// <para>单位：m</para>

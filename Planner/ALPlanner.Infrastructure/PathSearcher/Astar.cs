@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using Kernel.Contract.Geometry;
@@ -11,10 +12,10 @@ public class AStar(int sizeX, int sizeY, float step, float mapResolution)
     readonly float _resolution = mapResolution;
     readonly float _step = step;
     readonly Vector2[] _steps = [new(step, 0), new(-step, 0), new(0, step), new(0, -step),
-                                new(step / MathF.Sqrt(2), step / MathF.Sqrt(2)),
-                                new(-step / MathF.Sqrt(2), step / MathF.Sqrt(2)),
-                                new(-step / MathF.Sqrt(2), -step / MathF.Sqrt(2)),
-                                new(step / MathF.Sqrt(2), -step / MathF.Sqrt(2)),];
+                                 new(step  / MathF.Sqrt(2), step  / MathF.Sqrt(2)),
+                                 new(-step / MathF.Sqrt(2), step  / MathF.Sqrt(2)),
+                                 new(-step / MathF.Sqrt(2), -step / MathF.Sqrt(2)),
+                                 new(step  / MathF.Sqrt(2), -step / MathF.Sqrt(2)),];
     readonly PriorityQueue<AStarNode, float> _openList = new();
     readonly float[] _closeMap = new float[sizeX * sizeY];
 
@@ -58,7 +59,6 @@ public class AStar(int sizeX, int sizeY, float step, float mapResolution)
 
         AStarNode begin = new(0, 0, from, null);
         AStarNode end = new(0, 0, to, null);
-  
         _openList.Enqueue(begin, 0);
         while (_openList.Count > 0)
         {
@@ -76,12 +76,11 @@ public class AStar(int sizeX, int sizeY, float step, float mapResolution)
             closeSpan[index] = -1;
 
             var points = from p in _steps select p + current.point;
-            var children = from p in points
-                           where !map.IsMoveAble(p)
+            var children = (from p in points
+                           where !map.IsMoveAble(p,current.point)
                            select new AStarNode((end.point - p).Length(),
                                                 current.G + _step,
-                                                p, current);
-
+                                                p, current)).ToList();
             foreach (var child in children)
             {
                 (indexX, indexY) = Normalize(Index(child.point));
@@ -92,6 +91,7 @@ public class AStar(int sizeX, int sizeY, float step, float mapResolution)
                 _openList.Enqueue(child, child.F);
             }
         }
+
         return [.. end.ToStack()];
     }
 }

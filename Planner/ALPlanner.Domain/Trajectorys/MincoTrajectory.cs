@@ -6,10 +6,9 @@ using TlarcRosBridge.Infrastructure.Messages.Builtin;
 
 namespace ALPlanner.Domain.Trajectorys;
 
-public class MincoTrajectory(Minco minco) : ITrajectory2D
+public class MincoTrajectory(Minco minco,Header header) : ITrajectory2D
 {
 
-    public required Header Header { get; init; }
     public DateTime FromWhen
     {
         get => _data.FromWhen; set
@@ -20,7 +19,7 @@ public class MincoTrajectory(Minco minco) : ITrajectory2D
     }
     public DateTime ToWhen { get; private set; }
 
-    private Trajectory2DHeader _data = new();
+    private Trajectory2DHeader _data = new(){Header = header};
     public Trajectory2DHeader Data => _data;
 
     public Vector2 GetPosition(DateTime time) => minco.GetPosition((time - FromWhen).TotalSeconds);

@@ -14,6 +14,8 @@ public class InflationMap : IMap2D, IGridMap2D
 
     public Header Header => GridMap.Header;
 
+    public Vector2 Origin => GridMap.Origin;
+
     public bool IsMoveAble(Vector2 from, Vector2 to) => GridMap.IsMoveAble(from, to);
 
     public bool IsMoveAble(Vector2 position) => GridMap.IsMoveAble(position);
@@ -22,10 +24,10 @@ public class InflationMap : IMap2D, IGridMap2D
     {
         distance = -1;
         if (IsMoveAble(point)) return true;
-        var p = (point - GridMap.Data.Origin) / GridMap.Data.Resolution;
+        var p = (point - GridMap.Data.Header.Origin) / GridMap.Data.Header.Resolution;
         distance = (100 - GridMap.Data.Data[
            (int)p.X +
-            (int)p.Y * GridMap.Data.Width]) / 100.0f * _distance;
+            (int)p.Y * GridMap.Data.Header.Width]) / 100.0f * _distance;
         return false;
     }
 

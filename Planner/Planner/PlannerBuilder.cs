@@ -29,8 +29,8 @@ public class PlannerBuilder<MapT> where MapT : IMap2D
     public string Identifier { get; set; } = "cost_map_link";
 
     public Path2D SeachPath(Pose2D from, Pose2D to){ 
-            Vector3 fromPos = Tf.Cast(from.Header.Identifier, Identifier    , new(from.Translation,0)   , from.Header.Timestamp.ToStamp);
-            Vector3 toPos   = Tf.Cast(to.Header.Identifier, Identifier      , new(to.Translation,0)     , from.Header.Timestamp.ToStamp);
+            Vector3 fromPos  = Tf.Cast(from.Header.Identifier, Identifier    , new(from.Translation,0)   , from.Header.Timestamp.ToStamp);
+            Vector3 toPos    = Tf.Cast(to.Header.Identifier,   Identifier      , new(to.Translation,0)     , from.Header.Timestamp.ToStamp);
             return new() { 
                 Points = _map is not null ? _aStar!.Search(new(fromPos.X,fromPos.Y), new(toPos.X,toPos.Y), _map!) : [],
                 Header = new Header{Identifier = Identifier}};
@@ -43,7 +43,7 @@ public class PlannerBuilder<MapT> where MapT : IMap2D
     public SafeCorridor2DData<AABB2D>
         SearchAABBSafeCorridor
         (Path2D path)
-        => ALPlanner.Infrastructure.SafeCorridorConstruct.IncrementalRectangle.AABBGenerate(path, obstacle!);
+        => Tlarc.Map.SafeCorridor.RectangleIncrement.AABB(path, _map!,MapResolution);
 
     public static ITrajectory2D? OptimizePath<T>
         (SafeCorridor2DData<T> corridor,

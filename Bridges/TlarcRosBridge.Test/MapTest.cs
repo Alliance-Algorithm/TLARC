@@ -24,8 +24,11 @@ public class MapTest
 
         return new GridMap2DData
         {
-            Width = width,
-            Height = height,
+            Header = new()
+            {
+                Width = width,
+                Height = height
+            },
             Data = data
         };
     }

@@ -20,15 +20,15 @@ internal static class Geometry
     {
         var points = new List<Vector2i>();
 
-        var dx = Math.Abs(to.x - from.x);
-        var dy = Math.Abs(to.y - from.y);
-        var sx = from.x < to.x ? 1 : -1;
-        var sy = from.y < to.y ? 1 : -1;
+        int dx = Math.Abs(to.x - from.x);
+        int dy = Math.Abs(to.y - from.y);
+        int sx = from.x < to.x ? 1 : -1;
+        int sy = from.y < to.y ? 1 : -1;
 
-        var err = dx - dy;
+        int err = dx - dy;
 
-        var x = from.x;
-        var y = from.y;
+        int x = from.x;
+        int y = from.y;
 
         while (true)
         {
@@ -37,7 +37,7 @@ internal static class Geometry
             if (x == to.x && y == to.y)
                 break;
 
-            var e2 = 2 * err;
+            int e2 = 2 * err;
 
             if (e2 > -dy)
             {
@@ -45,11 +45,11 @@ internal static class Geometry
                 x += sx;
             }
 
-            if (e2 >= dx)
-                break;
-
-            err += dx;
-            y += sy;
+            if (e2 < dx)   // ✅ 修正：这里不能 break，而是更新 y
+            {
+                err += dx;
+                y += sy;
+            }
         }
 
         return points;

@@ -20,6 +20,7 @@
       <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
       <PackageReference Include="NumFlat" Version="1.2.0" />
       <PackageReference Include="OpenBlasSharp" Version="0.3.4" />
+      <PackageReference Include="Supercluster.KDTree.Net" Version="1.0.22" />
     </ItemGroup>
 
 </Project>

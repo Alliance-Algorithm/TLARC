@@ -16,7 +16,7 @@ internal static class Navigation
                                               map.Info.Origin.Orientation.X * map.Info.Origin.Orientation.Z)));
             return new GridMap2DData
             {
-                Header  = new Header{
+                Header  = new(){Header = new Header{
                             Identifier = map.Header.FrameId.ToString(),
                             Timestamp  = new(){
                                 Second      = map.Header.Stamp.Sec,
@@ -30,6 +30,7 @@ internal static class Navigation
                 RotationRad     = rad,
                 RotationMatrix  = Matrix3x2.CreateRotation(rad),
                 Resolution      = map.Info.Resolution,
+                },
                 Data            = map.Data.AsSpan().ToArray()
             };
         }
@@ -39,17 +40,17 @@ internal static class Navigation
                                      IRclNode node,
                                      ref OccupancyGrid.Priv mapOut)
         {
-            var q = Quaternion.CreateFromAxisAngle(Vector3.UnitY, (float)mapIn.RotationRad);
+            var q = Quaternion.CreateFromAxisAngle(Vector3.UnitY, (float)mapIn.Header.RotationRad);
             mapOut.Data.CopyFrom(mapIn.Data);
-            mapOut.Info.Resolution              = mapIn.Resolution;
-            mapOut.Info.Origin.Position.X       = mapIn.Origin.X;
-            mapOut.Info.Origin.Position.Y       = mapIn.Origin.Y;
+            mapOut.Info.Resolution              = mapIn.Header.Resolution;
+            mapOut.Info.Origin.Position.X       = mapIn.Header.Origin.X;
+            mapOut.Info.Origin.Position.Y       = mapIn.Header.Origin.Y;
             mapOut.Info.Origin.Orientation.X    = q.X;
             mapOut.Info.Origin.Orientation.Y    = q.Y;
             mapOut.Info.Origin.Orientation.Z    = q.Z;
             mapOut.Info.Origin.Orientation.W    = q.W;
-            mapOut.Info.Width                   = mapIn.Width;
-            mapOut.Info.Height                  = mapIn.Height;
+            mapOut.Info.Width                   = mapIn.Header.Width;
+            mapOut.Info.Height                  = mapIn.Header.Height;
             Std.FromData(frameId, node, ref mapOut.Header);
         }
     }

@@ -14,7 +14,7 @@ public class MapLoader
     private GridMap2DData? _map;
     private OccupancyHighGrid2DMap? _highMap;
     public string MapEventName { get; private set; } = "/map_server/static_map";
-    public string MapFrame => (_map ?? throw new Exception("No map loaded")).Header.Identifier;
+    public string MapFrame => (_map ?? throw new Exception("No map loaded")).Header.Header.Identifier;
 
     private MapLoader(string mapPath, string mapEventName)
     {
@@ -47,9 +47,9 @@ public class MapLoader
     public MapLoader LoadMap()
     {
         _map            = GridMapInner.LoadMap(_mapPath);
-        MapHeight       = _map.Value.Height;
-        MapWidth        = _map.Value.Width;
-        MapResolution   = _map.Value.Resolution;
+        MapHeight       = _map.Value.Header.Height;
+        MapWidth        = _map.Value.Header.Width;
+        MapResolution   = _map.Value.Header.Resolution;
         return this;
     }
     public MapLoader LoadHighMap()

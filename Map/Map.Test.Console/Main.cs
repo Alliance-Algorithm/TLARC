@@ -1,1 +1,1 @@
-﻿RogMapTest.Build();
+﻿StaticMapTest.Build();

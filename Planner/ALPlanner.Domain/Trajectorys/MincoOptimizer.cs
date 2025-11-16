@@ -49,7 +49,7 @@ public static class MincoOptimizer
             var kesi = XVec[(path.Length * K)..];
             minco.Generate(tau, kesi);
 
-            return new MincoTrajectory(minco.Record) { Header = path.Header, FromWhen = now };
+            return new MincoTrajectory(minco.Record, path.Header) { FromWhen = now };
         }
         catch (Exception e) { Console.WriteLine(e.Message); return null; }
     }

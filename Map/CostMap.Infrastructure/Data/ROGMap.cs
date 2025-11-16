@@ -9,20 +9,43 @@ using Kernel.Contract.Navigation;
 
 namespace CostMap.Infrastructure.Data;
 
+using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Kernel.Utils;
 
 [StructLayout(LayoutKind.Explicit, Size = 4)]
 public struct ROGMapCell
 {
-    [FieldOffset(0)] public bool  OccupyState;       // bool 显式为 byte
+    public enum StateEnum : byte
+    {
+        Unknow = 0,
+        Occu,
+        Free,
+    }
+    [StructLayout(LayoutKind.Explicit, Size = 1)]
+    public struct State()
+    {
+        [FieldOffset(0)]
+        private StateEnum value = StateEnum.Unknow;
+
+        public static implicit operator bool(State s) => s.value == StateEnum.Occu;
+        public static implicit operator State(bool b) => new() { value = b ? StateEnum.Occu : StateEnum.Free };
+        public static implicit operator State(StateEnum b) => new() { value = b};
+        // Equality operator
+        public static bool operator ==(State left, StateEnum right) => left.value == right;
+        public static bool operator !=(State left, StateEnum right) => left.value != right;
+        
+        public override readonly bool Equals(object? obj) => obj is State s && s.value == value;
+        public override readonly int  GetHashCode() => value.GetHashCode();
+
+    }
+    [FieldOffset(0)] public State OccupyState;       // bool 显式为 byte
     [FieldOffset(1)] public short OccupyCount;      // 2 bytes
     [FieldOffset(3)] public sbyte OccupyDistance;   // 1 byte
 }
 
-public class ROGMap : IMap2D, IGridMap2D, IObstacle
+public class ROGMap : IMap2D, IGridMap2D, IObstacle, IEnumableGridMap
 {
-
-
     public readonly float TopZ;
     public readonly float ButtonZ;
     public readonly uint  Width;
@@ -87,7 +110,7 @@ public class ROGMap : IMap2D, IGridMap2D, IObstacle
 
     public sbyte[] Data => GridMap.Data;
 
-    public Header Header => GridMap.Header;
+    public Header Header => GridMap.Header.Header;
 
     public bool Visualize = false;
 
@@ -95,22 +118,30 @@ public class ROGMap : IMap2D, IGridMap2D, IObstacle
 
     public bool IsMoveAble(Vector2 from, Vector2 to)
     {
-        throw new NotImplementedException();
+        Vector2i p1 = Algorithm.ROGMap.Index(new Vector3(from - Origin,0),this);
+        Vector2i p2 = Algorithm.ROGMap.Index(new Vector3(to - Origin,0),this);
+        return Geometry.BresenhamLine(p1, p2).Any(p =>
+        {
+            if (p.x < 0 || p.y < 0 || p.x >= SizeX || p.y >= SizeY)
+                return true;
+            var k = p.LocalToGlobalNormalize(this);
+            return _gridData[k.x + k.y * SizeX].OccupyCount != 0;
+        });
     }
 
     public bool IsMoveAble(Vector2 position)
     {
-        Vector2i p = Algorithm.ROGMap.Index(new Vector3(position,0),this);
+        Vector2i p = Algorithm.ROGMap.Index(new Vector3(position - Origin,0),this);
         if (p.x < _center.x - s_x_2 || p.y < _center.y - s_y_2 || p.x >= _center.x + s_x_2 || p.y >= _center.y + s_y_2)
             return true;
-        var k = p.Normalize(this);
+        var k = p.LocalToGlobalNormalize(this);
         return _gridData[k.x + k.y * SizeX].OccupyCount != 0;
     }
 
 
     public bool IsMoveAble(in int fromX, in int fromY, in int toX, in int toY)
     {
-        return Geometry.BresenhamLine(new(fromX, fromY), new(toX, toY)).AsParallel().All(p =>
+        return Geometry.BresenhamLine(new(fromX, fromY), new(toX, toY)).All(p =>
         {
             if (p.x < 0 || p.y < 0 || p.x >= SizeX || p.y >= SizeY)
                 return true;
@@ -131,6 +162,33 @@ public class ROGMap : IMap2D, IGridMap2D, IObstacle
     public bool SearchNearest(Vector2 from, float radius, out float distance)
     {
         throw new NotImplementedException();
+    }
+
+    public void All(IEnumableGridMap.StateEnum state, Action<Vector2, IEnumableGridMap.StateEnum> callback, bool paralized = false)
+    {
+        bool check_free(ROGMapCell gs) => state.HasFlag(IEnumableGridMap.StateEnum.Free) && gs.OccupyState == ROGMapCell.StateEnum.Free;
+        bool check_unknow(ROGMapCell gs) => state.HasFlag(IEnumableGridMap.StateEnum.Unknow) && gs.OccupyState == ROGMapCell.StateEnum.Unknow;
+        bool check_occu(ROGMapCell gs) => state.HasFlag(IEnumableGridMap.StateEnum.Occu) && gs.OccupyCount != 0;
+        
+        void process(int x1,int y1)
+        {
+            var c = new Vector2i(x1, y1).LocalToGlobalNormalize(this);
+            var x = c.x;
+            var y = c.y;
+            ref var g = ref _gridData[x + y * SizeX];
+            Vector2 pos() => new Vector2(x1,y1) * Resolution + Origin;
+            if(check_free(g)) callback(pos(), IEnumableGridMap.StateEnum.Free);
+            if(check_occu(g)) callback(pos(), IEnumableGridMap.StateEnum.Occu);
+            if(check_unknow(g)) callback(pos(), IEnumableGridMap.StateEnum.Unknow);
+        }
+        if (paralized)
+        {
+            BlockParallel.For(SizeX, SizeY, 0, 0, process);
+            return;
+        }
+        for(int i = 0;i < SizeX; ++i)
+        for(int j = 0;j < SizeY; ++j)
+            process(i,j);
     }
 
     public ROGMap(uint height, uint width, float inflationDistance, float resolution, float topZ, float buttonZ,string identifier)
@@ -166,14 +224,16 @@ public class ROGMap : IMap2D, IGridMap2D, IObstacle
         
         GridMap = new GridMap2DData()
         {
-            Header          = new(){Identifier = identifier},
             Data            = new sbyte[SizeX * SizeY],
-            Height          = Height,
-            Width           = Width,
-            Origin          = Origin,
-            Resolution      = resolution,
-            RotationMatrix  = Matrix3x2.Identity,
-            RotationRad     = 0
+            Header          = new(){
+                Header = new(){Identifier = identifier},
+                Height          = Height,
+                Width           = Width,
+                Origin          = Origin,
+                Resolution      = resolution,
+                RotationMatrix  = Matrix3x2.Identity,
+                RotationRad     = 0
+            }
         };
     }
 }
