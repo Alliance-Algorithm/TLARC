@@ -10,7 +10,7 @@ namespace ALPlanner.Infrastructure.Optimizer;
 
 public static class MincoOptimizer
 {
-    static readonly LimitedMemoryBfgsMinimizer minimizer = new(1e-6, 1e-6, 1e-6, 10 * 1024 * 1024, 100);
+    static readonly LimitedMemoryBfgsMinimizer minimizer = new(1e-6, 1e-6, 1e-6, 10 * 1024 * 1024, 200);
     public record Status(Vector2 Pos, Vector2 Vel, Vector2 Acc);
     static readonly int K = 1;
 
