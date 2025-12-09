@@ -17,8 +17,10 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\Kernel\Kernel.Contract\Kernel.Contract.csproj" />
-        <ProjectReference Include="..\..\..\rclnet\src\Rcl.NET\Rcl.NET.csproj" />
-        <ProjectReference Include="..\..\..\rclnet\src\Rosidl.Runtime\Rosidl.Runtime.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Rcl.NET" Version="2.0.0-preview.3" />
     </ItemGroup>
 
 </Project>
