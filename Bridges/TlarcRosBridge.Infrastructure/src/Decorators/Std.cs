@@ -6,6 +6,8 @@ using UInt16 = TlarcRosBridge.Infrastructure.Messages.Std.UInt16;
 using UInt32 = TlarcRosBridge.Infrastructure.Messages.Std.UInt32;
 using UInt64 = TlarcRosBridge.Infrastructure.Messages.Std.UInt64;
 
+using System;
+
 namespace TlarcRosBridge.Infrastructure.Decorators;
 
 internal static class Std

@@ -1,7 +1,7 @@
+using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Kernel.Contract;
-using Kernel.Contract.Sensor;
+
 using Microsoft.Toolkit.HighPerformance;
 using Rcl;
 using TlarcRosBridge.Infrastructure.Messages.Sensor;
