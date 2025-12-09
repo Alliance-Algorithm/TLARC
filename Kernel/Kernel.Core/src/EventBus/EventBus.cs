@@ -12,9 +12,9 @@ public unsafe class EventBus<T> where T : ITlarcData
     private static readonly Lazy<EventBus<T>> LazyInstance = new(() => new EventBus<T>());
 
     /// 事件类型和对应处理器
-    private readonly ConcurrentDictionary<string, Action<T>[]> _handlers = new();
+    private readonly ConcurrentDictionary<string, (Task[],Action<T>[])> _handlers = new();
 
-    private HybridDictionary<Action<T>[]> _fastHandlers = new([]);
+    private HybridDictionary<(Task[],Action<T>[])> _fastHandlers = new([]);
 
     /// 同步锁
     private readonly ReaderWriterLockSlim _handlersLock = new();
@@ -38,13 +38,13 @@ public unsafe class EventBus<T> where T : ITlarcData
 
         if (!_handlers.TryGetValue(name, out var handlers))
         {
-            handlers = [];
+            handlers = ([],[]);
             _handlers[name] = handlers;
         }
 
-        _handlers[name] = [.. handlers, handler];
+        _handlers[name] = ([.. handlers.Item1, Task.CompletedTask],[.. handlers.Item2, handler]);
+        _fastHandlers = new HybridDictionary<(Task[],Action<T>[])>(_handlers);
         _handlersLock.ExitWriteLock();
-        _fastHandlers = new HybridDictionary<Action<T>[]>(_handlers);
     }
 
     /// <summary>
@@ -57,9 +57,12 @@ public unsafe class EventBus<T> where T : ITlarcData
 
         if (!_fastHandlers.TryGetValue(name, out var handlers))
             return;
-        // var validHandlers = handlers.ToList();
-        foreach (var handler in handlers)
-            handler(data);
+        for(int i = 0; i < handlers.Item1.Length; i++)
+        {
+            var action = handlers.Item2[i];
+            if(handlers.Item1[i].IsCompleted)
+                handlers.Item1[i] = Task.Run( () => action(data) );
+        }
     }
 }
 
@@ -69,9 +72,9 @@ public unsafe class EventBus
     private static readonly Lazy<EventBus> LazyInstance = new(() => new EventBus());
 
     /// 事件类型和对应处理器
-    private readonly ConcurrentDictionary<string, Action[]> _handlers = new();
+    private readonly ConcurrentDictionary<string, (Task[],Action[])> _handlers = new();
 
-    private FrozenDictionary<string, Action[]> _fastHandlers = FrozenDictionary<string, Action[]>.Empty;
+    private HybridDictionary<(Task[],Action[])> _fastHandlers = new([]);
 
     /// 同步锁
     private readonly ReaderWriterLockSlim _handlersLock = new();
@@ -94,13 +97,13 @@ public unsafe class EventBus
 
         if (!_handlers.TryGetValue(name, out var handlers))
         {
-            handlers = [];
+            handlers = ([],[]);
             _handlers[name] = handlers;
         }
 
-        _handlers[name] = [.. handlers, handler];
+        _handlers[name] = ([.. handlers.Item1, Task.CompletedTask],[.. handlers.Item2, handler]);
         _handlersLock.ExitWriteLock();
-        _fastHandlers = _handlers.ToFrozenDictionary();
+        _fastHandlers = new HybridDictionary<(Task[],Action[])>(_handlers);
     }
 
     /// <summary>
@@ -111,8 +114,10 @@ public unsafe class EventBus
     {
         if (!_fastHandlers.TryGetValue(name, out var handlers))
             return;
-
-        foreach (var handler in handlers)
-            handler();
+        for(int i = 0; i < handlers.Item1.Length; i++)
+        {
+            if(handlers.Item1[i].IsCompleted)
+                handlers.Item1[i] = Task.Run( () => handlers.Item2[i]() );
+        }
     }
 }

@@ -8,7 +8,8 @@ namespace Tlarc.Map.SafeCorridor;
 
 public static class RectangleIncrement
 {
-    const float IncrementMax = 1.5f; 
+    const float IncrementMax    = 1.5f; 
+    const float RatioMax        = 2f; 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static AABB2D CalculateAABB<TMap>(Vector2 point, TMap map, float resolution) where TMap : IMap2D
@@ -75,9 +76,13 @@ public static class RectangleIncrement
                     dir = 0b0001;
                 break;
             }
-            
-            if(maxX - minX > IncrementMax) flag &= 0b1010;
-            if(maxY - minY > IncrementMax) flag &= 0b0101;
+            var dx = maxX - minX;
+            var dy = maxY - minY;
+            var r = dx / dy;
+            if(dx > IncrementMax)   flag &= 0b1010;
+            if(dy > IncrementMax)   flag &= 0b0101;
+            // if(r > RatioMax)        flag &= 0b1010;
+            // if(r > 1 / RatioMax)    flag &= 0b0101;
 
             if(flag == 0b0000) break;
         }

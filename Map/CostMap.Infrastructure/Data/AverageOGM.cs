@@ -1,10 +1,12 @@
 using System.Numerics;
+using CostMap.Infrastructure.Algorithm;
+using g4;
 using Kernel.Contract;
 using Kernel.Contract.Navigation;
 
 namespace CostMap.Infrastructure.Data;
 
-public class AverageOGM
+public class AverageOGM : IMap2D
 {
     public required GridMap2DDescription   _description;
     public required float[,]               _ogm;
@@ -33,19 +35,21 @@ public class AverageOGM
     {
         return x >= 0 && y >= 0 && x < _description.Width && y < _description.Height;
     }
-    private (int x,int y) Index(Vector2 p2, Func<Vector3,Vector3> cast)
+    private Vector2i Index(Vector2 p2, Func<Vector3,Vector3> cast)
     {
         var p1 = cast(new(p2, 0));
         var p = new Vector2(p1.X, p1.Y);
         var Resolution  = _description.Resolution;
         var posInMap    = p - _description.Origin;
-        return ((int) Math.Round(posInMap.X / Resolution),(int)Math.Round(posInMap.Y / Resolution));
+        return new ((int) Math.Round(posInMap.X / Resolution),(int)Math.Round(posInMap.Y / Resolution));
     }
     public void Update<Map2dT>(Map2dT map, Func<Vector3,Vector3> cast)where Map2dT : IEnumableGridMap
     {
         map.All(IEnumableGridMap.StateEnum.Free | IEnumableGridMap.StateEnum.Occu, (p, s) =>
         {
-            var (x,y) = Index(p, cast);
+            var i = Index(p, cast);
+            var x = i.x;
+            var y = i.y;
             if(!Check(x,y)) return;
             if(s == IEnumableGridMap.StateEnum.Occu)
             {   
@@ -66,4 +70,14 @@ public class AverageOGM
             _k              = new int[description.Width, description.Height],
             _ogm            = new float[description.Width, description.Height],
         };
+
+    public bool IsMoveAble(Vector2 from, Vector2 to)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool IsMoveAble(Vector2 position)
+    {
+        throw new NotImplementedException();
+    }
 }

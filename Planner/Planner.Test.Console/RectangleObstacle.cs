@@ -81,7 +81,7 @@ public static class RectAngleObstacle
         const string RosPathTopic                           = "/tlarc/path";
         const string RosCorridor                            = "/tlarc/safe_corridor";
         const string RosTrajectory                          = "/tlarc/trajectory";
-        const string RosControlPoint                        = "/tlarc/point/contorl";
+        const string RosControlPoint                        = "/tlarc/point/control";
 
         var ros = TlarcRosBridge.Domain.RosBridge.Build(RosNodeName);
 
@@ -141,6 +141,7 @@ public static class RectAngleObstacle
             .SetMap(map) 
             .BuildALPlanner();
         planner.Identifier = PointCloudTo2dMap.ROGMapDefaultConfig.TfMapLink; 
+
         // InflationLayerBuilder.SetPara(50);
 
         Vector2 vel = Vector2.Zero;
@@ -157,6 +158,7 @@ public static class RectAngleObstacle
         });
 
         ITrajectory2D? lasttraj = null;
+        Path2D astar = new(){};
         EventBus<Kernel.Contract.Geometry.Pose>.Instance.Subscribe(EventRobotPositionName, x =>
         {
             if (lasttraj is not null)
@@ -164,16 +166,19 @@ public static class RectAngleObstacle
                 vel = lasttraj?.GetVelocity(DateTime.UtcNow) ?? Vector2.Zero;
                 // EventBus<Kernel.Contract.Geometry.Pose>.Instance.Publish(RosTargetVelocityTopic, new(){ Position = new(vel, 0),Orientation = System.Numerics.Quaternion.Zero, Header = lasttraj!.Data.Header});
             }
-            if (!reload)
+            if (reload)
+            {
+                from = new(){Header = x.Header, Orientation = 0,Translation = new(x.Translation.X,x.Translation.Y)};
+                astar = planner.SeachPath(from, to);
+                EventBus<Path2D>.Instance.Publish(RosPathTopic, astar);
+                reload = false;
+            }
+            if(astar.Points is null || astar.Points.Length < 3)
                 return;
-            reload = false;
-            from = new(){Header = x.Header, Orientation = 0,Translation = new(x.Translation.X,x.Translation.Y)};
-            var astar = planner.SeachPath(from, to);
-            EventBus<Path2D>.Instance.Publish(RosPathTopic, astar);
             var safeCorridor = planner.SearchAABBSafeCorridor(astar);
             EventBus<SafeCorridor2DData<AABB2D>>.Instance.Publish(RosCorridor, safeCorridor);
 
-
+        
             var trajectory = Planner.PlannerBuilder<CostMap.Infrastructure.Data.ROGMap>.OptimizePath(
                 safeCorridor!,
                 new(astar.Points[0] , vel, Vector2.Zero),
@@ -190,11 +195,11 @@ public static class RectAngleObstacle
         ros.Subscript<PointCloud2, Kernel.Contract.Sensor.PointCloud>(
             RosSubRegisteredPointCloudTopicName, EventPointCloudInputName,
             TlarcRosBridge.Infrastructure.DataProcess.Subscriber.XYZPointCloud);
-        ros.Subscript<PoseStamped, Kernel.Contract.Geometry.Pose>(
-            RosSubRobotPosTopicName, EventRobotPositionName,
-            TlarcRosBridge.Infrastructure.DataProcess.Subscriber.PoseFromPoseStamped);
         ros.Subscript<PointStamped, StdMessage<Vector2>>(
              RosControlPoint, RosControlPoint,
             TlarcRosBridge.Infrastructure.DataProcess.Subscriber.PointToVector2);
+        ros.Subscript<PoseStamped, Kernel.Contract.Geometry.Pose>(
+            RosSubRobotPosTopicName, EventRobotPositionName,
+            TlarcRosBridge.Infrastructure.DataProcess.Subscriber.PoseFromPoseStamped);
     }
 }
