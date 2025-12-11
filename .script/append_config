@@ -1,0 +1,26 @@
+#!/bin/sh
+
+# 接收外部传入的 CONFIG 内容
+CONFIG="$1"
+
+# 根据当前 shell 选择 rc 文件
+case "$SHELL" in
+  */bash)
+    RC_FILE="$HOME/.bashrc"
+    ;;
+  */zsh)
+    RC_FILE="$HOME/.zshrc"
+    ;;
+  */sh)
+    RC_FILE="$HOME/.shrc"
+    ;;
+  *)
+    RC_FILE="$HOME/.profile"
+    ;;
+esac
+
+# 将配置追加到 rc 文件
+echo "$CONFIG" >> "$RC_FILE"
+
+echo "已将配置写入到 $RC_FILE"
+echo "请运行: source $RC_FILE 或重新打开终端以生效"
